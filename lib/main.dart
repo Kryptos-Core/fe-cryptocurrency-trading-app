@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'core/di/injection_container.dart' as di;
-import 'screens/home_screen.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/screens/home_screen.dart';
+import 'package:crypto_trading_app/screens/login_screen.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -17,11 +19,22 @@ class CryptoTradingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Re-initialize on hot reload if needed
+    di.initializeDependencies();
+    
+    // Check if user is authenticated
+    final tokenService = di.sl<TokenService>();
+    final isAuthenticated = tokenService.isAuthenticated();
+    
     return MaterialApp(
       title: 'Crypto Trading App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: const HomeScreen(),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.indigo,
+      ),
+      // Show HomeScreen if authenticated, otherwise LoginScreen
+      home: isAuthenticated ? const HomeScreen() : const LoginScreen(),
     );
   }
 }

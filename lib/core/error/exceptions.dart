@@ -17,7 +17,7 @@ class ServerException implements Exception {
 class NetworkException implements Exception {
   final String message;
 
-  NetworkException([this.message = 'Network Error']);
+  NetworkException({this.message = 'Network Error'});
 
   @override
   String toString() => 'NetworkException: $message';
@@ -26,7 +26,7 @@ class NetworkException implements Exception {
 class AuthenticationException implements Exception {
   final String message;
 
-  AuthenticationException([this.message = 'Authentication Failed']);
+  AuthenticationException({this.message = 'Authentication Failed'});
 
   @override
   String toString() => 'AuthenticationException: $message';
@@ -35,7 +35,7 @@ class AuthenticationException implements Exception {
 class CacheException implements Exception {
   final String message;
 
-  CacheException([this.message = 'Cache Error']);
+  CacheException({this.message = 'Cache Error'});
 
   @override
   String toString() => 'CacheException: $message';
@@ -52,4 +52,13 @@ class ValidationException implements Exception {
 
   @override
   String toString() => 'ValidationException: $message ${errors ?? ""}';
+}
+
+class NotFoundException implements Exception {
+  final String message;
+
+  NotFoundException({this.message = 'Resource not found'});
+
+  @override
+  String toString() => 'NotFoundException: $message';
 }

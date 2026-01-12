@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
+import 'package:crypto_trading_app/core/services/token_service.dart';
 import '../constants/api_constants.dart';
 
 /// Dio Client Factory
@@ -8,8 +9,9 @@ import '../constants/api_constants.dart';
 class DioClient {
   final Dio _dio;
   final Logger _logger = Logger();
+  final TokenService? tokenService;
 
-  DioClient({Dio? dio})
+  DioClient({Dio? dio, this.tokenService})
       : _dio = dio ??
             Dio(BaseOptions(
               baseUrl: ApiConstants.baseUrl,
@@ -61,19 +63,24 @@ class DioClient {
   Interceptor _authInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // TODO: Get token from secure storage
-        // For now, we'll check if token exists in options.extra
-        final token = options.extra['token'] as String?;
-        if (token != null && token.isNotEmpty) {
-          options.headers['Authorization'] = 'Bearer $token';
+        // Automatically add token from TokenService to all requests
+        if (tokenService != null) {
+          final token = tokenService!.getAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+            _logger.d('Added Authorization header to request');
+          }
         }
         return handler.next(options);
       },
       onError: (error, handler) async {
-        // Handle 401 Unauthorized - refresh token logic
+        // Handle 401 Unauthorized - token expired
         if (error.response?.statusCode == 401) {
-          // TODO: Implement token refresh logic
-          _logger.w('Unauthorized - Token refresh needed');
+          _logger.w('Unauthorized - Token expired or invalid');
+          // Clear token when 401 received
+          if (tokenService != null) {
+            await tokenService!.clearTokens();
+          }
         }
         return handler.next(error);
       },

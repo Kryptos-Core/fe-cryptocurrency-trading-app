@@ -1,43 +1,27 @@
 /// API Configuration Constants
 /// Following Single Responsibility Principle (SRP)
 class ApiConstants {
-  // Private constructor to prevent instantiation (Singleton Pattern)
+  // Private constructor để ngăn khởi tạo (Singleton Pattern)
   ApiConstants._();
 
-  // Base URL - should be moved to environment config in production
-  static const String baseUrl = 'http://localhost:3000/api';
+  // Base URL
+  // Use 10.0.2.2 for Android emulator to access host machine's localhost
+  // Use localhost:3000 for web/desktop development
+  static const String baseUrl = 'http://10.0.2.2:3000';
 
-  // API Endpoints
-  static const String authLogin = '/auth/login';
+  // Các API Endpoints
+  // Auth Endpoints (Xác thực)
   static const String authRegister = '/auth/register';
-  static const String authRefresh = '/auth/refresh';
+  static const String authLogin = '/auth/login';
+  // Note: getCurrentUser should use /users/me instead of /auth/me
+  // Backend's /auth/me is not exposed - use users service instead
   
-  // Market Endpoints
-  static const String marketPairs = '/market/pairs';
-  static const String marketTicker = '/market/ticker';
-  static const String marketOrderBook = '/market/orderbook';
-  static const String marketTrades = '/market/trades';
-  static const String marketOHLCV = '/market/ohlcv';
+  // User Endpoints (Quản lý người dùng)
+  static const String users = '/users';
+  static const String usersMe = '/users/me';
+  static const String usersStatistics = '/users/statistics';
   
-  // Trading Endpoints
-  static const String orders = '/orders';
-  static const String ordersCreate = '/orders/create';
-  static const String ordersCancel = '/orders/cancel';
-  static const String ordersHistory = '/orders/history';
-  
-  // Wallet Endpoints
-  static const String wallets = '/wallets';
-  static const String walletsBalance = '/wallets/balance';
-  static const String walletsDeposit = '/wallets/deposit';
-  static const String walletsWithdraw = '/wallets/withdraw';
-  static const String walletsLedger = '/wallets/ledger';
-  
-  // Price Alert Endpoints
-  static const String priceAlerts = '/alerts';
-  static const String priceAlertsCreate = '/alerts/create';
-  static const String priceAlertsDelete = '/alerts/delete';
-  
-  // Timeout durations
+  // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 30);

@@ -1,45 +1,72 @@
-import 'package:equatable/equatable.dart';
-
-/// User Entity - Domain Layer
-/// Following Single Responsibility Principle (SRP)
-/// Pure business object without any framework dependencies
-class User extends Equatable {
-  final int userId;
+/// User entity representing a user in the system
+/// Following Clean Architecture - Domain Layer
+/// Matches backend User entity structure
+class User {
+  final String id;
   final String email;
-  final UserStatus status;
-  final bool has2FA;
+  final String firstName;
+  final String lastName;
+  final bool isActive;
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   const User({
-    required this.userId,
+    required this.id,
     required this.email,
-    required this.status,
-    this.has2FA = false,
+    required this.firstName,
+    required this.lastName,
+    required this.isActive,
     required this.createdAt,
+    required this.updatedAt,
   });
 
-  @override
-  List<Object?> get props => [userId, email, status, has2FA, createdAt];
+  /// Full name của user
+  /// Returns email if both first and last names are empty
+  String get fullName {
+    final first = firstName.trim();
+    final last = lastName.trim();
+    
+    if (first.isEmpty && last.isEmpty) {
+      return email;
+    } else if (first.isEmpty) {
+      return last;
+    } else if (last.isEmpty) {
+      return first;
+    } else {
+      return '$first $last';
+    }
+  }
 
   User copyWith({
-    int? userId,
+    String? id,
     String? email,
-    UserStatus? status,
-    bool? has2FA,
+    String? firstName,
+    String? lastName,
+    bool? isActive,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return User(
-      userId: userId ?? this.userId,
+      id: id ?? this.id,
       email: email ?? this.email,
-      status: status ?? this.status,
-      has2FA: has2FA ?? this.has2FA,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-}
 
-enum UserStatus {
-  active,
-  banned,
-  pending,
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is User && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'User(id: $id, email: $email, fullName: $fullName, isActive: $isActive)';
+  }
 }
