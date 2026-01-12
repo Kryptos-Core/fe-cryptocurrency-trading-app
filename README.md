@@ -119,13 +119,23 @@ lib/
 
 ## Tech Stack
 
-- Flutter 3.38.6
-- Dart 3.0+
-- State Management: Provider
-- Networking: Dio + Retrofit
-- DI: GetIt
-- Local DB: Hive
-- Charts: FL Chart
+- **Flutter**: 3.38.6
+- **Dart**: 3.0+
+- **State Management**: GetIt (Service Locator pattern - no Provider needed)
+- **Networking**: Dio 5.4.0 với custom interceptors
+- **Local Storage**: SharedPreferences 2.2.2 (JWT tokens)
+- **Error Handling**: dartz (Either<Failure, Success> pattern)
+- **Architecture**: Clean Architecture (5 layers)
+
+### Key Dependencies
+```yaml
+dependencies:
+  dio: ^5.4.0                    # HTTP client
+  get_it: ^7.6.0                # Dependency injection
+  shared_preferences: ^2.2.2     # Token storage
+  dartz: ^0.10.1                # Functional programming (Either)
+  equatable: ^2.0.5             # Value equality
+```
 
 ## Troubleshooting
 
@@ -148,6 +158,63 @@ flutter config --android-sdk "C:\Android"
 
 ### Lỗi: Gradle build failed
 Đảm bảo đang dùng JDK 17, không phải JDK 25.
+
+### Lỗi: Connection refused khi call API
+**Triệu chứng:** DioException [connection error]: The connection errored...
+
+**Nguyên nhân:** Android emulator không thể truy cập `localhost` của máy host
+
+**Giải pháp:** 
+- Kiểm tra backend đang chạy: `curl http://localhost:3000/api/v1/health`
+- Trong code dùng `http://10.0.2.2:3000/api/v1` cho Android emulator
+- Nếu dùng web hoặc thiết bị thật, dùng IP thật của máy (ví dụ: `http://192.168.1.100:3000/api/v1`)
+
+### Lỗi: 401 Unauthorized
+**Nguyên nhân:** Token hết hạn hoặc không hợp lệ
+
+**Giải pháp:**
+- App sẽ tự động clear tokens và redirect về login screen
+- Đăng nhập lại để lấy token mới
+
+### Lỗi: RangeError (index): Invalid value: Valid value range is empty
+**Nguyên nhân:** Backend trả về user với firstName/lastName empty
+
+**Giải pháp:** Đã fix - Code có fallback logic:
+- Avatar initials: firstName[0] + lastName[0] → email[0] → "?"
+- Display name: firstName + lastName → email
+
+### Lỗi: type 'Null' is not a subtype of type 'String'
+**Nguyên nhân:** Backend không trả về refreshToken
+
+**Giải pháp:** Đã fix - refreshToken đã được mark nullable trong models
+
+## Common Issues
+
+### Backend không chạy
+```bash
+# Check backend status
+curl http://localhost:3000/api/v1/health
+
+# Nếu lỗi, restart backend
+cd be-cryptocurrency-trading-app
+npm run start:dev
+```
+
+### App không connect được backend trên Android emulator
+Đảm bảo:
+1. Backend đang chạy: `http://localhost:3000/api/v1`
+2. Code dùng URL: `http://10.0.2.2:3000/api/v1`
+3. File config: [lib/core/network/dio_client.dart](lib/core/network/dio_client.dart)
+
+### Hot reload không work sau khi sửa model
+```bash
+# Stop app (q trong terminal)
+# Clean build
+flutter clean
+flutter pub get
+# Run lại
+flutter run
+```
 
 ## Commands hữu ích
 
@@ -173,6 +240,62 @@ flutter analyze
 
 ## Backend API
 
-Base URL: `http://localhost:3000/api`
+### Yêu cầu Backend
+Dự án yêu cầu backend NestJS đang chạy ở `http://localhost:3000/api/v1`
 
-Xem chi tiết endpoints trong `lib/core/constants/api_constants.dart`
+### Clone và setup backend
+```bash
+# Clone backend repository
+git clone https://gitlab.duthu.net/cryptocurrency-trading-app/be-cryptocurrency-trading-app.git
+cd be-cryptocurrency-trading-app
+
+# Cài dependencies
+npm install
+
+# Chạy database (PostgreSQL/Docker)
+docker-compose up -d
+
+# Chạy migration
+npm run migration:run
+
+# Start backend
+npm run start:dev
+```
+
+### Android Emulator Network Config
+- Backend URL trong code: `http://10.0.2.2:3000/api/v1` (Android emulator routing)
+- `10.0.2.2` = localhost của máy host từ góc nhìn emulator
+- Web/Real device: Dùng `http://localhost:3000` hoặc IP thật
+
+### API Endpoints đã implement
+- `POST /auth/register` - Đăng ký (email + password)
+- `POST /auth/login` - Đăng nhập
+- `GET /users/me` - Lấy thông tin user hiện tại
+- `PATCH /users/me` - Cập nhật profile (firstName, lastName)
+
+Xem chi tiết trong [lib/core/constants/api_constants.dart](lib/core/constants/api_constants.dart)
+
+## Dependency Injection
+
+App sử dụng GetIt cho DI. Tất cả services được register trong [lib/core/di/injection_container.dart](lib/core/di/injection_container.dart):
+
+```dart
+// Sử dụng trong code
+final tokenService = sl<TokenService>();
+final loginUseCase = sl<LoginUseCase>();
+```
+
+**Registered Services:**
+- TokenService
+- AuthRemoteDataSource
+- AuthRepositoryImpl
+- LoginUseCase, RegisterUseCase, GetCurrentUserUseCase
+- DioClient (với custom interceptors)
+
+## Testing
+
+### Test flows
+1. **Register Flow**: Tạo tài khoản mới → Verify toast success → Auto-login → Navigate to home
+2. **Login Flow**: Login với credentials → Verify token saved → Load profile → Display user info
+3. **Logout Flow**: Logout → Confirm dialog → Clear tokens → Navigate to login
+4. **Token Expiry**: Đóng app → Mở lại → Verify auto-redirect if token expired
