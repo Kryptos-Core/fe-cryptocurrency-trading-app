@@ -1,92 +1,178 @@
-# FE Cryptocurrency Trading App
+# Cryptocurrency Trading App - Flutter
 
+Ứng dụng giao dịch tiền ảo được xây dựng với Flutter.
 
+## Yêu cầu hệ thống
 
-## Getting started
+### 1. Flutter SDK
+- Version: 3.38.6 trở lên
+- Download: https://flutter.dev/docs/get-started/install/windows
+- Cài đặt:
+  1. Tải Flutter SDK (zip)
+  2. Giải nén vào `C:\src\flutter`
+  3. Thêm `C:\src\flutter\bin` vào PATH environment variable
+  4. Khởi động lại terminal
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### 2. JDK 17
+- Version: JDK 17 (bắt buộc cho Android build)
+- Download: https://adoptium.net/temurin/releases/?version=17
+- Cài đặt:
+  1. Tải JDK 17 Windows x64 MSI
+  2. Chạy installer
+  3. Set biến môi trường:
+     ```powershell
+     [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk-17", "User")
+     ```
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### 3. Android SDK
+- Cài đặt Android Command Line Tools:
+  1. Tải: https://developer.android.com/studio#command-tools
+  2. Giải nén vào `C:\Android\cmdline-tools\latest`
+  3. Set biến môi trường:
+     ```powershell
+     [Environment]::SetEnvironmentVariable("ANDROID_SDK_ROOT", "C:\Android", "User")
+     [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Android\cmdline-tools\latest\bin;C:\Android\platform-tools;C:\Android\emulator", "User")
+     ```
+  4. Cài SDK packages:
+     ```powershell
+     sdkmanager --sdk_root=C:\Android "platform-tools" "build-tools;34.0.0" "platforms;android-34" "cmdline-tools;latest" "ndk;28.2.13676358" "emulator" "system-images;android-34;google_apis;x86_64"
+     ```
+  5. Accept licenses:
+     ```powershell
+     sdkmanager --sdk_root=C:\Android --licenses
+     ```
 
-## Add your files
+### 4. Android Emulator (Optional)
+Tạo Android Virtual Device:
+```powershell
+avdmanager create avd -n "pixel_6_api_34" -k "system-images;android-34;google_apis;x86_64" --device "pixel_6"
+```
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Cài đặt dự án
+
+### 1. Clone repository
+```bash
+git clone https://gitlab.duthu.net/cryptocurrency-trading-app/fe-cryptocurrency-trading-app.git
+cd fe-cryptocurrency-trading-app
+```
+
+### 2. Cài dependencies
+```bash
+flutter pub get
+```
+
+### 3. Kiểm tra môi trường
+```bash
+flutter doctor
+```
+
+## Chạy ứng dụng
+
+### Web (nhanh nhất)
+```bash
+flutter run -d chrome
+```
+
+### Android Emulator
+1. Mở emulator (terminal riêng):
+   ```bash
+   emulator -avd pixel_6_api_34
+   ```
+
+2. Chạy app (terminal khác):
+   ```bash
+   flutter run
+   ```
+
+### Android Device (thiết bị thật)
+1. Bật Developer Mode trên điện thoại
+2. Bật USB Debugging
+3. Kết nối USB
+4. Chạy:
+   ```bash
+   flutter run
+   ```
+
+## Hot Reload
+
+Khi app đang chạy:
+- `r` - Hot reload (giữ state, nhanh)
+- `R` - Hot restart (reset state)
+- `q` - Thoát app
+
+Cách dùng:
+1. Sửa code trong VS Code
+2. Save file (Ctrl+S)
+3. Nhấn `r` trong terminal
+
+## Kiến trúc dự án
+
+Xem chi tiết trong file `ARCHITECTURE.md`
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.duthu.net/cryptocurrency-trading-app/fe-cryptocurrency-trading-app.git
-git branch -M main
-git push -uf origin main
+lib/
+├── core/               # Constants, DI, Error handling, Network
+├── data/              # Models, Repositories, Data sources
+├── domain/            # Entities, Use cases, Repository interfaces
+└── presentation/      # Screens, Widgets, Providers
 ```
 
-## Integrate with your tools
+## Tech Stack
 
-- [ ] [Set up project integrations](https://gitlab.duthu.net/cryptocurrency-trading-app/fe-cryptocurrency-trading-app/-/settings/integrations)
+- Flutter 3.38.6
+- Dart 3.0+
+- State Management: Provider
+- Networking: Dio + Retrofit
+- DI: GetIt
+- Local DB: Hive
+- Charts: FL Chart
 
-## Collaborate with your team
+## Troubleshooting
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Lỗi: JAVA_HOME not set
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+$env:Path += ";$env:JAVA_HOME\bin"
+```
 
-## Test and Deploy
+### Lỗi: Flutter command not found
+Thêm Flutter vào PATH:
+```powershell
+$env:Path += ";C:\src\flutter\bin"
+```
 
-Use the built-in continuous integration in GitLab.
+### Lỗi: Android SDK not found
+```powershell
+flutter config --android-sdk "C:\Android"
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Lỗi: Gradle build failed
+Đảm bảo đang dùng JDK 17, không phải JDK 25.
 
-***
+## Commands hữu ích
 
-# Editing this README
+```bash
+# Xem devices khả dụng
+flutter devices
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Xem emulators
+flutter emulators
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+# Clean build cache
+flutter clean
 
-## Name
-Choose a self-explaining name for your project.
+# Update dependencies
+flutter pub upgrade
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+# Format code
+dart format .
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+# Analyze code
+flutter analyze
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Backend API
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Base URL: `http://localhost:3000/api`
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Xem chi tiết endpoints trong `lib/core/constants/api_constants.dart`
