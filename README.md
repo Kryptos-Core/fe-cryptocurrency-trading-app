@@ -68,21 +68,36 @@ flutter doctor
 
 ## Chạy ứng dụng
 
-### Web (nhanh nhất)
+### Web (Nhanh nhất - Recommended)
+Không cần setup Android emulator, test ngay lập tức:
 ```bash
 flutter run -d chrome
 ```
+Perfect cho frontend development & testing  
+Hot reload cực nhanh  
+Không cần emulator setup phức tạp
 
 ### Android Emulator
-1. Mở emulator (terminal riêng):
-   ```bash
+1. **Chạy emulator** (terminal riêng):
+   ```powershell
+   # Nếu emulator không trong PATH, dùng full path:
+   C:\Android\emulator\emulator.exe -avd pixel_6_api_34
+   
+   # Hoặc nếu đã add vào PATH:
    emulator -avd pixel_6_api_34
    ```
+   Chờ emulator boot xong (1-2 phút)
 
-2. Chạy app (terminal khác):
+2. **Chạy app** (terminal khác):
    ```bash
    flutter run
    ```
+   Sau đó chọn Android emulator từ danh sách
+
+### Web (nhanh nhất - Legacy command)
+```bash
+flutter run -d chrome
+```
 
 ### Android Device (thiết bị thật)
 1. Bật Developer Mode trên điện thoại
@@ -139,6 +154,24 @@ dependencies:
 
 ## Troubleshooting
 
+### Lỗi: emulator không được recognize
+**Triệu chứng:** `emulator: The term 'emulator' is not recognized...`
+
+**Nguyên nhân:** Android emulator không trong PATH
+
+**Giải pháp:**
+```powershell
+# Option 1: Thêm emulator vào PATH (lâu dài)
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Android\emulator", "User")
+# Sau đó restart terminal mới
+
+# Option 2: Dùng full path (nhanh)
+C:\Android\emulator\emulator.exe -avd pixel_6_api_34
+
+# Option 3: Dùng Android Studio GUI
+# Mở Android Studio → Tools → Device Manager → Create device
+```
+
 ### Lỗi: JAVA_HOME not set
 ```powershell
 $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
@@ -158,6 +191,46 @@ flutter config --android-sdk "C:\Android"
 
 ### Lỗi: Gradle build failed
 Đảm bảo đang dùng JDK 17, không phải JDK 25.
+
+### Lỗi: "Connected devices" không có Android emulator
+**Triệu chứng:** Chỉ thấy Windows/Chrome/Edge, không thấy Android emulator
+```
+Connected devices:
+Windows (desktop) • windows • windows-x64
+Chrome (web)      • chrome  • web-javascript
+Edge (web)        • edge    • web-javascript
+```
+
+**Nguyên nhân:** 
+- Emulator chưa được tạo
+- Emulator không được chạy
+- PATH chưa setup đúng
+
+**Giải pháp:**
+```powershell
+# Bước 1: Kiểm tra emulator đã tạo chưa
+C:\Android\emulator\emulator.exe -list-avds
+
+# Bước 2: Nếu không có, tạo emulator
+C:\Android\cmdline-tools\latest\bin\avdmanager.bat create avd -n "pixel_6_api_34" -k "system-images;android-34;google_apis;x86_64" --device "pixel_6"
+
+# Bước 3: Chạy emulator
+C:\Android\emulator\emulator.exe -avd pixel_6_api_34
+# Chờ emulator boot xong (1-2 phút)
+
+# Bước 4: Mở terminal khác, chạy app
+flutter run
+# Lúc này sẽ thấy emulator trong danh sách
+```
+
+**Quick Fix: Dùng Web để test**
+```powershell
+# Nếu emulator setup phức tạp, test bằng web (nhanh & simple)
+flutter run -d chrome
+```
+Web không cần emulator, chạy ngay  
+Hot reload cực nhanh  
+Perfect cho frontend testing
 
 ### Lỗi: Connection refused khi call API
 **Triệu chứng:** DioException [connection error]: The connection errored...
@@ -268,12 +341,16 @@ npm run start:dev
 - Web/Real device: Dùng `http://localhost:3000` hoặc IP thật
 
 ### API Endpoints đã implement
-- `POST /auth/register` - Đăng ký (email + password)
-- `POST /auth/login` - Đăng nhập
+
+#### Authentication
+- `POST /auth/register` - Đăng ký (email + password + optional firstName/lastName)
+  - **NEW (2025-01-13):** firstName và lastName are now supported
+  - Example: `{ email, password, firstName?: "John", lastName?: "Doe" }`
+- `POST /auth/login` - Đăng nhập (email + password)
+
+#### User Management
 - `GET /users/me` - Lấy thông tin user hiện tại
 - `PATCH /users/me` - Cập nhật profile (firstName, lastName)
-
-Xem chi tiết trong [lib/core/constants/api_constants.dart](lib/core/constants/api_constants.dart)
 
 ## Dependency Injection
 
