@@ -40,8 +40,8 @@ class UserModel {
     // Handle both camelCase and snake_case field names from backend
     final id = (json['id'] ?? json['user_id'] ?? '').toString();
     final email = json['email'] as String? ?? '';
-    final firstName = json['firstName'] as String? ?? '';
-    final lastName = json['lastName'] as String? ?? '';
+    final firstName = (json['firstName'] ?? json['first_name'] ?? '') as String;
+    final lastName = (json['lastName'] ?? json['last_name'] ?? '') as String;
     final isActive = json['isActive'] as bool? ?? 
                      (json['status'] == 'ACTIVE' ? true : false);
     

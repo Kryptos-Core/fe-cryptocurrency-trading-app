@@ -3,11 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/toast_service.dart';
+import 'package:crypto_trading_app/core/utils/name_validator.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 
-/// Register Screen
-/// Allows new users to create an account
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -50,13 +49,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      // Step 1: Register user with email + password only
+      // Get trimmed values
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+      final firstName = _firstNameController.text.trim();
+      final lastName = _lastNameController.text.trim();
+
+      // Step 1: Register user with email + password + firstName/lastName (REQUIRED)
+      // Note: Form validation ensures these are not empty before reaching here
       final registerUseCase = sl<RegisterUseCase>();
       final registerResult = await registerUseCase(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        firstName: '', // Backend doesn't require these
-        lastName: '',
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
       );
 
       if (!registerResult.isRight()) {
@@ -94,8 +100,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Step 2: Auto-login after successful registration
       final loginUseCase = sl<LoginUseCase>();
       final loginResult = await loginUseCase(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+        email: email,
+        password: password,
       );
 
       if (!loginResult.isRight()) {
@@ -124,52 +130,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
 
-      // Step 3: Save tokens and update profile
+      // Step 3: Save tokens
       loginResult.fold(
         (_) {}, // Error handled above
         (authResponse) async {
-          // Save tokens
           final tokenService = sl<TokenService>();
           await tokenService.saveTokens(
             accessToken: authResponse.accessToken,
             refreshToken: authResponse.refreshToken,
           );
 
-          // Step 4: Update user profile with firstName and lastName
-          if (_firstNameController.text.trim().isNotEmpty ||
-              _lastNameController.text.trim().isNotEmpty) {
-            try {
-              final dio = sl<Dio>();
-              await dio.patch(
-                '/users/me',
-                data: {
-                  'firstName': _firstNameController.text.trim(),
-                  'lastName': _lastNameController.text.trim(),
-                },
-              );
-              if (mounted) {
-                ToastService().show(
-                  context,
-                  message: 'Profile updated successfully!',
-                  type: ToastType.success,
-                  duration: const Duration(seconds: 1),
-                );
-              }
-            } catch (e) {
-              // Update profile failed, but user is logged in
-              // Show warning but still navigate to home screen
-              if (mounted) {
-                ToastService().show(
-                  context,
-                  message: 'Profile update failed: ${e.toString()}',
-                  type: ToastType.warning,
-                  duration: const Duration(seconds: 3),
-                );
-              }
-            }
-          }
-
-          // Step 5: Navigate to home screen
+          // Step 4: Navigate to home screen
           if (mounted) {
             Future.delayed(const Duration(milliseconds: 500), () {
               Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -265,40 +236,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
 
-                  // First Name Field
+                  // First Name Field (REQUIRED)
                   TextFormField(
                     controller: _firstNameController,
                     enabled: !_isLoading,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: const InputDecoration(
                       labelText: 'First Name',
-                      hintText: 'John',
+                      hintText: 'Nguyễn Văn',
                       prefixIcon: Icon(Icons.person_outlined),
                       border: OutlineInputBorder(),
+                      helperText: 'Only letters and spaces allowed',
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your first name';
+                        return 'First name is required';
                       }
-                      return null;
+                      return NameValidator.validateName(value, 'First name');
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Last Name Field
+                  // Last Name Field (REQUIRED)
                   TextFormField(
                     controller: _lastNameController,
                     enabled: !_isLoading,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
-                      hintText: 'Doe',
+                      hintText: 'An',
                       prefixIcon: Icon(Icons.person_outlined),
                       border: OutlineInputBorder(),
+                      helperText: 'Only letters and spaces allowed',
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your last name';
+                        return 'Last name is required';
                       }
-                      return null;
+                      return NameValidator.validateName(value, 'Last name');
                     },
                   ),
                   const SizedBox(height: 16),
@@ -316,10 +291,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
+                        return 'Email is required';
                       }
-                      if (!value.contains('@') || !value.contains('.')) {
-                        return 'Please enter a valid email';
+                      // Simple email validation pattern
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                      );
+                      if (!emailRegex.hasMatch(value.trim())) {
+                        return 'Invalid email format';
                       }
                       return null;
                     },
@@ -331,6 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     enabled: !_isLoading,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: 'Min 8 characters with uppercase, lowercase, number',
@@ -351,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
+                        return 'Password is required';
                       }
                       if (value.length < 8) {
                         return 'Password must be at least 8 characters';
@@ -378,6 +358,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
                     enabled: !_isLoading,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       hintText: 'Re-enter your password',
@@ -398,7 +379,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
+                        return 'Confirm password is required';
                       }
                       if (value != _passwordController.text) {
                         return 'Passwords do not match';

@@ -42,13 +42,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String lastName,
   }) async {
     try {
-      // Backend only requires email + password, firstName/lastName are optional
+      // Backend accepts email + password (required) and firstName/lastName (optional)
+      // Send firstName and lastName only if they are not empty
+      final requestData = {
+        'email': email,
+        'password': password,
+      };
+
+      // Add optional fields if provided (not empty strings)
+      if (firstName.trim().isNotEmpty) {
+        requestData['firstName'] = firstName.trim();
+      }
+      if (lastName.trim().isNotEmpty) {
+        requestData['lastName'] = lastName.trim();
+      }
+
       final response = await dio.post(
         ApiConstants.authRegister,
-        data: {
-          'email': email,
-          'password': password,
-        },
+        data: requestData,
       );
 
       // Backend response format: { statusCode, message, data: {...user}, timestamp, path }

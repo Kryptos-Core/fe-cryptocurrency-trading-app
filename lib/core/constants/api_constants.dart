@@ -7,7 +7,7 @@ class ApiConstants {
   // Base URL
   // Use 10.0.2.2 for Android emulator to access host machine's localhost
   // Use localhost:3000 for web/desktop development
-  static const String baseUrl = 'http://10.0.2.2:3000';
+  static const String baseUrl = 'http://localhost:3000';
 
   // Các API Endpoints
   // Auth Endpoints (Xác thực)
