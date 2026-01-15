@@ -21,6 +21,25 @@ class ApiConstants {
   static const String usersMe = '/users/me';
   static const String usersStatistics = '/users/statistics';
   
+  // Currencies Endpoints (Tiền ảo)
+  static const String currencies = '/api/v1/currencies';
+  static String currencyById(int id) => '$currencies/$id';
+  static String currencyBySymbol(String symbol) => '$currencies/symbol/$symbol';
+  
+  // Markets Endpoints (Thị trường)
+  static const String markets = '/api/v1/markets';
+  static String marketById(int id) => '$markets/$id';
+  static String marketBySymbol(String symbol) => '$markets/symbol/$symbol';
+  static String marketTicker(int id) => '$markets/$id/ticker';
+  static String marketOrderBook(int id) => '$markets/$id/orderbook';
+  static String marketOHLCV(int id) => '$markets/$id/ohlcv';
+  
+  // Wallets Endpoints (Ví tiền)
+  static const String wallets = '/api/v1/wallets';
+  static String walletByCurrency(int currencyId) => '$wallets/currency/$currencyId';
+  static String walletBalance(int walletId) => '$wallets/$walletId/balance';
+  static String walletLedger(int walletId) => '$wallets/$walletId/ledger';
+  
   // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

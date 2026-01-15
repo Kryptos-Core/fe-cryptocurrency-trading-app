@@ -5,8 +5,20 @@ import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/markets_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/wallets_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/markets_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/wallets_repository_impl.dart';
+import 'package:crypto_trading_app/domain/repositories/currencies_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
+import 'package:crypto_trading_app/domain/usecases/markets_usecases.dart';
+import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
@@ -52,10 +64,40 @@ Future<void> initializeDependencies() async {
     () => UserRemoteDataSourceImpl(dio: sl()),
   );
 
+  // Currencies Remote Data Source
+  sl.registerLazySingleton<CurrenciesRemoteDataSource>(
+    () => CurrenciesRemoteDataSourceImpl(dio: sl()),
+  );
+
+  // Markets Remote Data Source
+  sl.registerLazySingleton<MarketsRemoteDataSource>(
+    () => MarketsRemoteDataSourceImpl(dio: sl()),
+  );
+
+  // Wallets Remote Data Source
+  sl.registerLazySingleton<WalletsRemoteDataSource>(
+    () => WalletsRemoteDataSourceImpl(dio: sl()),
+  );
+
   // ===== Repositories =====
   // Auth Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Currencies Repository
+  sl.registerLazySingleton<CurrenciesRepository>(
+    () => CurrenciesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Markets Repository
+  sl.registerLazySingleton<MarketsRepository>(
+    () => MarketsRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Wallets Repository
+  sl.registerLazySingleton<WalletsRepository>(
+    () => WalletsRepositoryImpl(remoteDataSource: sl()),
   );
 
   // ===== Use Cases =====
@@ -63,4 +105,23 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
   sl.registerLazySingleton(() => RegisterUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(repository: sl()));
+
+  // Currencies Use Cases
+  sl.registerLazySingleton(() => GetCurrenciesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetCurrencyByIdUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetCurrencyBySymbolUseCase(repository: sl()));
+
+  // Markets Use Cases
+  sl.registerLazySingleton(() => GetMarketsUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetMarketByIdUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetMarketBySymbolUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetMarketTickerUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetOrderBookUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetOHLCVUseCase(repository: sl()));
+
+  // Wallets Use Cases
+  sl.registerLazySingleton(() => GetWalletsUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetWalletByCurrencyUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetWalletBalanceUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetWalletLedgerUseCase(repository: sl()));
 }
