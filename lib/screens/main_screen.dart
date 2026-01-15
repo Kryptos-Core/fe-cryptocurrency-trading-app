@@ -19,9 +19,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const DashboardScreen(),      // Home: Dashboard với overview
-    const CurrenciesListScreen(),  // Currencies
     const MarketsListScreen(),     // Markets
     const WalletsOverviewScreen(), // Wallets
+    const ProfileScreen(),         // Profile
   ];
 
   @override
@@ -46,11 +46,6 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.currency_bitcoin_outlined),
-            activeIcon: Icon(Icons.currency_bitcoin),
-            label: 'Currencies',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.trending_up_outlined),
             activeIcon: Icon(Icons.trending_up),
             label: 'Markets',
@@ -59,6 +54,11 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.account_balance_wallet_outlined),
             activeIcon: Icon(Icons.account_balance_wallet),
             label: 'Wallets',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
@@ -87,14 +87,14 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
+              leading: const Icon(Icons.currency_bitcoin),
+              title: const Text('Currencies'),
               onTap: () {
                 Navigator.pop(context); // Close drawer
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProfileScreen(),
+                    builder: (context) => const CurrenciesListScreen(),
                   ),
                 );
               },

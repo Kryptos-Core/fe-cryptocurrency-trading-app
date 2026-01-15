@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
+import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 
 /// Profile Screen - User account information
 class ProfileScreen extends StatefulWidget {
@@ -289,6 +290,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle: Text(
                 '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
               ),
+            ),
+            const Divider(),
+            // Additional Options
+            ListTile(
+              leading: const Icon(Icons.currency_bitcoin),
+              title: const Text('Currencies'),
+              subtitle: const Text('View all available currencies'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CurrenciesListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              subtitle: const Text('App settings and preferences'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // TODO: Navigate to settings
+              },
             ),
           ],
         ),
