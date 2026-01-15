@@ -186,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Crypto Trading App'),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Remove back button when used in MainScreen
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
