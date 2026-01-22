@@ -1,16 +1,27 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// API Configuration Constants
 /// Following Single Responsibility Principle (SRP)
+/// Base URL is loaded from .env file and includes /api/v1 prefix
 class ApiConstants {
   // Private constructor để ngăn khởi tạo (Singleton Pattern)
   ApiConstants._();
 
-  // Base URL
-  // Use 10.0.2.2 for Android emulator to access host machine's localhost
-  // Use localhost:3000 for web/desktop development
-  static const String baseUrl = 'http://localhost:3000';
+  /// Base URL from .env file
+  /// Should include /api/v1 prefix, e.g., http://localhost:3000/api/v1
+  static String get baseUrl {
+    final url = dotenv.env['BASE_URL'] ?? 'http://localhost:3000/api/v1';
+    // Ensure no trailing slash
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  }
+
+  /// Environment (development/production)
+  static String get env => dotenv.env['ENV'] ?? 'development';
 
   // Các API Endpoints
-  // Auth Endpoints (Xác thực)
+  // NOTE: Base URL đã chứa /api/v1 prefix, nên endpoints không cần prefix nữa
+  
+  // Auth Endpoints (Xác thực) - Không có prefix /api/v1
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';
   // Note: getCurrentUser should use /users/me instead of /auth/me
@@ -22,12 +33,14 @@ class ApiConstants {
   static const String usersStatistics = '/users/statistics';
   
   // Currencies Endpoints (Tiền ảo)
-  static const String currencies = '/api/v1/currencies';
+  static const String currencies = '/currencies';
   static String currencyById(int id) => '$currencies/$id';
   static String currencyBySymbol(String symbol) => '$currencies/symbol/$symbol';
+  static const String currenciesActive = '$currencies/active';
+  static const String currenciesTradable = '$currencies/tradable';
   
   // Markets Endpoints (Thị trường)
-  static const String markets = '/api/v1/markets';
+  static const String markets = '/markets';
   static String marketById(int id) => '$markets/$id';
   static String marketBySymbol(String symbol) => '$markets/symbol/$symbol';
   static String marketTicker(int id) => '$markets/$id/ticker';
@@ -35,7 +48,7 @@ class ApiConstants {
   static String marketOHLCV(int id) => '$markets/$id/ohlcv';
   
   // Wallets Endpoints (Ví tiền)
-  static const String wallets = '/api/v1/wallets';
+  static const String wallets = '/wallets';
   static String walletByCurrency(int currencyId) => '$wallets/currency/$currencyId';
   static String walletBalance(int walletId) => '$wallets/$walletId/balance';
   static String walletLedger(int walletId) => '$wallets/$walletId/ledger';

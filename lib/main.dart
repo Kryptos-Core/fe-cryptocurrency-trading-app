@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/services/token_service.dart';
@@ -11,6 +12,14 @@ import 'package:crypto_trading_app/screens/login_screen.dart';
 void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables from .env file
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    // If .env file doesn't exist, use default values
+    debugPrint('Warning: .env file not found, using default values');
+  }
   
   // Initialize dependency injection
   await di.initializeDependencies();
