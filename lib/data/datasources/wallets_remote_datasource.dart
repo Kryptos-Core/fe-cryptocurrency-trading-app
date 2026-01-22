@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/services/mock_service.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/data/models/wallet_model.dart';
 import 'package:crypto_trading_app/data/mocks/wallets_mock.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
@@ -37,7 +38,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
     int? currencyId,
     bool includeZero = false,
   }) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('wallets')) {
       return MockService.mockResponse(() {
         return WalletsMock.filter(
           currencyId: currencyId,
@@ -48,7 +49,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
     try {
       final response = await dio.get(
-        '/api/v1/wallets',
+        ApiConstants.wallets,
         queryParameters: {
           if (currencyId != null) 'currency_id': currencyId,
           'include_zero': includeZero,
@@ -95,7 +96,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
   @override
   Future<WalletModel> getWalletByCurrency(int currencyId) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('wallets')) {
       return MockService.mockResponse(() {
         final wallet = WalletsMock.getByCurrencyId(currencyId);
         if (wallet == null) {
@@ -106,7 +107,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
     }
 
     try {
-      final response = await dio.get('/api/v1/wallets/currency/$currencyId');
+      final response = await dio.get(ApiConstants.walletByCurrency(currencyId));
 
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<WalletModel>.fromJson(
@@ -145,7 +146,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
   @override
   Future<WalletModel> getWalletBalance(int walletId) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('wallets')) {
       return MockService.mockResponse(() {
         final wallet = WalletsMock.getById(walletId);
         if (wallet == null) {
@@ -156,7 +157,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
     }
 
     try {
-      final response = await dio.get('/api/v1/wallets/$walletId/balance');
+      final response = await dio.get(ApiConstants.walletBalance(walletId));
 
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<WalletModel>.fromJson(
@@ -203,7 +204,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
     int page = 1,
     int limit = 10,
   }) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('wallets')) {
       return MockService.mockResponse(() {
         var ledger = WalletsMock.generateLedger(walletId, count: 20);
         
@@ -230,7 +231,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
     try {
       final response = await dio.get(
-        '/api/v1/wallets/$walletId/ledger',
+        ApiConstants.walletLedger(walletId),
         queryParameters: {
           if (refType != null) 'ref_type': refType,
           if (direction != null) 'direction': direction,

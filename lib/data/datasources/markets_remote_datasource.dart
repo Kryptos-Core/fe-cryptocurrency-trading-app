@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/services/mock_service.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/data/models/market_pair_model.dart';
 import 'package:crypto_trading_app/data/mocks/markets_mock.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
@@ -48,7 +49,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     int page = 1,
     int limit = 10,
   }) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('markets')) {
       return MockService.mockResponse(() {
         var markets = MarketsMock.filter(
           isActive: isActive,
@@ -70,7 +71,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
 
     try {
       final response = await dio.get(
-        '/api/v1/markets',
+        ApiConstants.markets,
         queryParameters: {
           if (isActive != null) 'is_active': isActive,
           if (baseCurrency != null) 'base_currency': baseCurrency,
@@ -120,7 +121,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
 
   @override
   Future<MarketPairModel> getMarketById(int pairId) async {
-    if (MockService.isMockMode) {
+    if (MockService.isMockModeFor('markets')) {
       return MockService.mockResponse(() {
         final market = MarketsMock.getById(pairId);
         if (market == null) {
@@ -131,7 +132,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
 
     try {
-      final response = await dio.get('/api/v1/markets/$pairId');
+      final response = await dio.get(ApiConstants.marketById(pairId));
 
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<MarketPairModel>.fromJson(
@@ -181,7 +182,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
 
     try {
-      final response = await dio.get('/api/v1/markets/symbol/$symbol');
+      final response = await dio.get(ApiConstants.marketBySymbol(symbol));
 
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<MarketPairModel>.fromJson(
@@ -230,7 +231,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
 
     try {
-      final response = await dio.get('/api/v1/markets/$pairId/ticker');
+      final response = await dio.get(ApiConstants.marketTicker(pairId));
 
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<MarketTickerModel>.fromJson(
@@ -282,7 +283,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
 
     try {
       final response = await dio.get(
-        '/api/v1/markets/$pairId/orderbook',
+        ApiConstants.marketOrderBook(pairId),
         queryParameters: {'limit': limit},
       );
 
@@ -339,7 +340,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
 
     try {
       final response = await dio.get(
-        '/api/v1/markets/$pairId/ohlcv',
+        ApiConstants.marketOHLCV(pairId),
         queryParameters: {
           'interval': interval,
           if (startTime != null) 'start_time': startTime,
