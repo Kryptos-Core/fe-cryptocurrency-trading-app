@@ -15,6 +15,8 @@ CurrencyModel _$CurrencyModelFromJson(Map<String, dynamic> json) =>
       minWithdraw: json['min_withdraw'] as String,
       isTradable: json['is_tradable'] as bool,
       isActive: json['is_active'] as bool,
+      createdAt: json['created_at'] as String?,
+      updatedAt: json['updated_at'] as String?,
     );
 
 Map<String, dynamic> _$CurrencyModelToJson(CurrencyModel instance) =>
@@ -26,4 +28,6 @@ Map<String, dynamic> _$CurrencyModelToJson(CurrencyModel instance) =>
       'min_withdraw': instance.minWithdraw,
       'is_tradable': instance.isTradable,
       'is_active': instance.isActive,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
     };

@@ -42,3 +42,8 @@ class CacheFailure extends Failure {
 class NotFoundFailure extends Failure {
   const NotFoundFailure({String message = 'Resource not found'}) : super(message: message);
 }
+
+/// Conflict failure (409) - resource already exists
+class ConflictFailure extends Failure {
+  const ConflictFailure({String message = 'Resource already exists'}) : super(message: message);
+}

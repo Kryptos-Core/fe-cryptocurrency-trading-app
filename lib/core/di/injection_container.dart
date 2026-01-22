@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/services/currency_cache_service.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
@@ -52,6 +53,11 @@ Future<void> initializeDependencies() async {
   );
   
   sl.registerLazySingleton<Dio>(() => sl<DioClient>().dio);
+
+  // Currency Cache Service
+  sl.registerLazySingleton<CurrencyCacheService>(
+    () => InMemoryCurrencyCacheService(),
+  );
 
   // ===== Data Sources =====
   // Auth Remote Data Source
@@ -108,8 +114,13 @@ Future<void> initializeDependencies() async {
 
   // Currencies Use Cases
   sl.registerLazySingleton(() => GetCurrenciesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetActiveCurrenciesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetTradableCurrenciesUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCurrencyByIdUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCurrencyBySymbolUseCase(repository: sl()));
+  sl.registerLazySingleton(() => CreateCurrencyUseCase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateCurrencyUseCase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteCurrencyUseCase(repository: sl()));
 
   // Markets Use Cases
   sl.registerLazySingleton(() => GetMarketsUseCase(repository: sl()));

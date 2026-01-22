@@ -8,6 +8,8 @@ class Currency {
   final String minWithdraw;
   final bool isTradable;
   final bool isActive;
+  final String? createdAt; // ISO 8601 date
+  final String? updatedAt; // ISO 8601 date
 
   const Currency({
     required this.currencyId,
@@ -17,6 +19,8 @@ class Currency {
     required this.minWithdraw,
     required this.isTradable,
     required this.isActive,
+    this.createdAt,
+    this.updatedAt,
   });
 
   Currency copyWith({
@@ -27,6 +31,8 @@ class Currency {
     String? minWithdraw,
     bool? isTradable,
     bool? isActive,
+    String? createdAt,
+    String? updatedAt,
   }) {
     return Currency(
       currencyId: currencyId ?? this.currencyId,
@@ -36,6 +42,8 @@ class Currency {
       minWithdraw: minWithdraw ?? this.minWithdraw,
       isTradable: isTradable ?? this.isTradable,
       isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

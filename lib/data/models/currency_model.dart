@@ -19,6 +19,10 @@ class CurrencyModel {
   final bool isTradable;
   @JsonKey(name: 'is_active')
   final bool isActive;
+  @JsonKey(name: 'created_at')
+  final String? createdAt;
+  @JsonKey(name: 'updated_at')
+  final String? updatedAt;
 
   const CurrencyModel({
     required this.currencyId,
@@ -28,6 +32,8 @@ class CurrencyModel {
     required this.minWithdraw,
     required this.isTradable,
     required this.isActive,
+    this.createdAt,
+    this.updatedAt,
   });
 
   /// Convert from JSON
@@ -47,6 +53,8 @@ class CurrencyModel {
       minWithdraw: minWithdraw,
       isTradable: isTradable,
       isActive: isActive,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 
@@ -60,6 +68,8 @@ class CurrencyModel {
       minWithdraw: entity.minWithdraw,
       isTradable: entity.isTradable,
       isActive: entity.isActive,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     );
   }
 }
