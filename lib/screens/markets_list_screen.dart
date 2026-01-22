@@ -28,6 +28,7 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Markets'),
+        automaticallyImplyLeading: false, // Remove back button when in bottom nav
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

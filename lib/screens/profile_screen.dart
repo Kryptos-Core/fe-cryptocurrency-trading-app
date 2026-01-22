@@ -148,7 +148,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(
+          title: const Text('Profile'),
+          automaticallyImplyLeading: false,
+        ),
         body: const Center(
           child: CircularProgressIndicator(),
         ),
@@ -157,7 +160,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (_currentUser == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
+        appBar: AppBar(
+          title: const Text('Profile'),
+          automaticallyImplyLeading: false,
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -183,6 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        automaticallyImplyLeading: false, // Remove back button when in bottom nav
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

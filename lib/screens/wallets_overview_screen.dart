@@ -28,6 +28,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Wallets'),
+        automaticallyImplyLeading: false, // Remove back button when in bottom nav
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

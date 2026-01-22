@@ -35,6 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Dashboard'),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Remove back button
       ),
       body: RefreshIndicator(
         onRefresh: () async {
