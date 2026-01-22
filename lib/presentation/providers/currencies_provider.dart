@@ -22,10 +22,10 @@ class CurrenciesProvider extends ChangeNotifier {
   Currency? _selectedCurrency;
   bool _isLoading = false;
   String? _error;
-  bool? _filterIsActive;
-  bool? _filterIsTradable;
+  bool _includeInactive = false;
   int _currentPage = 1;
   final int _pageSize = 10;
+  int _total = 0;
   bool _hasMore = true;
 
   // Getters
@@ -33,37 +33,37 @@ class CurrenciesProvider extends ChangeNotifier {
   Currency? get selectedCurrency => _selectedCurrency;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool? get filterIsActive => _filterIsActive;
-  bool? get filterIsTradable => _filterIsTradable;
+  bool get includeInactive => _includeInactive;
   int get currentPage => _currentPage;
+  int get total => _total;
   bool get hasMore => _hasMore;
 
   /// Fetch currencies with optional filters
   Future<void> fetchCurrencies({
-    bool? isActive,
-    bool? isTradable,
+    bool? includeInactive,
     bool refresh = false,
   }) async {
     if (refresh) {
       _currentPage = 1;
       _currencies = [];
       _hasMore = true;
+      _total = 0;
     }
 
     if (!_hasMore && !refresh) return;
 
     _isLoading = true;
     _error = null;
-    _filterIsActive = isActive;
-    _filterIsTradable = isTradable;
+    if (includeInactive != null) {
+      _includeInactive = includeInactive;
+    }
     notifyListeners();
 
     final result = await getCurrenciesUseCase(
       GetCurrenciesParams(
-        isActive: isActive,
-        isTradable: isTradable,
         page: _currentPage,
         limit: _pageSize,
+        includeInactive: _includeInactive,
       ),
     );
 
@@ -73,14 +73,16 @@ class CurrenciesProvider extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
       },
-      (currencies) {
+      (paginatedResult) {
+        final currencies = paginatedResult.currencies;
         if (refresh) {
           _currencies = currencies;
         } else {
           _currencies.addAll(currencies);
         }
 
-        _hasMore = currencies.length == _pageSize;
+        _total = paginatedResult.total;
+        _hasMore = _currencies.length < _total;
         if (_hasMore) {
           _currentPage++;
         }
@@ -96,8 +98,7 @@ class CurrenciesProvider extends ChangeNotifier {
   Future<void> loadMore() async {
     if (!_isLoading && _hasMore) {
       await fetchCurrencies(
-        isActive: _filterIsActive,
-        isTradable: _filterIsTradable,
+        includeInactive: _includeInactive,
       );
     }
   }
@@ -163,15 +164,14 @@ class CurrenciesProvider extends ChangeNotifier {
   }
 
   String _mapFailureToMessage(Failure failure) {
-    switch (failure.runtimeType) {
-      case ServerFailure:
-        return 'Server error. Please try again later.';
-      case NetworkFailure:
-        return 'Network error. Please check your connection.';
-      case NotFoundFailure:
-        return 'Currency not found.';
-      default:
-        return 'An unexpected error occurred.';
+    if (failure is ServerFailure) {
+      return 'Server error. Please try again later.';
+    } else if (failure is NetworkFailure) {
+      return 'Network error. Please check your connection.';
+    } else if (failure is NotFoundFailure) {
+      return 'Currency not found.';
+    } else {
+      return 'An unexpected error occurred.';
     }
   }
 }

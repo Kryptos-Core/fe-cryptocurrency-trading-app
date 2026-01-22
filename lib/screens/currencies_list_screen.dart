@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/currency_card.dart';
 import 'package:crypto_trading_app/screens/currency_detail_screen.dart';
@@ -16,8 +15,9 @@ class CurrenciesListScreen extends StatefulWidget {
 
 class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
   final TextEditingController _searchController = TextEditingController();
-  bool? _filterIsActive;
-  bool? _filterIsTradable;
+  bool _includeInactive = false;
+  bool _showTradableOnly = false;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -62,7 +62,9 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                 ),
               ),
               onChanged: (value) {
-                // Implement search logic
+                setState(() {
+                  _searchQuery = value.toLowerCase().trim();
+                });
               },
             ),
           ),
@@ -73,15 +75,14 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
               children: [
                 FilterChip(
                   label: const Text('All'),
-                  selected: _filterIsActive == null && _filterIsTradable == null,
+                  selected: _includeInactive && !_showTradableOnly,
                   onSelected: (selected) {
                     setState(() {
-                      _filterIsActive = null;
-                      _filterIsTradable = null;
+                      _includeInactive = true;
+                      _showTradableOnly = false;
                     });
                     context.read<CurrenciesProvider>().fetchCurrencies(
-                          isActive: null,
-                          isTradable: null,
+                          includeInactive: true,
                           refresh: true,
                         );
                   },
@@ -89,13 +90,14 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                 const SizedBox(width: 8),
                 FilterChip(
                   label: const Text('Active'),
-                  selected: _filterIsActive == true,
+                  selected: !_includeInactive && !_showTradableOnly,
                   onSelected: (selected) {
                     setState(() {
-                      _filterIsActive = selected ? true : null;
+                      _includeInactive = false;
+                      _showTradableOnly = false;
                     });
                     context.read<CurrenciesProvider>().fetchCurrencies(
-                          isActive: _filterIsActive,
+                          includeInactive: false,
                           refresh: true,
                         );
                   },
@@ -103,13 +105,16 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                 const SizedBox(width: 8),
                 FilterChip(
                   label: const Text('Tradable'),
-                  selected: _filterIsTradable == true,
+                  selected: _showTradableOnly,
                   onSelected: (selected) {
                     setState(() {
-                      _filterIsTradable = selected ? true : null;
+                      _showTradableOnly = selected;
+                      _includeInactive = false;
                     });
+                    // For tradable, we'll filter client-side for now
+                    // TODO: Add GetTradableCurrenciesUseCase to provider
                     context.read<CurrenciesProvider>().fetchCurrencies(
-                          isTradable: _filterIsTradable,
+                          includeInactive: false,
                           refresh: true,
                         );
                   },
@@ -147,20 +152,52 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                   );
                 }
 
-                if (provider.currencies.isEmpty) {
-                  return const Center(
-                    child: Text('No currencies found'),
-                  );
+                // Filter currencies client-side
+                var displayedCurrencies = provider.currencies;
+                
+                // Apply tradable filter
+                if (_showTradableOnly) {
+                  displayedCurrencies = displayedCurrencies
+                      .where((c) => c.isTradable)
+                      .toList();
+                }
+                
+                // Apply search filter
+                if (_searchQuery.isNotEmpty) {
+                  displayedCurrencies = displayedCurrencies
+                      .where((c) {
+                        final symbol = c.symbol.toLowerCase();
+                        final name = c.name.toLowerCase();
+                        return symbol.contains(_searchQuery) ||
+                            name.contains(_searchQuery);
+                      })
+                      .toList();
+                }
+
+                // Show "No results" if search/filter returns empty
+                if (displayedCurrencies.isEmpty) {
+                  if (provider.currencies.isEmpty) {
+                    return const Center(
+                      child: Text('No currencies found'),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text('No currencies match your search'),
+                    );
+                  }
                 }
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    await provider.fetchCurrencies(refresh: true);
+                    await provider.fetchCurrencies(
+                      includeInactive: _includeInactive,
+                      refresh: true,
+                    );
                   },
                   child: ListView.builder(
-                    itemCount: provider.currencies.length + (provider.hasMore ? 1 : 0),
+                    itemCount: displayedCurrencies.length + (provider.hasMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == provider.currencies.length) {
+                      if (index == displayedCurrencies.length) {
                         // Load more indicator
                         if (provider.hasMore) {
                           provider.loadMore();
@@ -174,7 +211,7 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                         return const SizedBox.shrink();
                       }
 
-                      final currency = provider.currencies[index];
+                      final currency = displayedCurrencies[index];
                       return CurrencyCard(
                         currency: currency,
                         onTap: () {
