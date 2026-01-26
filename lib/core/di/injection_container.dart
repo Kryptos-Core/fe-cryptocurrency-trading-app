@@ -124,11 +124,20 @@ Future<void> initializeDependencies() async {
 
   // Markets Use Cases
   sl.registerLazySingleton(() => GetMarketsUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetActiveMarketsUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetMarketByIdUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetMarketBySymbolUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetMarketTickerUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetMarketTickerBySymbolUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetAllTickersUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetOrderBookUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetOrderBookBySymbolUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetTradesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetTradesBySymbolUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetOHLCVUseCase(repository: sl()));
+  sl.registerLazySingleton(() => CreateMarketPairUseCase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateMarketPairUseCase(repository: sl()));
+  sl.registerLazySingleton(() => DeleteMarketPairUseCase(repository: sl()));
 
   // Wallets Use Cases
   sl.registerLazySingleton(() => GetWalletsUseCase(repository: sl()));

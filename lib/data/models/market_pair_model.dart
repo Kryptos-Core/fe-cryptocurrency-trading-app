@@ -9,11 +9,15 @@ part 'market_pair_model.g.dart';
 class MarketPairModel {
   @JsonKey(name: 'pair_id')
   final int pairId;
+  @JsonKey(name: 'base_currency_id')
+  final int baseCurrencyId;
+  @JsonKey(name: 'quote_currency_id')
+  final int quoteCurrencyId;
   final String symbol;
   @JsonKey(name: 'base_currency')
-  final CurrencyModel baseCurrency;
+  final CurrencyModel? baseCurrency; // Optional - may not be included
   @JsonKey(name: 'quote_currency')
-  final CurrencyModel quoteCurrency;
+  final CurrencyModel? quoteCurrency; // Optional - may not be included
   @JsonKey(name: 'price_scale')
   final int priceScale;
   @JsonKey(name: 'amount_scale')
@@ -27,20 +31,22 @@ class MarketPairModel {
   @JsonKey(name: 'is_active')
   final bool isActive;
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt; // Optional
 
   const MarketPairModel({
     required this.pairId,
+    required this.baseCurrencyId,
+    required this.quoteCurrencyId,
     required this.symbol,
-    required this.baseCurrency,
-    required this.quoteCurrency,
+    this.baseCurrency,
+    this.quoteCurrency,
     required this.priceScale,
     required this.amountScale,
     required this.minOrderAmount,
     required this.makerFeeRate,
     required this.takerFeeRate,
     required this.isActive,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory MarketPairModel.fromJson(Map<String, dynamic> json) =>
@@ -51,9 +57,11 @@ class MarketPairModel {
   MarketPair toEntity() {
     return MarketPair(
       pairId: pairId,
+      baseCurrencyId: baseCurrencyId,
+      quoteCurrencyId: quoteCurrencyId,
       symbol: symbol,
-      baseCurrency: baseCurrency.toEntity(),
-      quoteCurrency: quoteCurrency.toEntity(),
+      baseCurrency: baseCurrency?.toEntity(),
+      quoteCurrency: quoteCurrency?.toEntity(),
       priceScale: priceScale,
       amountScale: amountScale,
       minOrderAmount: minOrderAmount,
@@ -66,36 +74,47 @@ class MarketPairModel {
 }
 
 /// Market Ticker Model
+/// Following API documentation structure
 @JsonSerializable()
 class MarketTickerModel {
-  @JsonKey(name: 'pair_id')
+  @JsonKey(name: 'pairId')
   final int pairId;
   final String symbol;
-  @JsonKey(name: 'last_price')
+  @JsonKey(name: 'lastPrice')
   final String lastPrice;
-  @JsonKey(name: 'open_price')
-  final String openPrice;
-  @JsonKey(name: 'high_price')
-  final String highPrice;
-  @JsonKey(name: 'low_price')
-  final String lowPrice;
-  final String volume;
-  @JsonKey(name: 'change_24h')
+  @JsonKey(name: 'open24h')
+  final String open24h;
+  @JsonKey(name: 'high24h')
+  final String high24h;
+  @JsonKey(name: 'low24h')
+  final String low24h;
+  @JsonKey(name: 'volume24h')
+  final String volume24h;
+  @JsonKey(name: 'quoteVolume24h')
+  final String quoteVolume24h;
+  @JsonKey(name: 'change24h')
   final String change24h;
-  @JsonKey(name: 'change_percent_24h')
-  final String changePercent24h;
+  @JsonKey(name: 'changeAmount24h')
+  final String changeAmount24h;
+  @JsonKey(name: 'bestBid')
+  final String bestBid;
+  @JsonKey(name: 'bestAsk')
+  final String bestAsk;
   final DateTime timestamp;
 
   const MarketTickerModel({
     required this.pairId,
     required this.symbol,
     required this.lastPrice,
-    required this.openPrice,
-    required this.highPrice,
-    required this.lowPrice,
-    required this.volume,
+    required this.open24h,
+    required this.high24h,
+    required this.low24h,
+    required this.volume24h,
+    required this.quoteVolume24h,
     required this.change24h,
-    required this.changePercent24h,
+    required this.changeAmount24h,
+    required this.bestBid,
+    required this.bestAsk,
     required this.timestamp,
   });
 
@@ -109,12 +128,15 @@ class MarketTickerModel {
       pairId: pairId,
       symbol: symbol,
       lastPrice: lastPrice,
-      openPrice: openPrice,
-      highPrice: highPrice,
-      lowPrice: lowPrice,
-      volume: volume,
+      open24h: open24h,
+      high24h: high24h,
+      low24h: low24h,
+      volume24h: volume24h,
+      quoteVolume24h: quoteVolume24h,
       change24h: change24h,
-      changePercent24h: changePercent24h,
+      changeAmount24h: changeAmount24h,
+      bestBid: bestBid,
+      bestAsk: bestAsk,
       timestamp: timestamp,
     );
   }
@@ -125,12 +147,14 @@ class MarketTickerModel {
 class OrderBookItemModel {
   final String price;
   final String amount;
-  final String total;
+  final String? total; // Optional - may not be in API response
+  final int? orders; // Number of orders at this price level
 
   const OrderBookItemModel({
     required this.price,
     required this.amount,
-    required this.total,
+    this.total,
+    this.orders,
   });
 
   factory OrderBookItemModel.fromJson(Map<String, dynamic> json) =>
@@ -143,6 +167,7 @@ class OrderBookItemModel {
       price: price,
       amount: amount,
       total: total,
+      orders: orders,
     );
   }
 }
@@ -150,11 +175,15 @@ class OrderBookItemModel {
 /// Order Book Model
 @JsonSerializable()
 class OrderBookModel {
-  @JsonKey(name: 'pair_id')
+  @JsonKey(name: 'pairId')
   final int pairId;
   final String symbol;
-  final List<OrderBookItemModel> bids;
-  final List<OrderBookItemModel> asks;
+  final List<OrderBookItemModel> bids; // Buy orders (sorted DESC by price)
+  final List<OrderBookItemModel> asks; // Sell orders (sorted ASC by price)
+  @JsonKey(name: 'bidLevels')
+  final int bidLevels;
+  @JsonKey(name: 'askLevels')
+  final int askLevels;
   final DateTime timestamp;
 
   const OrderBookModel({
@@ -162,6 +191,8 @@ class OrderBookModel {
     required this.symbol,
     required this.bids,
     required this.asks,
+    required this.bidLevels,
+    required this.askLevels,
     required this.timestamp,
   });
 
@@ -176,6 +207,8 @@ class OrderBookModel {
       symbol: symbol,
       bids: bids.map((b) => b.toEntity()).toList(),
       asks: asks.map((a) => a.toEntity()).toList(),
+      bidLevels: bidLevels,
+      askLevels: askLevels,
       timestamp: timestamp,
     );
   }

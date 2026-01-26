@@ -41,10 +41,29 @@ class ApiConstants {
   
   // Markets Endpoints (Thị trường)
   static const String markets = '/markets';
+  static const String marketsActive = '$markets/active';
   static String marketById(int id) => '$markets/$id';
-  static String marketBySymbol(String symbol) => '$markets/symbol/$symbol';
+  static String marketBySymbol(String symbol) {
+    // URL encode symbol to handle "/" in symbols like "BTC/USDT"
+    final encodedSymbol = Uri.encodeComponent(symbol);
+    return '$markets/symbol/$encodedSymbol';
+  }
   static String marketTicker(int id) => '$markets/$id/ticker';
+  static String marketTickerBySymbol(String symbol) {
+    final encodedSymbol = Uri.encodeComponent(symbol);
+    return '$markets/symbol/$encodedSymbol/ticker';
+  }
+  static const String marketsTickersAll = '$markets/tickers/all';
   static String marketOrderBook(int id) => '$markets/$id/orderbook';
+  static String marketOrderBookBySymbol(String symbol) {
+    final encodedSymbol = Uri.encodeComponent(symbol);
+    return '$markets/symbol/$encodedSymbol/orderbook';
+  }
+  static String marketTrades(int id) => '$markets/$id/trades';
+  static String marketTradesBySymbol(String symbol) {
+    final encodedSymbol = Uri.encodeComponent(symbol);
+    return '$markets/symbol/$encodedSymbol/trades';
+  }
   static String marketOHLCV(int id) => '$markets/$id/ohlcv';
   
   // Wallets Endpoints (Ví tiền)
