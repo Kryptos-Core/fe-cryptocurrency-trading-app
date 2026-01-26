@@ -15,12 +15,41 @@ class MarketsListScreen extends StatefulWidget {
 }
 
 class _MarketsListScreenState extends State<MarketsListScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MarketsProvider>().fetchMarkets(refresh: true);
     });
+
+    // Listen to scroll events to load more when near bottom
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      // Load more when scrolled to 80% of the list
+      if (!_isLoadingMore) {
+        final provider = context.read<MarketsProvider>();
+        if (provider.hasMore && !provider.isLoading) {
+          _isLoadingMore = true;
+          provider.loadMore().then((_) {
+            _isLoadingMore = false;
+          });
+        }
+      }
+    }
   }
 
   @override
@@ -73,22 +102,21 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
+              _isLoadingMore = false;
               await provider.fetchMarkets(refresh: true);
             },
             child: ListView.builder(
-              itemCount: provider.markets.length + (provider.hasMore ? 1 : 0),
+              controller: _scrollController,
+              itemCount: provider.markets.length + (provider.hasMore && provider.isLoading ? 1 : 0),
               itemBuilder: (context, index) {
+                // Show loading indicator at the end if loading more
                 if (index == provider.markets.length) {
-                  if (provider.hasMore) {
-                    provider.loadMore();
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 }
 
                 final market = provider.markets[index];
