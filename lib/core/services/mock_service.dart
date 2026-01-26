@@ -19,7 +19,7 @@ class MockService {
   /// 
   /// Strategy: Use real API if available, fallback to mock if not
   static bool useMockForCurrencies = false; // API ready - using real API
-  static bool useMockForMarkets = true; // API not ready - using mock data
+  static bool useMockForMarkets = false; // API ready - using real API
   static bool useMockForWallets = true; // API not ready - using mock data
   static bool useMockForUsers = true; // API not ready - using mock data (if needed)
 
