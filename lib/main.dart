@@ -51,10 +51,16 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => MarketsProvider(
             getMarketsUseCase: di.sl(),
+            getActiveMarketsUseCase: di.sl(),
             getMarketByIdUseCase: di.sl(),
             getMarketBySymbolUseCase: di.sl(),
             getMarketTickerUseCase: di.sl(),
+            getMarketTickerBySymbolUseCase: di.sl(),
+            getAllTickersUseCase: di.sl(),
             getOrderBookUseCase: di.sl(),
+            getOrderBookBySymbolUseCase: di.sl(),
+            getTradesUseCase: di.sl(),
+            getTradesBySymbolUseCase: di.sl(),
             getOHLCVUseCase: di.sl(),
           ),
         ),

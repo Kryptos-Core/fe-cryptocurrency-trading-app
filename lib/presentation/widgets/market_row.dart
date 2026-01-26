@@ -21,7 +21,9 @@ class MarketRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPositive = ticker?.isPositive ?? false;
-    final changePercent = ticker?.changePercent24h ?? '0.00';
+    final changePercent = ticker != null
+        ? (double.parse(ticker!.change24h) * 100).toStringAsFixed(2)
+        : '0.00';
     final lastPrice = ticker?.lastPrice ?? '0.00';
 
     return Card(
@@ -49,7 +51,7 @@ class MarketRow extends StatelessWidget {
                     if (ticker != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Vol: ${ticker!.volume}',
+                        'Vol: ${ticker!.volume24h}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -73,10 +75,10 @@ class MarketRow extends StatelessWidget {
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
                     ),
-                    if (ticker != null) ...[
+                    if (ticker != null && market.quoteCurrency != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        market.quoteCurrency.symbol,
+                        market.quoteCurrency!.symbol,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,

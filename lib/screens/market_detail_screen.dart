@@ -110,7 +110,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     Text(
-                      '${isPositive ? '+' : ''}${ticker.changePercent24h}%',
+                      ticker.changePercentFormatted,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     Text(
-                      ticker.volume,
+                      ticker.volume24h,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -158,8 +158,8 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildInfoRow('Base Currency', market.baseCurrency.symbol),
-            _buildInfoRow('Quote Currency', market.quoteCurrency.symbol),
+            _buildInfoRow('Base Currency', market.baseCurrency?.symbol ?? 'N/A'),
+            _buildInfoRow('Quote Currency', market.quoteCurrency?.symbol ?? 'N/A'),
             _buildInfoRow('Min Order Amount', market.minOrderAmount),
             _buildInfoRow('Maker Fee', '${market.makerFeeRate}%'),
             _buildInfoRow('Taker Fee', '${market.takerFeeRate}%'),
