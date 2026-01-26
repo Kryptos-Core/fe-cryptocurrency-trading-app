@@ -7,9 +7,11 @@ class MarketsMock {
   static final List<MarketPairModel> mockMarketPairs = [
     MarketPairModel(
       pairId: 1,
+      baseCurrencyId: 1,
+      quoteCurrencyId: 3,
       symbol: "BTC/USDT",
-      baseCurrency: CurrenciesMock.getBySymbol("BTC")!,
-      quoteCurrency: CurrenciesMock.getBySymbol("USDT")!,
+      baseCurrency: CurrenciesMock.getBySymbol("BTC"),
+      quoteCurrency: CurrenciesMock.getBySymbol("USDT"),
       priceScale: 2,
       amountScale: 6,
       minOrderAmount: "0.0001",
@@ -20,9 +22,11 @@ class MarketsMock {
     ),
     MarketPairModel(
       pairId: 2,
+      baseCurrencyId: 2,
+      quoteCurrencyId: 3,
       symbol: "ETH/USDT",
-      baseCurrency: CurrenciesMock.getBySymbol("ETH")!,
-      quoteCurrency: CurrenciesMock.getBySymbol("USDT")!,
+      baseCurrency: CurrenciesMock.getBySymbol("ETH"),
+      quoteCurrency: CurrenciesMock.getBySymbol("USDT"),
       priceScale: 2,
       amountScale: 6,
       minOrderAmount: "0.01",
@@ -33,9 +37,11 @@ class MarketsMock {
     ),
     MarketPairModel(
       pairId: 3,
+      baseCurrencyId: 3,
+      quoteCurrencyId: 3,
       symbol: "BNB/USDT",
-      baseCurrency: CurrenciesMock.getBySymbol("BNB")!,
-      quoteCurrency: CurrenciesMock.getBySymbol("USDT")!,
+      baseCurrency: CurrenciesMock.getBySymbol("BNB"),
+      quoteCurrency: CurrenciesMock.getBySymbol("USDT"),
       priceScale: 2,
       amountScale: 6,
       minOrderAmount: "0.1",
@@ -46,9 +52,11 @@ class MarketsMock {
     ),
     MarketPairModel(
       pairId: 4,
+      baseCurrencyId: 6,
+      quoteCurrencyId: 3,
       symbol: "ADA/USDT",
-      baseCurrency: CurrenciesMock.getBySymbol("ADA")!,
-      quoteCurrency: CurrenciesMock.getBySymbol("USDT")!,
+      baseCurrency: CurrenciesMock.getBySymbol("ADA"),
+      quoteCurrency: CurrenciesMock.getBySymbol("USDT"),
       priceScale: 4,
       amountScale: 2,
       minOrderAmount: "10",
@@ -59,9 +67,11 @@ class MarketsMock {
     ),
     MarketPairModel(
       pairId: 5,
+      baseCurrencyId: 7,
+      quoteCurrencyId: 3,
       symbol: "DOT/USDT",
-      baseCurrency: CurrenciesMock.getBySymbol("DOT")!,
-      quoteCurrency: CurrenciesMock.getBySymbol("USDT")!,
+      baseCurrency: CurrenciesMock.getBySymbol("DOT"),
+      quoteCurrency: CurrenciesMock.getBySymbol("USDT"),
       priceScale: 2,
       amountScale: 4,
       minOrderAmount: "1",
@@ -103,11 +113,11 @@ class MarketsMock {
     }
 
     if (baseCurrency != null) {
-      filtered = filtered.where((m) => m.baseCurrency.symbol.toUpperCase() == baseCurrency.toUpperCase()).toList();
+      filtered = filtered.where((m) => m.baseCurrency?.symbol.toUpperCase() == baseCurrency.toUpperCase()).toList();
     }
 
     if (quoteCurrency != null) {
-      filtered = filtered.where((m) => m.quoteCurrency.symbol.toUpperCase() == quoteCurrency.toUpperCase()).toList();
+      filtered = filtered.where((m) => m.quoteCurrency?.symbol.toUpperCase() == quoteCurrency.toUpperCase()).toList();
     }
 
     return filtered;
@@ -121,20 +131,30 @@ class MarketsMock {
     }
 
     final lastPrice = basePrice + (basePrice * (0.01 * (2 * (DateTime.now().millisecond % 100) / 100 - 1)));
-    final openPrice = basePrice;
-    final change = lastPrice - openPrice;
-    final changePercent = (change / openPrice) * 100;
+    final open24h = basePrice;
+    final high24h = lastPrice + 500;
+    final low24h = lastPrice - 500;
+    final change = lastPrice - open24h;
+    final changePercent = (change / open24h);
+    final changeAmount24h = change.toStringAsFixed(2);
+    final volume24h = (1000 + DateTime.now().millisecond % 500).toStringAsFixed(2);
+    final quoteVolume24h = (double.parse(volume24h) * lastPrice).toStringAsFixed(2);
+    final bestBid = (lastPrice - 0.5).toStringAsFixed(2);
+    final bestAsk = (lastPrice + 0.5).toStringAsFixed(2);
 
     return MarketTickerModel(
       pairId: pairId,
       symbol: pair.symbol,
       lastPrice: lastPrice.toStringAsFixed(2),
-      openPrice: openPrice.toStringAsFixed(2),
-      highPrice: (lastPrice + 500).toStringAsFixed(2),
-      lowPrice: (lastPrice - 500).toStringAsFixed(2),
-      volume: (1000 + DateTime.now().millisecond % 500).toStringAsFixed(2),
-      change24h: change.toStringAsFixed(2),
-      changePercent24h: changePercent.toStringAsFixed(2),
+      open24h: open24h.toStringAsFixed(2),
+      high24h: high24h.toStringAsFixed(2),
+      low24h: low24h.toStringAsFixed(2),
+      volume24h: volume24h,
+      quoteVolume24h: quoteVolume24h,
+      change24h: changePercent.toStringAsFixed(4),
+      changeAmount24h: changeAmount24h,
+      bestBid: bestBid,
+      bestAsk: bestAsk,
       timestamp: DateTime.now(),
     );
   }
@@ -173,6 +193,8 @@ class MarketsMock {
       symbol: pair.symbol,
       bids: bids,
       asks: asks,
+      bidLevels: bids.length,
+      askLevels: asks.length,
       timestamp: DateTime.now(),
     );
   }
