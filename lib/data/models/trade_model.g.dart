@@ -7,12 +7,13 @@ part of 'trade_model.dart';
 // **************************************************************************
 
 TradeModel _$TradeModelFromJson(Map<String, dynamic> json) => TradeModel(
-      tradeId: (json['trade_id'] as num).toInt(),
-      pairId: (json['pair_id'] as num).toInt(),
-      price: json['price'] as String,
-      amount: json['amount'] as String,
-      side: json['side'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      tradeId: (json['trade_id'] as num?)?.toInt() ?? 0,
+      pairId: (json['pair_id'] as num?)?.toInt() ?? 0,
+      price: json['price'] as String? ?? '0',
+      amount: json['amount'] as String? ?? '0',
+      side: json['side'] as String? ?? '',
+      createdAt: DateTime.parse(
+          json['created_at'] as String? ?? DateTime.now().toIso8601String()),
     );
 
 Map<String, dynamic> _$TradeModelToJson(TradeModel instance) =>

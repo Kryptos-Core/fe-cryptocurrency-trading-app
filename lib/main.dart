@@ -12,7 +12,7 @@ import 'package:crypto_trading_app/screens/login_screen.dart';
 void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables from .env file
   try {
     await dotenv.load(fileName: '.env');
@@ -20,10 +20,10 @@ void main() async {
     // If .env file doesn't exist, use default values
     debugPrint('Warning: .env file not found, using default values');
   }
-  
+
   // Initialize dependency injection
   await di.initializeDependencies();
-  
+
   runApp(const CryptoTradingApp());
 }
 
@@ -34,11 +34,11 @@ class CryptoTradingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Re-initialize on hot reload if needed
     di.initializeDependencies();
-    
+
     // Check if user is authenticated
     final tokenService = di.sl<TokenService>();
     final isAuthenticated = tokenService.isAuthenticated();
-    
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -70,6 +70,8 @@ class CryptoTradingApp extends StatelessWidget {
             getWalletByCurrencyUseCase: di.sl(),
             getWalletBalanceUseCase: di.sl(),
             getWalletLedgerUseCase: di.sl(),
+            getWalletBalanceApiUseCase: di.sl(),
+            executeWalletTransactionApiUseCase: di.sl(),
           ),
         ),
       ],

@@ -3,7 +3,7 @@ import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/toast_service.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
-import 'package:crypto_trading_app/screens/home_screen.dart';
+import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
 
 /// Login Screen
@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
@@ -87,11 +87,11 @@ class _LoginScreenState extends State<LoginScreen> {
               duration: const Duration(seconds: 1),
             );
 
-            // Navigate to home screen
+            // Navigate to main screen (with bottom navigation)
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen()),
                 );
               }
             });
@@ -239,7 +239,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(

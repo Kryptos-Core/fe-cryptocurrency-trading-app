@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/screens/dashboard_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
-import 'package:crypto_trading_app/screens/wallets_overview_screen.dart';
+import 'package:crypto_trading_app/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
@@ -18,10 +18,10 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const DashboardScreen(),      // Home: Dashboard với overview
-    const MarketsListScreen(),     // Markets
-    const WalletsOverviewScreen(), // Wallets
-    const ProfileScreen(),         // Profile
+    const DashboardScreen(), // Home: Dashboard với overview
+    const MarketsListScreen(), // Markets
+    const WalletApiScreen(), // Wallets (Real API)
+    const ProfileScreen(), // Profile
   ];
 
   @override

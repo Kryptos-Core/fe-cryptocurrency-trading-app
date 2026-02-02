@@ -2,6 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
+import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
+import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
+import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
 
 /// Wallets Provider
 /// Following Provider Pattern for State Management
@@ -10,12 +14,16 @@ class WalletsProvider extends ChangeNotifier {
   final GetWalletByCurrencyUseCase getWalletByCurrencyUseCase;
   final GetWalletBalanceUseCase getWalletBalanceUseCase;
   final GetWalletLedgerUseCase getWalletLedgerUseCase;
+  final GetWalletBalanceApiUseCase? getWalletBalanceApiUseCase;
+  final ExecuteWalletTransactionApiUseCase? executeWalletTransactionApiUseCase;
 
   WalletsProvider({
     required this.getWalletsUseCase,
     required this.getWalletByCurrencyUseCase,
     required this.getWalletBalanceUseCase,
     required this.getWalletLedgerUseCase,
+    this.getWalletBalanceApiUseCase,
+    this.executeWalletTransactionApiUseCase,
   });
 
   // State
@@ -32,6 +40,10 @@ class WalletsProvider extends ChangeNotifier {
   final int _pageSize = 10;
   bool _hasMore = true;
 
+  // New Wallet API state
+  WalletBalance? _walletBalance;
+  WalletTransactionResponse? _lastTransaction;
+
   // Getters
   List<Wallet> get wallets => _wallets;
   Wallet? get selectedWallet => _selectedWallet;
@@ -39,6 +51,8 @@ class WalletsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasMore => _hasMore;
+  WalletBalance? get walletBalance => _walletBalance;
+  WalletTransactionResponse? get lastTransaction => _lastTransaction;
 
   /// Calculate total portfolio value in USDT (mock calculation)
   double get totalPortfolioValue {
@@ -225,6 +239,164 @@ class WalletsProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // ===== NEW WALLET API METHODS =====
+
+  /// Fetch wallet balance using new Wallet API
+  Future<void> fetchWalletBalance(int currencyId,
+      {bool forceRefresh = false}) async {
+    if (getWalletBalanceApiUseCase == null) {
+      _error = 'Wallet API not configured';
+      notifyListeners();
+      return;
+    }
+
+    print(
+        '[WalletsProvider] Fetching wallet balance for currencyId: $currencyId');
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await getWalletBalanceApiUseCase!(
+      GetWalletBalanceParams(currencyId: currencyId),
+    );
+
+    result.fold(
+      (failure) {
+        print('[WalletsProvider] ERROR: Failure type: ${failure.runtimeType}');
+        print('[WalletsProvider] ERROR: Failure message: ${failure.message}');
+        _error = _mapFailureToMessage(failure);
+        _isLoading = false;
+        notifyListeners();
+      },
+      (balance) {
+        print(
+            '[WalletsProvider] SUCCESS: Balance fetched - userId=${balance.userId}, currencyId=${balance.currencyId}, available=${balance.available}, frozen=${balance.frozen}, total=${balance.total}');
+        _walletBalance = balance;
+        _isLoading = false;
+        _error = null;
+        notifyListeners();
+      },
+    );
+  }
+
+  /// Execute wallet transaction (CREDIT/DEBIT/FREEZE/UNFREEZE/TRANSFER)
+  Future<bool> executeTransaction(WalletTransactionRequest request) async {
+    if (executeWalletTransactionApiUseCase == null) {
+      _error = 'Wallet API not configured';
+      notifyListeners();
+      return false;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await executeWalletTransactionApiUseCase!(
+      ExecuteWalletTransactionParams(request: request),
+    );
+
+    bool success = false;
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+        _isLoading = false;
+        notifyListeners();
+      },
+      (response) {
+        _lastTransaction = response;
+        _walletBalance = response.newBalance;
+        _isLoading = false;
+        _error = null;
+        success = true;
+        notifyListeners();
+      },
+    );
+
+    return success;
+  }
+
+  /// Deposit (CREDIT action)
+  Future<bool> deposit({
+    required int currencyId,
+    required String amount,
+    required int refId,
+  }) async {
+    final request = WalletTransactionRequest(
+      currencyId: currencyId,
+      action: WalletTransactionAction.credit,
+      amount: amount,
+      refType: WalletReferenceType.deposit,
+      refId: refId,
+    );
+    return await executeTransaction(request);
+  }
+
+  /// Withdraw (DEBIT action)
+  Future<bool> withdraw({
+    required int currencyId,
+    required String amount,
+    required int refId,
+  }) async {
+    final request = WalletTransactionRequest(
+      currencyId: currencyId,
+      action: WalletTransactionAction.debit,
+      amount: amount,
+      refType: WalletReferenceType.withdraw,
+      refId: refId,
+    );
+    return await executeTransaction(request);
+  }
+
+  /// Freeze balance (for order placement)
+  Future<bool> freezeBalance({
+    required int currencyId,
+    required String amount,
+    required int refId,
+  }) async {
+    final request = WalletTransactionRequest(
+      currencyId: currencyId,
+      action: WalletTransactionAction.freeze,
+      amount: amount,
+      refType: WalletReferenceType.order,
+      refId: refId,
+    );
+    return await executeTransaction(request);
+  }
+
+  /// Unfreeze balance (for order cancellation)
+  Future<bool> unfreezeBalance({
+    required int currencyId,
+    required String amount,
+    required int refId,
+  }) async {
+    final request = WalletTransactionRequest(
+      currencyId: currencyId,
+      action: WalletTransactionAction.unfreeze,
+      amount: amount,
+      refType: WalletReferenceType.order,
+      refId: refId,
+    );
+    return await executeTransaction(request);
+  }
+
+  /// Transfer to another user
+  Future<bool> transfer({
+    required int currencyId,
+    required String amount,
+    required int toUserId,
+  }) async {
+    final request = WalletTransactionRequest(
+      currencyId: currencyId,
+      action: WalletTransactionAction.transfer,
+      amount: amount,
+      refType: WalletReferenceType.transfer,
+      refId: toUserId,
+      targetUserId: toUserId,
+    );
+    return await executeTransaction(request);
   }
 
   String _mapFailureToMessage(Failure failure) {
