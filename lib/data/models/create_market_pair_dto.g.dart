@@ -8,8 +8,8 @@ part of 'create_market_pair_dto.dart';
 
 CreateMarketPairDto _$CreateMarketPairDtoFromJson(Map<String, dynamic> json) =>
     CreateMarketPairDto(
-      baseCurrencyId: (json['baseCurrencyId'] as num).toInt(),
-      quoteCurrencyId: (json['quoteCurrencyId'] as num).toInt(),
+      baseCurrencyId: (json['baseCurrencyId'] as num?)?.toInt() ?? 0,
+      quoteCurrencyId: (json['quoteCurrencyId'] as num?)?.toInt() ?? 0,
       symbol: json['symbol'] as String?,
       priceScale: (json['priceScale'] as num?)?.toInt(),
       amountScale: (json['amountScale'] as num?)?.toInt(),

@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/data/models/paginated_markets_response.dart';
 import 'package:crypto_trading_app/data/models/create_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/trade_model.dart';
+import 'package:crypto_trading_app/data/models/ohlcv_response.dart';
 import 'package:crypto_trading_app/data/mocks/markets_mock.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
 import 'package:crypto_trading_app/core/models/error_response.dart';
@@ -108,7 +109,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     } else if (statusCode == 400) {
       // Parse validation errors
       try {
-        final errorResponse = ErrorResponse.fromJson(responseData as Map<String, dynamic>);
+        final errorResponse =
+            ErrorResponse.fromJson(responseData as Map<String, dynamic>);
         throw ValidationException(
           message: errorResponse.message,
           errors: errorResponse.context,
@@ -181,23 +183,29 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       if (response.statusCode == 200) {
         try {
           final responseData = response.data as Map<String, dynamic>;
-          
-          // Handle case where data might be null
-          if (responseData['data'] == null) {
+          final success = responseData['success'] as bool? ?? false;
+          if (!success) {
             throw ServerException(
-              message: 'Invalid response: data field is null',
+              message: responseData['message'] as String? ??
+                  'Failed to fetch markets',
             );
           }
 
-          final apiResponse = PaginatedMarketsResponse.fromJson(responseData);
+          final dataJson = responseData['data'] as Map<String, dynamic>? ??
+              <String, dynamic>{};
+          final pairs = _parseMarketPairs(dataJson['pairs']);
+          final parsedTotal = _toInt(dataJson['total'], fallback: pairs.length);
+          final parsedPage = _toInt(dataJson['page'], fallback: page);
+          final parsedLimit = _toInt(dataJson['limit'], fallback: limit);
+          final parsedTotalPages = _toInt(dataJson['totalPages'], fallback: 0);
 
-          if (apiResponse.success) {
-            return apiResponse.data;
-          } else {
-            throw ServerException(
-              message: apiResponse.message ?? 'Failed to fetch markets',
-            );
-          }
+          return PaginatedMarketsData(
+            data: pairs,
+            total: parsedTotal,
+            page: parsedPage,
+            limit: parsedLimit,
+            totalPages: parsedTotalPages == 0 ? null : parsedTotalPages,
+          );
         } catch (e) {
           // Catch type cast errors and provide better error message
           if (e is TypeError || e.toString().contains('is not a subtype')) {
@@ -227,11 +235,32 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
   }
 
+  int _toInt(dynamic value, {required int fallback}) {
+    if (value is num) {
+      return value.toInt();
+    }
+    if (value is String) {
+      return int.tryParse(value) ?? fallback;
+    }
+    return fallback;
+  }
+
+  List<MarketPairModel> _parseMarketPairs(dynamic pairsJson) {
+    if (pairsJson is List) {
+      return pairsJson
+          .whereType<Map<String, dynamic>>()
+          .map((item) => MarketPairModel.fromJson(item))
+          .toList();
+    }
+    return <MarketPairModel>[];
+  }
+
   @override
   Future<List<MarketPairModel>> getActiveMarkets() async {
     if (MockService.isMockModeFor('markets')) {
       return MockService.mockResponse(() {
-        return MarketsMock.filter(isActive: true, baseCurrency: null, quoteCurrency: null);
+        return MarketsMock.filter(
+            isActive: true, baseCurrency: null, quoteCurrency: null);
       });
     }
 
@@ -242,7 +271,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         final apiResponse = ApiResponse<List<MarketPairModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
-              .map((item) => MarketPairModel.fromJson(item as Map<String, dynamic>))
+              .map((item) =>
+                  MarketPairModel.fromJson(item as Map<String, dynamic>))
               .toList(),
         );
 
@@ -279,7 +309,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final market = MarketsMock.getById(pairId);
         if (market == null) {
-          throw NotFoundException(message: 'Market pair with id $pairId not found');
+          throw NotFoundException(
+              message: 'Market pair with id $pairId not found');
         }
         return market;
       });
@@ -298,11 +329,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           return apiResponse.data!;
         } else {
           throw NotFoundException(
-            message: apiResponse.message ?? 'Market pair with id $pairId not found',
+            message:
+                apiResponse.message ?? 'Market pair with id $pairId not found',
           );
         }
       } else {
-        throw NotFoundException(message: 'Market pair with id $pairId not found');
+        throw NotFoundException(
+            message: 'Market pair with id $pairId not found');
       }
     } on DioException catch (e) {
       _handleDioException(e);
@@ -324,7 +357,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final market = MarketsMock.getBySymbol(symbol);
         if (market == null) {
-          throw NotFoundException(message: 'Market pair with symbol $symbol not found');
+          throw NotFoundException(
+              message: 'Market pair with symbol $symbol not found');
         }
         return market;
       });
@@ -344,11 +378,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           return apiResponse.data!;
         } else {
           throw NotFoundException(
-            message: apiResponse.message ?? 'Market pair with symbol $symbol not found',
+            message: apiResponse.message ??
+                'Market pair with symbol $symbol not found',
           );
         }
       } else {
-        throw NotFoundException(message: 'Market pair with symbol $symbol not found');
+        throw NotFoundException(
+            message: 'Market pair with symbol $symbol not found');
       }
     } on DioException catch (e) {
       _handleDioException(e);
@@ -386,7 +422,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Ticker not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Ticker not found');
         }
       } else {
         throw NotFoundException(message: 'Ticker not found');
@@ -411,7 +448,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final market = MarketsMock.getBySymbol(symbol);
         if (market == null) {
-          throw NotFoundException(message: 'Market pair with symbol $symbol not found');
+          throw NotFoundException(
+              message: 'Market pair with symbol $symbol not found');
         }
         final basePrices = {1: 45000.0, 2: 2850.0, 3: 350.0, 4: 0.52, 5: 7.80};
         final basePrice = basePrices[market.pairId] ?? 100.0;
@@ -431,7 +469,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Ticker not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Ticker not found');
         }
       } else {
         throw NotFoundException(message: 'Ticker not found');
@@ -454,11 +493,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
   Future<List<MarketTickerModel>> getAllTickers() async {
     if (MockService.isMockModeFor('markets')) {
       return MockService.mockResponse(() {
-        final markets = MarketsMock.filter(isActive: true, baseCurrency: null, quoteCurrency: null);
+        final markets = MarketsMock.filter(
+            isActive: true, baseCurrency: null, quoteCurrency: null);
         final basePrices = {1: 45000.0, 2: 2850.0, 3: 350.0, 4: 0.52, 5: 7.80};
         return markets.map((market) {
           final basePrice = basePrices[market.pairId] ?? 100.0;
-          return MarketsMock.generateTicker(market.pairId, basePrice: basePrice);
+          return MarketsMock.generateTicker(market.pairId,
+              basePrice: basePrice);
         }).toList();
       });
     }
@@ -470,7 +511,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         final apiResponse = ApiResponse<List<MarketTickerModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
-              .map((item) => MarketTickerModel.fromJson(item as Map<String, dynamic>))
+              .map((item) =>
+                  MarketTickerModel.fromJson(item as Map<String, dynamic>))
               .toList(),
         );
 
@@ -529,7 +571,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Order book not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Order book not found');
         }
       } else {
         throw NotFoundException(message: 'Order book not found');
@@ -557,11 +600,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final market = MarketsMock.getBySymbol(symbol);
         if (market == null) {
-          throw NotFoundException(message: 'Market pair with symbol $symbol not found');
+          throw NotFoundException(
+              message: 'Market pair with symbol $symbol not found');
         }
         final basePrices = {1: 45000.0, 2: 2850.0, 3: 350.0, 4: 0.52, 5: 7.80};
         final basePrice = basePrices[market.pairId] ?? 100.0;
-        return MarketsMock.generateOrderBook(market.pairId, basePrice: basePrice);
+        return MarketsMock.generateOrderBook(market.pairId,
+            basePrice: basePrice);
       });
     }
 
@@ -580,7 +625,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Order book not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Order book not found');
         }
       } else {
         throw NotFoundException(message: 'Order book not found');
@@ -637,7 +683,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Trades not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Trades not found');
         }
       } else {
         throw NotFoundException(message: 'Trades not found');
@@ -665,7 +712,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final market = MarketsMock.getBySymbol(symbol);
         if (market == null) {
-          throw NotFoundException(message: 'Market pair with symbol $symbol not found');
+          throw NotFoundException(
+              message: 'Market pair with symbol $symbol not found');
         }
         return List.generate(limit, (index) {
           return TradeModel(
@@ -697,7 +745,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         if (apiResponse.success && apiResponse.data != null) {
           return apiResponse.data!;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'Trades not found');
+          throw NotFoundException(
+              message: apiResponse.message ?? 'Trades not found');
         }
       } else {
         throw NotFoundException(message: 'Trades not found');
@@ -728,7 +777,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final basePrices = {1: 45000.0, 2: 2850.0, 3: 350.0, 4: 0.52, 5: 7.80};
         final basePrice = basePrices[pairId] ?? 100.0;
-        return MarketsMock.generateOHLCV(pairId, count: limit, basePrice: basePrice);
+        return MarketsMock.generateOHLCV(pairId,
+            count: limit, basePrice: basePrice);
       });
     }
 
@@ -744,15 +794,15 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final apiResponse = ApiResponse<List<OHLCVModel>>.fromJson(
+        final ohlcvResponse = OHLCVResponse.fromJson(
           response.data as Map<String, dynamic>,
-          (json) => (json as List).map((item) => OHLCVModel.fromJson(item as Map<String, dynamic>)).toList(),
         );
 
-        if (apiResponse.success && apiResponse.data != null) {
-          return apiResponse.data!;
+        if (ohlcvResponse.success) {
+          return ohlcvResponse.data.candles;
         } else {
-          throw NotFoundException(message: apiResponse.message ?? 'OHLCV data not found');
+          throw NotFoundException(
+              message: ohlcvResponse.message ?? 'OHLCV data not found');
         }
       } else {
         throw NotFoundException(message: 'OHLCV data not found');
@@ -835,12 +885,14 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
   }
 
   @override
-  Future<MarketPairModel> updateMarketPair(int pairId, UpdateMarketPairDto dto) async {
+  Future<MarketPairModel> updateMarketPair(
+      int pairId, UpdateMarketPairDto dto) async {
     if (MockService.isMockModeFor('markets')) {
       return MockService.mockResponse(() {
         final existing = MarketsMock.getById(pairId);
         if (existing == null) {
-          throw NotFoundException(message: 'Market pair with id $pairId not found');
+          throw NotFoundException(
+              message: 'Market pair with id $pairId not found');
         }
         // Mock update - merge dto with existing
         return MarketPairModel(
@@ -910,7 +962,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       return MockService.mockResponse(() {
         final existing = MarketsMock.getById(pairId);
         if (existing == null) {
-          throw NotFoundException(message: 'Market pair with id $pairId not found');
+          throw NotFoundException(
+              message: 'Market pair with id $pairId not found');
         }
         // Mock delete - just return void
         return;

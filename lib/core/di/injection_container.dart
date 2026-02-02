@@ -9,6 +9,8 @@ import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart'
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/markets_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/wallets_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/markets_repository_impl.dart';
@@ -16,13 +18,22 @@ import 'package:crypto_trading_app/data/repositories/wallets_repository_impl.dar
 import 'package:crypto_trading_app/domain/repositories/currencies_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
+import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
+import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/markets_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
+import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart'
+    as wallet_api_usecases;
+import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart'
+    as wallet_api_usecases;
 
 // Export for hot reload check
-export 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
+export 'package:shared_preferences/shared_preferences.dart'
+    show SharedPreferences;
 
 /// Service Locator for Dependency Injection
 /// Following Dependency Inversion Principle (DIP)
@@ -51,7 +62,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<DioClient>(
     () => DioClient(tokenService: sl()),
   );
-  
+
   sl.registerLazySingleton<Dio>(() => sl<DioClient>().dio);
 
   // Currency Cache Service
@@ -85,6 +96,15 @@ Future<void> initializeDependencies() async {
     () => WalletsRemoteDataSourceImpl(dio: sl()),
   );
 
+  // New Wallet API Data Sources
+  sl.registerLazySingleton<WalletRemoteDataSource>(
+    () => WalletRemoteDataSourceImpl(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<WalletLocalDataSource>(
+    () => WalletLocalDataSourceImpl(),
+  );
+
   // ===== Repositories =====
   // Auth Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -106,6 +126,14 @@ Future<void> initializeDependencies() async {
     () => WalletsRepositoryImpl(remoteDataSource: sl()),
   );
 
+  // New Wallet API Repository
+  sl.registerLazySingleton<WalletRepository>(
+    () => WalletRepositoryImpl(
+      remoteDataSource: sl<WalletRemoteDataSource>(),
+      localDataSource: sl<WalletLocalDataSource>(),
+    ),
+  );
+
   // ===== Use Cases =====
   // Auth Use Cases
   sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
@@ -115,7 +143,8 @@ Future<void> initializeDependencies() async {
   // Currencies Use Cases
   sl.registerLazySingleton(() => GetCurrenciesUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetActiveCurrenciesUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetTradableCurrenciesUseCase(repository: sl()));
+  sl.registerLazySingleton(
+      () => GetTradableCurrenciesUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCurrencyByIdUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetCurrencyBySymbolUseCase(repository: sl()));
   sl.registerLazySingleton(() => CreateCurrencyUseCase(repository: sl()));
@@ -128,7 +157,8 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetMarketByIdUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetMarketBySymbolUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetMarketTickerUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetMarketTickerBySymbolUseCase(repository: sl()));
+  sl.registerLazySingleton(
+      () => GetMarketTickerBySymbolUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetAllTickersUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetOrderBookUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetOrderBookBySymbolUseCase(repository: sl()));
@@ -144,4 +174,16 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetWalletByCurrencyUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetWalletBalanceUseCase(repository: sl()));
   sl.registerLazySingleton(() => GetWalletLedgerUseCase(repository: sl()));
+
+  // New Wallet API Use Cases
+  sl.registerLazySingleton(
+    () => wallet_api_usecases.GetWalletBalanceApiUseCase(
+      walletRepository: sl<WalletRepository>(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => wallet_api_usecases.ExecuteWalletTransactionApiUseCase(
+      walletRepository: sl<WalletRepository>(),
+    ),
+  );
 }

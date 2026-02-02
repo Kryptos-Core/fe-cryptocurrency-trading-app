@@ -68,7 +68,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
     } else if (statusCode == 400) {
       // Parse validation errors
       try {
-        final errorResponse = ErrorResponse.fromJson(responseData as Map<String, dynamic>);
+        final errorResponse =
+            ErrorResponse.fromJson(responseData as Map<String, dynamic>);
         throw ValidationException(
           message: errorResponse.message,
           errors: errorResponse.context,
@@ -137,17 +138,29 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final apiResponse = PaginatedCurrenciesResponse.fromJson(
-          response.data as Map<String, dynamic>,
-        );
-
-        if (apiResponse.success) {
-          return apiResponse.data;
-        } else {
+        final responseData = response.data as Map<String, dynamic>;
+        final success = responseData['success'] as bool? ?? false;
+        if (!success) {
           throw ServerException(
-            message: apiResponse.message ?? 'Failed to fetch currencies',
+            message: responseData['message'] as String? ??
+                'Failed to fetch currencies',
           );
         }
+
+        final dataJson = responseData['data'] as Map<String, dynamic>? ??
+            <String, dynamic>{};
+        final currencies = _parseCurrencies(dataJson['currencies']);
+        final parsedTotal =
+            _toInt(dataJson['total'], fallback: currencies.length);
+        final parsedPage = _toInt(dataJson['page'], fallback: page);
+        final parsedLimit = _toInt(dataJson['limit'], fallback: limit);
+
+        return PaginatedCurrenciesData(
+          currencies: currencies,
+          total: parsedTotal,
+          page: parsedPage,
+          limit: parsedLimit,
+        );
       } else {
         throw ServerException(
           message: 'Failed to fetch currencies',
@@ -168,6 +181,26 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
     }
   }
 
+  int _toInt(dynamic value, {required int fallback}) {
+    if (value is num) {
+      return value.toInt();
+    }
+    if (value is String) {
+      return int.tryParse(value) ?? fallback;
+    }
+    return fallback;
+  }
+
+  List<CurrencyModel> _parseCurrencies(dynamic currenciesJson) {
+    if (currenciesJson is List) {
+      return currenciesJson
+          .whereType<Map<String, dynamic>>()
+          .map((item) => CurrencyModel.fromJson(item))
+          .toList();
+    }
+    return <CurrencyModel>[];
+  }
+
   @override
   Future<List<CurrencyModel>> getActiveCurrencies() async {
     if (MockService.isMockModeFor('currencies')) {
@@ -183,7 +216,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
         final apiResponse = ApiResponse<List<CurrencyModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
-              .map((item) => CurrencyModel.fromJson(item as Map<String, dynamic>))
+              .map((item) =>
+                  CurrencyModel.fromJson(item as Map<String, dynamic>))
               .toList(),
         );
 
@@ -229,7 +263,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
         final apiResponse = ApiResponse<List<CurrencyModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
-              .map((item) => CurrencyModel.fromJson(item as Map<String, dynamic>))
+              .map((item) =>
+                  CurrencyModel.fromJson(item as Map<String, dynamic>))
               .toList(),
         );
 
@@ -237,7 +272,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
           return apiResponse.data!;
         } else {
           throw ServerException(
-            message: apiResponse.message ?? 'Failed to fetch tradable currencies',
+            message:
+                apiResponse.message ?? 'Failed to fetch tradable currencies',
           );
         }
       } else {
@@ -266,7 +302,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
       return MockService.mockResponse(() {
         final currency = CurrenciesMock.getById(currencyId);
         if (currency == null) {
-          throw NotFoundException(message: 'Currency with ID $currencyId not found');
+          throw NotFoundException(
+              message: 'Currency with ID $currencyId not found');
         }
         return currency;
       });
@@ -285,11 +322,13 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
           return apiResponse.data!;
         } else {
           throw NotFoundException(
-            message: apiResponse.message ?? 'Currency with ID $currencyId not found',
+            message:
+                apiResponse.message ?? 'Currency with ID $currencyId not found',
           );
         }
       } else {
-        throw NotFoundException(message: 'Currency with ID $currencyId not found');
+        throw NotFoundException(
+            message: 'Currency with ID $currencyId not found');
       }
     } on DioException catch (e) {
       _handleDioException(e);
@@ -311,7 +350,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
       return MockService.mockResponse(() {
         final currency = CurrenciesMock.getBySymbol(symbol);
         if (currency == null) {
-          throw NotFoundException(message: 'Currency with symbol $symbol not found');
+          throw NotFoundException(
+              message: 'Currency with symbol $symbol not found');
         }
         return currency;
       });
@@ -330,11 +370,13 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
           return apiResponse.data!;
         } else {
           throw NotFoundException(
-            message: apiResponse.message ?? 'Currency with symbol $symbol not found',
+            message:
+                apiResponse.message ?? 'Currency with symbol $symbol not found',
           );
         }
       } else {
-        throw NotFoundException(message: 'Currency with symbol $symbol not found');
+        throw NotFoundException(
+            message: 'Currency with symbol $symbol not found');
       }
     } on DioException catch (e) {
       _handleDioException(e);
@@ -408,12 +450,14 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
   }
 
   @override
-  Future<CurrencyModel> updateCurrency(int currencyId, UpdateCurrencyDto dto) async {
+  Future<CurrencyModel> updateCurrency(
+      int currencyId, UpdateCurrencyDto dto) async {
     if (MockService.isMockModeFor('currencies')) {
       return MockService.mockResponse(() {
         final existing = CurrenciesMock.getById(currencyId);
         if (existing == null) {
-          throw NotFoundException(message: 'Currency with ID $currencyId not found');
+          throw NotFoundException(
+              message: 'Currency with ID $currencyId not found');
         }
         // Mock update - merge dto with existing
         return CurrencyModel(
@@ -473,7 +517,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
       return MockService.mockResponse(() {
         final existing = CurrenciesMock.getById(currencyId);
         if (existing == null) {
-          throw NotFoundException(message: 'Currency with ID $currencyId not found');
+          throw NotFoundException(
+              message: 'Currency with ID $currencyId not found');
         }
         // Mock delete - just return void
         return;
