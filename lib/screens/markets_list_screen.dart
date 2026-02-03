@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
@@ -57,7 +58,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Markets'),
-        automaticallyImplyLeading: false, // Remove back button when in bottom nav
+        automaticallyImplyLeading:
+            false, // Remove back button when in bottom nav
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -107,7 +109,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
             },
             child: ListView.builder(
               controller: _scrollController,
-              itemCount: provider.markets.length + (provider.hasMore && provider.isLoading ? 1 : 0),
+              itemCount: provider.markets.length +
+                  (provider.hasMore && provider.isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 // Show loading indicator at the end if loading more
                 if (index == provider.markets.length) {
@@ -126,8 +129,11 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MarketDetailScreen(
-                          pairId: market.pairId,
+                        builder: (context) => ChangeNotifierProvider(
+                          create: (_) => sl<ChartProvider>(),
+                          child: MarketDetailScreen(
+                            pairId: market.pairId,
+                          ),
                         ),
                       ),
                     );
