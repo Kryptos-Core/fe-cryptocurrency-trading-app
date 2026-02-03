@@ -44,7 +44,7 @@ class MarketsProvider extends ChangeNotifier {
   OrderBook? _orderBook;
   List<Trade> _trades = [];
   List<OHLCV> _ohlcv = [];
-  String _selectedInterval = '1h';
+  String _selectedInterval = '1m';
   bool _isLoading = false;
   String? _error;
   bool _includeInactive = false;
@@ -116,7 +116,7 @@ class MarketsProvider extends ChangeNotifier {
         _total = paginatedResult.total;
         // Update hasMore: check if we have more items to load
         _hasMore = _markets.length < _total && markets.length == _pageSize;
-        
+
         // Only increment page if we got a full page of results
         if (markets.length == _pageSize && _hasMore) {
           _currentPage++;

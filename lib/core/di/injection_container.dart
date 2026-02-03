@@ -30,6 +30,10 @@ import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.da
     as wallet_api_usecases;
 import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart'
     as wallet_api_usecases;
+import 'package:crypto_trading_app/core/services/websocket_service.dart';
+import 'package:crypto_trading_app/core/services/indicator_service.dart';
+import 'package:crypto_trading_app/data/repositories/chart_repository.dart';
+import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -45,6 +49,16 @@ final GetIt sl = GetIt.instance;
 Future<void> initializeDependencies() async {
   // Skip if already initialized (for hot reload support)
   if (sl.isRegistered<SharedPreferences>()) {
+    // Ensure ChartProvider is a factory even after hot reload
+    if (sl.isRegistered<ChartProvider>()) {
+      sl.unregister<ChartProvider>();
+    }
+    sl.registerFactory<ChartProvider>(
+      () => ChartProvider(
+        webSocketService: sl<IWebSocketService>(),
+        indicatorService: sl<IndicatorService>(),
+      ),
+    );
     return;
   }
 
@@ -184,6 +198,33 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(
     () => wallet_api_usecases.ExecuteWalletTransactionApiUseCase(
       walletRepository: sl<WalletRepository>(),
+    ),
+  );
+
+  // ===== Trading Chart Services =====
+  // WebSocket Service - Realtime data
+  sl.registerLazySingleton<IWebSocketService>(
+    () => WebSocketService(),
+  );
+
+  // Indicator Service - Technical analysis
+  sl.registerLazySingleton<IndicatorService>(
+    () => IndicatorService(),
+  );
+
+  // Chart Repository - Data access layer
+  sl.registerLazySingleton<IChartRepository>(
+    () => ChartRepository(
+      webSocketService: sl<IWebSocketService>(),
+      dioClient: sl<DioClient>(),
+    ),
+  );
+
+  // Chart Provider - State management (factory per screen)
+  sl.registerFactory<ChartProvider>(
+    () => ChartProvider(
+      webSocketService: sl<IWebSocketService>(),
+      indicatorService: sl<IndicatorService>(),
     ),
   );
 }
