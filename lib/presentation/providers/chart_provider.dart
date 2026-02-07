@@ -2,14 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
+import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:logger/logger.dart';
 
 /// Chart Provider - Observer Pattern + State Management
-/// Manages chart data, indicators, and realtime updates
-/// Integration with Backend WebSocket specification
+/// Manages chart data, indicators, and realtime updates.
+/// Uses ChartCacheService to retain ~1 month of data per pair/interval.
 class ChartProvider extends ChangeNotifier {
   final IWebSocketService webSocketService;
   final IndicatorService indicatorService;
+  final ChartCacheService chartCacheService;
   final Logger _logger = Logger();
 
   // State
@@ -20,6 +22,9 @@ class ChartProvider extends ChangeNotifier {
   String? _error;
   String _selectedInterval = '1m';
   int? _selectedPairId;
+
+  /// Max candles to hold in memory for chart display (performance).
+  static const int _maxCandlesDisplay = 2000;
 
   // Realtime state
   bool _isWebSocketConnected = false;
@@ -53,6 +58,7 @@ class ChartProvider extends ChangeNotifier {
   ChartProvider({
     required this.webSocketService,
     required this.indicatorService,
+    required this.chartCacheService,
   });
 
   /// Initialize WebSocket connection and authenticate
@@ -148,8 +154,6 @@ class ChartProvider extends ChangeNotifier {
   void _handleTickerUpdate(Map<String, dynamic> data) {
     try {
       _latestTicker = TickerData.fromJson(data);
-      _logger.d(
-          '💰 Ticker: ${_latestTicker?.symbol} = ${_latestTicker?.lastPrice}');
       notifyListeners();
     } catch (e) {
       _logger.e('Error processing ticker: $e');
@@ -163,22 +167,18 @@ class ChartProvider extends ChangeNotifier {
 
       // Check if this is an update to existing candle or new candle
       if (_candles.isNotEmpty && _candles.last.openTime == newCandle.openTime) {
-        // Update existing candle
         _candles[_candles.length - 1] = newCandle;
-        _logger.d(
-            '📈 Updated candle: ${newCandle.interval} closed=${newCandle.isClosed}');
       } else {
-        // Add new candle
         _candles.add(newCandle);
-        _logger
-            .d('📈 New candle: ${newCandle.interval} close=${newCandle.close}');
 
-        // Keep only last 500 candles for performance
-        if (_candles.length > 500) {
+        if (_candles.length > _maxCandlesDisplay) {
           _candles.removeAt(0);
         }
       }
 
+      if (_selectedPairId != null) {
+        chartCacheService.putCandles(_selectedPairId!, _selectedInterval, _candles);
+      }
       _recalculateIndicators();
       notifyListeners();
     } catch (e) {
@@ -227,45 +227,58 @@ class ChartProvider extends ChangeNotifier {
 
       _indicators =
           indicatorService.calculateAllIndicators(closePrices, volumes);
-      _logger.d('✅ Indicators recalculated');
     } catch (e) {
       _logger.e('Error recalculating indicators: $e');
     }
   }
 
-  /// Subscribe to a trading pair with specific channels
+  /// Subscribe to a trading pair with specific channels.
+  /// Loads cached candles for this pair/interval first (if any), then subscribes to realtime.
   void subscribeToPair(int pairId, List<String> channels, {String? interval}) {
-    if (_selectedPairId == pairId) return;
+    final effectiveInterval = interval ?? _selectedInterval;
+    if (_selectedPairId == pairId && _selectedInterval == effectiveInterval) return;
 
-    // Unsubscribe from previous pair
     if (_selectedPairId != null) {
       webSocketService.unsubscribeFromPair(_selectedPairId!);
     }
 
     _selectedPairId = pairId;
-    _candles.clear();
+    _selectedInterval = effectiveInterval;
     _indicators.clear();
     _error = null;
 
-    // Subscribe to new pair
+    // Load from cache (trim to display limit for performance)
+    final cached = chartCacheService.getCandles(pairId, effectiveInterval);
+    _candles = cached.length > _maxCandlesDisplay
+        ? cached.sublist(cached.length - _maxCandlesDisplay)
+        : cached;
+    if (_candles.isNotEmpty) {
+      _recalculateIndicators();
+      _logger.i('📂 Loaded ${_candles.length} candles from cache for pair $pairId $effectiveInterval');
+    }
+
     webSocketService.subscribeToPair(
       pairId,
       channels,
-      interval: interval ?? _selectedInterval,
+      interval: effectiveInterval,
     );
 
     _logger.i('📡 Subscribed to pair $pairId: $channels');
     notifyListeners();
   }
 
-  /// Set selected interval and resubscribe
+  /// Set selected interval: load cache for new interval (if any) and resubscribe
   void setInterval(String interval) {
     if (_selectedInterval == interval) return;
 
     _selectedInterval = interval;
 
     if (_selectedPairId != null) {
-      // Resubscribe with new interval
+      final cached = chartCacheService.getCandles(_selectedPairId!, interval);
+      _candles = cached.length > _maxCandlesDisplay
+          ? cached.sublist(cached.length - _maxCandlesDisplay)
+          : cached;
+      if (_candles.isNotEmpty) _recalculateIndicators();
       webSocketService.subscribeToPair(
         _selectedPairId!,
         ['ticker', 'ohlc'],
@@ -276,13 +289,19 @@ class ChartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load historical candles (from REST API)
+  /// Load historical candles (from REST API or merged cache+API).
+  /// Keeps last [_maxCandlesDisplay] for display; cache stores full list (up to ~1 month).
   Future<void> loadHistoricalCandles(List<OHLCData> candles) async {
     try {
       _isLoading = true;
-      _candles = List.from(candles);
+      if (_selectedPairId != null) {
+        chartCacheService.putCandles(_selectedPairId!, _selectedInterval, candles);
+      }
+      _candles = candles.length > _maxCandlesDisplay
+          ? candles.sublist(candles.length - _maxCandlesDisplay)
+          : List.from(candles);
       _recalculateIndicators();
-      _logger.i('📚 Historical candles loaded: ${_candles.length}');
+      _logger.i('📚 Historical candles loaded: ${_candles.length} (cache retained)');
     } catch (e) {
       _logger.e('Error loading historical candles: $e');
       _error = e.toString();
@@ -295,12 +314,12 @@ class ChartProvider extends ChangeNotifier {
   /// Add multiple candles at once
   void addCandles(List<OHLCData> newCandles) {
     _candles.addAll(newCandles);
-
-    // Keep only last 500 candles
-    if (_candles.length > 500) {
-      _candles = _candles.sublist(_candles.length - 500);
+    if (_candles.length > _maxCandlesDisplay) {
+      _candles = _candles.sublist(_candles.length - _maxCandlesDisplay);
     }
-
+    if (_selectedPairId != null) {
+      chartCacheService.putCandles(_selectedPairId!, _selectedInterval, _candles);
+    }
     _recalculateIndicators();
     notifyListeners();
   }

@@ -153,59 +153,57 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
   @override
   void didUpdateWidget(LightweightChartsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (_isReady && oldWidget.candles.length != widget.candles.length) {
-      _sendCandlesToChart();
+    if (!_isReady) return;
+    final pairChanged = oldWidget.pairSymbol != widget.pairSymbol;
+    if (pairChanged) {
+      _controller.executeScript('window.LWChartAPI.clearChart()');
+      _lastCandleCount = 0;
     }
+    if (widget.candles.isEmpty) {
+      if (!pairChanged) {
+        _controller.executeScript('window.LWChartAPI.clearChart()');
+        _lastCandleCount = 0;
+      }
+      return;
+    }
+    final len = widget.candles.length;
+    final oldLen = oldWidget.candles.length;
+    final lastChanged = len == oldLen &&
+        len > 0 &&
+        (widget.candles.last.openTime != oldWidget.candles.last.openTime ||
+            widget.candles.last.close != oldWidget.candles.last.close);
+    if (pairChanged || oldLen != len || lastChanged) _sendCandlesToChart();
   }
 
   Future<void> _sendCandlesToChart() async {
-    if (!_isReady || widget.candles.isEmpty) {
-      return;
-    }
+    if (!_isReady || widget.candles.isEmpty) return;
 
     try {
-      final newCandleCount = widget.candles.length;
-
-      List<OHLCData> candlesToSend;
-
-      if (newCandleCount > _lastCandleCount) {
-        if (newCandleCount <= 50) {
-          candlesToSend = widget.candles;
-        } else {
-          candlesToSend = widget.candles.sublist(
-            newCandleCount - 50,
-          );
-        }
-      } else {
-        candlesToSend = widget.candles;
-      }
-
-      _lastCandleCount = newCandleCount;
-
-      for (final candle in candlesToSend) {
-        final candleJson = {
-          'pair_id': candle.pairId,
-          'interval': candle.interval,
-          'open_time': candle.openTime,
-          'close_time': candle.closeTime,
-          'open': candle.open.toString(),
-          'high': candle.high.toString(),
-          'low': candle.low.toString(),
-          'close': candle.close.toString(),
-          'volume': candle.volume.toString(),
-          'is_closed': candle.isClosed,
-        };
-
-        await _controller.executeScript(
-          'window.LWChartAPI.addCandle(${jsonEncode(candleJson)})',
-        );
-      }
-
-      _logger.i('📊 Sent ${candlesToSend.length} candles to chart');
+      final list = widget.candles.map(_candleToJson).toList();
+      await _controller.executeScript(
+        'window.LWChartAPI.setCandles(${jsonEncode(list)})',
+      );
+      _lastCandleCount = widget.candles.length;
+      _logger.i('📊 Set ${list.length} candles to TradingView chart');
     } catch (e) {
       _logger.e('Error updating chart: $e');
     }
+  }
+
+  Map<String, dynamic> _candleToJson(OHLCData candle) {
+    return {
+      'pair_id': candle.pairId,
+      'symbol': widget.pairSymbol,
+      'interval': candle.interval,
+      'open_time': candle.openTime,
+      'close_time': candle.closeTime,
+      'open': candle.open.toString(),
+      'high': candle.high.toString(),
+      'low': candle.low.toString(),
+      'close': candle.close.toString(),
+      'volume': candle.volume.toString(),
+      'is_closed': candle.isClosed,
+    };
   }
 
   @override
