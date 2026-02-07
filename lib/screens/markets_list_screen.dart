@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
@@ -55,9 +56,10 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Markets'),
+        title: Text(l10n.markets),
         automaticallyImplyLeading:
             false, // Remove back button when in bottom nav
         actions: [
@@ -89,7 +91,7 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                     onPressed: () {
                       provider.fetchMarkets(refresh: true);
                     },
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -97,8 +99,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           }
 
           if (provider.markets.isEmpty) {
-            return const Center(
-              child: Text('No markets found'),
+            return Center(
+              child: Text(l10n.noMarkets),
             );
           }
 

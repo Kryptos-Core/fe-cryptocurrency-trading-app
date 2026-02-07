@@ -794,16 +794,24 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final ohlcvResponse = OHLCVResponse.fromJson(
-          response.data as Map<String, dynamic>,
-        );
-
-        if (ohlcvResponse.success) {
-          return ohlcvResponse.data.candles;
+        final raw = response.data as Map<String, dynamic>;
+        // BE có thể trả qua interceptor: { success, data: { pair_id, interval_sec, candles } } hoặc raw: { pair_id, interval_sec, candles }
+        List<OHLCVModel> candles;
+        if (raw.containsKey('data') && raw['data'] is Map) {
+          final data = raw['data'] as Map<String, dynamic>;
+          final list = data['candles'] as List<dynamic>?;
+          candles = (list ?? [])
+              .map((e) => OHLCVModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (raw.containsKey('candles')) {
+          final list = raw['candles'] as List<dynamic>?;
+          candles = (list ?? [])
+              .map((e) => OHLCVModel.fromJson(e as Map<String, dynamic>))
+              .toList();
         } else {
-          throw NotFoundException(
-              message: ohlcvResponse.message ?? 'OHLCV data not found');
+          candles = [];
         }
+        return candles;
       } else {
         throw NotFoundException(message: 'OHLCV data not found');
       }

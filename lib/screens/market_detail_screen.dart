@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/lightweight_charts_widget.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart'
     show OHLCData;
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:logger/logger.dart';
 
@@ -22,7 +24,26 @@ abstract class ChartInitializationStrategy {
   );
 }
 
-/// Concrete strategy: Initialize chart with OHLCV data
+int _intervalToSeconds(String interval) {
+  switch (interval) {
+    case '1m': return 60;
+    case '5m': return 300;
+    case '15m': return 900;
+    case '1h': return 3600;
+    case '4h': return 14400;
+    case '1d': return 86400;
+    default: return 60;
+  }
+}
+
+double? _lastPriceFromTicker(MarketsProvider marketsProvider) {
+  final t = marketsProvider.ticker;
+  if (t == null) return null;
+  return double.tryParse(t.lastPrice);
+}
+
+/// Concrete strategy: Initialize chart with OHLCV data.
+/// Uses cache first so re-entering market detail shows retained data (~1 month).
 class OHLCVChartInitialization implements ChartInitializationStrategy {
   final Logger _logger = Logger();
 
@@ -33,14 +54,9 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
     MarketsProvider marketsProvider,
   ) async {
     try {
-      // Get WebSocket URL and JWT token at runtime (more flexible than compile-time const)
-      String wsUrl = 'ws://localhost:3000/trading'; // Default URL
-
-      // Try to get from environment if available
+      String wsUrl = 'ws://localhost:3000/trading';
       final envUrl = String.fromEnvironment('WS_URL', defaultValue: '');
-      if (envUrl.isNotEmpty) {
-        wsUrl = envUrl;
-      }
+      if (envUrl.isNotEmpty) wsUrl = envUrl;
 
       final TokenService tokenService = di.sl<TokenService>();
       final token = tokenService.getAccessToken() ?? '';
@@ -50,15 +66,40 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
       } else {
         _logger.i('🔗 Initializing WebSocket with URL: $wsUrl');
         await chartProvider.initializeWebSocket(wsUrl, token);
+        // Bắt buộc chờ auth xong rồi mới subscribe – nếu subscribe trước auth thì BE trả AUTH_REQUIRED và FE không vào room → không nhận OHLC/ticker
+        try {
+          await chartProvider.waitForAuthCompletion();
+          _logger.i('✅ Auth completed, subscribing to pair $pairId');
+        } catch (e) {
+          _logger.e('⚠️ Auth timeout: $e');
+        }
       }
 
-      // Load historical OHLCV data
-      final candles = marketsProvider.ohlcv.isEmpty
-          ? <OHLCData>[] // Empty list for empty data
+      // 1) Subscribe SAU KHI ĐÃ AUTH: load cache (nếu có) và join room pair:N:ohlc:interval để nhận realtime
+      chartProvider.subscribeToPair(
+        pairId,
+        ['ticker', 'ohlc'],
+        interval: chartProvider.selectedInterval,
+      );
+
+      // 2) Fetch OHLCV from API (more history to merge into cache)
+      await marketsProvider.fetchOHLCV(
+        pairId: pairId,
+        interval: chartProvider.selectedInterval,
+        limit: 500,
+      );
+
+      // 3) Merge cache + API: combine and dedupe by openTime so we retain up to ~1 month
+      final interval = chartProvider.selectedInterval;
+      final cacheService = di.sl<ChartCacheService>();
+      final cached = cacheService.getCandles(pairId, interval);
+
+      final apiCandles = marketsProvider.ohlcv.isEmpty
+          ? <OHLCData>[]
           : marketsProvider.ohlcv
               .map((o) => OHLCData(
                     pairId: pairId,
-                    interval: chartProvider.selectedInterval,
+                    interval: interval,
                     openTime: o.openTime.millisecondsSinceEpoch,
                     closeTime: o.openTime
                         .add(Duration(seconds: o.intervalSec))
@@ -74,26 +115,48 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
                   ))
               .toList();
 
-      // Load historical data into the chart provider
-      await chartProvider.loadHistoricalCandles(candles);
+      final byTime = <int, OHLCData>{};
+      for (final c in cached) {
+        byTime[c.openTime] = c;
+      }
+      for (final c in apiCandles) {
+        byTime[c.openTime] = c;
+      }
+      var merged = byTime.values.toList()
+        ..sort((a, b) => a.openTime.compareTo(b.openTime));
 
-      _logger.i(candles.isEmpty
-          ? '⚠️ Chart initialized with no data (empty candles)'
-          : '✅ Chart initialized with ${candles.length} candles');
-
-      // Wait for WebSocket authentication to complete BEFORE subscribing
-      try {
-        await chartProvider.waitForAuthCompletion();
-        _logger.i('✅ Auth completed, subscribing to real-time updates...');
-      } catch (e) {
-        _logger.e('⚠️ Auth timeout: $e');
+      // Nếu API + cache đều trống (vd: bảng OHLCV chưa có data), tạo 1 nến placeholder để chart vẫn hiển thị; realtime sẽ cập nhật sau
+      if (merged.isEmpty) {
+        final now = DateTime.now();
+        final intervalSec = _intervalToSeconds(interval);
+        final openTime = now.millisecondsSinceEpoch - (now.millisecondsSinceEpoch % (intervalSec * 1000));
+        final closeTime = openTime + intervalSec * 1000;
+        final price = _lastPriceFromTicker(marketsProvider) ?? 0.0;
+        merged = [
+          OHLCData(
+            pairId: pairId,
+            interval: interval,
+            openTime: openTime,
+            closeTime: closeTime,
+            open: price,
+            high: price,
+            low: price,
+            close: price,
+            volume: 0,
+            quoteVolume: 0,
+            tradesCount: 0,
+            isClosed: false,
+          ),
+        ];
+        _logger.w('📊 No OHLCV from API/cache – showing placeholder candle; chart will update when realtime data arrives');
       }
 
-      // Subscribe to realtime updates AFTER auth is confirmed
-      chartProvider.subscribeToPair(
-        pairId,
-        ['ticker', 'ohlc'],
-      );
+      cacheService.putCandles(pairId, interval, merged);
+      await chartProvider.loadHistoricalCandles(merged);
+
+      _logger.i(merged.length == 1 && merged.first.volume == 0
+          ? '✅ Chart initialized with placeholder (waiting for realtime)'
+          : '✅ Chart initialized with ${merged.length} candles (cache + API)');
     } catch (e) {
       _logger.e('Failed to initialize chart: $e');
     }
@@ -141,20 +204,13 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
     _marketsProvider = context.read<MarketsProvider>();
     _chartProvider = context.read<ChartProvider>();
 
-    // Load market data and wait for OHLCV data
     _marketsProvider.getMarketById(widget.pairId);
     _marketsProvider.fetchTicker(widget.pairId);
     _marketsProvider.fetchOrderBook(widget.pairId);
 
-    // Wait for OHLCV data to load before initializing chart
-    await _marketsProvider.fetchOHLCV(
-      pairId: widget.pairId,
-      interval: _chartProvider?.selectedInterval,
-    );
-
     if (!mounted) return;
 
-    // Initialize chart using strategy pattern AFTER data is ready
+    // Chart init: loads from cache first, then fetches OHLCV and merges (strategy handles fetch)
     await _chartStrategy.initialize(
       widget.pairId,
       _chartProvider!,
@@ -170,11 +226,12 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Consumer<MarketsProvider>(
           builder: (context, provider, child) {
-            return Text(provider.selectedMarket?.symbol ?? 'Market Details');
+            return Text(provider.selectedMarket?.symbol ?? l10n.marketDetails);
           },
         ),
       ),
@@ -187,7 +244,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
           final market = marketsProvider.selectedMarket;
           if (market == null) {
-            return const Center(child: Text('Market not found'));
+            return Center(child: Text(l10n.marketNotFound));
           }
 
           return SingleChildScrollView(
@@ -232,6 +289,7 @@ class _TickerCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isPositive = ticker.isPositive;
     return Card(
       elevation: 2,
@@ -240,9 +298,9 @@ class _TickerCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Last Price',
-              style: TextStyle(
+            Text(
+              l10n.lastPrice,
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
@@ -261,12 +319,12 @@ class _TickerCardWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _PriceChangeWidget(
-                  label: '24h Change',
+                  label: l10n.change24h,
                   value: ticker.changePercentFormatted,
                   isPositive: isPositive,
                 ),
                 _VolumeWidget(
-                  label: 'Volume (24h)',
+                  label: l10n.volume24h,
                   value: ticker.volume24h,
                 ),
               ],
@@ -286,6 +344,7 @@ class _MarketInfoCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       child: Padding(
@@ -293,37 +352,37 @@ class _MarketInfoCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Market Information',
-              style: TextStyle(
+            Text(
+              l10n.marketInformation,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
             _InfoRow(
-              label: 'Base Currency',
-              value: market.baseCurrency?.symbol ?? 'N/A',
+              label: l10n.baseCurrency,
+              value: market.baseCurrency?.symbol ?? l10n.na,
             ),
             _InfoRow(
-              label: 'Quote Currency',
-              value: market.quoteCurrency?.symbol ?? 'N/A',
+              label: l10n.quoteCurrency,
+              value: market.quoteCurrency?.symbol ?? l10n.na,
             ),
             _InfoRow(
-              label: 'Min Order Amount',
+              label: l10n.minOrderAmount,
               value: market.minOrderAmount,
             ),
             _InfoRow(
-              label: 'Maker Fee',
+              label: l10n.makerFee,
               value: '${market.makerFeeRate}%',
             ),
             _InfoRow(
-              label: 'Taker Fee',
+              label: l10n.takerFee,
               value: '${market.takerFeeRate}%',
             ),
             _InfoRow(
-              label: 'Status',
-              value: market.isActive ? 'Active' : 'Inactive',
+              label: l10n.status,
+              value: market.isActive ? l10n.active : l10n.inactive,
               statusColor: market.isActive ? Colors.green : Colors.red,
             ),
           ],
@@ -341,6 +400,7 @@ class _OrderBookCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       child: Padding(
@@ -348,22 +408,22 @@ class _OrderBookCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Order Book',
-              style: TextStyle(
+            Text(
+              l10n.orderBook,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
             _OrderSideSection(
-              title: 'ASKS (Sell)',
+              title: l10n.asksSell,
               orders: orderBook.asks.take(5).toList(),
               color: Colors.red,
             ),
             const Divider(height: 24),
             _OrderSideSection(
-              title: 'BIDS (Buy)',
+              title: l10n.bidsBuy,
               orders: orderBook.bids.take(5).toList(),
               color: Colors.green,
             ),
@@ -402,6 +462,7 @@ class _TradingChartWidget extends StatelessWidget {
                 Consumer<MarketsProvider>(
                   builder: (context, marketsProvider, child) {
                     return _ChartContentWidget(
+                      pairId: pairId,
                       chartProvider: chartProvider,
                       market: marketsProvider.selectedMarket,
                     );
@@ -587,39 +648,91 @@ class _ChartHeaderWidget extends StatelessWidget {
     required this.pairId,
   });
 
+  static const List<String> _intervals = ['1m', '5m', '15m', '1h', '4h', '1d'];
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Trading Chart',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        Text(
+          l10n.tradingChart,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+            letterSpacing: 0.2,
           ),
         ),
-        DropdownButton<String>(
-          value: chartProvider.selectedInterval,
-          items: ['1m', '5m', '15m', '1h', '4h', '1d']
-              .map((interval) => DropdownMenuItem(
-                    value: interval,
-                    child: Text(
-                      interval,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  ))
-              .toList(),
-          onChanged: (value) {
-            if (value != null) {
-              chartProvider.setInterval(value);
-              chartProvider.subscribeToPair(
-                pairId,
-                ['ticker', 'ohlc'],
-                interval: value,
-              );
-            }
-          },
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: colorScheme.outline.withOpacity(0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.schedule_rounded,
+                size: 18,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: chartProvider.selectedInterval,
+                  isDense: true,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
+                  dropdownColor: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 8,
+                  focusColor: colorScheme.primaryContainer,
+                  items: _intervals
+                      .map((interval) => DropdownMenuItem(
+                            value: interval,
+                            child: Text(
+                              interval,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      chartProvider.setInterval(value);
+                      chartProvider.subscribeToPair(
+                        pairId,
+                        ['ticker', 'ohlc'],
+                        interval: value,
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -628,16 +741,19 @@ class _ChartHeaderWidget extends StatelessWidget {
 
 /// Chart content or empty state
 class _ChartContentWidget extends StatelessWidget {
+  final int pairId;
   final ChartProvider chartProvider;
   final dynamic market;
 
   const _ChartContentWidget({
+    required this.pairId,
     required this.chartProvider,
     this.market,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (chartProvider.candles.isEmpty) {
       return Container(
         height: 400,
@@ -655,26 +771,26 @@ class _ChartContentWidget extends StatelessWidget {
                 color: Colors.grey[400],
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Waiting for chart data...',
-                style: TextStyle(
+              Text(
+                l10n.waitingForChartData,
+                style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 8),
               if (chartProvider.isWebSocketConnected)
-                const Text(
-                  '(Connected to real-time updates)',
-                  style: TextStyle(
+                Text(
+                  '(${l10n.connectedRealtime})',
+                  style: const TextStyle(
                     color: Colors.green,
                     fontSize: 12,
                   ),
                 )
               else
-                const Text(
-                  '(Connecting...)',
-                  style: TextStyle(
+                Text(
+                  '(${l10n.connecting})',
+                  style: const TextStyle(
                     color: Colors.orange,
                     fontSize: 12,
                   ),
@@ -688,6 +804,7 @@ class _ChartContentWidget extends StatelessWidget {
     return SizedBox(
       height: 400,
       child: LightweightChartsWidget(
+        key: ValueKey(pairId),
         candles: chartProvider.candles,
         pairSymbol: market?.symbol ?? 'UNKNOWN',
         interval: chartProvider.selectedInterval,
@@ -707,6 +824,7 @@ class _WebSocketStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Icon(
@@ -716,7 +834,7 @@ class _WebSocketStatusWidget extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          isConnected ? 'Real-time updates active' : 'Offline',
+          isConnected ? l10n.realtimeActive : l10n.offline,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
