@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/toast_service.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 
@@ -50,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (mounted) {
             ToastService().show(
               context,
-              message: 'Failed to load profile: ${failure.message}',
+              message: '${AppLocalizations.of(context)!.failedToLoadProfile}: ${failure.message}',
               type: ToastType.error,
               duration: const Duration(seconds: 3),
             );
@@ -92,22 +95,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        final l10nDialog = AppLocalizations.of(dialogContext)!;
+        return AlertDialog(
+          title: Text(l10nDialog.logout),
+          content: Text(l10nDialog.areYouSureLogout),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10nDialog.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10nDialog.logout),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true) {
@@ -117,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ToastService().show(
           context,
-          message: 'Logged out successfully',
+          message: l10n.loggedOutSuccess,
           type: ToastType.success,
           duration: const Duration(seconds: 1),
         );
@@ -146,10 +153,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: Text(l10n.profile),
           automaticallyImplyLeading: false,
         ),
         body: const Center(
@@ -161,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_currentUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: Text(l10n.profile),
           automaticallyImplyLeading: false,
         ),
         body: Center(
@@ -174,11 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Colors.red,
               ),
               const SizedBox(height: 16),
-              Text(_errorMessage ?? 'Failed to load user'),
+              Text(_errorMessage ?? l10n.failedToLoadProfile),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _navigateToLogin,
-                child: const Text('Go to Login'),
+                child: Text(l10n.goToLogin),
               ),
             ],
           ),
@@ -188,13 +196,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
-        automaticallyImplyLeading: false, // Remove back button when in bottom nav
+        title: Text(l10n.profile),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _handleLogout,
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
           ),
         ],
       ),
@@ -219,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Welcome Message
             Text(
-              'Welcome back,',
+              l10n.welcomeBack,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -269,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    _currentUser!.isActive ? 'Active' : 'Inactive',
+                    _currentUser!.isActive ? l10n.active : l10n.inactive,
                     style: TextStyle(
                       color: _currentUser!.isActive
                           ? Colors.green[700]
@@ -282,18 +290,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 32),
 
+            // Language (with flag emoji)
+            Text(
+              l10n.language,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Consumer<LocaleProvider>(
+              builder: (context, localeProvider, _) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => localeProvider.setLocale(const Locale('en')),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('🇬🇧', style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.english,
+                          style: TextStyle(
+                            fontWeight: localeProvider.locale.languageCode == 'en'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  TextButton(
+                    onPressed: () => localeProvider.setLocale(const Locale('vi')),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('🇻🇳', style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.vietnamese,
+                          style: TextStyle(
+                            fontWeight: localeProvider.locale.languageCode == 'vi'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Account Info
             const Divider(),
             ListTile(
               leading: const Icon(Icons.calendar_today),
-              title: const Text('Member since'),
+              title: Text(l10n.memberSince),
               subtitle: Text(
                 '${_currentUser!.createdAt.day}/${_currentUser!.createdAt.month}/${_currentUser!.createdAt.year}',
               ),
             ),
             ListTile(
               leading: const Icon(Icons.update),
-              title: const Text('Last updated'),
+              title: Text(l10n.lastUpdated),
               subtitle: Text(
                 '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
               ),
@@ -302,8 +365,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Additional Options
             ListTile(
               leading: const Icon(Icons.currency_bitcoin),
-              title: const Text('Currencies'),
-              subtitle: const Text('View all available currencies'),
+              title: Text(l10n.currencies),
+              subtitle: Text(l10n.viewAllCurrencies),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.push(
@@ -316,8 +379,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              subtitle: const Text('App settings and preferences'),
+              title: Text(l10n.settings),
+              subtitle: Text(l10n.appSettingsPreferences),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 // TODO: Navigate to settings

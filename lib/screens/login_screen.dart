@@ -3,6 +3,7 @@ import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/toast_service.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
 
@@ -58,9 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading = false;
           });
           if (mounted) {
+            final l10n = AppLocalizations.of(context)!;
             ToastService().show(
               context,
-              message: 'Login failed: ${failure.message}',
+              message: '${l10n.loginFailed}: ${failure.message}',
               type: ToastType.error,
               duration: const Duration(seconds: 4),
             );
@@ -122,9 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(l10n.login),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -147,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Title
                   Text(
-                    'Crypto Trading App',
+                    l10n.appTitle,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -156,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Login to your account',
+                    l10n.loginToAccount,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -170,21 +173,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
+                    decoration: InputDecoration(
+                      labelText: l10n.email,
                       hintText: 'user@example.com',
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Email is required';
+                        return l10n.emailRequired;
                       }
                       final emailRegex = RegExp(
                         r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                       );
                       if (!emailRegex.hasMatch(value.trim())) {
-                        return 'Invalid email format';
+                        return l10n.invalidEmail;
                       }
                       return null;
                     },
@@ -198,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: l10n.password,
                       hintText: 'Enter your password',
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
@@ -217,10 +220,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Password is required';
+                        return l10n.passwordRequired;
                       }
                       if (value.length < 8) {
-                        return 'Password must be at least 8 characters';
+                        return l10n.passwordMinLength;
                       }
                       return null;
                     },
@@ -243,9 +246,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16),
+                        : Text(
+                            l10n.login,
+                            style: const TextStyle(fontSize: 16),
                           ),
                   ),
                   const SizedBox(height: 16),
@@ -254,10 +257,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account? "),
+                      Text(l10n.noAccount),
                       TextButton(
                         onPressed: _isLoading ? null : _navigateToRegister,
-                        child: const Text('Register'),
+                        child: Text(l10n.register),
                       ),
                     ],
                   ),
