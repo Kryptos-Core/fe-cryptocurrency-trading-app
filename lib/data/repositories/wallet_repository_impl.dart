@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart
 import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 
 /// This repository bridges between the domain layer and data layer.
@@ -48,6 +49,54 @@ class WalletRepositoryImpl implements WalletRepository {
       return Left(AuthenticationFailure(message: e.message));
     } on ValidationException catch (e) {
       return Left(ValidationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<WalletTransactionResponse>>> getTransactionHistory(
+    int currencyId,
+  ) async {
+    try {
+      final list = await remoteDataSource.getTransactionHistory(currencyId);
+      final placeholders = WalletBalance(
+        userId: 0,
+        currencyId: currencyId,
+        available: '0',
+        frozen: '0',
+        total: '0',
+      );
+      final results = list.map((e) {
+        final action = (e['direction'] as String?) == 'CREDIT'
+            ? WalletTransactionAction.credit
+            : WalletTransactionAction.debit;
+        final refTypeStr = e['refType'] as String? ?? 'DEPOSIT';
+        final refType = WalletReferenceType.fromString(refTypeStr) ??
+            WalletReferenceType.deposit;
+        final createdAt = e['createdAt'] as String?;
+        final timestamp = createdAt != null
+            ? DateTime.tryParse(createdAt) ?? DateTime.now()
+            : DateTime.now();
+        return WalletTransactionResponse(
+          transactionId: 'ledger-${e['refId']}',
+          userId: 0,
+          currencyId: currencyId,
+          action: action,
+          amount: (e['amount'] ?? '0').toString(),
+          refType: refType,
+          refId: (e['refId'] as num?)?.toInt() ?? 0,
+          newBalance: placeholders,
+          timestamp: timestamp,
+        );
+      }).toList();
+      return Right(results);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

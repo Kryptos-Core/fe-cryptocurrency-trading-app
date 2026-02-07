@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/data/models/wallet_balance_model.dart';
 import 'package:crypto_trading_app/data/models/wallet_transaction_model.dart';
@@ -23,6 +24,11 @@ abstract class WalletRemoteDataSource {
   ///   - AuthenticationException: On authentication error
   ///   - ValidationException: On validation error
   Future<WalletBalanceModel> getBalance(int currencyId);
+
+  /// Get transaction history (ledger) for a currency
+  ///
+  /// Throws: ServerException, NetworkException, AuthenticationException
+  Future<List<Map<String, dynamic>>> getTransactionHistory(int currencyId);
 
   /// Execute a wallet transaction
   ///
@@ -96,6 +102,41 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> getTransactionHistory(
+    int currencyId,
+  ) async {
+    try {
+      final response = await dioClient.dio.get(
+        '/wallets/ledger',
+        queryParameters: {'currencyId': currencyId},
+      );
+      final data = response.data;
+      if (data is List) {
+        return List<Map<String, dynamic>>.from(
+          data.map((e) => Map<String, dynamic>.from(e as Map)),
+        );
+      }
+      if (data is Map<String, dynamic> && data['data'] != null) {
+        final list = data['data'] as List;
+        return List<Map<String, dynamic>>.from(
+          list.map((e) => Map<String, dynamic>.from(e as Map)),
+        );
+      }
+      return [];
+    } on ServerException {
+      rethrow;
+    } on NetworkException {
+      rethrow;
+    } on AuthenticationException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(
+        message: e.toString().replaceAll('Exception: ', ''),
+      );
+    }
+  }
+
+  @override
   Future<WalletTransactionResponseModel> executeTransaction(
     WalletTransactionRequest request,
   ) async {
@@ -118,7 +159,49 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         );
       }
 
+      // Backend may return full transaction payload (with newBalance) or balance-only
+      if (transactionData.containsKey('newBalance')) {
+        return WalletTransactionResponseModel.fromJson(transactionData);
+      }
+      // Balance-only response: { userId, currencyId, available, frozen, total }
+      if (transactionData.containsKey('available') &&
+          transactionData.containsKey('total')) {
+        final timestamp = data['timestamp']?.toString() ??
+            DateTime.now().toUtc().toIso8601String();
+        final newBalance =
+            WalletBalanceModel.fromJson(transactionData);
+        return WalletTransactionResponseModel(
+          transactionId: '',
+          userId: newBalance.userId,
+          currencyId: newBalance.currencyId,
+          action: request.action.value,
+          amount: request.amount,
+          refType: request.refType.value,
+          refId: request.refId,
+          newBalance: newBalance,
+          timestamp: timestamp,
+        );
+      }
+
       return WalletTransactionResponseModel.fromJson(transactionData);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final statusCode = e.response?.statusCode;
+      if (e.response != null && data is Map<String, dynamic>) {
+        final message = (data['message'] ?? data['error'])?.toString();
+        if (message != null && message.isNotEmpty) {
+          if (statusCode != null && statusCode >= 400 && statusCode < 500) {
+            throw ValidationException(message: message);
+          }
+          if (statusCode != null && statusCode >= 500) {
+            throw ServerException(
+              message: message,
+              statusCode: statusCode,
+            );
+          }
+        }
+      }
+      rethrow;
     } on ServerException {
       rethrow;
     } on NetworkException {

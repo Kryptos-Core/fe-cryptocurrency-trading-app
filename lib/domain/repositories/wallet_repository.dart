@@ -33,6 +33,13 @@ abstract class WalletRepository {
   /// ```
   Future<Either<Failure, WalletBalance>> getBalance(int currencyId);
 
+  /// Get transaction history (ledger) for a currency
+  ///
+  /// Returns list of WalletTransactionResponse built from ledger entries.
+  Future<Either<Failure, List<WalletTransactionResponse>>> getTransactionHistory(
+    int currencyId,
+  );
+
   /// Execute a wallet transaction (CREDIT, DEBIT, FREEZE, UNFREEZE, TRANSFER)
   ///
   /// Parameters:

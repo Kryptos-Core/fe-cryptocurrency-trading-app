@@ -30,10 +30,14 @@ import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.da
     as wallet_api_usecases;
 import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart'
     as wallet_api_usecases;
+import 'package:crypto_trading_app/domain/usecases/get_transaction_history_usecase.dart'
+    as wallet_api_usecases;
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
+import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:crypto_trading_app/data/repositories/chart_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
+import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -57,6 +61,7 @@ Future<void> initializeDependencies() async {
       () => ChartProvider(
         webSocketService: sl<IWebSocketService>(),
         indicatorService: sl<IndicatorService>(),
+        chartCacheService: sl<ChartCacheService>(),
       ),
     );
     return;
@@ -65,6 +70,10 @@ Future<void> initializeDependencies() async {
   // ===== External Dependencies =====
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
+  sl.registerLazySingleton<LocaleProvider>(
+    () => LocaleProvider(sl<SharedPreferences>()),
+  );
 
   // ===== Core Services =====
   // TokenService - quản lý JWT tokens
@@ -200,6 +209,11 @@ Future<void> initializeDependencies() async {
       walletRepository: sl<WalletRepository>(),
     ),
   );
+  sl.registerLazySingleton(
+    () => wallet_api_usecases.GetTransactionHistoryApiUseCase(
+      walletRepository: sl<WalletRepository>(),
+    ),
+  );
 
   // ===== Trading Chart Services =====
   // WebSocket Service - Realtime data
@@ -211,6 +225,9 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<IndicatorService>(
     () => IndicatorService(),
   );
+
+  // Chart Cache - persist chart data per pair/interval (~1 month)
+  sl.registerLazySingleton<ChartCacheService>(() => ChartCacheService());
 
   // Chart Repository - Data access layer
   sl.registerLazySingleton<IChartRepository>(
@@ -225,6 +242,7 @@ Future<void> initializeDependencies() async {
     () => ChartProvider(
       webSocketService: sl<IWebSocketService>(),
       indicatorService: sl<IndicatorService>(),
+      chartCacheService: sl<ChartCacheService>(),
     ),
   );
 }

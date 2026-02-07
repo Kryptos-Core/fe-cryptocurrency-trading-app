@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
+import 'package:crypto_trading_app/domain/usecases/get_transaction_history_usecase.dart';
 
 /// Wallets Provider
 /// Following Provider Pattern for State Management
@@ -16,6 +17,7 @@ class WalletsProvider extends ChangeNotifier {
   final GetWalletLedgerUseCase getWalletLedgerUseCase;
   final GetWalletBalanceApiUseCase? getWalletBalanceApiUseCase;
   final ExecuteWalletTransactionApiUseCase? executeWalletTransactionApiUseCase;
+  final GetTransactionHistoryApiUseCase? getTransactionHistoryApiUseCase;
 
   WalletsProvider({
     required this.getWalletsUseCase,
@@ -24,6 +26,7 @@ class WalletsProvider extends ChangeNotifier {
     required this.getWalletLedgerUseCase,
     this.getWalletBalanceApiUseCase,
     this.executeWalletTransactionApiUseCase,
+    this.getTransactionHistoryApiUseCase,
   });
 
   // State
@@ -43,6 +46,8 @@ class WalletsProvider extends ChangeNotifier {
   // New Wallet API state
   WalletBalance? _walletBalance;
   WalletTransactionResponse? _lastTransaction;
+  static const int _maxRecentTransactions = 50;
+  final List<WalletTransactionResponse> _recentTransactions = [];
 
   // Getters
   List<Wallet> get wallets => _wallets;
@@ -53,6 +58,8 @@ class WalletsProvider extends ChangeNotifier {
   bool get hasMore => _hasMore;
   WalletBalance? get walletBalance => _walletBalance;
   WalletTransactionResponse? get lastTransaction => _lastTransaction;
+  List<WalletTransactionResponse> get recentTransactions =>
+      List.unmodifiable(_recentTransactions);
 
   /// Calculate total portfolio value in USDT (mock calculation)
   double get totalPortfolioValue {
@@ -275,8 +282,37 @@ class WalletsProvider extends ChangeNotifier {
         print(
             '[WalletsProvider] SUCCESS: Balance fetched - userId=${balance.userId}, currencyId=${balance.currencyId}, available=${balance.available}, frozen=${balance.frozen}, total=${balance.total}');
         _walletBalance = balance;
+        _recentTransactions.clear(); // Clear so we never show another currency's history
         _isLoading = false;
         _error = null;
+        notifyListeners();
+        // Load transaction history for this currency only
+        fetchTransactionHistory(currencyId);
+      },
+    );
+  }
+
+  /// Fetch transaction history (ledger) for a currency and set as recent transactions
+  Future<void> fetchTransactionHistory(int currencyId) async {
+    if (getTransactionHistoryApiUseCase == null) return;
+
+    final result = await getTransactionHistoryApiUseCase!(
+      GetTransactionHistoryParams(currencyId: currencyId),
+    );
+
+    result.fold(
+      (_) {
+        // On failure keep current _recentTransactions (e.g. in-session only)
+      },
+      (list) {
+        _recentTransactions.clear();
+        _recentTransactions.addAll(list);
+        if (_recentTransactions.length > _maxRecentTransactions) {
+          _recentTransactions.removeRange(
+            _maxRecentTransactions,
+            _recentTransactions.length,
+          );
+        }
         notifyListeners();
       },
     );
@@ -308,6 +344,13 @@ class WalletsProvider extends ChangeNotifier {
       (response) {
         _lastTransaction = response;
         _walletBalance = response.newBalance;
+        // Only add to list if it matches current balance currency (avoid mixing currencies)
+        if (response.currencyId == _walletBalance?.currencyId) {
+          _recentTransactions.insert(0, response);
+          if (_recentTransactions.length > _maxRecentTransactions) {
+            _recentTransactions.removeLast();
+          }
+        }
         _isLoading = false;
         _error = null;
         success = true;
@@ -382,7 +425,8 @@ class WalletsProvider extends ChangeNotifier {
     return await executeTransaction(request);
   }
 
-  /// Transfer to another user
+  /// Transfer to another user.
+  /// Uses a unique refId per transfer to avoid duplicate ledger key (TRANSFER-refId-userId-currencyId-direction).
   Future<bool> transfer({
     required int currencyId,
     required String amount,
@@ -393,7 +437,7 @@ class WalletsProvider extends ChangeNotifier {
       action: WalletTransactionAction.transfer,
       amount: amount,
       refType: WalletReferenceType.transfer,
-      refId: toUserId,
+      refId: DateTime.now().millisecondsSinceEpoch,
       targetUserId: toUserId,
     );
     return await executeTransaction(request);
@@ -402,13 +446,17 @@ class WalletsProvider extends ChangeNotifier {
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return 'Server error. Please try again later.';
+        return failure.message.isNotEmpty
+            ? failure.message
+            : 'Server error. Please try again later.';
       case NetworkFailure:
         return 'Network error. Please check your connection.';
+      case ValidationFailure:
+        return failure.message;
       case NotFoundFailure:
         return 'Wallet not found.';
       default:
-        return 'An unexpected error occurred.';
+        return failure.message;
     }
   }
 }

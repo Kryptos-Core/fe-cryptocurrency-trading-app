@@ -3,9 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io' show Platform;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/providers/locale_provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
@@ -48,6 +50,9 @@ class CryptoTradingApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<LocaleProvider>.value(
+          value: di.sl<LocaleProvider>(),
+        ),
         ChangeNotifierProvider(
           create: (_) => CurrenciesProvider(
             getCurrenciesUseCase: di.sl(),
@@ -79,18 +84,28 @@ class CryptoTradingApp extends StatelessWidget {
             getWalletLedgerUseCase: di.sl(),
             getWalletBalanceApiUseCase: di.sl(),
             executeWalletTransactionApiUseCase: di.sl(),
+            getTransactionHistoryApiUseCase: di.sl(),
           ),
         ),
       ],
-      child: MaterialApp(
-        title: 'Crypto Trading App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorSchemeSeed: Colors.indigo,
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) => MaterialApp(
+          title: 'Crypto Trading App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorSchemeSeed: Colors.indigo,
+          ),
+          locale: localeProvider.locale,
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: LocaleProvider.supportedLocales,
+          home: isAuthenticated ? const MainScreen() : const LoginScreen(),
         ),
-        // Show MainScreen if authenticated, otherwise LoginScreen
-        home: isAuthenticated ? const MainScreen() : const LoginScreen(),
       ),
     );
   }
