@@ -117,19 +117,20 @@ class OHLCData {
   });
 
   factory OHLCData.fromJson(Map<String, dynamic> json) {
+    int _int(dynamic v) => (v is int) ? v : (v is num) ? v.toInt() : int.tryParse(v?.toString() ?? '') ?? 0;
     return OHLCData(
-      pairId: json['pair_id'] as int,
-      interval: json['interval'] as String,
-      openTime: json['open_time'] as int,
-      closeTime: json['close_time'] as int,
-      open: double.parse(json['open'].toString()),
-      high: double.parse(json['high'].toString()),
-      low: double.parse(json['low'].toString()),
-      close: double.parse(json['close'].toString()),
-      volume: double.parse(json['volume'].toString()),
-      quoteVolume: double.parse(json['quote_volume'].toString()),
-      tradesCount: json['trades_count'] as int,
-      isClosed: json['is_closed'] as bool,
+      pairId: _int(json['pair_id']),
+      interval: (json['interval'] as String?) ?? '1m',
+      openTime: _int(json['open_time']),
+      closeTime: _int(json['close_time']),
+      open: double.tryParse(json['open']?.toString() ?? '') ?? 0,
+      high: double.tryParse(json['high']?.toString() ?? '') ?? 0,
+      low: double.tryParse(json['low']?.toString() ?? '') ?? 0,
+      close: double.tryParse(json['close']?.toString() ?? '') ?? 0,
+      volume: double.tryParse(json['volume']?.toString() ?? '') ?? 0,
+      quoteVolume: double.tryParse(json['quote_volume']?.toString() ?? '') ?? 0,
+      tradesCount: _int(json['trades_count']),
+      isClosed: json['is_closed'] == true,
     );
   }
 
@@ -388,7 +389,6 @@ class WebSocketService implements IWebSocketService {
 
   void _handleMessage(WebSocketMessage message) {
     try {
-      _logger.d('📥 Received ${message.type}: ${message.data}');
       _messageController?.add(message);
     } catch (e) {
       _logger.e('Error handling message: $e');
