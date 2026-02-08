@@ -99,11 +99,12 @@ class DioClient {
         } else if (error.type == DioExceptionType.badResponse) {
           // Handle HTTP errors
           final statusCode = error.response?.statusCode;
+          final uri = error.requestOptions.uri;
           if (statusCode != null) {
             if (statusCode >= 500) {
-              _logger.e('Server Error: $statusCode');
+              _logger.e('Server Error: $statusCode => $uri');
             } else if (statusCode >= 400) {
-              _logger.e('Client Error: $statusCode');
+              _logger.e('Client Error: $statusCode => ${uri.toString()}');
             }
           }
         }
