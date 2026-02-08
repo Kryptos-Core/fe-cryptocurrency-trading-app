@@ -57,3 +57,36 @@ flutter doctor
 ```
 
 3. Nếu `flutter doctor` báo thiếu (Android Studio, VS Code, v.v.), cài thêm theo hướng dẫn trên màn hình.
+
+---
+
+## Visual Studio 2026 Insiders (CMake tìm thư mục Community)
+
+Nếu bạn cài **Visual Studio Community 2026 Insiders** (thư mục `...\18\Insiders`) mà `flutter run -d windows` báo:
+
+```text
+could not find specified instance of Visual Studio: ...\18\Community
+```
+
+Thì cần tạo **junction** để CMake tìm đúng. Mở **PowerShell hoặc CMD “Run as Administrator”** rồi chạy:
+
+```cmd
+mklink /J "C:\Program Files\Microsoft Visual Studio\18\Community" "C:\Program Files\Microsoft Visual Studio\18\Insiders"
+```
+
+Sau đó chạy lại `flutter run -d windows`.
+
+**Nếu vẫn báo** *"The directory exists, but the instance is not known to the Visual Studio Installer"* thì CMake cần trỏ thẳng tới Insiders. Trong PowerShell (trước khi chạy `flutter run -d windows`), set:
+
+```powershell
+$env:CMAKE_GENERATOR_INSTANCE = "C:\Program Files\Microsoft Visual Studio\18\Insiders"
+flutter run -d windows
+```
+
+Để dùng lâu dài, set biến User (không cần gõ mỗi lần):
+
+```powershell
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_INSTANCE", "C:\Program Files\Microsoft Visual Studio\18\Insiders", "User")
+```
+
+Rồi mở lại terminal và chạy `flutter run -d windows`.

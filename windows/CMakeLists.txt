@@ -1,5 +1,14 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+
+# Use Visual Studio Insiders path when building with VS 2026 Insiders (CMake
+# otherwise looks for .../18/Community which the Installer does not register).
+if(DEFINED ENV{CMAKE_GENERATOR_INSTANCE})
+  set(CMAKE_GENERATOR_INSTANCE "$ENV{CMAKE_GENERATOR_INSTANCE}" CACHE PATH "Visual Studio instance" FORCE)
+elseif(EXISTS "C:/Program Files/Microsoft Visual Studio/18/Insiders")
+  set(CMAKE_GENERATOR_INSTANCE "C:/Program Files/Microsoft Visual Studio/18/Insiders" CACHE PATH "Visual Studio instance" FORCE)
+endif()
+
 project(crypto_trading_app LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
