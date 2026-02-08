@@ -92,8 +92,8 @@ class MarketTicker {
   final String low24h; // Lowest price in 24h
   final String volume24h; // 24h volume in base currency
   final String quoteVolume24h; // 24h volume in quote currency
-  final String change24h; // 24h price change percentage (e.g., "0.02" = 2%)
-  final String changeAmount24h; // 24h price change amount
+  final String change24h; // 24h change in % (e.g. "0.52" = 0.52%, "-0.31" = -0.31%)
+  final String changeAmount24h; // 24h price change amount (lastPrice − open24h)
   final String bestBid; // Best bid price
   final String bestAsk; // Best ask price
   final DateTime timestamp;
@@ -120,11 +120,11 @@ class MarketTicker {
     return change >= 0;
   }
 
-  /// Get change percentage as formatted string (e.g., "+2.5%" or "-1.2%")
+  /// Formatted 24h % for display (API sends % e.g. "0.52" → "+0.52%")
   String get changePercentFormatted {
     final change = double.tryParse(change24h) ?? 0.0;
     final sign = change >= 0 ? '+' : '';
-    return '$sign${(change * 100).toStringAsFixed(2)}%';
+    return '$sign${change.toStringAsFixed(2)}%';
   }
 
   MarketTicker copyWith({

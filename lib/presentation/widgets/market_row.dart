@@ -2,6 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart' as market_entity;
 
+/// Format price (lastPrice) for display: động bậc theo giá, bỏ số 0 thừa.
+/// Ví dụ: 71111.56, 2127.91, 0.2744, 0.0982
+String _formatPrice(String priceStr) {
+  final v = double.tryParse(priceStr);
+  if (v == null) return priceStr;
+  if (v == 0) return '0';
+  int decimals;
+  if (v >= 1000) {
+    decimals = 2;
+  } else if (v >= 1) {
+    decimals = 4;
+  } else if (v >= 0.01) {
+    decimals = 6;
+  } else {
+    decimals = 8;
+  }
+  final formatted = v.toStringAsFixed(decimals);
+  // Bỏ số 0 thừa sau dấu phẩy (e.g. 644.5600 -> 644.56)
+  if (formatted.contains('.')) {
+    return formatted.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
+  return formatted;
+}
+
+/// Format volume for display; tránh hiển thị 0.0000... dài.
+String _formatVolume(String volumeStr) {
+  final v = double.tryParse(volumeStr);
+  if (v == null) return volumeStr;
+  if (v == 0) return '0';
+  if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
+  if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
+  if (v >= 1) return v.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+}
+
+/// Format changeAmount24h for display (e.g. +365.24, -100.50).
+String _formatChangeAmount(String changeAmount24h, bool isPositive) {
+  final v = double.tryParse(changeAmount24h);
+  if (v == null) return changeAmount24h;
+  final sign = isPositive && v > 0 ? '+' : '';
+  return '$sign${v.toStringAsFixed(2)}';
+}
+
 /// Market Row Widget
 /// Displays market pair information in a list row
 class MarketRow extends StatelessWidget {
@@ -21,10 +64,11 @@ class MarketRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPositive = ticker?.isPositive ?? false;
+    // API: change24h is % (e.g. "0.52" = 0.52%)
     final changePercent = ticker != null
-        ? (double.parse(ticker!.change24h) * 100).toStringAsFixed(2)
+        ? (double.tryParse(ticker!.change24h) ?? 0.0).toStringAsFixed(2)
         : '0.00';
-    final lastPrice = ticker?.lastPrice ?? '0.00';
+    final lastPrice = _formatPrice(ticker?.lastPrice ?? '0');
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -51,7 +95,7 @@ class MarketRow extends StatelessWidget {
                     if (ticker != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Vol: ${ticker!.volume24h}',
+                        'Vol: ${_formatVolume(ticker!.volume24h)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -116,7 +160,7 @@ class MarketRow extends StatelessWidget {
                     if (ticker != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        ticker!.change24h,
+                        _formatChangeAmount(ticker!.changeAmount24h, isPositive),
                         style: TextStyle(
                           fontSize: 12,
                           color: isPositive ? Colors.green.shade700 : Colors.red.shade700,
