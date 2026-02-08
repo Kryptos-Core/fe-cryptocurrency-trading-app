@@ -328,4 +328,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get loggedOutSuccess => 'Đã đăng xuất thành công';
+
+  @override
+  String get orderBookEmpty => 'Chưa có lệnh';
 }

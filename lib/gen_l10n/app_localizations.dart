@@ -739,6 +739,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logged out successfully'**
   String get loggedOutSuccess;
+
+  /// No description provided for @orderBookEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get orderBookEmpty;
 }
 
 class _AppLocalizationsDelegate

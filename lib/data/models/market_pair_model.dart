@@ -73,8 +73,8 @@ class MarketPairModel {
   }
 }
 
-/// Market Ticker Model
-/// Following API documentation structure
+/// Market Ticker Model (maps to backend MarketTickerDto).
+/// All price/volume fields from API are [String]; use double.tryParse() for comparison/format.
 @JsonSerializable()
 class MarketTickerModel {
   @JsonKey(name: 'pairId')

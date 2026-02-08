@@ -60,9 +60,11 @@ abstract class MarketsRepository {
   });
 
   /// Get OHLCV data for candlestick chart
+  /// [range] optional: 1d, 1M, 3M, 1y, 5y – bộ lọc theo khoảng thời gian (now − range) đến now
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
     required int pairId,
     String interval = '1h',
+    String? range,
     String? startTime,
     String? endTime,
     int limit = 100,

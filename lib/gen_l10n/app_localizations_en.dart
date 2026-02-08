@@ -328,4 +328,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loggedOutSuccess => 'Logged out successfully';
+
+  @override
+  String get orderBookEmpty => 'No orders yet';
 }

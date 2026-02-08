@@ -106,5 +106,6 @@
   "areYouSureLogout": "Bạn có chắc muốn đăng xuất?",
   "failedToLoadProfile": "Không tải được hồ sơ",
   "goToLogin": "Đến trang đăng nhập",
-  "loggedOutSuccess": "Đã đăng xuất thành công"
+  "loggedOutSuccess": "Đã đăng xuất thành công",
+  "orderBookEmpty": "Chưa có lệnh"
 }

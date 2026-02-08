@@ -106,5 +106,6 @@
   "areYouSureLogout": "Are you sure you want to logout?",
   "failedToLoadProfile": "Failed to load profile",
   "goToLogin": "Go to Login",
-  "loggedOutSuccess": "Logged out successfully"
+  "loggedOutSuccess": "Logged out successfully",
+  "orderBookEmpty": "No orders yet"
 }

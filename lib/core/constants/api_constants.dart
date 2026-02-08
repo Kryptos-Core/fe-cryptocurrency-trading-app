@@ -53,11 +53,14 @@ class ApiConstants {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/ticker';
   }
+  /// Tab Thị trường – danh sách pair + giá, % đổi: GET /markets/tickers/all
   static const String marketsTickersAll = '$markets/tickers/all';
-  static String marketOrderBook(int id) => '$markets/$id/orderbook';
+
+  /// Sổ lệnh – theo tài liệu: /markets/:id/order-book (dấu gạch ngang)
+  static String marketOrderBook(int id) => '$markets/$id/order-book';
   static String marketOrderBookBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
-    return '$markets/symbol/$encodedSymbol/orderbook';
+    return '$markets/symbol/$encodedSymbol/order-book';
   }
   static String marketTrades(int id) => '$markets/$id/trades';
   static String marketTradesBySymbol(String symbol) {
@@ -65,7 +68,27 @@ class ApiConstants {
     return '$markets/symbol/$encodedSymbol/trades';
   }
   static String marketOHLCV(int id) => '$markets/$id/ohlcv';
-  
+
+  /// OHLCV range filter: 1d, 1M, 3M, 1y, 5y (backend only accepts these)
+  static const List<String> ohlcvRanges = ['1d', '1M', '3M', '1y', '5y'];
+
+  /// Suggested interval per range for chart (FE gợi ý theo tài liệu API)
+  static String intervalForRange(String range) {
+    switch (range) {
+      case '1d':
+        return '1m';
+      case '1M':
+        return '1h';
+      case '3M':
+        return '4h';
+      case '1y':
+      case '5y':
+        return '1d';
+      default:
+        return '1h';
+    }
+  }
+
   // Wallets Endpoints (Ví tiền)
   static const String wallets = '/wallets';
   static String walletByCurrency(int currencyId) => '$wallets/currency/$currencyId';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
@@ -393,6 +394,7 @@ class _MarketInfoCardWidget extends StatelessWidget {
 }
 
 /// Order Book Card Widget - Displays buy/sell orders
+/// Khi bids và asks đều rỗng: hiển thị "Chưa có lệnh" theo tài liệu API
 class _OrderBookCardWidget extends StatelessWidget {
   final dynamic orderBook;
 
@@ -401,6 +403,10 @@ class _OrderBookCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bids = orderBook.bids as List;
+    final asks = orderBook.asks as List;
+    final isEmpty = bids.isEmpty && asks.isEmpty;
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -416,17 +422,32 @@ class _OrderBookCardWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _OrderSideSection(
-              title: l10n.asksSell,
-              orders: orderBook.asks.take(5).toList(),
-              color: Colors.red,
-            ),
-            const Divider(height: 24),
-            _OrderSideSection(
-              title: l10n.bidsBuy,
-              orders: orderBook.bids.take(5).toList(),
-              color: Colors.green,
-            ),
+            if (isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Text(
+                    l10n.orderBookEmpty,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              )
+            else ...[
+              _OrderSideSection(
+                title: l10n.asksSell,
+                orders: asks.take(5).toList(),
+                color: Colors.red,
+              ),
+              const Divider(height: 24),
+              _OrderSideSection(
+                title: l10n.bidsBuy,
+                orders: bids.take(5).toList(),
+                color: Colors.green,
+              ),
+            ],
           ],
         ),
       ),
@@ -451,11 +472,13 @@ class _TradingChartWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with interval selector
+                // Header with interval selector and range filter (1D, 1M, 3M, 1Y, 5Y)
                 _ChartHeaderWidget(
                   chartProvider: chartProvider,
                   pairId: pairId,
                 ),
+                const SizedBox(height: 8),
+                _ChartRangeRow(pairId: pairId),
                 const SizedBox(height: 16),
 
                 // Chart content
@@ -735,6 +758,79 @@ class _ChartHeaderWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Range filter row: 1D, 1M, 3M, 1Y, 5Y – gọi API /ohlcv?range=...
+class _ChartRangeRow extends StatelessWidget {
+  final int pairId;
+
+  const _ChartRangeRow({required this.pairId});
+
+  static const List<MapEntry<String, String>> _ranges = [
+    MapEntry('1d', '1D'),
+    MapEntry('1M', '1M'),
+    MapEntry('3M', '3M'),
+    MapEntry('1y', '1Y'),
+    MapEntry('5y', '5Y'),
+  ];
+
+  Future<void> _onRangeTap(
+    BuildContext context,
+    String range,
+  ) async {
+    final marketsProvider = context.read<MarketsProvider>();
+    final chartProvider = context.read<ChartProvider>();
+    final interval = ApiConstants.intervalForRange(range);
+
+    await marketsProvider.fetchOHLCV(
+      pairId: pairId,
+      range: range,
+      limit: 500,
+    );
+
+    final ohlcv = marketsProvider.ohlcv;
+    if (ohlcv.isEmpty) return;
+
+    chartProvider.setInterval(interval);
+    final list = ohlcv
+        .map((o) => OHLCData(
+              pairId: pairId,
+              interval: interval,
+              openTime: o.openTime.millisecondsSinceEpoch,
+              closeTime: o.openTime
+                  .add(Duration(seconds: o.intervalSec))
+                  .millisecondsSinceEpoch,
+              open: double.tryParse(o.open) ?? 0,
+              high: double.tryParse(o.high) ?? 0,
+              low: double.tryParse(o.low) ?? 0,
+              close: double.tryParse(o.close) ?? 0,
+              volume: double.tryParse(o.volume) ?? 0,
+              quoteVolume: 0,
+              tradesCount: 0,
+              isClosed: true,
+            ))
+        .toList();
+    await chartProvider.loadHistoricalCandles(list);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: _ranges
+          .map((e) => ActionChip(
+                label: Text(e.value),
+                onPressed: () => _onRangeTap(context, e.key),
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                side: BorderSide(color: colorScheme.outlineVariant),
+              ))
+          .toList(),
     );
   }
 }

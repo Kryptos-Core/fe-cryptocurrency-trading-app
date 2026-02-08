@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/core/usecases/usecase.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
@@ -375,12 +376,16 @@ class MarketsProvider extends ChangeNotifier {
   }
 
   /// Get OHLCV data
+  /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range sẽ dùng interval gợi ý (1d→1m, 1M→1h, 3M→4h, 1y/5y→1d)
   Future<void> fetchOHLCV({
     required int pairId,
     String? interval,
+    String? range,
     int limit = 100,
   }) async {
-    if (interval != null) {
+    if (range != null) {
+      _selectedInterval = ApiConstants.intervalForRange(range);
+    } else if (interval != null) {
       _selectedInterval = interval;
     }
 
@@ -391,7 +396,8 @@ class MarketsProvider extends ChangeNotifier {
       GetOHLCVParams(
         pairId: pairId,
         interval: _selectedInterval,
-        limit: limit,
+        range: range,
+        limit: range != null ? 500 : limit,
       ),
     );
 

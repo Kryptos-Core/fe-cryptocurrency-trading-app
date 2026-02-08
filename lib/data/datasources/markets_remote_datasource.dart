@@ -66,9 +66,11 @@ abstract class MarketsRemoteDataSource {
   });
 
   /// Get OHLCV data
+  /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range thì backend chỉ trả nến trong khoảng (now − range) đến now; tối đa 500 nến.
   Future<List<OHLCVModel>> getOHLCV({
     required int pairId,
     String interval = '1h',
+    String? range,
     String? startTime,
     String? endTime,
     int limit = 100,
@@ -414,6 +416,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       final response = await dio.get(ApiConstants.marketTicker(pairId));
 
       if (response.statusCode == 200) {
+        // Response wrap: { success, data: MarketTickerDto, timestamp }
         final apiResponse = ApiResponse<MarketTickerModel>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => MarketTickerModel.fromJson(json as Map<String, dynamic>),
@@ -508,6 +511,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       final response = await dio.get(ApiConstants.marketsTickersAll);
 
       if (response.statusCode == 200) {
+        // Response wrap: { success, data: MarketTickerDto[], timestamp }
         final apiResponse = ApiResponse<List<MarketTickerModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
@@ -769,6 +773,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
   Future<List<OHLCVModel>> getOHLCV({
     required int pairId,
     String interval = '1h',
+    String? range,
     String? startTime,
     String? endTime,
     int limit = 100,
@@ -783,13 +788,15 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
 
     try {
+      final effectiveLimit = range != null ? 500 : limit;
       final response = await dio.get(
         ApiConstants.marketOHLCV(pairId),
         queryParameters: {
           'interval': interval,
-          if (startTime != null) 'start_time': startTime,
-          if (endTime != null) 'end_time': endTime,
-          'limit': limit,
+          if (range != null) 'range': range,
+          if (startTime != null && range == null) 'start_time': startTime,
+          if (endTime != null && range == null) 'end_time': endTime,
+          'limit': effectiveLimit,
         },
       );
 

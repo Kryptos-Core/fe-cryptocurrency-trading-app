@@ -257,6 +257,7 @@ class GetOHLCVUseCase implements UseCase<List<OHLCV>, GetOHLCVParams> {
     return await repository.getOHLCV(
       pairId: params.pairId,
       interval: params.interval,
+      range: params.range,
       startTime: params.startTime,
       endTime: params.endTime,
       limit: params.limit,
@@ -267,6 +268,8 @@ class GetOHLCVUseCase implements UseCase<List<OHLCV>, GetOHLCVParams> {
 class GetOHLCVParams extends Equatable {
   final int pairId;
   final String interval;
+  /// Range filter: 1d, 1M, 3M, 1y, 5y (chữ M viết hoa cho tháng)
+  final String? range;
   final String? startTime;
   final String? endTime;
   final int limit;
@@ -274,13 +277,14 @@ class GetOHLCVParams extends Equatable {
   const GetOHLCVParams({
     required this.pairId,
     this.interval = '1h',
+    this.range,
     this.startTime,
     this.endTime,
     this.limit = 100,
   });
 
   @override
-  List<Object?> get props => [pairId, interval, startTime, endTime, limit];
+  List<Object?> get props => [pairId, interval, range, startTime, endTime, limit];
 }
 
 /// Create Market Pair Use Case

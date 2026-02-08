@@ -196,6 +196,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
     required int pairId,
     String interval = '1h',
+    String? range,
     String? startTime,
     String? endTime,
     int limit = 100,
@@ -204,6 +205,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
       final ohlcvModels = await remoteDataSource.getOHLCV(
         pairId: pairId,
         interval: interval,
+        range: range,
         startTime: startTime,
         endTime: endTime,
         limit: limit,
