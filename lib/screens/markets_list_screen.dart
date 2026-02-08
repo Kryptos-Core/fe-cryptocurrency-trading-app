@@ -24,7 +24,10 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MarketsProvider>().fetchMarkets(refresh: true);
+      final provider = context.read<MarketsProvider>();
+      provider.fetchMarkets(refresh: true);
+      // Tab Thị trường: GET /markets/tickers/all – giá, % đổi cho mọi pair active
+      provider.fetchAllTickers();
     });
 
     // Listen to scroll events to load more when near bottom
@@ -104,10 +107,15 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
             );
           }
 
+          final tickerByPairId = {
+            for (final t in provider.allTickers) t.pairId: t
+          };
+
           return RefreshIndicator(
             onRefresh: () async {
               _isLoadingMore = false;
               await provider.fetchMarkets(refresh: true);
+              await provider.fetchAllTickers();
             },
             child: ListView.builder(
               controller: _scrollController,
@@ -125,8 +133,10 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                 }
 
                 final market = provider.markets[index];
+                final ticker = tickerByPairId[market.pairId];
                 return MarketRow(
                   market: market,
+                  ticker: ticker,
                   onTap: () {
                     Navigator.push(
                       context,
