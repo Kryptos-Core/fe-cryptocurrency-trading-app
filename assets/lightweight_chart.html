@@ -159,6 +159,22 @@
             ChartState.chart = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
                 height: container.clientHeight,
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: false,
+                    tickMarkFormatter: (time, tickMarkType, locale) => {
+                        const t = typeof time === 'number' ? new Date(time * 1000) : new Date(time.year, (time.month || 1) - 1, time.day || 1);
+                        const y = t.getUTCFullYear();
+                        const M = String(t.getUTCMonth() + 1).padStart(2, '0');
+                        const d = String(t.getUTCDate()).padStart(2, '0');
+                        const h = String(t.getUTCHours()).padStart(2, '0');
+                        const m = String(t.getUTCMinutes()).padStart(2, '0');
+                        if (tickMarkType === 0) return String(y);
+                        if (tickMarkType === 1) return M + '/' + y;
+                        if (tickMarkType === 2) return d + '/' + M;
+                        return h + ':' + m;
+                    },
+                },
             });
 
             ChartState.candlestickSeries = ChartState.chart.addCandlestickSeries();
