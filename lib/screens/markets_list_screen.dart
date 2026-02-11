@@ -61,19 +61,6 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.markets),
-        automaticallyImplyLeading:
-            false, // Remove back button when in bottom nav
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<MarketsProvider>().fetchMarkets(refresh: true);
-            },
-          ),
-        ],
-      ),
       body: Consumer<MarketsProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.markets.isEmpty) {

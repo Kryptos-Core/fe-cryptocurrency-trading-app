@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide Order;
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';

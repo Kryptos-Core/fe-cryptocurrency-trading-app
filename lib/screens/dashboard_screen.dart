@@ -32,11 +32,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        centerTitle: true,
-        automaticallyImplyLeading: false, // Remove back button
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([

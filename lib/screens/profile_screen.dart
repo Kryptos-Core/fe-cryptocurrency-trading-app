@@ -156,10 +156,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.profile),
-          automaticallyImplyLeading: false,
-        ),
         body: const Center(
           child: CircularProgressIndicator(),
         ),
@@ -168,10 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (_currentUser == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.profile),
-          automaticallyImplyLeading: false,
-        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -195,17 +187,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.profile),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
-            tooltip: l10n.logout,
-          ),
-        ],
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -385,6 +366,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {
                 // TODO: Navigate to settings
               },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+              title: Text(l10n.logout, style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+              onTap: _handleLogout,
             ),
           ],
         ),

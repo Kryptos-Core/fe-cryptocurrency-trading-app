@@ -179,19 +179,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.wallet),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              _loadCurrencies();
-              _fetchBalance();
-            },
-          ),
-        ],
-      ),
       body: Consumer<WalletsProvider>(
         builder: (context, provider, child) {
           if (_isLoadingCurrencies) {

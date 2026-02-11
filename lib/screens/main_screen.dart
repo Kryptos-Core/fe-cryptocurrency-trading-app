@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/screens/dashboard_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
@@ -18,6 +21,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _screens = [
     const DashboardScreen(), // Home: Dashboard với overview
@@ -26,10 +30,43 @@ class _MainScreenState extends State<MainScreen> {
     const ProfileScreen(), // Profile
   ];
 
+  static const List<String> _tabTitles = [
+    'Dashboard',
+    'Markets',
+    'Wallets',
+    'Profile',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+          tooltip: 'Menu',
+        ),
+        title: Text(_tabTitles[_currentIndex]),
+        actions: [
+          if (_currentIndex == 1)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                context.read<MarketsProvider>().fetchMarkets(refresh: true);
+                context.read<MarketsProvider>().fetchAllTickers();
+              },
+              tooltip: l10n.refresh,
+            ),
+          if (_currentIndex == 2)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => context.read<WalletsProvider>().fetchWallets(refresh: true),
+              tooltip: l10n.refresh,
+            ),
+        ],
+      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,

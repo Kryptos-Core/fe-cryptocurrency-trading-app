@@ -61,14 +61,14 @@ class OrdersProvider extends ChangeNotifier {
 
     final result = await createOrderUseCase(CreateOrderParams(request: request));
 
-    return result.fold(
+    return result.fold<Order?>(
       (failure) {
         _error = _mapFailureToMessage(failure);
         _isLoading = false;
         notifyListeners();
         return null;
       },
-      (order) {
+      (Order order) {
         _isLoading = false;
         _error = null;
         _selectedOrder = order;
@@ -86,14 +86,14 @@ class OrdersProvider extends ChangeNotifier {
 
     final result = await cancelOrderUseCase(CancelOrderParams(orderId: orderId));
 
-    return result.fold(
+    return result.fold<Order?>(
       (failure) {
         _error = _mapFailureToMessage(failure);
         _isLoading = false;
         notifyListeners();
         return null;
       },
-      (order) {
+      (Order order) {
         _isLoading = false;
         _error = null;
         _selectedOrder = order;
@@ -199,7 +199,7 @@ class OrdersProvider extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
       },
-      (order) {
+      (Order order) {
         _selectedOrder = order;
         _replaceOrderInList(order);
         _isLoading = false;

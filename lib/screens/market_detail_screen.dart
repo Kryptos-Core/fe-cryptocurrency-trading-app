@@ -211,6 +211,9 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
     if (!mounted) return;
 
+    // Default trading chart to 1D when entering market detail
+    _chartProvider!.setInterval('1d');
+
     // Chart init: loads from cache first, then fetches OHLCV and merges (strategy handles fetch)
     await _chartStrategy.initialize(
       widget.pairId,

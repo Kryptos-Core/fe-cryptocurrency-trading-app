@@ -1,13 +1,13 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
 
-# Use Visual Studio Insiders path when building with VS 2026 Insiders (CMake
-# otherwise looks for .../18/Community which the Installer does not register).
-if(DEFINED ENV{CMAKE_GENERATOR_INSTANCE})
-  set(CMAKE_GENERATOR_INSTANCE "$ENV{CMAKE_GENERATOR_INSTANCE}" CACHE PATH "Visual Studio instance" FORCE)
-elseif(EXISTS "C:/Program Files/Microsoft Visual Studio/18/Insiders")
-  set(CMAKE_GENERATOR_INSTANCE "C:/Program Files/Microsoft Visual Studio/18/Insiders" CACHE PATH "Visual Studio instance" FORCE)
-endif()
+# Let CMake/Flutter auto-detect Visual Studio (e.g. VS 2022). If you previously
+# had VS 2026 Insiders and see "could not find specified instance", run:
+#   flutter clean
+# then build again. To force a specific VS, set before flutter run:
+#   set CMAKE_GENERATOR=Visual Studio 17 2022
+#   set CMAKE_GENERATOR_INSTANCE=
+#   set CMAKE_GENERATOR_PLATFORM=x64
 
 project(crypto_trading_app LANGUAGES CXX)
 

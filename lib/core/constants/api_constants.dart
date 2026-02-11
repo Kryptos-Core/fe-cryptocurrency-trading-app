@@ -56,11 +56,11 @@ class ApiConstants {
   /// Tab Thị trường – danh sách pair + giá, % đổi: GET /markets/tickers/all
   static const String marketsTickersAll = '$markets/tickers/all';
 
-  /// Sổ lệnh – theo tài liệu: /markets/:id/order-book (dấu gạch ngang)
-  static String marketOrderBook(int id) => '$markets/$id/order-book';
+  /// Sổ lệnh – BE route: GET /markets/:id/orderbook (không gạch)
+  static String marketOrderBook(int id) => '$markets/$id/orderbook';
   static String marketOrderBookBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
-    return '$markets/symbol/$encodedSymbol/order-book';
+    return '$markets/symbol/$encodedSymbol/orderbook';
   }
   static String marketTrades(int id) => '$markets/$id/trades';
   static String marketTradesBySymbol(String symbol) {
