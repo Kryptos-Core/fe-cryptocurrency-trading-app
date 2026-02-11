@@ -15,6 +15,7 @@
   "loginFailed": "Đăng nhập thất bại",
   "registerFailed": "Đăng ký thất bại",
   "markets": "Thị trường",
+  "orders": "Lệnh",
   "wallets": "Ví",
   "currencies": "Tiền tệ",
   "profile": "Cá nhân",

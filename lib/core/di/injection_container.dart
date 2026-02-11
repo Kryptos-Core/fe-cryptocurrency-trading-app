@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/data/datasources/markets_remote_datasource.da
 import 'package:crypto_trading_app/data/datasources/wallets_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/orders_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/markets_repository_impl.dart';
@@ -19,8 +20,11 @@ import 'package:crypto_trading_app/domain/repositories/currencies_repository.dar
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/domain/usecases/orders_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
@@ -128,6 +132,11 @@ Future<void> initializeDependencies() async {
     () => WalletLocalDataSourceImpl(),
   );
 
+  // Orders Remote Data Source
+  sl.registerLazySingleton<OrdersRemoteDataSource>(
+    () => OrdersRemoteDataSourceImpl(dioClient: sl()),
+  );
+
   // ===== Repositories =====
   // Auth Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -155,6 +164,11 @@ Future<void> initializeDependencies() async {
       remoteDataSource: sl<WalletRemoteDataSource>(),
       localDataSource: sl<WalletLocalDataSource>(),
     ),
+  );
+
+  // Orders Repository
+  sl.registerLazySingleton<OrdersRepository>(
+    () => OrdersRepositoryImpl(remoteDataSource: sl<OrdersRemoteDataSource>()),
   );
 
   // ===== Use Cases =====
@@ -214,6 +228,13 @@ Future<void> initializeDependencies() async {
       walletRepository: sl<WalletRepository>(),
     ),
   );
+
+  // Orders Use Cases
+  sl.registerLazySingleton(() => CreateOrderUseCase(repository: sl<OrdersRepository>()));
+  sl.registerLazySingleton(() => CancelOrderUseCase(repository: sl<OrdersRepository>()));
+  sl.registerLazySingleton(() => GetOrdersBookUseCase(repository: sl<OrdersRepository>()));
+  sl.registerLazySingleton(() => GetMyOrdersUseCase(repository: sl<OrdersRepository>()));
+  sl.registerLazySingleton(() => GetOrderByIdUseCase(repository: sl<OrdersRepository>()));
 
   // ===== Trading Chart Services =====
   // WebSocket Service - Realtime data

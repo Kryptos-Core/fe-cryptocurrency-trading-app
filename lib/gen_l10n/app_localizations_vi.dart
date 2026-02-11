@@ -54,6 +54,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get markets => 'Thị trường';
 
   @override
+  String get orders => 'Lệnh';
+
+  @override
   String get wallets => 'Ví';
 
   @override

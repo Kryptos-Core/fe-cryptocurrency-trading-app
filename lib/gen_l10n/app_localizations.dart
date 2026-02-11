@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'Markets'**
   String get markets;
 
+  /// No description provided for @orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get orders;
+
   /// No description provided for @wallets.
   ///
   /// In en, this message translates to:

@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markets => 'Markets';
 
   @override
+  String get orders => 'Orders';
+
+  @override
   String get wallets => 'Wallets';
 
   @override

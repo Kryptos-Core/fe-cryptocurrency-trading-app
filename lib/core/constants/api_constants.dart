@@ -89,6 +89,13 @@ class ApiConstants {
     }
   }
 
+  // Orders Endpoints (Lệnh mua/bán – Orders Module + Matching)
+  static const String orders = '/orders';
+  static String ordersBook(int pairId) => '$orders/book/$pairId';
+  static const String ordersMy = '$orders/my';
+  static String orderById(int orderId) => '$orders/$orderId';
+  static String orderCancel(int orderId) => '$orders/$orderId/cancel';
+
   // Wallets Endpoints (Ví tiền)
   static const String wallets = '/wallets';
   static String walletByCurrency(int currencyId) => '$wallets/currency/$currencyId';

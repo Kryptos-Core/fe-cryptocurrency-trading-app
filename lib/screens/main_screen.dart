@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
+import 'package:crypto_trading_app/screens/orders_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -91,11 +92,24 @@ class _MainScreenState extends State<MainScreen> {
               leading: const Icon(Icons.currency_bitcoin),
               title: Text(l10n.currencies),
               onTap: () {
-                Navigator.pop(context); // Close drawer
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CurrenciesListScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.list_alt),
+              title: Text(l10n.orders),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OrdersScreen(),
                   ),
                 );
               },

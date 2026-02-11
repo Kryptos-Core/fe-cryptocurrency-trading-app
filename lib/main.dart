@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 
@@ -85,6 +86,15 @@ class CryptoTradingApp extends StatelessWidget {
             getWalletBalanceApiUseCase: di.sl(),
             executeWalletTransactionApiUseCase: di.sl(),
             getTransactionHistoryApiUseCase: di.sl(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => OrdersProvider(
+            createOrderUseCase: di.sl(),
+            cancelOrderUseCase: di.sl(),
+            getOrdersBookUseCase: di.sl(),
+            getMyOrdersUseCase: di.sl(),
+            getOrderByIdUseCase: di.sl(),
           ),
         ),
       ],

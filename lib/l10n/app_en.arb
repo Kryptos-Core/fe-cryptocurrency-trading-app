@@ -15,6 +15,7 @@
   "loginFailed": "Login failed",
   "registerFailed": "Registration failed",
   "markets": "Markets",
+  "orders": "Orders",
   "wallets": "Wallets",
   "currencies": "Currencies",
   "profile": "Profile",
