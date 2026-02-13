@@ -334,4 +334,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderBookEmpty => 'No orders yet';
+
+  @override
+  String get placeOrder => 'Place Order';
+
+  @override
+  String get buy => 'Buy';
+
+  @override
+  String get sell => 'Sell';
+
+  @override
+  String get limitOrder => 'Limit';
+
+  @override
+  String get marketOrder => 'Market';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get pairId => 'Pair ID';
+
+  @override
+  String get orderType => 'Order type';
+
+  @override
+  String get orderPlacedSuccess => 'Order placed successfully';
+
+  @override
+  String get insufficientBalance => 'Insufficient balance';
+
+  @override
+  String get tradingPair => 'Trading pair';
 }

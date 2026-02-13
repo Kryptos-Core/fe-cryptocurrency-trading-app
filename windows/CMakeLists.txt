@@ -1,5 +1,7 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+# Suppress CMP0175 from webview_windows plugin (add_custom_command DEPENDS) before any subdir
+cmake_policy(SET CMP0175 OLD)
 
 # Let CMake/Flutter auto-detect Visual Studio (e.g. VS 2022). If you previously
 # had VS 2026 Insiders and see "could not find specified instance", run:
@@ -18,8 +20,6 @@ set(BINARY_NAME "crypto_trading_app")
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
-# Suppress CMP0175 warning from webview_windows plugin (add_custom_command DEPENDS)
-cmake_policy(SET CMP0175 OLD)
 
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)

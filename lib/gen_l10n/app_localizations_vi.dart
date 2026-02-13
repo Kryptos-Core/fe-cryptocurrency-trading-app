@@ -334,4 +334,37 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get orderBookEmpty => 'Chưa có lệnh';
+
+  @override
+  String get placeOrder => 'Đặt lệnh';
+
+  @override
+  String get buy => 'Mua';
+
+  @override
+  String get sell => 'Bán';
+
+  @override
+  String get limitOrder => 'Giới hạn';
+
+  @override
+  String get marketOrder => 'Thị trường';
+
+  @override
+  String get price => 'Giá';
+
+  @override
+  String get pairId => 'Pair ID';
+
+  @override
+  String get orderType => 'Loại lệnh';
+
+  @override
+  String get orderPlacedSuccess => 'Đặt lệnh thành công';
+
+  @override
+  String get insufficientBalance => 'Không đủ số dư';
+
+  @override
+  String get tradingPair => 'Cặp giao dịch';
 }

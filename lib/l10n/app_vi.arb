@@ -108,5 +108,16 @@
   "failedToLoadProfile": "Không tải được hồ sơ",
   "goToLogin": "Đến trang đăng nhập",
   "loggedOutSuccess": "Đã đăng xuất thành công",
-  "orderBookEmpty": "Chưa có lệnh"
+  "orderBookEmpty": "Chưa có lệnh",
+  "placeOrder": "Đặt lệnh",
+  "buy": "Mua",
+  "sell": "Bán",
+  "limitOrder": "Giới hạn",
+  "marketOrder": "Thị trường",
+  "price": "Giá",
+  "pairId": "Pair ID",
+  "orderType": "Loại lệnh",
+  "orderPlacedSuccess": "Đặt lệnh thành công",
+  "insufficientBalance": "Không đủ số dư",
+  "tradingPair": "Cặp giao dịch"
 }

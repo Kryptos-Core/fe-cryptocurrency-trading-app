@@ -751,6 +751,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No orders yet'**
   String get orderBookEmpty;
+
+  /// No description provided for @placeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place Order'**
+  String get placeOrder;
+
+  /// No description provided for @buy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get buy;
+
+  /// No description provided for @sell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get sell;
+
+  /// No description provided for @limitOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get limitOrder;
+
+  /// No description provided for @marketOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get marketOrder;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @pairId.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair ID'**
+  String get pairId;
+
+  /// No description provided for @orderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Order type'**
+  String get orderType;
+
+  /// No description provided for @orderPlacedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed successfully'**
+  String get orderPlacedSuccess;
+
+  /// No description provided for @insufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance'**
+  String get insufficientBalance;
+
+  /// No description provided for @tradingPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading pair'**
+  String get tradingPair;
 }
 
 class _AppLocalizationsDelegate

@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
 
 /// Màn hình Orders: Danh sách lệnh của user + Order book (theo pair).
@@ -17,19 +21,25 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  final _pairIdController = TextEditingController(text: '1');
+  final _priceController = TextEditingController();
+  final _amountController = TextEditingController();
+  String _side = 'BUY';
+  String _orderType = 'LIMIT';
+  MarketPair? _selectedMarket;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrdersProvider>().fetchMyOrders(refresh: true);
+      context.read<MarketsProvider>().fetchActiveMarkets();
     });
   }
 
   @override
   void dispose() {
-    _pairIdController.dispose();
+    _priceController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
 
@@ -57,6 +67,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              _buildPlaceOrderSection(context),
+              const SizedBox(height: 24),
               _buildOrderBookSection(context),
               const SizedBox(height: 24),
               _buildMyOrdersSection(context),
@@ -67,7 +79,164 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
+  Widget _buildPlaceOrderSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final ordersProvider = context.watch<OrdersProvider>();
+    final marketsProvider = context.watch<MarketsProvider>();
+    final theme = Theme.of(context);
+    final markets = marketsProvider.markets;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.placeOrder,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<MarketPair>(
+              value: _selectedMarket,
+              decoration: InputDecoration(
+                labelText: l10n.tradingPair,
+                border: const OutlineInputBorder(),
+              ),
+              hint: Text(markets.isEmpty ? l10n.loading : l10n.tradingPair),
+              items: markets
+                  .map((m) => DropdownMenuItem<MarketPair>(
+                        value: m,
+                        child: Text(_formatSymbol(m.symbol)),
+                      ))
+                  .toList(),
+              onChanged: markets.isEmpty
+                  ? null
+                  : (MarketPair? v) => setState(() => _selectedMarket = v),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(value: 'BUY', label: Text(l10n.buy), icon: Icon(Icons.arrow_upward, size: 18, color: Colors.green.shade700)),
+                      ButtonSegment(value: 'SELL', label: Text(l10n.sell), icon: Icon(Icons.arrow_downward, size: 18, color: Colors.red.shade700)),
+                    ],
+                    selected: {_side},
+                    onSelectionChanged: (Set<String> s) => setState(() => _side = s.first),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text('${l10n.orderType}: ', style: theme.textTheme.bodyMedium),
+                Expanded(
+                  child: SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(value: 'LIMIT', label: Text(l10n.limitOrder)),
+                      ButtonSegment(value: 'MARKET', label: Text(l10n.marketOrder)),
+                    ],
+                    selected: {_orderType},
+                    onSelectionChanged: (Set<String> s) => setState(() => _orderType = s.first),
+                  ),
+                ),
+              ],
+            ),
+            if (_orderType == 'LIMIT') ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _priceController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l10n.price,
+                  border: const OutlineInputBorder(),
+                  hintText: 'e.g. 50000.00',
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: l10n.amount,
+                border: const OutlineInputBorder(),
+                hintText: 'e.g. 0.01',
+              ),
+            ),
+            if (ordersProvider.error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                ordersProvider.error!,
+                style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
+              ),
+            ],
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: ordersProvider.isLoading ? null : () => _submitOrder(context),
+              icon: ordersProvider.isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.send),
+              label: Text(l10n.placeOrder),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _formatSymbol(String symbol) {
+    if (symbol.contains('/')) return symbol;
+    if (symbol.length >= 6 && symbol.endsWith('USDT')) {
+      return '${symbol.substring(0, symbol.length - 4)}/USDT';
+    }
+    return symbol;
+  }
+
+  Future<void> _submitOrder(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<OrdersProvider>();
+    if (_selectedMarket == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.tradingPair} ${l10n.retry}')));
+      return;
+    }
+    final pairId = _selectedMarket!.pairId;
+    final amount = _amountController.text.trim();
+    if (amount.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.amount} required')));
+      return;
+    }
+    if (_orderType == 'LIMIT') {
+      final price = _priceController.text.trim();
+      if (price.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.price} required for Limit order')));
+        return;
+      }
+    }
+    final idempotencyKey = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(0x7FFFFFFF)}';
+    final request = CreateOrderRequest(
+      pairId: pairId,
+      side: _side,
+      type: _orderType,
+      price: _orderType == 'LIMIT' ? _priceController.text.trim() : null,
+      amount: amount,
+      idempotencyKey: idempotencyKey,
+    );
+    final order = await provider.createOrder(request);
+    if (!context.mounted) return;
+    if (order != null) {
+      provider.clearError();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.orderPlacedSuccess)));
+      _amountController.clear();
+      if (_orderType == 'LIMIT') _priceController.clear();
+      provider.fetchOrderBook(pairId);
+      provider.fetchMyOrders(refresh: true);
+    }
+  }
+
   Widget _buildOrderBookSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<OrdersProvider>();
     return Card(
       child: Padding(
@@ -75,37 +244,40 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Order Book',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
-                SizedBox(
-                  width: 80,
-                  child: TextField(
-                    controller: _pairIdController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Pair ID',
-                      border: OutlineInputBorder(),
-                    ),
+                Text(
+                  l10n.orderBook,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (_selectedMarket != null) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    ' (${_formatSymbol(_selectedMarket!.symbol)})',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: provider.isLoading
-                      ? null
-                      : () {
-                          final pairId =
-                              int.tryParse(_pairIdController.text) ?? 1;
-                          provider.fetchOrderBook(pairId);
-                        },
-                  child: const Text('Load'),
-                ),
+                ],
               ],
             ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: provider.isLoading || _selectedMarket == null
+                  ? null
+                  : () => provider.fetchOrderBook(_selectedMarket!.pairId),
+              child: Text(l10n.refresh),
+            ),
+            if (_selectedMarket == null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  l10n.tradingPair,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                ),
+              ),
             if (provider.error != null) ...[
               const SizedBox(height: 8),
               Text(
@@ -121,7 +293,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 children: [
                   Expanded(
                     child: _OrderBookTable(
-                      title: 'Bids',
+                      title: AppLocalizations.of(context)!.bidsBuy,
                       levels: provider.orderBookBids,
                       isBid: true,
                     ),
@@ -129,7 +301,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: _OrderBookTable(
-                      title: 'Asks',
+                      title: AppLocalizations.of(context)!.asksSell,
                       levels: provider.orderBookAsks,
                       isBid: false,
                     ),
@@ -166,7 +338,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (provider.myOrders.isEmpty) {
       return Center(
         child: Text(
-          'No orders yet',
+          AppLocalizations.of(context)!.orderBookEmpty,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       );

@@ -76,17 +76,21 @@ mklink /J "C:\Program Files\Microsoft Visual Studio\18\Community" "C:\Program Fi
 
 Sau đó chạy lại `flutter run -d windows`.
 
-**Nếu vẫn báo** *"The directory exists, but the instance is not known to the Visual Studio Installer"* thì CMake cần trỏ thẳng tới Insiders. Trong PowerShell (trước khi chạy `flutter run -d windows`), set:
+**Nếu vẫn báo** *"The directory exists, but the instance is not known to the Visual Studio Installer"* thì CMake cần trỏ thẳng tới Insiders. Trong PowerShell (trước khi chạy `flutter run -d windows`), set **cả hai** biến (nếu không set `CMAKE_GENERATOR`, CMake sẽ bỏ qua `CMAKE_GENERATOR_INSTANCE` và báo warning):
 
 ```powershell
+$env:CMAKE_GENERATOR = "Visual Studio 18 2026"
 $env:CMAKE_GENERATOR_INSTANCE = "C:\Program Files\Microsoft Visual Studio\18\Insiders"
+$env:CMAKE_GENERATOR_PLATFORM = "x64"
 flutter run -d windows
 ```
 
 Để dùng lâu dài, set biến User (không cần gõ mỗi lần):
 
 ```powershell
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR", "Visual Studio 18 2026", "User")
 [Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_INSTANCE", "C:\Program Files\Microsoft Visual Studio\18\Insiders", "User")
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_PLATFORM", "x64", "User")
 ```
 
 Rồi mở lại terminal và chạy `flutter run -d windows`.

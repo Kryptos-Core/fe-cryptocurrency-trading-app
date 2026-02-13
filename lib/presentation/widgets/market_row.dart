@@ -2,24 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart' as market_entity;
 
-/// Format price (lastPrice) for display: động bậc theo giá, bỏ số 0 thừa.
-/// Ví dụ: 71111.56, 2127.91, 0.2744, 0.0982
+/// Format price (lastPrice) – chuẩn crypto: bậc theo magnitude, bỏ 0 thừa.
+/// BTC/ETH: 1–2 số lẻ; coin nhỏ (ADA, DOGE): 4–6 số lẻ.
 String _formatPrice(String priceStr) {
   final v = double.tryParse(priceStr);
   if (v == null) return priceStr;
   if (v == 0) return '0';
   int decimals;
-  if (v >= 1000) {
+  if (v >= 10000) {
+    decimals = 1;  // BTC: 66088.7
+  } else if (v >= 1000) {
     decimals = 2;
   } else if (v >= 1) {
-    decimals = 4;
+    decimals = 2;   // LINK, DOT: 8.34, 1.26
   } else if (v >= 0.01) {
-    decimals = 6;
+    decimals = 4;   // ADA: 0.2595
   } else {
-    decimals = 8;
+    decimals = 6;   // DOGE nhỏ: 0.09208
   }
   final formatted = v.toStringAsFixed(decimals);
-  // Bỏ số 0 thừa sau dấu phẩy (e.g. 644.5600 -> 644.56)
   if (formatted.contains('.')) {
     return formatted.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   }
@@ -37,11 +38,17 @@ String _formatVolume(String volumeStr) {
   return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
 }
 
-/// Format changeAmount24h for display (e.g. +365.24, -100.50).
+/// Format changeAmount24h – chuẩn crypto: tránh "-0.00" khi % ≠ 0 (coin rẻ).
+/// |v| < 0.01: dùng thêm số lẻ để có ý nghĩa (e.g. -0.0012); ≥ 0.01: 2 số lẻ.
 String _formatChangeAmount(String changeAmount24h, bool isPositive) {
   final v = double.tryParse(changeAmount24h);
   if (v == null) return changeAmount24h;
   final sign = isPositive && v > 0 ? '+' : '';
+  if (v == 0) return '0.00';
+  if (v.abs() < 0.01) {
+    final s = v.toStringAsFixed(6).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return '$sign$s';
+  }
   return '$sign${v.toStringAsFixed(2)}';
 }
 

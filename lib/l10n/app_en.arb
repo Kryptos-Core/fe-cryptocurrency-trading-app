@@ -108,5 +108,16 @@
   "failedToLoadProfile": "Failed to load profile",
   "goToLogin": "Go to Login",
   "loggedOutSuccess": "Logged out successfully",
-  "orderBookEmpty": "No orders yet"
+  "orderBookEmpty": "No orders yet",
+  "placeOrder": "Place Order",
+  "buy": "Buy",
+  "sell": "Sell",
+  "limitOrder": "Limit",
+  "marketOrder": "Market",
+  "price": "Price",
+  "pairId": "Pair ID",
+  "orderType": "Order type",
+  "orderPlacedSuccess": "Order placed successfully",
+  "insufficientBalance": "Insufficient balance",
+  "tradingPair": "Trading pair"
 }

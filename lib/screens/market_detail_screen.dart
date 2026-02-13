@@ -83,15 +83,16 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
         interval: chartProvider.selectedInterval,
       );
 
-      // 2) Fetch OHLCV from API (more history to merge into cache)
+      // 2) Fetch OHLCV: mặc định range 1d (nến 1m) để overlay Interval khớp với selector, không lệch 1d
       await marketsProvider.fetchOHLCV(
         pairId: pairId,
         interval: chartProvider.selectedInterval,
+        range: '1d',
         limit: 500,
       );
 
       // 3) Merge cache + API: combine and dedupe by openTime so we retain up to ~1 month
-      final interval = chartProvider.selectedInterval;
+      final interval = marketsProvider.selectedInterval;
       final cacheService = di.sl<ChartCacheService>();
       final cached = cacheService.getCandles(pairId, interval);
 
@@ -126,7 +127,7 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
       var merged = byTime.values.toList()
         ..sort((a, b) => a.openTime.compareTo(b.openTime));
 
-      // Nếu API + cache đều trống (vd: bảng OHLCV chưa có data), tạo 1 nến placeholder để chart vẫn hiển thị; realtime sẽ cập nhật sau
+      // Backend OHLCV từ Price Oracle (Binance/Uniswap) on-demand; trống chỉ khi API lỗi hoặc pair chưa được Oracle hỗ trợ. Placeholder để chart vẫn hiển thị; realtime sẽ cập nhật sau.
       if (merged.isEmpty) {
         final now = DateTime.now();
         final intervalSec = _intervalToSeconds(interval);
@@ -149,7 +150,7 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
             isClosed: false,
           ),
         ];
-        _logger.w('📊 No OHLCV from API/cache – showing placeholder candle; chart will update when realtime data arrives');
+        _logger.w('📊 No OHLCV from API/cache – showing placeholder; chart will update when realtime data arrives');
       }
 
       cacheService.putCandles(pairId, interval, merged);
@@ -211,10 +212,10 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
     if (!mounted) return;
 
-    // Default trading chart to 1D when entering market detail
-    _chartProvider!.setInterval('1d');
+    // Default: 1D range with 1m candles (best practice: nhiều nến trong 1 ngày, overlay Interval khớp với selector)
+    _chartProvider!.setInterval('1m');
 
-    // Chart init: loads from cache first, then fetches OHLCV and merges (strategy handles fetch)
+    // Chart init: loads from cache first, then fetches OHLCV (strategy uses range 1d for initial load)
     await _chartStrategy.initialize(
       widget.pairId,
       _chartProvider!,

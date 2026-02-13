@@ -59,12 +59,6 @@
         }
         .overlay-info .stat-label { color: #9ca3af; font-weight: 500; }
         .overlay-info .stat-value { color: #374151; font-weight: 600; }
-        .overlay-info #volume-info {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #6b7280;
-        }
-        .overlay-info #volume-info .vol-value { font-weight: 600; color: #374151; }
     </style>
 </head>
 <body>
@@ -77,7 +71,6 @@
             <span class="stat"><span class="stat-label">Interval</span><span class="stat-value" id="interval-info">1m</span></span>
             <span class="stat"><span class="stat-label">Candles</span><span class="stat-value" id="candle-count">0</span></span>
         </div>
-        <div id="volume-info"><span class="stat-label">Vol</span> <span class="vol-value" id="vol-value">--</span></div>
     </div>
 
     <script>
@@ -180,7 +173,11 @@
             ChartState.candlestickSeries = ChartState.chart.addCandlestickSeries();
 
             ChartState.volumeSeries = ChartState.chart.addHistogramSeries({
-                priceFormat: { type: 'volume' },
+                priceFormat: {
+                    type: 'custom',
+                    minMove: 1,
+                    formatter: (price) => price === 0 ? '' : price.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+                },
                 priceScaleId: '',
             });
             ChartState.volumeSeries.priceScale().applyOptions({
@@ -200,18 +197,13 @@
             console.log('✅ TradingView Lightweight Charts initialized (candlestick + volume)');
         }
 
-        function updateChartInfo(isClosed) {
+        function updateChartInfo() {
             const nameEl = document.getElementById('pair-name');
             if (nameEl) nameEl.textContent = ChartState.pairName;
             const intervalEl = document.getElementById('interval-info');
             if (intervalEl) intervalEl.textContent = ChartState.interval;
             const countEl = document.getElementById('candle-count');
             if (countEl) countEl.textContent = ChartState.candleArray.length;
-            const volValEl = document.getElementById('vol-value');
-            if (volValEl) {
-                volValEl.textContent = ChartState.lastCandle?.volume
-                    ? parseFloat(ChartState.lastCandle.volume).toLocaleString() : '--';
-            }
         }
 
         /**
@@ -231,7 +223,7 @@
             ChartState.candleArray = Array.from(ChartState.candles.values()).sort((a, b) => a.time - b.time);
 
             applyCandlesToChart();
-            updateChartInfo(candleData.is_closed);
+            updateChartInfo();
         }
 
         /**
@@ -257,7 +249,7 @@
             }
             ChartState.candleArray = Array.from(ChartState.candles.values()).sort((a, b) => a.time - b.time);
             applyCandlesToChart();
-            updateChartInfo(true);
+            updateChartInfo();
         }
 
         function clearChart() {
@@ -266,10 +258,9 @@
             ChartState.lastCandle = null;
             if (ChartState.candlestickSeries) ChartState.candlestickSeries.setData([]);
             if (ChartState.volumeSeries) ChartState.volumeSeries.setData([]);
-            updateChartInfo(false);
-            const v = document.getElementById('vol-value');
-            if (v) v.textContent = '--';
+            updateChartInfo();
             document.getElementById('pair-name').textContent = '--';
+            document.getElementById('interval-info').textContent = '1m';
             document.getElementById('candle-count').textContent = '0';
         }
 
