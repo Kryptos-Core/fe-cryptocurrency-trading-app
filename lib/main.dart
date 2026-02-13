@@ -95,6 +95,7 @@ class CryptoTradingApp extends StatelessWidget {
             getOrdersBookUseCase: di.sl(),
             getMyOrdersUseCase: di.sl(),
             getOrderByIdUseCase: di.sl(),
+            getWalletBalanceApiUseCase: di.sl(),
           ),
         ),
       ],

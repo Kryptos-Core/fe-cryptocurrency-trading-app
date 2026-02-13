@@ -119,5 +119,7 @@
   "orderType": "Order type",
   "orderPlacedSuccess": "Order placed successfully",
   "insufficientBalance": "Insufficient balance",
-  "tradingPair": "Trading pair"
+  "tradingPair": "Trading pair",
+  "recentTrades": "Recent trades",
+  "youWillReceive": "You will receive"
 }

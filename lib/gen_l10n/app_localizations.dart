@@ -817,6 +817,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trading pair'**
   String get tradingPair;
+
+  /// No description provided for @recentTrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent trades'**
+  String get recentTrades;
+
+  /// No description provided for @youWillReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive'**
+  String get youWillReceive;
 }
 
 class _AppLocalizationsDelegate

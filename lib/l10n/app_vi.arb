@@ -119,5 +119,7 @@
   "orderType": "Loại lệnh",
   "orderPlacedSuccess": "Đặt lệnh thành công",
   "insufficientBalance": "Không đủ số dư",
-  "tradingPair": "Cặp giao dịch"
+  "tradingPair": "Cặp giao dịch",
+  "recentTrades": "Giao dịch gần đây",
+  "youWillReceive": "Sẽ nhận"
 }

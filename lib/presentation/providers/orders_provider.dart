@@ -2,18 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
+import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/orders_usecases.dart';
 
-/// Orders Provider (State management cho Orders + Order Book)
+/// Orders Provider (State management cho Orders + Order Book + Balance cho cặp)
 ///
-/// Single Responsibility: quản lý state orders/my orders/order book và gọi use cases.
+/// Single Responsibility: quản lý state orders/my orders/order book, balance base/quote, và gọi use cases.
 class OrdersProvider extends ChangeNotifier {
   final CreateOrderUseCase createOrderUseCase;
   final CancelOrderUseCase cancelOrderUseCase;
   final GetOrdersBookUseCase getOrdersBookUseCase;
   final GetMyOrdersUseCase getMyOrdersUseCase;
   final GetOrderByIdUseCase getOrderByIdUseCase;
+  final GetWalletBalanceApiUseCase? getWalletBalanceApiUseCase;
 
   OrdersProvider({
     required this.createOrderUseCase,
@@ -21,6 +24,7 @@ class OrdersProvider extends ChangeNotifier {
     required this.getOrdersBookUseCase,
     required this.getMyOrdersUseCase,
     required this.getOrderByIdUseCase,
+    this.getWalletBalanceApiUseCase,
   });
 
   // --- State ---
@@ -36,6 +40,10 @@ class OrdersProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  /// Số dư base (vd. BNB) và quote (vd. USDT) cho cặp đang chọn trên màn Đặt lệnh
+  WalletBalance? _baseBalance;
+  WalletBalance? _quoteBalance;
+
   List<OrderBookLevel> get orderBookBids => List.unmodifiable(_orderBookBids);
   List<OrderBookLevel> get orderBookAsks => List.unmodifiable(_orderBookAsks);
   int? get orderBookPairId => _orderBookPairId;
@@ -47,9 +55,39 @@ class OrdersProvider extends ChangeNotifier {
   Order? get selectedOrder => _selectedOrder;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  WalletBalance? get baseBalance => _baseBalance;
+  WalletBalance? get quoteBalance => _quoteBalance;
 
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  /// Xóa số dư base/quote (khi đổi cặp hoặc không cần hiển thị)
+  void clearPairBalances() {
+    _baseBalance = null;
+    _quoteBalance = null;
+    notifyListeners();
+  }
+
+  /// Lấy số dư base + quote cho cặp (GET /wallets/balance?currencyId=... x2)
+  Future<void> fetchBaseQuoteBalances(int baseCurrencyId, int quoteCurrencyId) async {
+    if (getWalletBalanceApiUseCase == null) {
+      _baseBalance = null;
+      _quoteBalance = null;
+      notifyListeners();
+      return;
+    }
+    final baseResult = await getWalletBalanceApiUseCase!(GetWalletBalanceParams(currencyId: baseCurrencyId));
+    final quoteResult = await getWalletBalanceApiUseCase!(GetWalletBalanceParams(currencyId: quoteCurrencyId));
+    baseResult.fold(
+      (_) => _baseBalance = null,
+      (b) => _baseBalance = b,
+    );
+    quoteResult.fold(
+      (_) => _quoteBalance = null,
+      (b) => _quoteBalance = b,
+    );
     notifyListeners();
   }
 

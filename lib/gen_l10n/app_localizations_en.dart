@@ -367,4 +367,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tradingPair => 'Trading pair';
+
+  @override
+  String get recentTrades => 'Recent trades';
+
+  @override
+  String get youWillReceive => 'You will receive';
 }

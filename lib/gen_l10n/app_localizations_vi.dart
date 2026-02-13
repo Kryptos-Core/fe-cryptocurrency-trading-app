@@ -367,4 +367,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tradingPair => 'Cặp giao dịch';
+
+  @override
+  String get recentTrades => 'Giao dịch gần đây';
+
+  @override
+  String get youWillReceive => 'Sẽ nhận';
 }
