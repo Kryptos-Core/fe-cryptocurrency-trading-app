@@ -40,7 +40,7 @@ class CancelOrderUseCase implements UseCase<Order, CancelOrderParams> {
 }
 
 class CancelOrderParams extends Equatable {
-  final int orderId;
+  final String orderId;
 
   const CancelOrderParams({required this.orderId});
 
@@ -65,7 +65,7 @@ class GetOrdersBookUseCase implements UseCase<List<OrderBookLevel>, GetOrdersBoo
 }
 
 class GetOrdersBookParams extends Equatable {
-  final int pairId;
+  final String pairId;
   final String side;
   final int limit;
 
@@ -123,7 +123,7 @@ class GetOrderByIdUseCase implements UseCase<Order, GetOrderByIdParams> {
 }
 
 class GetOrderByIdParams extends Equatable {
-  final int orderId;
+  final String orderId;
 
   const GetOrderByIdParams({required this.orderId});
 

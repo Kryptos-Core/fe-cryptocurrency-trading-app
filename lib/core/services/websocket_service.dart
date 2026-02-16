@@ -20,7 +20,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// Ticker data model - Real-time price updates (every 1 second)
 class TickerData {
-  final int pairId;
+  final String pairId;
   final String symbol;
   final double lastPrice;
   final double bid;
@@ -65,7 +65,7 @@ class TickerData {
     }
 
     return TickerData(
-      pairId: json['pair_id'] as int,
+      pairId: json['pair_id']?.toString() ?? '',
       symbol: json['symbol'] as String,
       lastPrice: double.parse(json['last_price'].toString()),
       bid: double.parse(json['bid'].toString()),
@@ -88,7 +88,7 @@ class TickerData {
 
 /// OHLC Candle data model - Candlestick data
 class OHLCData {
-  final int pairId;
+  final String pairId;
   final String interval;
   final int openTime;
   final int closeTime;
@@ -119,7 +119,7 @@ class OHLCData {
   factory OHLCData.fromJson(Map<String, dynamic> json) {
     int _int(dynamic v) => (v is int) ? v : (v is num) ? v.toInt() : int.tryParse(v?.toString() ?? '') ?? 0;
     return OHLCData(
-      pairId: _int(json['pair_id']),
+      pairId: json['pair_id']?.toString() ?? '',
       interval: (json['interval'] as String?) ?? '1m',
       openTime: _int(json['open_time']),
       closeTime: _int(json['close_time']),
@@ -193,8 +193,8 @@ abstract class IWebSocketService {
   void send(Map<String, dynamic> message);
 
   // Subscription methods
-  void subscribeToPair(int pairId, List<String> channels, {String? interval});
-  void unsubscribeFromPair(int pairId);
+  void subscribeToPair(String pairId, List<String> channels, {String? interval});
+  void unsubscribeFromPair(String pairId);
 
   // Getters
   bool get isConnected;
@@ -426,7 +426,7 @@ class WebSocketService implements IWebSocketService {
   // =========================================================================
 
   @override
-  void subscribeToPair(int pairId, List<String> channels, {String? interval}) {
+  void subscribeToPair(String pairId, List<String> channels, {String? interval}) {
     if (!isConnected) {
       _logger.w('⚠️ Not connected, cannot subscribe to pair $pairId');
       return;
@@ -447,7 +447,7 @@ class WebSocketService implements IWebSocketService {
   }
 
   @override
-  void unsubscribeFromPair(int pairId) {
+  void unsubscribeFromPair(String pairId) {
     if (!isConnected) {
       _logger.w('⚠️ Not connected, cannot unsubscribe from pair $pairId');
       return;

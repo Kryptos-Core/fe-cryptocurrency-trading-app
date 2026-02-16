@@ -72,13 +72,13 @@ class GetTradableCurrenciesUseCase
 
 /// Get Currency By ID Use Case
 /// Following Single Responsibility Principle (SRP)
-class GetCurrencyByIdUseCase implements UseCase<Currency, int> {
+class GetCurrencyByIdUseCase implements UseCase<Currency, String> {
   final CurrenciesRepository repository;
 
   GetCurrencyByIdUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, Currency>> call(int currencyId) async {
+  Future<Either<Failure, Currency>> call(String currencyId) async {
     return await repository.getCurrencyById(currencyId);
   }
 }
@@ -134,7 +134,7 @@ class UpdateCurrencyUseCase
 }
 
 class UpdateCurrencyParams extends Equatable {
-  final int currencyId;
+  final String currencyId;
   final UpdateCurrencyDto dto;
 
   const UpdateCurrencyParams({
@@ -148,13 +148,13 @@ class UpdateCurrencyParams extends Equatable {
 
 /// Delete Currency Use Case
 /// Following Single Responsibility Principle (SRP)
-class DeleteCurrencyUseCase implements UseCase<void, int> {
+class DeleteCurrencyUseCase implements UseCase<void, String> {
   final CurrenciesRepository repository;
 
   DeleteCurrencyUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, void>> call(int currencyId) async {
+  Future<Either<Failure, void>> call(String currencyId) async {
     return await repository.deleteCurrency(currencyId);
   }
 }

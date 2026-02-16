@@ -1,10 +1,9 @@
 import 'package:crypto_trading_app/domain/entities/order.dart';
 
-int _toInt(dynamic v) {
-  if (v is int) return v;
-  if (v is num) return v.toInt();
-  if (v is String) return int.tryParse(v) ?? 0;
-  return 0;
+String _toId(dynamic v) {
+  if (v == null) return '';
+  if (v is String) return v;
+  return v.toString();
 }
 
 String _toString(dynamic v) {
@@ -25,11 +24,11 @@ DateTime _toDateTime(dynamic v) {
   return DateTime.now();
 }
 
-/// Order model (data layer) – map từ API response (snake_case)
+/// Order model (data layer) – map từ API response (snake_case); IDs là UUID v7
 class OrderModel {
-  final int orderId;
-  final int userId;
-  final int pairId;
+  final String orderId;
+  final String userId;
+  final String pairId;
   final String side;
   final String type;
   final String? price;
@@ -67,9 +66,9 @@ class OrderModel {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      orderId: _toInt(json['order_id']),
-      userId: _toInt(json['user_id']),
-      pairId: _toInt(json['pair_id']),
+      orderId: _toId(json['order_id']),
+      userId: _toId(json['user_id']),
+      pairId: _toId(json['pair_id']),
       side: _toString(json['side']),
       type: _toString(json['type']),
       price: _toStringOrNull(json['price']),

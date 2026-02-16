@@ -22,7 +22,7 @@ import 'package:logger/logger.dart';
 // EXAMPLE 1: Using Advanced Trading Screen
 // ============================================
 
-Future<void> navigateToAdvancedTrading(BuildContext context, int pairId) async {
+Future<void> navigateToAdvancedTrading(BuildContext context, String pairId) async {
   // Ensure DI is initialized
   if (!sl.isRegistered<ChartProvider>()) {
     await initializeDependencies();
@@ -53,7 +53,7 @@ Future<void> navigateToAdvancedTrading(BuildContext context, int pairId) async {
 // ============================================
 
 class TradingDashboard extends StatefulWidget {
-  final int pairId;
+  final String pairId;
 
   const TradingDashboard({super.key, required this.pairId});
 
@@ -250,12 +250,12 @@ Future<void> webSocketDirectUsageExample() async {
   });
 
   // Subscribe to specific pair with multiple channels
-  webSocketService.subscribeToPair(1, ['ticker', 'ohlc'], interval: '1h');
+  webSocketService.subscribeToPair('1', ['ticker', 'ohlc'], interval: '1h');
 
   // ... do something ...
 
   // Unsubscribe and disconnect
-  webSocketService.unsubscribeFromPair(1);
+  webSocketService.unsubscribeFromPair('1');
   await webSocketService.disconnect();
 }
 

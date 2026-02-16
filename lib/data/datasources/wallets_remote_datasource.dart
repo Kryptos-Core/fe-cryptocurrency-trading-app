@@ -1,24 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
-import 'package:crypto_trading_app/core/services/mock_service.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/data/models/wallet_model.dart';
-import 'package:crypto_trading_app/data/mocks/wallets_mock.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
 
 /// Wallets Remote Data Source
 abstract class WalletsRemoteDataSource {
   Future<List<WalletModel>> getWallets({
-    int? currencyId,
+    String? currencyId,
     bool includeZero = false,
   });
 
-  Future<WalletModel> getWalletByCurrency(int currencyId);
+  Future<WalletModel> getWalletByCurrency(String currencyId);
 
-  Future<WalletModel> getWalletBalance(int walletId);
+  Future<WalletModel> getWalletBalance(String walletId);
 
   Future<List<WalletLedgerModel>> getWalletLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
     String? startDate,
@@ -35,18 +33,9 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
   @override
   Future<List<WalletModel>> getWallets({
-    int? currencyId,
+    String? currencyId,
     bool includeZero = false,
   }) async {
-    if (MockService.isMockModeFor('wallets')) {
-      return MockService.mockResponse(() {
-        return WalletsMock.filter(
-          currencyId: currencyId,
-          includeZero: includeZero,
-        );
-      });
-    }
-
     try {
       final response = await dio.get(
         ApiConstants.wallets,
@@ -95,17 +84,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
   }
 
   @override
-  Future<WalletModel> getWalletByCurrency(int currencyId) async {
-    if (MockService.isMockModeFor('wallets')) {
-      return MockService.mockResponse(() {
-        final wallet = WalletsMock.getByCurrencyId(currencyId);
-        if (wallet == null) {
-          throw NotFoundException(message: 'Wallet not found');
-        }
-        return wallet;
-      });
-    }
-
+  Future<WalletModel> getWalletByCurrency(String currencyId) async {
     try {
       final response = await dio.get(ApiConstants.walletByCurrency(currencyId));
 
@@ -145,17 +124,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
   }
 
   @override
-  Future<WalletModel> getWalletBalance(int walletId) async {
-    if (MockService.isMockModeFor('wallets')) {
-      return MockService.mockResponse(() {
-        final wallet = WalletsMock.getById(walletId);
-        if (wallet == null) {
-          throw NotFoundException(message: 'Wallet not found');
-        }
-        return wallet;
-      });
-    }
-
+  Future<WalletModel> getWalletBalance(String walletId) async {
     try {
       final response = await dio.get(ApiConstants.walletBalance(walletId));
 
@@ -196,7 +165,7 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
 
   @override
   Future<List<WalletLedgerModel>> getWalletLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
     String? startDate,
@@ -204,31 +173,6 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
     int page = 1,
     int limit = 10,
   }) async {
-    if (MockService.isMockModeFor('wallets')) {
-      return MockService.mockResponse(() {
-        var ledger = WalletsMock.generateLedger(walletId, count: 20);
-        
-        // Apply filters
-        if (refType != null) {
-          ledger = ledger.where((l) => l.refType == refType).toList();
-        }
-        if (direction != null) {
-          ledger = ledger.where((l) => l.direction == direction).toList();
-        }
-        
-        // Simple pagination
-        final start = (page - 1) * limit;
-        final end = start + limit;
-        if (start >= ledger.length) {
-          return [];
-        }
-        return ledger.sublist(
-          start,
-          end > ledger.length ? ledger.length : end,
-        );
-      });
-    }
-
     try {
       final response = await dio.get(
         ApiConstants.walletLedger(walletId),

@@ -3,9 +3,9 @@ import 'currency.dart';
 /// Market Pair entity representing a trading pair
 /// Following Clean Architecture - Domain Layer
 class MarketPair {
-  final int pairId;
-  final int baseCurrencyId;
-  final int quoteCurrencyId;
+  final String pairId; // UUID v7
+  final String baseCurrencyId;
+  final String quoteCurrencyId;
   final String symbol;
   final Currency? baseCurrency; // Optional - may not be included in all responses
   final Currency? quoteCurrency; // Optional - may not be included in all responses
@@ -34,9 +34,9 @@ class MarketPair {
   });
 
   MarketPair copyWith({
-    int? pairId,
-    int? baseCurrencyId,
-    int? quoteCurrencyId,
+    String? pairId,
+    String? baseCurrencyId,
+    String? quoteCurrencyId,
     String? symbol,
     Currency? baseCurrency,
     Currency? quoteCurrency,
@@ -84,7 +84,7 @@ class MarketPair {
 /// Market Ticker entity representing real-time market data
 /// Following API documentation structure
 class MarketTicker {
-  final int pairId;
+  final String pairId; // UUID v7
   final String symbol;
   final String lastPrice;
   final String open24h; // Opening price 24h ago
@@ -128,7 +128,7 @@ class MarketTicker {
   }
 
   MarketTicker copyWith({
-    int? pairId,
+    String? pairId,
     String? symbol,
     String? lastPrice,
     String? open24h,
@@ -201,7 +201,7 @@ class OrderBookItem {
 
 /// Order Book entity
 class OrderBook {
-  final int pairId;
+  final String pairId; // UUID v7
   final String symbol;
   final List<OrderBookItem> bids; // Buy orders (sorted DESC by price)
   final List<OrderBookItem> asks; // Sell orders (sorted ASC by price)
@@ -220,7 +220,7 @@ class OrderBook {
   });
 
   OrderBook copyWith({
-    int? pairId,
+    String? pairId,
     String? symbol,
     List<OrderBookItem>? bids,
     List<OrderBookItem>? asks,
@@ -247,7 +247,7 @@ class OrderBook {
 
 /// OHLCV (Open, High, Low, Close, Volume) entity for candlestick charts
 class OHLCV {
-  final int pairId;
+  final String pairId; // UUID v7
   final int intervalSec;
   final DateTime openTime;
   final String open;
@@ -275,7 +275,7 @@ class OHLCV {
   }
 
   OHLCV copyWith({
-    int? pairId,
+    String? pairId,
     int? intervalSec,
     DateTime? openTime,
     String? open,
@@ -305,8 +305,8 @@ class OHLCV {
 /// Trade entity representing a recent trade
 /// Following Clean Architecture - Domain Layer
 class Trade {
-  final int tradeId;
-  final int pairId;
+  final String tradeId; // UUID v7
+  final String pairId;
   final String price;
   final String amount;
   final TradeSide side; // BUY or SELL
@@ -328,8 +328,8 @@ class Trade {
   bool get isSell => side == TradeSide.sell;
 
   Trade copyWith({
-    int? tradeId,
-    int? pairId,
+    String? tradeId,
+    String? pairId,
     String? price,
     String? amount,
     TradeSide? side,

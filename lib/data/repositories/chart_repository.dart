@@ -6,11 +6,11 @@ import 'package:logger/logger.dart';
 /// Repository Interface - Abstraction (Dependency Inversion Principle)
 /// Defines contracts for chart data operations
 abstract class IChartRepository {
-  Future<List<OHLCData>> getHistoricalCandles(int pairId, String interval,
+  Future<List<OHLCData>> getHistoricalCandles(String pairId, String interval,
       {int limit = 500});
 
-  Future<void> subscribeToRealtimeUpdates(int pairId, String interval);
-  Future<void> unsubscribeFromRealtimeUpdates(int pairId);
+  Future<void> subscribeToRealtimeUpdates(String pairId, String interval);
+  Future<void> unsubscribeFromRealtimeUpdates(String pairId);
   Stream<OHLCData> get candleStream;
   Stream<TickerData> get tickStream;
 }
@@ -43,7 +43,7 @@ class ChartRepository implements IChartRepository {
   /// Fetch historical candles from API
   @override
   Future<List<OHLCData>> getHistoricalCandles(
-    int pairId,
+    String pairId,
     String interval, {
     int limit = 500,
   }) async {
@@ -77,7 +77,7 @@ class ChartRepository implements IChartRepository {
 
   /// Subscribe to realtime candle updates
   @override
-  Future<void> subscribeToRealtimeUpdates(int pairId, String interval) async {
+  Future<void> subscribeToRealtimeUpdates(String pairId, String interval) async {
     try {
       _webSocketService.subscribeToPair(
         pairId,
@@ -113,7 +113,7 @@ class ChartRepository implements IChartRepository {
 
   /// Unsubscribe from realtime updates
   @override
-  Future<void> unsubscribeFromRealtimeUpdates(int pairId) async {
+  Future<void> unsubscribeFromRealtimeUpdates(String pairId) async {
     try {
       _webSocketService.unsubscribeFromPair(pairId);
       _logger.i('Unsubscribed from pair $pairId');

@@ -173,7 +173,7 @@ class MarketsProvider extends ChangeNotifier {
   }
 
   /// Get market by ID
-  Future<void> getMarketById(int pairId) async {
+  Future<void> getMarketById(String pairId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -221,7 +221,7 @@ class MarketsProvider extends ChangeNotifier {
   }
 
   /// Get market ticker by ID
-  Future<void> fetchTicker(int pairId) async {
+  Future<void> fetchTicker(String pairId) async {
     _error = null;
     notifyListeners();
 
@@ -284,7 +284,7 @@ class MarketsProvider extends ChangeNotifier {
   }
 
   /// Get order book by ID
-  Future<void> fetchOrderBook(int pairId, {int limit = 20}) async {
+  Future<void> fetchOrderBook(String pairId, {int limit = 20}) async {
     _error = null;
     notifyListeners();
 
@@ -330,7 +330,7 @@ class MarketsProvider extends ChangeNotifier {
   }
 
   /// Get recent trades by ID
-  Future<void> fetchTrades(int pairId, {int limit = 50}) async {
+  Future<void> fetchTrades(String pairId, {int limit = 50}) async {
     _error = null;
     notifyListeners();
 
@@ -378,7 +378,7 @@ class MarketsProvider extends ChangeNotifier {
   /// Get OHLCV data
   /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range sẽ dùng interval gợi ý (1d→1m, 1M→1h, 3M→4h, 1y/5y→1d)
   Future<void> fetchOHLCV({
-    required int pairId,
+    required String pairId,
     String? interval,
     String? range,
     int limit = 100,

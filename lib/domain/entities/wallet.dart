@@ -3,8 +3,8 @@ import 'currency.dart';
 /// Wallet entity representing user's cryptocurrency wallet
 /// Following Clean Architecture - Domain Layer
 class Wallet {
-  final int walletId;
-  final int userId;
+  final String walletId; // UUID v7
+  final String userId;
   final Currency currency;
   final String available;
   final String frozen;
@@ -34,8 +34,8 @@ class Wallet {
   }
 
   Wallet copyWith({
-    int? walletId,
-    int? userId,
+    String? walletId,
+    String? userId,
     Currency? currency,
     String? available,
     String? frozen,
@@ -71,11 +71,11 @@ class Wallet {
 
 /// Wallet Ledger entity representing transaction history
 class WalletLedger {
-  final int ledgerId;
-  final int userId;
-  final int currencyId;
+  final String ledgerId; // UUID v7
+  final String userId;
+  final String currencyId;
   final String refType; // DEPOSIT, WITHDRAW, ORDER, TRADE, ADJUST, TRANSFER
-  final int refId;
+  final String refId; // UUID v7
   final String direction; // CREDIT, DEBIT
   final String amount;
   final String balanceAfter;
@@ -100,11 +100,11 @@ class WalletLedger {
   bool get isDebit => direction == 'DEBIT';
 
   WalletLedger copyWith({
-    int? ledgerId,
-    int? userId,
-    int? currencyId,
+    String? ledgerId,
+    String? userId,
+    String? currencyId,
     String? refType,
-    int? refId,
+    String? refId,
     String? direction,
     String? amount,
     String? balanceAfter,

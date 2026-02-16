@@ -10,9 +10,9 @@ import 'package:crypto_trading_app/data/models/create_order_request_dto.dart';
 /// Chỉ gọi HTTP, parse response, map lỗi BE (error_code/error_message) sang Exception.
 abstract class OrdersRemoteDataSource {
   Future<OrderModel> createOrder(CreateOrderRequestDto dto);
-  Future<OrderModel> cancelOrder(int orderId);
+  Future<OrderModel> cancelOrder(String orderId);
   Future<List<OrderBookLevelModel>> getOrderBook(
-    int pairId, {
+    String pairId, {
     required String side,
     int limit = 50,
   });
@@ -21,7 +21,7 @@ abstract class OrdersRemoteDataSource {
     int limit = 20,
     String? status,
   });
-  Future<OrderModel> getOrderById(int orderId);
+  Future<OrderModel> getOrderById(String orderId);
 }
 
 class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
@@ -43,7 +43,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderModel> cancelOrder(int orderId) async {
+  Future<OrderModel> cancelOrder(String orderId) async {
     try {
       final response = await dioClient.dio.post(
         '/orders/$orderId/cancel',
@@ -57,7 +57,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
 
   @override
   Future<List<OrderBookLevelModel>> getOrderBook(
-    int pairId, {
+    String pairId, {
     required String side,
     int limit = 50,
   }) async {
@@ -111,7 +111,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderModel> getOrderById(int orderId) async {
+  Future<OrderModel> getOrderById(String orderId) async {
     try {
       final response = await dioClient.dio.get('/orders/$orderId');
       return _parseOrderResponse(response.data);

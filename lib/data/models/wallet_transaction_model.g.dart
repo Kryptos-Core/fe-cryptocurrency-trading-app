@@ -10,12 +10,12 @@ WalletTransactionResponseModel _$WalletTransactionResponseModelFromJson(
         Map<String, dynamic> json) =>
     WalletTransactionResponseModel(
       transactionId: json['transactionId'] as String,
-      userId: (json['userId'] as num).toInt(),
-      currencyId: (json['currencyId'] as num).toInt(),
+      userId: json['userId'] as String,
+      currencyId: json['currencyId'] as String,
       action: json['action'] as String,
       amount: json['amount'] as String,
       refType: json['refType'] as String,
-      refId: (json['refId'] as num).toInt(),
+      refId: json['refId'] as String,
       newBalance: WalletBalanceModel.fromJson(
           json['newBalance'] as Map<String, dynamic>),
       timestamp: json['timestamp'] as String,

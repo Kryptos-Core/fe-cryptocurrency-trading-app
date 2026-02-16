@@ -105,7 +105,7 @@ class WalletApiScreen extends StatefulWidget {
 }
 
 class _WalletApiScreenState extends State<WalletApiScreen> {
-  int? _selectedCurrencyId;
+  String? _selectedCurrencyId;
   List<CurrencyModel> _currencies = [];
   bool _isLoadingCurrencies = true;
   String? _currenciesError;
@@ -215,7 +215,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: DropdownButtonFormField<int>(
+                child: DropdownButtonFormField<String>(
                   value: _selectedCurrencyId,
                   menuMaxHeight: MediaQuery.of(context).size.height * 0.4,
                   decoration: InputDecoration(
@@ -236,7 +236,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                     ),
                   ),
                   items: _currencies.map((currency) {
-                    return DropdownMenuItem<int>(
+                    return DropdownMenuItem<String>(
                       value: currency.currencyId,
                       child: Text(
                         '${currency.symbol} (${currency.name})',
@@ -747,7 +747,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 final success = await provider.deposit(
                   currencyId: _selectedCurrencyId!,
                   amount: _parseAmountForApi(amountController.text),
-                  refId: DateTime.now().millisecondsSinceEpoch,
+                  refId: '${DateTime.now().millisecondsSinceEpoch}',
                 );
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;
@@ -810,7 +810,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 final success = await provider.withdraw(
                   currencyId: _selectedCurrencyId!,
                   amount: _parseAmountForApi(amountController.text),
-                  refId: DateTime.now().millisecondsSinceEpoch,
+                  refId: '${DateTime.now().millisecondsSinceEpoch}',
                 );
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;
@@ -883,7 +883,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 final success = await provider.transfer(
                   currencyId: _selectedCurrencyId!,
                   amount: _parseAmountForApi(amountController.text),
-                  toUserId: int.parse(toUserIdController.text),
+                  toUserId: toUserIdController.text.trim(),
                 );
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;

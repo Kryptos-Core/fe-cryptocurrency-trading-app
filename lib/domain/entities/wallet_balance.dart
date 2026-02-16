@@ -8,11 +8,11 @@ import 'package:equatable/equatable.dart';
 /// - Frozen: Money locked for pending orders
 /// - Total: Available + Frozen
 class WalletBalance extends Equatable {
-  /// User ID who owns this wallet
-  final int userId;
+  /// User ID who owns this wallet (UUID v7)
+  final String userId;
 
-  /// Currency ID (1=BTC, 2=ETH, etc.)
-  final int currencyId;
+  /// Currency ID (UUID v7)
+  final String currencyId;
 
   /// Available balance (can be used for transactions)
   /// Stored as string to avoid floating-point precision issues
@@ -36,8 +36,8 @@ class WalletBalance extends Equatable {
 
   /// Create a copy of this wallet with some fields replaced
   WalletBalance copyWith({
-    int? userId,
-    int? currencyId,
+    String? userId,
+    String? currencyId,
     String? available,
     String? frozen,
     String? total,

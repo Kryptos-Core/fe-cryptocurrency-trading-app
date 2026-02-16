@@ -1,7 +1,7 @@
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 
-/// Cache key: "pairId_interval" (e.g. "1_1m")
-String _cacheKey(int pairId, String interval) => '${pairId}_$interval';
+/// Cache key: "pairId_interval" (e.g. "uuid_1m")
+String _cacheKey(String pairId, String interval) => '${pairId}_$interval';
 
 /// Max candles to keep per (pairId, interval).
 /// ~1 month: 1m = 43200, 1h = 720, 1d = 31. Use single cap for simplicity.
@@ -14,7 +14,7 @@ class ChartCacheService {
   final Map<String, List<OHLCData>> _cache = {};
 
   /// Lấy bản copy danh sách nến đã cache cho (pairId, interval).
-  List<OHLCData> getCandles(int pairId, String interval) {
+  List<OHLCData> getCandles(String pairId, String interval) {
     final key = _cacheKey(pairId, interval);
     final list = _cache[key];
     if (list == null || list.isEmpty) return [];
@@ -22,7 +22,7 @@ class ChartCacheService {
   }
 
   /// Ghi/merge danh sách nến vào cache: merge theo openTime, sort tăng dần, giữ tối đa [_maxCandlesPerKey] nến.
-  void putCandles(int pairId, String interval, List<OHLCData> candles) {
+  void putCandles(String pairId, String interval, List<OHLCData> candles) {
     if (candles.isEmpty) return;
     final key = _cacheKey(pairId, interval);
     final existing = _cache[key] ?? [];
@@ -41,7 +41,7 @@ class ChartCacheService {
   }
 
   /// Xóa cache cho một pair (optional, khi cần giải phóng bộ nhớ).
-  void clearPair(int pairId, String interval) {
+  void clearPair(String pairId, String interval) {
     _cache.remove(_cacheKey(pairId, interval));
   }
 

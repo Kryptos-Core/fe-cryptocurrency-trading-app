@@ -7,19 +7,19 @@ import 'package:crypto_trading_app/domain/entities/wallet.dart';
 abstract class WalletsRepository {
   /// Get user wallets with optional filters
   Future<Either<Failure, List<Wallet>>> getWallets({
-    int? currencyId,
+    String? currencyId,
     bool includeZero = false,
   });
 
   /// Get wallet by currency ID
-  Future<Either<Failure, Wallet>> getWalletByCurrency(int currencyId);
+  Future<Either<Failure, Wallet>> getWalletByCurrency(String currencyId);
 
   /// Get wallet balance by wallet ID
-  Future<Either<Failure, Wallet>> getWalletBalance(int walletId);
+  Future<Either<Failure, Wallet>> getWalletBalance(String walletId);
 
   /// Get wallet ledger (transaction history)
   Future<Either<Failure, List<WalletLedger>>> getWalletLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
     String? startDate,

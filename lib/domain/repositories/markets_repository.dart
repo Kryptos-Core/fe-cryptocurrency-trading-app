@@ -21,13 +21,13 @@ abstract class MarketsRepository {
   Future<Either<Failure, List<MarketPair>>> getActiveMarkets();
 
   /// Get market pair by ID
-  Future<Either<Failure, MarketPair>> getMarketById(int pairId);
+  Future<Either<Failure, MarketPair>> getMarketById(String pairId);
 
   /// Get market pair by symbol
   Future<Either<Failure, MarketPair>> getMarketBySymbol(String symbol);
 
   /// Get market ticker by ID
-  Future<Either<Failure, MarketTicker>> getMarketTicker(int pairId);
+  Future<Either<Failure, MarketTicker>> getMarketTicker(String pairId);
 
   /// Get market ticker by symbol
   Future<Either<Failure, MarketTicker>> getMarketTickerBySymbol(String symbol);
@@ -37,7 +37,7 @@ abstract class MarketsRepository {
 
   /// Get order book by ID
   Future<Either<Failure, OrderBook>> getOrderBook({
-    required int pairId,
+    required String pairId,
     int limit = 20,
   });
 
@@ -49,7 +49,7 @@ abstract class MarketsRepository {
 
   /// Get recent trades by ID
   Future<Either<Failure, List<Trade>>> getTrades({
-    required int pairId,
+    required String pairId,
     int limit = 50,
   });
 
@@ -62,7 +62,7 @@ abstract class MarketsRepository {
   /// Get OHLCV data for candlestick chart
   /// [range] optional: 1d, 1M, 3M, 1y, 5y – bộ lọc theo khoảng thời gian (now − range) đến now
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
-    required int pairId,
+    required String pairId,
     String interval = '1h',
     String? range,
     String? startTime,
@@ -75,12 +75,12 @@ abstract class MarketsRepository {
 
   /// Update market pair (Admin only)
   Future<Either<Failure, MarketPair>> updateMarketPair(
-    int pairId,
+    String pairId,
     UpdateMarketPairDto dto,
   );
 
   /// Delete market pair (soft delete - Admin only)
-  Future<Either<Failure, void>> deleteMarketPair(int pairId);
+  Future<Either<Failure, void>> deleteMarketPair(String pairId);
 }
 
 /// Paginated Markets Result

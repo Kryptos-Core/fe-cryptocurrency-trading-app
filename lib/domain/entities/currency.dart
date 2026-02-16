@@ -1,7 +1,7 @@
 /// Currency entity representing a cryptocurrency
 /// Following Clean Architecture - Domain Layer
 class Currency {
-  final int currencyId;
+  final String currencyId; // UUID v7
   final String symbol;
   final String name;
   final int precisionScale;
@@ -24,7 +24,7 @@ class Currency {
   });
 
   Currency copyWith({
-    int? currencyId,
+    String? currencyId,
     String? symbol,
     String? name,
     int? precisionScale,

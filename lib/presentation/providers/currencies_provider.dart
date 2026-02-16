@@ -104,7 +104,7 @@ class CurrenciesProvider extends ChangeNotifier {
   }
 
   /// Get currency by ID
-  Future<void> getCurrencyById(int currencyId) async {
+  Future<void> getCurrencyById(String currencyId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();

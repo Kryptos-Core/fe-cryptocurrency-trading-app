@@ -82,9 +82,9 @@ enum TimeInForce {
 ///
 /// BE quản lý state; FE chỉ hiển thị và gửi lệnh.
 class Order extends Equatable {
-  final int orderId;
-  final int userId;
-  final int pairId;
+  final String orderId; // UUID v7
+  final String userId;
+  final String pairId;
   final OrderSide side;
   final OrderType type;
   final String? price;

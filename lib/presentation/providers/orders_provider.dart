@@ -30,7 +30,7 @@ class OrdersProvider extends ChangeNotifier {
   // --- State ---
   List<OrderBookLevel> _orderBookBids = [];
   List<OrderBookLevel> _orderBookAsks = [];
-  int? _orderBookPairId;
+  String? _orderBookPairId;
   List<Order> _myOrders = [];
   int _myOrdersTotal = 0;
   int _myOrdersPage = 1;
@@ -46,7 +46,7 @@ class OrdersProvider extends ChangeNotifier {
 
   List<OrderBookLevel> get orderBookBids => List.unmodifiable(_orderBookBids);
   List<OrderBookLevel> get orderBookAsks => List.unmodifiable(_orderBookAsks);
-  int? get orderBookPairId => _orderBookPairId;
+  String? get orderBookPairId => _orderBookPairId;
   List<Order> get myOrders => List.unmodifiable(_myOrders);
   int get myOrdersTotal => _myOrdersTotal;
   int get myOrdersPage => _myOrdersPage;
@@ -71,7 +71,7 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   /// Lấy số dư base + quote cho cặp (GET /wallets/balance?currencyId=... x2)
-  Future<void> fetchBaseQuoteBalances(int baseCurrencyId, int quoteCurrencyId) async {
+  Future<void> fetchBaseQuoteBalances(String baseCurrencyId, String quoteCurrencyId) async {
     if (getWalletBalanceApiUseCase == null) {
       _baseBalance = null;
       _quoteBalance = null;
@@ -117,7 +117,7 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   /// Hủy lệnh (chỉ OPEN/PARTIAL).
-  Future<Order?> cancelOrder(int orderId) async {
+  Future<Order?> cancelOrder(String orderId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -143,7 +143,7 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   /// Lấy order book (bid + ask) cho một pair. Gọi 2 request song song.
-  Future<void> fetchOrderBook(int pairId, {int limit = 50}) async {
+  Future<void> fetchOrderBook(String pairId, {int limit = 50}) async {
     _isLoading = true;
     _error = null;
     _orderBookPairId = pairId;
@@ -223,7 +223,7 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   /// Chi tiết một lệnh (chỉ chủ lệnh).
-  Future<void> fetchOrderById(int orderId) async {
+  Future<void> fetchOrderById(String orderId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();

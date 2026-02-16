@@ -38,7 +38,7 @@ class GetWalletBalanceApiUseCase
 }
 
 class GetWalletBalanceParams {
-  final int currencyId;
+  final String currencyId;
 
   GetWalletBalanceParams({required this.currencyId});
 }

@@ -5,7 +5,7 @@ import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 
 /// Request DTO for creating an order (domain-agnostic shape)
 class CreateOrderRequest {
-  final int pairId;
+  final String pairId;
   final String side; // BUY | SELL
   final String type; // LIMIT | MARKET
   final String? price;
@@ -49,11 +49,11 @@ abstract class OrdersRepository {
   Future<Either<Failure, Order>> createOrder(CreateOrderRequest request);
 
   /// Hủy lệnh (chỉ OPEN/PARTIAL).
-  Future<Either<Failure, Order>> cancelOrder(int orderId);
+  Future<Either<Failure, Order>> cancelOrder(String orderId);
 
   /// Order book theo pair + side (bid/ask levels).
   Future<Either<Failure, List<OrderBookLevel>>> getOrderBook(
-    int pairId, {
+    String pairId, {
     required String side,
     int limit = 50,
   });
@@ -66,5 +66,5 @@ abstract class OrdersRepository {
   });
 
   /// Chi tiết một lệnh (chỉ chủ lệnh).
-  Future<Either<Failure, Order>> getOrderById(int orderId);
+  Future<Either<Failure, Order>> getOrderById(String orderId);
 }

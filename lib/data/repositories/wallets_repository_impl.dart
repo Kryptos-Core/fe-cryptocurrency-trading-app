@@ -13,7 +13,7 @@ class WalletsRepositoryImpl implements WalletsRepository {
 
   @override
   Future<Either<Failure, List<Wallet>>> getWallets({
-    int? currencyId,
+    String? currencyId,
     bool includeZero = false,
   }) async {
     try {
@@ -36,7 +36,7 @@ class WalletsRepositoryImpl implements WalletsRepository {
   }
 
   @override
-  Future<Either<Failure, Wallet>> getWalletByCurrency(int currencyId) async {
+  Future<Either<Failure, Wallet>> getWalletByCurrency(String currencyId) async {
     try {
       final walletModel = await remoteDataSource.getWalletByCurrency(currencyId);
       return Right(walletModel.toEntity());
@@ -52,7 +52,7 @@ class WalletsRepositoryImpl implements WalletsRepository {
   }
 
   @override
-  Future<Either<Failure, Wallet>> getWalletBalance(int walletId) async {
+  Future<Either<Failure, Wallet>> getWalletBalance(String walletId) async {
     try {
       final walletModel = await remoteDataSource.getWalletBalance(walletId);
       return Right(walletModel.toEntity());
@@ -69,7 +69,7 @@ class WalletsRepositoryImpl implements WalletsRepository {
 
   @override
   Future<Either<Failure, List<WalletLedger>>> getWalletLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
     String? startDate,

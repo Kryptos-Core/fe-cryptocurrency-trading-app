@@ -8,11 +8,11 @@ part 'market_pair_model.g.dart';
 @JsonSerializable()
 class MarketPairModel {
   @JsonKey(name: 'pair_id')
-  final int pairId;
+  final String pairId;
   @JsonKey(name: 'base_currency_id')
-  final int baseCurrencyId;
+  final String baseCurrencyId;
   @JsonKey(name: 'quote_currency_id')
-  final int quoteCurrencyId;
+  final String quoteCurrencyId;
   final String symbol;
   @JsonKey(name: 'base_currency')
   final CurrencyModel? baseCurrency; // Optional - may not be included
@@ -78,7 +78,7 @@ class MarketPairModel {
 @JsonSerializable()
 class MarketTickerModel {
   @JsonKey(name: 'pairId')
-  final int pairId;
+  final String pairId;
   final String symbol;
   @JsonKey(name: 'lastPrice')
   final String lastPrice;
@@ -176,7 +176,7 @@ class OrderBookItemModel {
 @JsonSerializable()
 class OrderBookModel {
   @JsonKey(name: 'pairId')
-  final int pairId;
+  final String pairId;
   final String symbol;
   final List<OrderBookItemModel> bids; // Buy orders (sorted DESC by price)
   final List<OrderBookItemModel> asks; // Sell orders (sorted ASC by price)
@@ -218,7 +218,7 @@ class OrderBookModel {
 @JsonSerializable()
 class OHLCVModel {
   @JsonKey(name: 'pair_id')
-  final int pairId;
+  final String pairId;
   @JsonKey(name: 'interval_sec')
   final int intervalSec;
   @JsonKey(name: 'open_time')

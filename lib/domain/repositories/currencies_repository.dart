@@ -24,7 +24,7 @@ abstract class CurrenciesRepository {
   Future<Either<Failure, List<Currency>>> getTradableCurrencies();
 
   /// Get currency by ID
-  Future<Either<Failure, Currency>> getCurrencyById(int currencyId);
+  Future<Either<Failure, Currency>> getCurrencyById(String currencyId);
 
   /// Get currency by symbol
   Future<Either<Failure, Currency>> getCurrencyBySymbol(String symbol);
@@ -34,12 +34,12 @@ abstract class CurrenciesRepository {
 
   /// Update currency (Admin only)
   Future<Either<Failure, Currency>> updateCurrency(
-    int currencyId,
+    String currencyId,
     UpdateCurrencyDto dto,
   );
 
   /// Delete currency (soft delete - Admin only)
-  Future<Either<Failure, void>> deleteCurrency(int currencyId);
+  Future<Either<Failure, void>> deleteCurrency(String currencyId);
 }
 
 /// Paginated Currencies Result

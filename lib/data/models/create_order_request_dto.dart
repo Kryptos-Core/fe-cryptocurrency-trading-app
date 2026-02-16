@@ -1,6 +1,6 @@
-/// DTO gửi lên BE POST /orders (camelCase)
+/// DTO gửi lên BE POST /orders (camelCase) – pairId là UUID v7
 class CreateOrderRequestDto {
-  final int pairId;
+  final String pairId;
   final String side; // BUY | SELL
   final String type; // LIMIT | MARKET
   final String? price;

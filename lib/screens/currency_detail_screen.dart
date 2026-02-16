@@ -6,7 +6,7 @@ import 'package:crypto_trading_app/presentation/providers/currencies_provider.da
 /// Currency Detail Screen
 /// Displays detailed information about a currency
 class CurrencyDetailScreen extends StatefulWidget {
-  final int currencyId;
+  final String currencyId;
 
   const CurrencyDetailScreen({
     super.key,

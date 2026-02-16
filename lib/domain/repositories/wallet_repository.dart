@@ -31,13 +31,13 @@ abstract class WalletRepository {
   ///   (balance) => print('Available: ${balance.available}'),
   /// );
   /// ```
-  Future<Either<Failure, WalletBalance>> getBalance(int currencyId);
+  Future<Either<Failure, WalletBalance>> getBalance(String currencyId);
 
   /// Get transaction history (ledger) for a currency
   ///
   /// Returns list of WalletTransactionResponse built from ledger entries.
   Future<Either<Failure, List<WalletTransactionResponse>>> getTransactionHistory(
-    int currencyId,
+    String currencyId,
   );
 
   /// Execute a wallet transaction (CREDIT, DEBIT, FREEZE, UNFREEZE, TRANSFER)
@@ -101,7 +101,7 @@ abstract class WalletRepository {
   /// Parameters:
   ///   - balance: WalletBalance to cache
   ///   - currencyId: Currency ID for the cached balance
-  Future<void> cacheBalance(WalletBalance balance, int currencyId);
+  Future<void> cacheBalance(WalletBalance balance, String currencyId);
 
   /// Retrieve cached balance from local storage
   ///
@@ -110,13 +110,13 @@ abstract class WalletRepository {
   ///
   /// Returns:
   ///   - WalletBalance if found in cache, null otherwise
-  Future<WalletBalance?> getCachedBalance(int currencyId);
+  Future<WalletBalance?> getCachedBalance(String currencyId);
 
   /// Clear cached balance
   ///
   /// Parameters:
   ///   - currencyId: Currency ID to clear cache for
-  Future<void> clearCachedBalance(int currencyId);
+  Future<void> clearCachedBalance(String currencyId);
 
   /// Clear all cached balances
   Future<void> clearAllCachedBalances();

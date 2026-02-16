@@ -3,12 +3,11 @@ import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 
 part 'wallet_balance_model.g.dart';
 
-/// Helper to convert dynamic to int safely
-int _toInt(dynamic value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  if (value is String) return int.tryParse(value) ?? 0;
-  return 0;
+/// Helper to convert dynamic to String (UUID) safely
+String _toId(dynamic value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  return value.toString();
 }
 
 /// Helper to convert dynamic to String safely
@@ -22,11 +21,11 @@ String _toString(dynamic value) {
 /// This model is used for JSON serialization/deserialization from the API response.
 /// It maps to the domain entity WalletBalance via the toDomain() method.
 ///
-/// JSON structure from API:
+/// JSON structure from API (UUID v7):
 /// ```json
 /// {
-///   "userId": 1,
-///   "currencyId": 1,
+///   "userId": "018e9a7b-...",
+///   "currencyId": "018e9a7b-...",
 ///   "available": "50.5",
 ///   "frozen": "10.25",
 ///   "total": "60.75"
@@ -34,13 +33,13 @@ String _toString(dynamic value) {
 /// ```
 @JsonSerializable()
 class WalletBalanceModel {
-  /// User ID who owns this wallet
-  @JsonKey(name: 'userId', fromJson: _toInt)
-  final int userId;
+  /// User ID who owns this wallet (UUID v7)
+  @JsonKey(name: 'userId', fromJson: _toId)
+  final String userId;
 
-  /// Currency ID (1=BTC, 2=ETH, etc.)
-  @JsonKey(name: 'currencyId', fromJson: _toInt)
-  final int currencyId;
+  /// Currency ID (UUID v7)
+  @JsonKey(name: 'currencyId', fromJson: _toId)
+  final String currencyId;
 
   /// Available balance as decimal string
   @JsonKey(name: 'available', fromJson: _toString)

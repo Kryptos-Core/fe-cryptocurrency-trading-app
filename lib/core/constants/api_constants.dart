@@ -34,7 +34,7 @@ class ApiConstants {
   
   // Currencies Endpoints (Tiền ảo)
   static const String currencies = '/currencies';
-  static String currencyById(int id) => '$currencies/$id';
+  static String currencyById(String id) => '$currencies/$id';
   static String currencyBySymbol(String symbol) => '$currencies/symbol/$symbol';
   static const String currenciesActive = '$currencies/active';
   static const String currenciesTradable = '$currencies/tradable';
@@ -42,13 +42,13 @@ class ApiConstants {
   // Markets Endpoints (Thị trường)
   static const String markets = '/markets';
   static const String marketsActive = '$markets/active';
-  static String marketById(int id) => '$markets/$id';
+  static String marketById(String id) => '$markets/$id';
   static String marketBySymbol(String symbol) {
     // URL encode symbol to handle "/" in symbols like "BTC/USDT"
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol';
   }
-  static String marketTicker(int id) => '$markets/$id/ticker';
+  static String marketTicker(String id) => '$markets/$id/ticker';
   static String marketTickerBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/ticker';
@@ -57,17 +57,17 @@ class ApiConstants {
   static const String marketsTickersAll = '$markets/tickers/all';
 
   /// Sổ lệnh – BE route: GET /markets/:id/orderbook (không gạch)
-  static String marketOrderBook(int id) => '$markets/$id/orderbook';
+  static String marketOrderBook(String id) => '$markets/$id/orderbook';
   static String marketOrderBookBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/orderbook';
   }
-  static String marketTrades(int id) => '$markets/$id/trades';
+  static String marketTrades(String id) => '$markets/$id/trades';
   static String marketTradesBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/trades';
   }
-  static String marketOHLCV(int id) => '$markets/$id/ohlcv';
+  static String marketOHLCV(String id) => '$markets/$id/ohlcv';
 
   /// OHLCV range filter: 1d, 1M, 3M, 1y, 5y (backend only accepts these)
   static const List<String> ohlcvRanges = ['1d', '1M', '3M', '1y', '5y'];
@@ -98,9 +98,9 @@ class ApiConstants {
 
   // Wallets Endpoints (Ví tiền)
   static const String wallets = '/wallets';
-  static String walletByCurrency(int currencyId) => '$wallets/currency/$currencyId';
-  static String walletBalance(int walletId) => '$wallets/$walletId/balance';
-  static String walletLedger(int walletId) => '$wallets/$walletId/ledger';
+  static String walletByCurrency(String currencyId) => '$wallets/currency/$currencyId';
+  static String walletBalance(String walletId) => '$wallets/$walletId/balance';
+  static String walletLedger(String walletId) => '$wallets/$walletId/ledger';
   
   // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);

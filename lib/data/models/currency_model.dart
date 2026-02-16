@@ -8,7 +8,7 @@ part 'currency_model.g.dart';
 @JsonSerializable()
 class CurrencyModel {
   @JsonKey(name: 'currency_id')
-  final int currencyId;
+  final String currencyId;
   final String symbol;
   final String name;
   @JsonKey(name: 'precision_scale')

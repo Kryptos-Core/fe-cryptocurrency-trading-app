@@ -7,8 +7,8 @@ part of 'wallet_model.dart';
 // **************************************************************************
 
 WalletModel _$WalletModelFromJson(Map<String, dynamic> json) => WalletModel(
-      walletId: (json['wallet_id'] as num).toInt(),
-      userId: (json['user_id'] as num).toInt(),
+      walletId: json['wallet_id'] as String,
+      userId: json['user_id'] as String,
       currency:
           CurrencyModel.fromJson(json['currency'] as Map<String, dynamic>),
       available: json['available'] as String,
@@ -30,11 +30,11 @@ Map<String, dynamic> _$WalletModelToJson(WalletModel instance) =>
 
 WalletLedgerModel _$WalletLedgerModelFromJson(Map<String, dynamic> json) =>
     WalletLedgerModel(
-      ledgerId: (json['ledger_id'] as num).toInt(),
-      userId: (json['user_id'] as num).toInt(),
-      currencyId: (json['currency_id'] as num).toInt(),
+      ledgerId: json['ledger_id'] as String,
+      userId: json['user_id'] as String,
+      currencyId: json['currency_id'] as String,
       refType: json['ref_type'] as String,
-      refId: (json['ref_id'] as num).toInt(),
+      refId: json['ref_id'] as String,
       direction: json['direction'] as String,
       amount: json['amount'] as String,
       balanceAfter: json['balance_after'] as String,

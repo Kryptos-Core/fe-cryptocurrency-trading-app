@@ -35,7 +35,7 @@ class WalletsProvider extends ChangeNotifier {
   List<WalletLedger> _ledger = [];
   bool _isLoading = false;
   String? _error;
-  int? _filterCurrencyId;
+  String? _filterCurrencyId;
   bool _includeZero = false;
   String? _filterRefType;
   String? _filterDirection;
@@ -76,7 +76,7 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Fetch wallets with optional filters
   Future<void> fetchWallets({
-    int? currencyId,
+    String? currencyId,
     bool includeZero = false,
     bool refresh = false,
   }) async {
@@ -113,7 +113,7 @@ class WalletsProvider extends ChangeNotifier {
   }
 
   /// Get wallet by currency ID
-  Future<void> getWalletByCurrency(int currencyId) async {
+  Future<void> getWalletByCurrency(String currencyId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -137,7 +137,7 @@ class WalletsProvider extends ChangeNotifier {
   }
 
   /// Get wallet balance by wallet ID
-  Future<void> getWalletBalance(int walletId) async {
+  Future<void> getWalletBalance(String walletId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -162,7 +162,7 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Fetch wallet ledger (transaction history)
   Future<void> fetchLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
     String? startDate,
@@ -222,7 +222,7 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Load more ledger entries (pagination)
   Future<void> loadMoreLedger({
-    required int walletId,
+    required String walletId,
     String? refType,
     String? direction,
   }) async {
@@ -251,7 +251,7 @@ class WalletsProvider extends ChangeNotifier {
   // ===== NEW WALLET API METHODS =====
 
   /// Fetch wallet balance using new Wallet API
-  Future<void> fetchWalletBalance(int currencyId,
+  Future<void> fetchWalletBalance(String currencyId,
       {bool forceRefresh = false}) async {
     if (getWalletBalanceApiUseCase == null) {
       _error = 'Wallet API not configured';
@@ -293,7 +293,7 @@ class WalletsProvider extends ChangeNotifier {
   }
 
   /// Fetch transaction history (ledger) for a currency and set as recent transactions
-  Future<void> fetchTransactionHistory(int currencyId) async {
+  Future<void> fetchTransactionHistory(String currencyId) async {
     if (getTransactionHistoryApiUseCase == null) return;
 
     final result = await getTransactionHistoryApiUseCase!(
@@ -363,9 +363,9 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Deposit (CREDIT action)
   Future<bool> deposit({
-    required int currencyId,
+    required String currencyId,
     required String amount,
-    required int refId,
+    required String refId,
   }) async {
     final request = WalletTransactionRequest(
       currencyId: currencyId,
@@ -379,9 +379,9 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Withdraw (DEBIT action)
   Future<bool> withdraw({
-    required int currencyId,
+    required String currencyId,
     required String amount,
-    required int refId,
+    required String refId,
   }) async {
     final request = WalletTransactionRequest(
       currencyId: currencyId,
@@ -395,9 +395,9 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Freeze balance (for order placement)
   Future<bool> freezeBalance({
-    required int currencyId,
+    required String currencyId,
     required String amount,
-    required int refId,
+    required String refId,
   }) async {
     final request = WalletTransactionRequest(
       currencyId: currencyId,
@@ -411,9 +411,9 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Unfreeze balance (for order cancellation)
   Future<bool> unfreezeBalance({
-    required int currencyId,
+    required String currencyId,
     required String amount,
-    required int refId,
+    required String refId,
   }) async {
     final request = WalletTransactionRequest(
       currencyId: currencyId,
@@ -428,16 +428,16 @@ class WalletsProvider extends ChangeNotifier {
   /// Transfer to another user.
   /// Uses a unique refId per transfer to avoid duplicate ledger key (TRANSFER-refId-userId-currencyId-direction).
   Future<bool> transfer({
-    required int currencyId,
+    required String currencyId,
     required String amount,
-    required int toUserId,
+    required String toUserId,
   }) async {
     final request = WalletTransactionRequest(
       currencyId: currencyId,
       action: WalletTransactionAction.transfer,
       amount: amount,
       refType: WalletReferenceType.transfer,
-      refId: DateTime.now().millisecondsSinceEpoch,
+      refId: '${DateTime.now().millisecondsSinceEpoch}',
       targetUserId: toUserId,
     );
     return await executeTransaction(request);

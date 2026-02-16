@@ -15,7 +15,7 @@ import 'package:crypto_trading_app/core/services/websocket_service.dart'
 /// - Smooth zoom/pan interactions
 /// - Professional UX for traders
 class AdvancedTradingScreen extends StatefulWidget {
-  final int pairId;
+  final String pairId;
 
   const AdvancedTradingScreen({
     super.key,

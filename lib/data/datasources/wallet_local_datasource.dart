@@ -10,14 +10,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 /// Cache key format: 'wallet_balance_${currencyId}'
 abstract class WalletLocalDataSource {
   /// Cache wallet balance in local storage
-  Future<void> cacheBalance(WalletBalance balance, int currencyId);
+  Future<void> cacheBalance(WalletBalance balance, String currencyId);
 
   /// Get cached balance from local storage
   /// Returns null if not found
-  Future<WalletBalance?> getCachedBalance(int currencyId);
+  Future<WalletBalance?> getCachedBalance(String currencyId);
 
   /// Clear specific cached balance
-  Future<void> clearCachedBalance(int currencyId);
+  Future<void> clearCachedBalance(String currencyId);
 
   /// Clear all cached balances
   Future<void> clearAllCachedBalances();
@@ -29,7 +29,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
   static const String _keyPrefix = 'wallet_balance_';
 
   @override
-  Future<void> cacheBalance(WalletBalance balance, int currencyId) async {
+  Future<void> cacheBalance(WalletBalance balance, String currencyId) async {
     try {
       final box = await Hive.openBox<Map>(_boxName);
       final key = '$_keyPrefix$currencyId';
@@ -49,7 +49,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
   }
 
   @override
-  Future<WalletBalance?> getCachedBalance(int currencyId) async {
+  Future<WalletBalance?> getCachedBalance(String currencyId) async {
     try {
       final box = await Hive.openBox<Map>(_boxName);
       final key = '$_keyPrefix$currencyId';
@@ -58,8 +58,8 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
       if (data == null) return null;
 
       return WalletBalance(
-        userId: data['userId'] as int? ?? 0,
-        currencyId: data['currencyId'] as int? ?? currencyId,
+        userId: data['userId'] as String? ?? '',
+        currencyId: data['currencyId'] as String? ?? currencyId,
         available: data['available'] as String? ?? '0',
         frozen: data['frozen'] as String? ?? '0',
         total: data['total'] as String? ?? '0',
@@ -72,7 +72,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
   }
 
   @override
-  Future<void> clearCachedBalance(int currencyId) async {
+  Future<void> clearCachedBalance(String currencyId) async {
     try {
       final box = await Hive.openBox<Map>(_boxName);
       final key = '$_keyPrefix$currencyId';

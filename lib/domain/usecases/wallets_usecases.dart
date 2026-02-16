@@ -21,7 +21,7 @@ class GetWalletsUseCase implements UseCase<List<Wallet>, GetWalletsParams> {
 }
 
 class GetWalletsParams extends Equatable {
-  final int? currencyId;
+  final String? currencyId;
   final bool includeZero;
 
   const GetWalletsParams({
@@ -34,25 +34,25 @@ class GetWalletsParams extends Equatable {
 }
 
 /// Get Wallet By Currency Use Case
-class GetWalletByCurrencyUseCase implements UseCase<Wallet, int> {
+class GetWalletByCurrencyUseCase implements UseCase<Wallet, String> {
   final WalletsRepository repository;
 
   GetWalletByCurrencyUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, Wallet>> call(int currencyId) async {
+  Future<Either<Failure, Wallet>> call(String currencyId) async {
     return await repository.getWalletByCurrency(currencyId);
   }
 }
 
 /// Get Wallet Balance Use Case
-class GetWalletBalanceUseCase implements UseCase<Wallet, int> {
+class GetWalletBalanceUseCase implements UseCase<Wallet, String> {
   final WalletsRepository repository;
 
   GetWalletBalanceUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, Wallet>> call(int walletId) async {
+  Future<Either<Failure, Wallet>> call(String walletId) async {
     return await repository.getWalletBalance(walletId);
   }
 }
@@ -78,7 +78,7 @@ class GetWalletLedgerUseCase implements UseCase<List<WalletLedger>, GetWalletLed
 }
 
 class GetWalletLedgerParams extends Equatable {
-  final int walletId;
+  final String walletId;
   final String? refType;
   final String? direction;
   final String? startDate;

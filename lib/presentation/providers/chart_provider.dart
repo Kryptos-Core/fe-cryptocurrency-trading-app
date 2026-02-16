@@ -21,7 +21,7 @@ class ChartProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   String _selectedInterval = '1m';
-  int? _selectedPairId;
+  String? _selectedPairId;
 
   /// Max candles to hold in memory for chart display (performance).
   static const int _maxCandlesDisplay = 2000;
@@ -39,7 +39,7 @@ class ChartProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   String get selectedInterval => _selectedInterval;
-  int? get selectedPairId => _selectedPairId;
+  String? get selectedPairId => _selectedPairId;
   bool get isWebSocketConnected => _isWebSocketConnected;
 
   @override
@@ -234,7 +234,7 @@ class ChartProvider extends ChangeNotifier {
 
   /// Subscribe to a trading pair with specific channels.
   /// Loads cached candles for this pair/interval first (if any), then subscribes to realtime.
-  void subscribeToPair(int pairId, List<String> channels, {String? interval}) {
+  void subscribeToPair(String pairId, List<String> channels, {String? interval}) {
     final effectiveInterval = interval ?? _selectedInterval;
     if (_selectedPairId == pairId && _selectedInterval == effectiveInterval) return;
 

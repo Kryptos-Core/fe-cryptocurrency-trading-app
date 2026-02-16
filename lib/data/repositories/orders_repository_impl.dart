@@ -46,7 +46,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> cancelOrder(int orderId) async {
+  Future<Either<Failure, Order>> cancelOrder(String orderId) async {
     try {
       final model = await remoteDataSource.cancelOrder(orderId);
       return Right(model.toDomain());
@@ -67,7 +67,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
 
   @override
   Future<Either<Failure, List<OrderBookLevel>>> getOrderBook(
-    int pairId, {
+    String pairId, {
     required String side,
     int limit = 50,
   }) async {
@@ -119,7 +119,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> getOrderById(int orderId) async {
+  Future<Either<Failure, Order>> getOrderById(String orderId) async {
     try {
       final model = await remoteDataSource.getOrderById(orderId);
       return Right(model.toDomain());

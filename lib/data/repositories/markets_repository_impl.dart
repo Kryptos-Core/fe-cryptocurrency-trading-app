@@ -76,7 +76,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
   }
 
   @override
-  Future<Either<Failure, MarketPair>> getMarketById(int pairId) async {
+  Future<Either<Failure, MarketPair>> getMarketById(String pairId) async {
     try {
       final marketModel = await remoteDataSource.getMarketById(pairId);
       return Right(marketModel.toEntity());
@@ -96,7 +96,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
   }
 
   @override
-  Future<Either<Failure, MarketTicker>> getMarketTicker(int pairId) async {
+  Future<Either<Failure, MarketTicker>> getMarketTicker(String pairId) async {
     try {
       final tickerModel = await remoteDataSource.getMarketTicker(pairId);
       return Right(tickerModel.toEntity());
@@ -128,7 +128,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
 
   @override
   Future<Either<Failure, OrderBook>> getOrderBook({
-    required int pairId,
+    required String pairId,
     int limit = 20,
   }) async {
     try {
@@ -160,7 +160,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
 
   @override
   Future<Either<Failure, List<Trade>>> getTrades({
-    required int pairId,
+    required String pairId,
     int limit = 50,
   }) async {
     try {
@@ -194,7 +194,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
 
   @override
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
-    required int pairId,
+    required String pairId,
     String interval = '1h',
     String? range,
     String? startTime,
@@ -230,7 +230,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
 
   @override
   Future<Either<Failure, MarketPair>> updateMarketPair(
-    int pairId,
+    String pairId,
     UpdateMarketPairDto dto,
   ) async {
     try {
@@ -242,7 +242,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteMarketPair(int pairId) async {
+  Future<Either<Failure, void>> deleteMarketPair(String pairId) async {
     try {
       await remoteDataSource.deleteMarketPair(pairId);
       return const Right(null);

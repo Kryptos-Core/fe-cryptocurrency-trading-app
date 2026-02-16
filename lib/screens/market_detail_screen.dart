@@ -19,7 +19,7 @@ import 'package:logger/logger.dart';
 /// Abstract strategy for initializing chart data
 abstract class ChartInitializationStrategy {
   Future<void> initialize(
-    int pairId,
+    String pairId,
     ChartProvider chartProvider,
     MarketsProvider marketsProvider,
   );
@@ -50,7 +50,7 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
 
   @override
   Future<void> initialize(
-    int pairId,
+    String pairId,
     ChartProvider chartProvider,
     MarketsProvider marketsProvider,
   ) async {
@@ -172,7 +172,7 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
 /// Market Detail Screen
 /// Displays detailed market information with ticker, order book, and chart
 class MarketDetailScreen extends StatefulWidget {
-  final int pairId;
+  final String pairId;
 
   const MarketDetailScreen({
     super.key,
@@ -461,7 +461,7 @@ class _OrderBookCardWidget extends StatelessWidget {
 
 /// Trading Chart Widget - Displays candlestick chart with controls
 class _TradingChartWidget extends StatelessWidget {
-  final int pairId;
+  final String pairId;
 
   const _TradingChartWidget({required this.pairId});
 
@@ -668,7 +668,7 @@ class _OrderSideSection extends StatelessWidget {
 /// Chart header with interval selector
 class _ChartHeaderWidget extends StatelessWidget {
   final ChartProvider chartProvider;
-  final int pairId;
+  final String pairId;
 
   const _ChartHeaderWidget({
     required this.chartProvider,
@@ -768,7 +768,7 @@ class _ChartHeaderWidget extends StatelessWidget {
 
 /// Range filter row: 1D, 1M, 3M, 1Y, 5Y – gọi API /ohlcv?range=...
 class _ChartRangeRow extends StatelessWidget {
-  final int pairId;
+  final String pairId;
 
   const _ChartRangeRow({required this.pairId});
 
@@ -841,7 +841,7 @@ class _ChartRangeRow extends StatelessWidget {
 
 /// Chart content or empty state
 class _ChartContentWidget extends StatelessWidget {
-  final int pairId;
+  final String pairId;
   final ChartProvider chartProvider;
   final dynamic market;
 

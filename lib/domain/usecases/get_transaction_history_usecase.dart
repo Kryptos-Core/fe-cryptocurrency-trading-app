@@ -20,7 +20,7 @@ class GetTransactionHistoryApiUseCase
 }
 
 class GetTransactionHistoryParams {
-  final int currencyId;
+  final String currencyId;
 
   GetTransactionHistoryParams({required this.currencyId});
 }

@@ -75,19 +75,19 @@ class WalletValidationUtil {
       return amountError;
     }
 
-    // Validate currencyId
-    if (request.currencyId <= 0) {
+    // Validate currencyId (UUID string)
+    if (request.currencyId.isEmpty) {
       return 'Invalid currency ID';
     }
 
-    // Validate refId
-    if (request.refId <= 0) {
+    // Validate refId (UUID string when present)
+    if (request.refId.isEmpty) {
       return 'Invalid reference ID';
     }
 
     // Validate TRANSFER action has targetUserId
     if (request.action == WalletTransactionAction.transfer) {
-      if (request.targetUserId == null || request.targetUserId! <= 0) {
+      if (request.targetUserId == null || request.targetUserId!.isEmpty) {
         return 'Target user ID is required for transfer';
       }
     }

@@ -8,8 +8,8 @@ part of 'wallet_balance_model.dart';
 
 WalletBalanceModel _$WalletBalanceModelFromJson(Map<String, dynamic> json) =>
     WalletBalanceModel(
-      userId: _toInt(json['userId']),
-      currencyId: _toInt(json['currencyId']),
+      userId: _toId(json['userId']),
+      currencyId: _toId(json['currencyId']),
       available: _toString(json['available']),
       frozen: _toString(json['frozen']),
       total: _toString(json['total']),

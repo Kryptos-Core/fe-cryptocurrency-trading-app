@@ -1,11 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
-import 'package:crypto_trading_app/core/services/mock_service.dart';
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
 import 'package:crypto_trading_app/data/models/update_currency_dto.dart';
 import 'package:crypto_trading_app/data/models/paginated_currencies_response.dart';
-import 'package:crypto_trading_app/data/mocks/currencies_mock.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
 import 'package:crypto_trading_app/core/models/error_response.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
@@ -28,7 +26,7 @@ abstract class CurrenciesRemoteDataSource {
   Future<List<CurrencyModel>> getTradableCurrencies();
 
   /// Get currency by ID
-  Future<CurrencyModel> getCurrencyById(int currencyId);
+  Future<CurrencyModel> getCurrencyById(String currencyId);
 
   /// Get currency by symbol
   Future<CurrencyModel> getCurrencyBySymbol(String symbol);
@@ -37,10 +35,10 @@ abstract class CurrenciesRemoteDataSource {
   Future<CurrencyModel> createCurrency(CreateCurrencyDto dto);
 
   /// Update currency (Admin only)
-  Future<CurrencyModel> updateCurrency(int currencyId, UpdateCurrencyDto dto);
+  Future<CurrencyModel> updateCurrency(String currencyId, UpdateCurrencyDto dto);
 
   /// Delete currency (soft delete - Admin only)
-  Future<void> deleteCurrency(int currencyId);
+  Future<void> deleteCurrency(String currencyId);
 }
 
 class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
@@ -101,32 +99,6 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
     int limit = 10,
     bool includeInactive = false,
   }) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        var currencies = CurrenciesMock.filter(
-          isActive: includeInactive ? null : true,
-          isTradable: null,
-        );
-
-        // Simple pagination
-        final start = (page - 1) * limit;
-        final end = start + limit;
-        final paginatedCurrencies = start >= currencies.length
-            ? <CurrencyModel>[]
-            : currencies.sublist(
-                start,
-                end > currencies.length ? currencies.length : end,
-              );
-
-        return PaginatedCurrenciesData(
-          currencies: paginatedCurrencies,
-          total: currencies.length,
-          page: page,
-          limit: limit,
-        );
-      });
-    }
-
     try {
       final response = await dio.get(
         ApiConstants.currencies,
@@ -203,12 +175,6 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
 
   @override
   Future<List<CurrencyModel>> getActiveCurrencies() async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        return CurrenciesMock.filter(isActive: true, isTradable: null);
-      });
-    }
-
     try {
       final response = await dio.get(ApiConstants.currenciesActive);
 
@@ -250,12 +216,6 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
 
   @override
   Future<List<CurrencyModel>> getTradableCurrencies() async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        return CurrenciesMock.filter(isActive: true, isTradable: true);
-      });
-    }
-
     try {
       final response = await dio.get(ApiConstants.currenciesTradable);
 
@@ -297,18 +257,7 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
   }
 
   @override
-  Future<CurrencyModel> getCurrencyById(int currencyId) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        final currency = CurrenciesMock.getById(currencyId);
-        if (currency == null) {
-          throw NotFoundException(
-              message: 'Currency with ID $currencyId not found');
-        }
-        return currency;
-      });
-    }
-
+  Future<CurrencyModel> getCurrencyById(String currencyId) async {
     try {
       final response = await dio.get(ApiConstants.currencyById(currencyId));
 
@@ -346,17 +295,6 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
 
   @override
   Future<CurrencyModel> getCurrencyBySymbol(String symbol) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        final currency = CurrenciesMock.getBySymbol(symbol);
-        if (currency == null) {
-          throw NotFoundException(
-              message: 'Currency with symbol $symbol not found');
-        }
-        return currency;
-      });
-    }
-
     try {
       final response = await dio.get(ApiConstants.currencyBySymbol(symbol));
 
@@ -394,22 +332,6 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
 
   @override
   Future<CurrencyModel> createCurrency(CreateCurrencyDto dto) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        // Mock implementation - create a new currency
-        final newId = CurrenciesMock.mockCurrencies.length + 1;
-        return CurrencyModel(
-          currencyId: newId,
-          symbol: dto.symbol.toUpperCase(),
-          name: dto.name,
-          precisionScale: dto.precisionScale ?? 8,
-          minWithdraw: dto.minWithdraw ?? '0',
-          isTradable: dto.isTradable ?? true,
-          isActive: dto.isActive ?? true,
-        );
-      });
-    }
-
     try {
       final response = await dio.post(
         ApiConstants.currencies,
@@ -451,27 +373,7 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
 
   @override
   Future<CurrencyModel> updateCurrency(
-      int currencyId, UpdateCurrencyDto dto) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        final existing = CurrenciesMock.getById(currencyId);
-        if (existing == null) {
-          throw NotFoundException(
-              message: 'Currency with ID $currencyId not found');
-        }
-        // Mock update - merge dto with existing
-        return CurrencyModel(
-          currencyId: existing.currencyId,
-          symbol: dto.symbol?.toUpperCase() ?? existing.symbol,
-          name: dto.name ?? existing.name,
-          precisionScale: dto.precisionScale ?? existing.precisionScale,
-          minWithdraw: dto.minWithdraw ?? existing.minWithdraw,
-          isTradable: dto.isTradable ?? existing.isTradable,
-          isActive: dto.isActive ?? existing.isActive,
-        );
-      });
-    }
-
+      String currencyId, UpdateCurrencyDto dto) async {
     try {
       final response = await dio.patch(
         ApiConstants.currencyById(currencyId),
@@ -512,19 +414,7 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
   }
 
   @override
-  Future<void> deleteCurrency(int currencyId) async {
-    if (MockService.isMockModeFor('currencies')) {
-      return MockService.mockResponse(() {
-        final existing = CurrenciesMock.getById(currencyId);
-        if (existing == null) {
-          throw NotFoundException(
-              message: 'Currency with ID $currencyId not found');
-        }
-        // Mock delete - just return void
-        return;
-      });
-    }
-
+  Future<void> deleteCurrency(String currencyId) async {
     try {
       final response = await dio.delete(ApiConstants.currencyById(currencyId));
 

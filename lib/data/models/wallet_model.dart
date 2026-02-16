@@ -4,13 +4,13 @@ import 'package:crypto_trading_app/data/models/currency_model.dart';
 
 part 'wallet_model.g.dart';
 
-/// Wallet Model (DTO)
+/// Wallet Model (DTO) – IDs là UUID v7
 @JsonSerializable()
 class WalletModel {
   @JsonKey(name: 'wallet_id')
-  final int walletId;
+  final String walletId;
   @JsonKey(name: 'user_id')
-  final int userId;
+  final String userId;
   final CurrencyModel currency;
   final String available;
   final String frozen;
@@ -46,19 +46,19 @@ class WalletModel {
   }
 }
 
-/// Wallet Ledger Model
+/// Wallet Ledger Model – IDs là UUID v7
 @JsonSerializable()
 class WalletLedgerModel {
   @JsonKey(name: 'ledger_id')
-  final int ledgerId;
+  final String ledgerId;
   @JsonKey(name: 'user_id')
-  final int userId;
+  final String userId;
   @JsonKey(name: 'currency_id')
-  final int currencyId;
+  final String currencyId;
   @JsonKey(name: 'ref_type')
   final String refType;
   @JsonKey(name: 'ref_id')
-  final int refId;
+  final String refId;
   final String direction;
   final String amount;
   @JsonKey(name: 'balance_after')

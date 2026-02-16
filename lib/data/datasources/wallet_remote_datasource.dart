@@ -23,12 +23,12 @@ abstract class WalletRemoteDataSource {
   ///   - NetworkException: On network error
   ///   - AuthenticationException: On authentication error
   ///   - ValidationException: On validation error
-  Future<WalletBalanceModel> getBalance(int currencyId);
+  Future<WalletBalanceModel> getBalance(String currencyId);
 
   /// Get transaction history (ledger) for a currency
   ///
   /// Throws: ServerException, NetworkException, AuthenticationException
-  Future<List<Map<String, dynamic>>> getTransactionHistory(int currencyId);
+  Future<List<Map<String, dynamic>>> getTransactionHistory(String currencyId);
 
   /// Execute a wallet transaction
   ///
@@ -50,7 +50,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   WalletRemoteDataSourceImpl({required this.dioClient});
 
   @override
-  Future<WalletBalanceModel> getBalance(int currencyId) async {
+  Future<WalletBalanceModel> getBalance(String currencyId) async {
     try {
       print(
           '[WalletRemoteDataSource] Fetching balance for currencyId: $currencyId');
@@ -103,7 +103,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   @override
   Future<List<Map<String, dynamic>>> getTransactionHistory(
-    int currencyId,
+    String currencyId,
   ) async {
     try {
       final response = await dioClient.dio.get(

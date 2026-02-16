@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 /// Wallet Detail Screen
 /// Displays wallet balance and transaction history
 class WalletDetailScreen extends StatefulWidget {
-  final int walletId;
+  final String walletId;
 
   const WalletDetailScreen({
     super.key,

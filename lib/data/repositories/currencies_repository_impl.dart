@@ -83,7 +83,7 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
   }
 
   @override
-  Future<Either<Failure, Currency>> getCurrencyById(int currencyId) async {
+  Future<Either<Failure, Currency>> getCurrencyById(String currencyId) async {
     try {
       final currencyModel = await remoteDataSource.getCurrencyById(currencyId);
       return Right(currencyModel.toEntity());
@@ -114,7 +114,7 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
 
   @override
   Future<Either<Failure, Currency>> updateCurrency(
-    int currencyId,
+    String currencyId,
     UpdateCurrencyDto dto,
   ) async {
     try {
@@ -126,7 +126,7 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteCurrency(int currencyId) async {
+  Future<Either<Failure, void>> deleteCurrency(String currencyId) async {
     try {
       await remoteDataSource.deleteCurrency(currencyId);
       return const Right(null);

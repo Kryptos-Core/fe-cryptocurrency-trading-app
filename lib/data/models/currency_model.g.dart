@@ -8,13 +8,13 @@ part of 'currency_model.dart';
 
 CurrencyModel _$CurrencyModelFromJson(Map<String, dynamic> json) =>
     CurrencyModel(
-      currencyId: (json['currency_id'] as num?)?.toInt() ?? 0,
-      symbol: json['symbol'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      precisionScale: (json['precision_scale'] as num?)?.toInt() ?? 0,
-      minWithdraw: json['min_withdraw'] as String? ?? '0',
-      isTradable: json['is_tradable'] as bool? ?? false,
-      isActive: json['is_active'] as bool? ?? false,
+      currencyId: json['currency_id'] as String,
+      symbol: json['symbol'] as String,
+      name: json['name'] as String,
+      precisionScale: (json['precision_scale'] as num).toInt(),
+      minWithdraw: json['min_withdraw'] as String,
+      isTradable: json['is_tradable'] as bool,
+      isActive: json['is_active'] as bool,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
     );

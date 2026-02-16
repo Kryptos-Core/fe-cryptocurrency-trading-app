@@ -8,9 +8,9 @@ part 'create_market_pair_dto.g.dart';
 @JsonSerializable()
 class CreateMarketPairDto {
   @JsonKey(name: 'baseCurrencyId')
-  final int baseCurrencyId; // Required
+  final String baseCurrencyId; // Required (UUID v7)
   @JsonKey(name: 'quoteCurrencyId')
-  final int quoteCurrencyId; // Required
+  final String quoteCurrencyId; // Required (UUID v7)
   final String? symbol; // Optional - auto-generated if not provided
   @JsonKey(name: 'priceScale')
   final int? priceScale; // Optional, default: 2

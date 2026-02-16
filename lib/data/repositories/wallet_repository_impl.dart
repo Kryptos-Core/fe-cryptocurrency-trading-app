@@ -24,7 +24,7 @@ class WalletRepositoryImpl implements WalletRepository {
   });
 
   @override
-  Future<Either<Failure, WalletBalance>> getBalance(int currencyId) async {
+  Future<Either<Failure, WalletBalance>> getBalance(String currencyId) async {
     try {
       // Try to get from remote (API)
       final balanceModel = await remoteDataSource.getBalance(currencyId);
@@ -56,12 +56,12 @@ class WalletRepositoryImpl implements WalletRepository {
 
   @override
   Future<Either<Failure, List<WalletTransactionResponse>>> getTransactionHistory(
-    int currencyId,
+    String currencyId,
   ) async {
     try {
       final list = await remoteDataSource.getTransactionHistory(currencyId);
       final placeholders = WalletBalance(
-        userId: 0,
+        userId: '',
         currencyId: currencyId,
         available: '0',
         frozen: '0',
@@ -78,14 +78,16 @@ class WalletRepositoryImpl implements WalletRepository {
         final timestamp = createdAt != null
             ? DateTime.tryParse(createdAt) ?? DateTime.now()
             : DateTime.now();
+        final refIdRaw = e['refId'];
+        final refId = refIdRaw != null ? refIdRaw.toString() : '';
         return WalletTransactionResponse(
-          transactionId: 'ledger-${e['refId']}',
-          userId: 0,
+          transactionId: 'ledger-$refId',
+          userId: '',
           currencyId: currencyId,
           action: action,
           amount: (e['amount'] ?? '0').toString(),
           refType: refType,
-          refId: (e['refId'] as num?)?.toInt() ?? 0,
+          refId: refId,
           newBalance: placeholders,
           timestamp: timestamp,
         );
@@ -138,17 +140,17 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
-  Future<void> cacheBalance(WalletBalance balance, int currencyId) async {
+  Future<void> cacheBalance(WalletBalance balance, String currencyId) async {
     await localDataSource.cacheBalance(balance, currencyId);
   }
 
   @override
-  Future<WalletBalance?> getCachedBalance(int currencyId) async {
+  Future<WalletBalance?> getCachedBalance(String currencyId) async {
     return await localDataSource.getCachedBalance(currencyId);
   }
 
   @override
-  Future<void> clearCachedBalance(int currencyId) async {
+  Future<void> clearCachedBalance(String currencyId) async {
     await localDataSource.clearCachedBalance(currencyId);
   }
 
@@ -181,13 +183,13 @@ class WalletRepositoryImpl implements WalletRepository {
       return 'Target user ID is required for TRANSFER action';
     }
 
-    // Validate currencyId > 0
-    if (request.currencyId <= 0) {
+    // Validate currencyId (UUID string)
+    if (request.currencyId.isEmpty) {
       return 'Invalid currency ID';
     }
 
-    // Validate refId > 0
-    if (request.refId <= 0) {
+    // Validate refId (UUID string when present)
+    if (request.refId.isEmpty) {
       return 'Invalid reference ID';
     }
 

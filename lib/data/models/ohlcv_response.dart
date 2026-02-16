@@ -8,7 +8,7 @@ part 'ohlcv_response.g.dart';
 @JsonSerializable()
 class OHLCVResponseData {
   @JsonKey(name: 'pair_id')
-  final int pairId;
+  final String pairId;
   final String interval; // "1h", "1d", etc.
   @JsonKey(name: 'interval_sec')
   final int intervalSec; // 3600 for 1h, 86400 for 1d, etc.

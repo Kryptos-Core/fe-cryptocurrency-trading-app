@@ -9,13 +9,12 @@ part of 'paginated_markets_response.dart';
 PaginatedMarketsData _$PaginatedMarketsDataFromJson(
         Map<String, dynamic> json) =>
     PaginatedMarketsData(
-      data: (json['pairs'] as List<dynamic>?)
-              ?.map((e) => MarketPairModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      total: (json['total'] as num?)?.toInt() ?? 0,
-      page: (json['page'] as num?)?.toInt() ?? 1,
-      limit: (json['limit'] as num?)?.toInt() ?? 10,
+      data: (json['pairs'] as List<dynamic>)
+          .map((e) => MarketPairModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      total: (json['total'] as num).toInt(),
+      page: (json['page'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
       totalPages: (json['totalPages'] as num?)?.toInt(),
     );
 
@@ -32,10 +31,9 @@ Map<String, dynamic> _$PaginatedMarketsDataToJson(
 PaginatedMarketsResponse _$PaginatedMarketsResponseFromJson(
         Map<String, dynamic> json) =>
     PaginatedMarketsResponse(
-      success: json['success'] as bool? ?? false,
+      success: json['success'] as bool,
       message: json['message'] as String?,
-      data: PaginatedMarketsData.fromJson(
-          (json['data'] as Map<String, dynamic>?) ?? <String, dynamic>{}),
+      data: PaginatedMarketsData.fromJson(json['data'] as Map<String, dynamic>),
       timestamp: json['timestamp'] as String?,
     );
 

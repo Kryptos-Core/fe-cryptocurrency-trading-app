@@ -58,13 +58,13 @@ class GetActiveMarketsUseCase
 
 /// Get Market By ID Use Case
 /// Following Single Responsibility Principle (SRP)
-class GetMarketByIdUseCase implements UseCase<MarketPair, int> {
+class GetMarketByIdUseCase implements UseCase<MarketPair, String> {
   final MarketsRepository repository;
 
   GetMarketByIdUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, MarketPair>> call(int pairId) async {
+  Future<Either<Failure, MarketPair>> call(String pairId) async {
     return await repository.getMarketById(pairId);
   }
 }
@@ -84,13 +84,13 @@ class GetMarketBySymbolUseCase implements UseCase<MarketPair, String> {
 
 /// Get Market Ticker By ID Use Case
 /// Following Single Responsibility Principle (SRP)
-class GetMarketTickerUseCase implements UseCase<MarketTicker, int> {
+class GetMarketTickerUseCase implements UseCase<MarketTicker, String> {
   final MarketsRepository repository;
 
   GetMarketTickerUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, MarketTicker>> call(int pairId) async {
+  Future<Either<Failure, MarketTicker>> call(String pairId) async {
     return await repository.getMarketTicker(pairId);
   }
 }
@@ -140,7 +140,7 @@ class GetOrderBookUseCase implements UseCase<OrderBook, GetOrderBookParams> {
 }
 
 class GetOrderBookParams extends Equatable {
-  final int pairId;
+  final String pairId;
   final int limit;
 
   const GetOrderBookParams({
@@ -201,7 +201,7 @@ class GetTradesUseCase implements UseCase<List<Trade>, GetTradesParams> {
 }
 
 class GetTradesParams extends Equatable {
-  final int pairId;
+  final String pairId;
   final int limit;
 
   const GetTradesParams({
@@ -266,7 +266,7 @@ class GetOHLCVUseCase implements UseCase<List<OHLCV>, GetOHLCVParams> {
 }
 
 class GetOHLCVParams extends Equatable {
-  final int pairId;
+  final String pairId;
   final String interval;
   /// Range filter: 1d, 1M, 3M, 1y, 5y (chữ M viết hoa cho tháng)
   final String? range;
@@ -329,7 +329,7 @@ class UpdateMarketPairUseCase
 }
 
 class UpdateMarketPairParams extends Equatable {
-  final int pairId;
+  final String pairId;
   final UpdateMarketPairDto dto;
 
   const UpdateMarketPairParams({
@@ -343,13 +343,13 @@ class UpdateMarketPairParams extends Equatable {
 
 /// Delete Market Pair Use Case
 /// Following Single Responsibility Principle (SRP)
-class DeleteMarketPairUseCase implements UseCase<void, int> {
+class DeleteMarketPairUseCase implements UseCase<void, String> {
   final MarketsRepository repository;
 
   DeleteMarketPairUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, void>> call(int pairId) async {
+  Future<Either<Failure, void>> call(String pairId) async {
     return await repository.deleteMarketPair(pairId);
   }
 }

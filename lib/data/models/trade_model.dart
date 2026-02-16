@@ -8,9 +8,9 @@ part 'trade_model.g.dart';
 @JsonSerializable()
 class TradeModel {
   @JsonKey(name: 'trade_id')
-  final int tradeId;
+  final String tradeId;
   @JsonKey(name: 'pair_id')
-  final int pairId;
+  final String pairId;
   final String price;
   final String amount;
   final String side; // "BUY" or "SELL"

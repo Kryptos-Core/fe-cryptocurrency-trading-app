@@ -8,13 +8,12 @@ part of 'ohlcv_response.dart';
 
 OHLCVResponseData _$OHLCVResponseDataFromJson(Map<String, dynamic> json) =>
     OHLCVResponseData(
-      pairId: (json['pair_id'] as num?)?.toInt() ?? 0,
-      interval: json['interval'] as String? ?? '1h',
-      intervalSec: (json['interval_sec'] as num?)?.toInt() ?? 3600,
-      candles: (json['candles'] as List<dynamic>?)
-              ?.map((e) => OHLCVModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      pairId: json['pair_id'] as String,
+      interval: json['interval'] as String,
+      intervalSec: (json['interval_sec'] as num).toInt(),
+      candles: (json['candles'] as List<dynamic>)
+          .map((e) => OHLCVModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$OHLCVResponseDataToJson(OHLCVResponseData instance) =>
@@ -27,10 +26,9 @@ Map<String, dynamic> _$OHLCVResponseDataToJson(OHLCVResponseData instance) =>
 
 OHLCVResponse _$OHLCVResponseFromJson(Map<String, dynamic> json) =>
     OHLCVResponse(
-      success: json['success'] as bool? ?? false,
+      success: json['success'] as bool,
       message: json['message'] as String?,
-      data: OHLCVResponseData.fromJson(
-          (json['data'] as Map<String, dynamic>?) ?? <String, dynamic>{}),
+      data: OHLCVResponseData.fromJson(json['data'] as Map<String, dynamic>),
       timestamp: json['timestamp'] as String?,
     );
 

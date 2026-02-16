@@ -32,13 +32,13 @@ class WalletTransactionResponseModel {
   @JsonKey(name: 'transactionId')
   final String transactionId;
 
-  /// User ID performing the transaction
+  /// User ID performing the transaction (UUID v7)
   @JsonKey(name: 'userId')
-  final int userId;
+  final String userId;
 
-  /// Currency ID
+  /// Currency ID (UUID v7)
   @JsonKey(name: 'currencyId')
-  final int currencyId;
+  final String currencyId;
 
   /// Action performed (CREDIT, DEBIT, FREEZE, UNFREEZE, TRANSFER)
   @JsonKey(name: 'action')
@@ -52,9 +52,9 @@ class WalletTransactionResponseModel {
   @JsonKey(name: 'refType')
   final String refType;
 
-  /// Reference ID
+  /// Reference ID (UUID v7)
   @JsonKey(name: 'refId')
-  final int refId;
+  final String refId;
 
   /// New balance after transaction
   @JsonKey(name: 'newBalance')
