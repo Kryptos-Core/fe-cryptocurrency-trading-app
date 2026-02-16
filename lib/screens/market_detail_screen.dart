@@ -43,6 +43,66 @@ double? _lastPriceFromTicker(MarketsProvider marketsProvider) {
   return double.tryParse(t.lastPrice);
 }
 
+/// Format price for display: sensible decimals, trim trailing zeros.
+String _formatDetailPrice(String priceStr) {
+  final v = double.tryParse(priceStr);
+  if (v == null) return priceStr;
+  if (v == 0) return '0';
+  int decimals;
+  if (v >= 10000) {
+    decimals = 1;
+  } else if (v >= 1000) {
+    decimals = 2;
+  } else if (v >= 1) {
+    decimals = 2;
+  } else if (v >= 0.01) {
+    decimals = 4;
+  } else {
+    decimals = 6;
+  }
+  final formatted = v.toStringAsFixed(decimals);
+  if (formatted.contains('.')) {
+    return formatted.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
+  return formatted;
+}
+
+/// Format volume: K/M suffix, 2–4 decimals.
+String _formatDetailVolume(String volumeStr) {
+  final v = double.tryParse(volumeStr);
+  if (v == null) return volumeStr;
+  if (v == 0) return '0';
+  if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
+  if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
+  if (v >= 1) return v.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+}
+
+/// Format min order amount / small decimal: trim trailing zeros, max 8 decimals.
+String _formatDetailAmount(String amountStr) {
+  final v = double.tryParse(amountStr);
+  if (v == null) return amountStr;
+  if (v == 0) return '0';
+  final s = v.toStringAsFixed(8);
+  if (s.contains('.')) {
+    return s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
+  return s;
+}
+
+/// Format fee rate for display. Backend sends decimal rate (e.g. "0.00100000" = 0.1%).
+/// Display as percentage: (rate * 100).toFixed(2) + '%' → "0.10%".
+String _formatDetailFee(String feeStr) {
+  final v = double.tryParse(feeStr);
+  if (v == null) return feeStr;
+  final percent = v * 100;
+  if (percent == 0) return '0%';
+  if (percent.abs() >= 100) return '${percent.toStringAsFixed(1)}%';
+  if (percent.abs() >= 1) return '${percent.toStringAsFixed(2)}%';
+  if (percent.abs() >= 0.01) return '${percent.toStringAsFixed(2)}%';
+  return '${percent.toStringAsFixed(2)}%';
+}
+
 /// Concrete strategy: Initialize chart with OHLCV data.
 /// Uses cache first so re-entering market detail shows retained data (~1 month).
 class OHLCVChartInitialization implements ChartInitializationStrategy {
@@ -313,7 +373,7 @@ class _TickerCardWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              ticker.lastPrice,
+              _formatDetailPrice(ticker.lastPrice),
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -330,7 +390,7 @@ class _TickerCardWidget extends StatelessWidget {
                 ),
                 _VolumeWidget(
                   label: l10n.volume24h,
-                  value: ticker.volume24h,
+                  value: _formatDetailVolume(ticker.volume24h),
                 ),
               ],
             ),
@@ -375,15 +435,15 @@ class _MarketInfoCardWidget extends StatelessWidget {
             ),
             _InfoRow(
               label: l10n.minOrderAmount,
-              value: market.minOrderAmount,
+              value: _formatDetailAmount(market.minOrderAmount),
             ),
             _InfoRow(
               label: l10n.makerFee,
-              value: '${market.makerFeeRate}%',
+              value: _formatDetailFee(market.makerFeeRate),
             ),
             _InfoRow(
               label: l10n.takerFee,
-              value: '${market.takerFeeRate}%',
+              value: _formatDetailFee(market.takerFeeRate),
             ),
             _InfoRow(
               label: l10n.status,
@@ -497,9 +557,9 @@ class _TradingChartWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // WebSocket status indicator
+                // WebSocket status indicator (connected vs receiving data; hint if no updates)
                 _WebSocketStatusWidget(
-                  isConnected: chartProvider.isWebSocketConnected,
+                  chartProvider: chartProvider,
                 ),
               ],
             ),
@@ -881,9 +941,13 @@ class _ChartContentWidget extends StatelessWidget {
               const SizedBox(height: 8),
               if (chartProvider.isWebSocketConnected)
                 Text(
-                  '(${l10n.connectedRealtime})',
-                  style: const TextStyle(
-                    color: Colors.green,
+                  chartProvider.hasReceivedRealtimeDataRecently
+                      ? '(${l10n.connectedRealtime})'
+                      : '(${l10n.connectedNoUpdates})',
+                  style: TextStyle(
+                    color: chartProvider.hasReceivedRealtimeDataRecently
+                        ? Colors.green
+                        : Colors.orange,
                     fontSize: 12,
                   ),
                 )
@@ -918,29 +982,53 @@ class _ChartContentWidget extends StatelessWidget {
 
 /// WebSocket connection status indicator
 class _WebSocketStatusWidget extends StatelessWidget {
-  final bool isConnected;
+  final ChartProvider chartProvider;
 
-  const _WebSocketStatusWidget({required this.isConnected});
+  const _WebSocketStatusWidget({required this.chartProvider});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Row(
+    final isConnected = chartProvider.isWebSocketConnected;
+    final receiving = chartProvider.hasReceivedRealtimeDataRecently;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          isConnected ? Icons.circle : Icons.circle_outlined,
-          size: 12,
-          color: isConnected ? Colors.green : Colors.grey,
+        Row(
+          children: [
+            Icon(
+              isConnected ? Icons.circle : Icons.circle_outlined,
+              size: 12,
+              color: isConnected
+                  ? (receiving ? Colors.green : Colors.orange)
+                  : Colors.grey,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              isConnected
+                  ? (receiving ? l10n.realtimeActive : l10n.connectedNoUpdates)
+                  : l10n.offline,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        Text(
-          isConnected ? l10n.realtimeActive : l10n.offline,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+        if (isConnected && !receiving) ...[
+          const SizedBox(height: 6),
+          Text(
+            l10n.noRealtimeUpdatesHint,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[500],
+              fontStyle: FontStyle.italic,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

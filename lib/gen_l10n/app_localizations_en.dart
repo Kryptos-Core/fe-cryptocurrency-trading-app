@@ -210,6 +210,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectedRealtime => 'Connected to real-time updates';
 
   @override
+  String get connectedNoUpdates => 'Connected — no updates for this pair';
+
+  @override
+  String get noRealtimeUpdatesHint =>
+      'This pair may not have real-time data (e.g. not on Binance). Try BTC/USDT or ETH/USDT.';
+
+  @override
   String get connecting => 'Connecting...';
 
   @override

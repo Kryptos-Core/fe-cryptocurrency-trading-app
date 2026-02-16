@@ -210,6 +210,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get connectedRealtime => 'Đã kết nối cập nhật thời gian thực';
 
   @override
+  String get connectedNoUpdates => 'Đã kết nối — chưa có cập nhật cho cặp này';
+
+  @override
+  String get noRealtimeUpdatesHint =>
+      'Cặp này có thể không có dữ liệu real-time (vd. không có trên Binance). Thử BTC/USDT hoặc ETH/USDT.';
+
+  @override
   String get connecting => 'Đang kết nối...';
 
   @override

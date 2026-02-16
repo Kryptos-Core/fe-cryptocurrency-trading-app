@@ -31,6 +31,8 @@ class ChartProvider extends ChangeNotifier {
   bool _isAuthenticating = false;
   StreamSubscription? _webSocketSubscription;
   bool _isDisposed = false;
+  /// Last time we received a ticker or ohlc message (for "receiving data" vs "connected only").
+  DateTime? _lastTickerOrOhlcAt;
 
   // Getters
   List<OHLCData> get candles => List.unmodifiable(_candles);
@@ -41,6 +43,10 @@ class ChartProvider extends ChangeNotifier {
   String get selectedInterval => _selectedInterval;
   String? get selectedPairId => _selectedPairId;
   bool get isWebSocketConnected => _isWebSocketConnected;
+  /// True if we received at least one ticker or ohlc in the last 45 seconds.
+  bool get hasReceivedRealtimeDataRecently =>
+      _lastTickerOrOhlcAt != null &&
+      DateTime.now().difference(_lastTickerOrOhlcAt!) < const Duration(seconds: 45);
 
   @override
   void notifyListeners() {
@@ -125,12 +131,21 @@ class ChartProvider extends ChangeNotifier {
     }
   }
 
-  /// Handle authentication response
+  /// Handle authentication response. Re-subscribe to current pair when reconnecting.
   void _handleAuthResponse(Map<String, dynamic> data) {
     _isAuthenticating = false;
     _isWebSocketConnected = true;
     final userId = data['user_id'];
     _logger.i('✅ Authenticated as user: $userId');
+    // After connect/reconnect: re-subscribe so we receive ticker/ohlc again (BE requires auth before subscribe).
+    if (_selectedPairId != null) {
+      webSocketService.subscribeToPair(
+        _selectedPairId!,
+        ['ticker', 'ohlc'],
+        interval: _selectedInterval,
+      );
+      _logger.i('📤 Re-subscribed to pair $_selectedPairId interval $_selectedInterval');
+    }
     notifyListeners();
   }
 
@@ -153,6 +168,7 @@ class ChartProvider extends ChangeNotifier {
   /// Handle ticker (price) updates - Every 1 second
   void _handleTickerUpdate(Map<String, dynamic> data) {
     try {
+      _lastTickerOrOhlcAt = DateTime.now();
       _latestTicker = TickerData.fromJson(data);
       notifyListeners();
     } catch (e) {
@@ -163,6 +179,7 @@ class ChartProvider extends ChangeNotifier {
   /// Handle OHLC candle updates
   void _handleCandleUpdate(Map<String, dynamic> data) {
     try {
+      _lastTickerOrOhlcAt = DateTime.now();
       final newCandle = OHLCData.fromJson(data);
 
       // Check if this is an update to existing candle or new candle
@@ -246,6 +263,7 @@ class ChartProvider extends ChangeNotifier {
     _selectedInterval = effectiveInterval;
     _indicators.clear();
     _error = null;
+    _lastTickerOrOhlcAt = null; // reset so UI shows "connected" until we get first ticker/ohlc for this pair
 
     // Load from cache (trim to display limit for performance)
     final cached = chartCacheService.getCandles(pairId, effectiveInterval);

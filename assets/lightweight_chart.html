@@ -148,13 +148,22 @@
                 return;
             }
 
-            // TradingView Lightweight Charts – default UI/style (no custom theme)
+            // TradingView Lightweight Charts – cleaner grid, less visual clutter
             ChartState.chart = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
                 height: container.clientHeight,
+                layout: {
+                    background: { type: 'solid', color: '#ffffff' },
+                    textColor: '#1a1d29',
+                },
+                grid: {
+                    horzLines: { color: 'rgba(0,0,0,0.06)', visible: true },
+                    vertLines: { color: 'rgba(0,0,0,0.04)', visible: true },
+                },
                 timeScale: {
                     timeVisible: true,
                     secondsVisible: false,
+                    borderVisible: true,
                     tickMarkFormatter: (time, tickMarkType, locale) => {
                         const t = typeof time === 'number' ? new Date(time * 1000) : new Date(time.year, (time.month || 1) - 1, time.day || 1);
                         const y = t.getUTCFullYear();
@@ -168,6 +177,10 @@
                         return h + ':' + m;
                     },
                 },
+                rightPriceScale: {
+                    borderVisible: true,
+                    scaleMargins: { top: 0.05, bottom: 0.25 },
+                },
             });
 
             ChartState.candlestickSeries = ChartState.chart.addCandlestickSeries();
@@ -176,13 +189,13 @@
                 priceFormat: {
                     type: 'custom',
                     minMove: 1,
-                    formatter: (price) => price === 0 ? '' : price.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+                    formatter: () => '', // hide volume scale labels so right axis shows only price (avoids confusion with numbers like 586)
                 },
-                priceScaleId: '',
+                priceScaleId: 'volume',
             });
             ChartState.volumeSeries.priceScale().applyOptions({
                 scaleMargins: { top: 0.8, bottom: 0 },
-                visible: true,
+                visible: false, // volume bars only; no separate axis (right side = price only)
             });
 
             window.addEventListener('resize', () => {

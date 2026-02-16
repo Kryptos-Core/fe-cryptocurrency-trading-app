@@ -500,6 +500,18 @@ abstract class AppLocalizations {
   /// **'Connected to real-time updates'**
   String get connectedRealtime;
 
+  /// No description provided for @connectedNoUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected — no updates for this pair'**
+  String get connectedNoUpdates;
+
+  /// No description provided for @noRealtimeUpdatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This pair may not have real-time data (e.g. not on Binance). Try BTC/USDT or ETH/USDT.'**
+  String get noRealtimeUpdatesHint;
+
   /// No description provided for @connecting.
   ///
   /// In en, this message translates to:

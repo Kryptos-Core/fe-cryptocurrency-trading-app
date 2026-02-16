@@ -67,6 +67,8 @@
   "bidsBuy": "BIDS (Buy)",
   "waitingForChartData": "Waiting for chart data...",
   "connectedRealtime": "Connected to real-time updates",
+  "connectedNoUpdates": "Connected — no updates for this pair",
+  "noRealtimeUpdatesHint": "This pair may not have real-time data (e.g. not on Binance). Try BTC/USDT or ETH/USDT.",
   "connecting": "Connecting...",
   "offline": "Offline",
   "na": "N/A",

@@ -67,6 +67,8 @@
   "bidsBuy": "Mua (BIDS)",
   "waitingForChartData": "Đang chờ dữ liệu biểu đồ...",
   "connectedRealtime": "Đã kết nối cập nhật thời gian thực",
+  "connectedNoUpdates": "Đã kết nối — chưa có cập nhật cho cặp này",
+  "noRealtimeUpdatesHint": "Cặp này có thể không có dữ liệu real-time (vd. không có trên Binance). Thử BTC/USDT hoặc ETH/USDT.",
   "connecting": "Đang kết nối...",
   "offline": "Ngoại tuyến",
   "na": "N/A",
