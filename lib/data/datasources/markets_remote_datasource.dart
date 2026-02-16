@@ -163,13 +163,32 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
             );
           }
 
-          final dataJson = responseData['data'] as Map<String, dynamic>? ??
-              <String, dynamic>{};
-          final pairs = _parseMarketPairs(dataJson['pairs']);
-          final parsedTotal = _toInt(dataJson['total'], fallback: pairs.length);
-          final parsedPage = _toInt(dataJson['page'], fallback: page);
-          final parsedLimit = _toInt(dataJson['limit'], fallback: limit);
-          final parsedTotalPages = _toInt(dataJson['totalPages'], fallback: 0);
+          // GET /markets — API spec: data is OBJECT { pairs, total, page, limit }.
+          // List = data.pairs (not data; data is not an array).
+          final dataJson = responseData['data'];
+          final Map<String, dynamic> paginatedMeta;
+          final List<MarketPairModel> pairs;
+
+          if (dataJson is Map<String, dynamic>) {
+            paginatedMeta = dataJson;
+            pairs = _parseMarketPairs(dataJson['pairs']);
+          } else if (dataJson is List) {
+            // Fallback if backend ever sends data as array
+            paginatedMeta = <String, dynamic>{};
+            pairs = _parseMarketPairs(dataJson);
+            paginatedMeta['total'] = responseData['total'];
+            paginatedMeta['page'] = responseData['page'];
+            paginatedMeta['limit'] = responseData['limit'];
+            paginatedMeta['totalPages'] = responseData['totalPages'];
+          } else {
+            paginatedMeta = <String, dynamic>{};
+            pairs = _parseMarketPairs(responseData['pairs']);
+          }
+
+          final parsedTotal = _toInt(paginatedMeta['total'], fallback: pairs.length);
+          final parsedPage = _toInt(paginatedMeta['page'], fallback: page);
+          final parsedLimit = _toInt(paginatedMeta['limit'], fallback: limit);
+          final parsedTotalPages = _toInt(paginatedMeta['totalPages'], fallback: 0);
 
           return PaginatedMarketsData(
             data: pairs,
@@ -227,6 +246,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     return <MarketPairModel>[];
   }
 
+  /// GET /markets/active — API spec: data is ARRAY [ pair, ... ]. List = data.
   @override
   Future<List<MarketPairModel>> getActiveMarkets() async {
     try {
@@ -412,13 +432,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     }
   }
 
+  /// GET /markets/tickers/all — API spec: data is ARRAY [ ticker, ... ]. List = data.
   @override
   Future<List<MarketTickerModel>> getAllTickers() async {
     try {
       final response = await dio.get(ApiConstants.marketsTickersAll);
 
       if (response.statusCode == 200) {
-        // Response wrap: { success, data: MarketTickerDto[], timestamp }
         final apiResponse = ApiResponse<List<MarketTickerModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)

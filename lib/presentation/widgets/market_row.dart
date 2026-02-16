@@ -68,14 +68,18 @@ class MarketRow extends StatelessWidget {
     this.showFavorite = false,
   });
 
+  /// When ticker is missing, show "—" so user knows data is loading/missing (not real 0).
+  static const String _noData = '—';
+
   @override
   Widget build(BuildContext context) {
+    final hasTicker = ticker != null;
     final isPositive = ticker?.isPositive ?? false;
     // API: change24h is % (e.g. "0.52" = 0.52%)
-    final changePercent = ticker != null
+    final changePercent = hasTicker
         ? (double.tryParse(ticker!.change24h) ?? 0.0).toStringAsFixed(2)
-        : '0.00';
-    final lastPrice = _formatPrice(ticker?.lastPrice ?? '0');
+        : _noData;
+    final lastPrice = hasTicker ? _formatPrice(ticker!.lastPrice) : _noData;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -99,16 +103,14 @@ class MarketRow extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (ticker != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Vol: ${_formatVolume(ticker!.volume24h)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Vol: ${hasTicker ? _formatVolume(ticker!.volume24h) : _noData}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
@@ -126,7 +128,7 @@ class MarketRow extends StatelessWidget {
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
                     ),
-                    if (ticker != null && market.quoteCurrency != null) ...[
+                    if (market.quoteCurrency != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         market.quoteCurrency!.symbol,
@@ -155,25 +157,29 @@ class MarketRow extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${isPositive ? '+' : ''}$changePercent%',
+                          hasTicker ? '${isPositive ? '+' : ''}$changePercent%' : '$_noData%',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: isPositive ? Colors.green : Colors.red,
+                            color: hasTicker
+                                ? (isPositive ? Colors.green : Colors.red)
+                                : Colors.grey,
                           ),
                         ),
                       ],
                     ),
-                    if (ticker != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatChangeAmount(ticker!.changeAmount24h, isPositive),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isPositive ? Colors.green.shade700 : Colors.red.shade700,
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      hasTicker
+                          ? _formatChangeAmount(ticker!.changeAmount24h, isPositive)
+                          : _noData,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: hasTicker
+                            ? (isPositive ? Colors.green.shade700 : Colors.red.shade700)
+                            : Colors.grey,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),

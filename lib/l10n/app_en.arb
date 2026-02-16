@@ -121,5 +121,10 @@
   "insufficientBalance": "Insufficient balance",
   "tradingPair": "Trading pair",
   "recentTrades": "Recent trades",
-  "youWillReceive": "You will receive"
+  "youWillReceive": "You will receive",
+  "syncBinance": "Sync Binance",
+  "syncBinanceDescription": "Sync currencies and market pairs from Binance into the app database",
+  "syncing": "Syncing...",
+  "syncSuccess": "Sync completed. Currencies and markets are up to date.",
+  "syncFailed": "Sync failed"
 }

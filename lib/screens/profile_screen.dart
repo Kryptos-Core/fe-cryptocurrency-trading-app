@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
+import 'package:crypto_trading_app/screens/settings_screen.dart';
 
 /// Profile Screen - User account information
 class ProfileScreen extends StatefulWidget {
@@ -364,7 +365,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle: Text(l10n.appSettingsPreferences),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // TODO: Navigate to settings
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
               },
             ),
             const Divider(),

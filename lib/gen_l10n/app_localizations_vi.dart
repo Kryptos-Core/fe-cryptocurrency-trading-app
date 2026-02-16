@@ -373,4 +373,20 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get youWillReceive => 'Sẽ nhận';
+
+  @override
+  String get syncBinance => 'Đồng bộ Binance';
+
+  @override
+  String get syncBinanceDescription =>
+      'Đồng bộ tiền tệ và cặp thị trường từ Binance vào cơ sở dữ liệu';
+
+  @override
+  String get syncing => 'Đang đồng bộ...';
+
+  @override
+  String get syncSuccess => 'Đồng bộ xong. Tiền tệ và thị trường đã cập nhật.';
+
+  @override
+  String get syncFailed => 'Đồng bộ thất bại';
 }

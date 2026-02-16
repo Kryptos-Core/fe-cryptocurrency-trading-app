@@ -4,31 +4,55 @@ import 'package:crypto_trading_app/data/models/currency_model.dart';
 
 part 'market_pair_model.g.dart';
 
+/// Backend (e.g. after Binance sync) may return null for numeric fields; treat as 0.
+int _nullSafeIntFromJson(Object? value) {
+  if (value == null) return 0;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
+/// Backend may return null for string fields; treat as empty string.
+String _nullSafeStringFromJson(Object? value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  return value.toString();
+}
+
+/// Backend may return null for bool; treat as false.
+bool _nullSafeBoolFromJson(Object? value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is String) return value.toLowerCase() == 'true';
+  return false;
+}
+
 /// Market Pair Model (DTO)
 @JsonSerializable()
 class MarketPairModel {
-  @JsonKey(name: 'pair_id')
+  @JsonKey(name: 'pair_id', fromJson: _nullSafeStringFromJson)
   final String pairId;
-  @JsonKey(name: 'base_currency_id')
+  @JsonKey(name: 'base_currency_id', fromJson: _nullSafeStringFromJson)
   final String baseCurrencyId;
-  @JsonKey(name: 'quote_currency_id')
+  @JsonKey(name: 'quote_currency_id', fromJson: _nullSafeStringFromJson)
   final String quoteCurrencyId;
+  @JsonKey(fromJson: _nullSafeStringFromJson)
   final String symbol;
   @JsonKey(name: 'base_currency')
   final CurrencyModel? baseCurrency; // Optional - may not be included
   @JsonKey(name: 'quote_currency')
   final CurrencyModel? quoteCurrency; // Optional - may not be included
-  @JsonKey(name: 'price_scale')
+  @JsonKey(name: 'price_scale', fromJson: _nullSafeIntFromJson)
   final int priceScale;
-  @JsonKey(name: 'amount_scale')
+  @JsonKey(name: 'amount_scale', fromJson: _nullSafeIntFromJson)
   final int amountScale;
-  @JsonKey(name: 'min_order_amount')
+  @JsonKey(name: 'min_order_amount', fromJson: _nullSafeStringFromJson)
   final String minOrderAmount;
-  @JsonKey(name: 'maker_fee_rate')
+  @JsonKey(name: 'maker_fee_rate', fromJson: _nullSafeStringFromJson)
   final String makerFeeRate;
-  @JsonKey(name: 'taker_fee_rate')
+  @JsonKey(name: 'taker_fee_rate', fromJson: _nullSafeStringFromJson)
   final String takerFeeRate;
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'is_active', fromJson: _nullSafeBoolFromJson)
   final bool isActive;
   @JsonKey(name: 'created_at')
   final DateTime? createdAt; // Optional
@@ -73,33 +97,49 @@ class MarketPairModel {
   }
 }
 
+/// Backend may return null for DateTime; use now as fallback.
+DateTime _nullSafeDateTimeFromJson(Object? value) {
+  if (value == null) return DateTime.now();
+  if (value is DateTime) return value;
+  if (value is String) {
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return DateTime.now();
+    }
+  }
+  return DateTime.now();
+}
+
 /// Market Ticker Model (maps to backend MarketTickerDto).
 /// All price/volume fields from API are [String]; use double.tryParse() for comparison/format.
 @JsonSerializable()
 class MarketTickerModel {
-  @JsonKey(name: 'pairId')
+  @JsonKey(name: 'pairId', fromJson: _nullSafeStringFromJson)
   final String pairId;
+  @JsonKey(fromJson: _nullSafeStringFromJson)
   final String symbol;
-  @JsonKey(name: 'lastPrice')
+  @JsonKey(name: 'lastPrice', fromJson: _nullSafeStringFromJson)
   final String lastPrice;
-  @JsonKey(name: 'open24h')
+  @JsonKey(name: 'open24h', fromJson: _nullSafeStringFromJson)
   final String open24h;
-  @JsonKey(name: 'high24h')
+  @JsonKey(name: 'high24h', fromJson: _nullSafeStringFromJson)
   final String high24h;
-  @JsonKey(name: 'low24h')
+  @JsonKey(name: 'low24h', fromJson: _nullSafeStringFromJson)
   final String low24h;
-  @JsonKey(name: 'volume24h')
+  @JsonKey(name: 'volume24h', fromJson: _nullSafeStringFromJson)
   final String volume24h;
-  @JsonKey(name: 'quoteVolume24h')
+  @JsonKey(name: 'quoteVolume24h', fromJson: _nullSafeStringFromJson)
   final String quoteVolume24h;
-  @JsonKey(name: 'change24h')
+  @JsonKey(name: 'change24h', fromJson: _nullSafeStringFromJson)
   final String change24h;
-  @JsonKey(name: 'changeAmount24h')
+  @JsonKey(name: 'changeAmount24h', fromJson: _nullSafeStringFromJson)
   final String changeAmount24h;
-  @JsonKey(name: 'bestBid')
+  @JsonKey(name: 'bestBid', fromJson: _nullSafeStringFromJson)
   final String bestBid;
-  @JsonKey(name: 'bestAsk')
+  @JsonKey(name: 'bestAsk', fromJson: _nullSafeStringFromJson)
   final String bestAsk;
+  @JsonKey(fromJson: _nullSafeDateTimeFromJson)
   final DateTime timestamp;
 
   const MarketTickerModel({

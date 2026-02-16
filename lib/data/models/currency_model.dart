@@ -3,21 +3,46 @@ import 'package:crypto_trading_app/domain/entities/currency.dart';
 
 part 'currency_model.g.dart';
 
+/// Backend may return null for numeric fields (e.g. after Binance sync); treat as 0.
+int _nullSafeIntFromJson(Object? value) {
+  if (value == null) return 0;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
+/// Backend may return null for string fields; treat as empty string.
+String _nullSafeStringFromJson(Object? value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  return value.toString();
+}
+
+/// Backend may return null for bool; treat as false.
+bool _nullSafeBoolFromJson(Object? value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is String) return value.toLowerCase() == 'true';
+  return false;
+}
+
 /// Currency Model (DTO)
 /// Following Clean Architecture - Data Layer
 @JsonSerializable()
 class CurrencyModel {
-  @JsonKey(name: 'currency_id')
+  @JsonKey(name: 'currency_id', fromJson: _nullSafeStringFromJson)
   final String currencyId;
+  @JsonKey(fromJson: _nullSafeStringFromJson)
   final String symbol;
+  @JsonKey(fromJson: _nullSafeStringFromJson)
   final String name;
-  @JsonKey(name: 'precision_scale')
+  @JsonKey(name: 'precision_scale', fromJson: _nullSafeIntFromJson)
   final int precisionScale;
-  @JsonKey(name: 'min_withdraw')
+  @JsonKey(name: 'min_withdraw', fromJson: _nullSafeStringFromJson)
   final String minWithdraw;
-  @JsonKey(name: 'is_tradable')
+  @JsonKey(name: 'is_tradable', fromJson: _nullSafeBoolFromJson)
   final bool isTradable;
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'is_active', fromJson: _nullSafeBoolFromJson)
   final bool isActive;
   @JsonKey(name: 'created_at')
   final String? createdAt;

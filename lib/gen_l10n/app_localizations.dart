@@ -829,6 +829,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You will receive'**
   String get youWillReceive;
+
+  /// No description provided for @syncBinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Binance'**
+  String get syncBinance;
+
+  /// No description provided for @syncBinanceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync currencies and market pairs from Binance into the app database'**
+  String get syncBinanceDescription;
+
+  /// No description provided for @syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncing;
+
+  /// No description provided for @syncSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed. Currencies and markets are up to date.'**
+  String get syncSuccess;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed'**
+  String get syncFailed;
 }
 
 class _AppLocalizationsDelegate

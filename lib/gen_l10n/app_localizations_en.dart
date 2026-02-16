@@ -373,4 +373,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youWillReceive => 'You will receive';
+
+  @override
+  String get syncBinance => 'Sync Binance';
+
+  @override
+  String get syncBinanceDescription =>
+      'Sync currencies and market pairs from Binance into the app database';
+
+  @override
+  String get syncing => 'Syncing...';
+
+  @override
+  String get syncSuccess =>
+      'Sync completed. Currencies and markets are up to date.';
+
+  @override
+  String get syncFailed => 'Sync failed';
 }

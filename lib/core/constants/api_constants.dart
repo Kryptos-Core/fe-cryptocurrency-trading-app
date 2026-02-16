@@ -96,6 +96,9 @@ class ApiConstants {
   static String orderById(int orderId) => '$orders/$orderId';
   static String orderCancel(int orderId) => '$orders/$orderId/cancel';
 
+  // Exchange / Sync (Binance → DB: currencies + market_pairs)
+  static const String exchangeSyncInfo = '/exchange/sync-info';
+
   // Wallets Endpoints (Ví tiền)
   static const String wallets = '/wallets';
   static String walletByCurrency(String currencyId) => '$wallets/currency/$currencyId';

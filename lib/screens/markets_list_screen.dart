@@ -25,8 +25,9 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MarketsProvider>();
+      // Load markets and tickers together; list is shown only when we have tickers
+      // so we never show a list full of zeros (best practice).
       provider.fetchMarkets(refresh: true);
-      // Tab Thị trường: GET /markets/tickers/all – giá, % đổi cho mọi pair active
       provider.fetchAllTickers();
     });
 
@@ -94,6 +95,22 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
             );
           }
 
+          // Best practice: only show list when we have ticker data, so we don't show zeros
+          // for every row (tickers load after markets). When loading more, allTickers
+          // already covers all pairs from GET /markets/tickers/all.
+          if (provider.allTickers.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading prices...'),
+                ],
+              ),
+            );
+          }
+
           final tickerByPairId = {
             for (final t in provider.allTickers) t.pairId: t
           };
@@ -101,8 +118,10 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               _isLoadingMore = false;
-              await provider.fetchMarkets(refresh: true);
-              await provider.fetchAllTickers();
+              await Future.wait([
+                provider.fetchMarkets(refresh: true),
+                provider.fetchAllTickers(),
+              ]);
             },
             child: ListView.builder(
               controller: _scrollController,
