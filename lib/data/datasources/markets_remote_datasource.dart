@@ -6,7 +6,6 @@ import 'package:crypto_trading_app/data/models/paginated_markets_response.dart';
 import 'package:crypto_trading_app/data/models/create_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/trade_model.dart';
-import 'package:crypto_trading_app/data/models/ohlcv_response.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
 import 'package:crypto_trading_app/core/models/error_response.dart';
 

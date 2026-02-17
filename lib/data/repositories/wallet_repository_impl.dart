@@ -5,7 +5,6 @@ import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart
 import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 
 /// This repository bridges between the domain layer and data layer.

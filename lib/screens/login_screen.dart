@@ -23,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
   bool _obscurePassword = true;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -40,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -55,11 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
         // Failure
         (failure) {
           setState(() {
-            _errorMessage = failure.message;
             _isLoading = false;
           });
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = AppLocalizations.of(context);
             ToastService().show(
               context,
               message: '${l10n.loginFailed}: ${failure.message}',
@@ -102,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       setState(() {
-        _errorMessage = 'Unexpected error: ${e.toString()}';
         _isLoading = false;
       });
       if (mounted) {
@@ -124,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.login),

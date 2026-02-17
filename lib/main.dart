@@ -30,6 +30,8 @@ void main() async {
     // If .env file doesn't exist, use default values
     debugPrint('Warning: .env file not found, using default values');
   }
+  final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:3000/api/v1';
+  debugPrint('API BASE_URL: $baseUrl');
 
   // Initialize dependency injection
   await di.initializeDependencies();

@@ -28,7 +28,6 @@ class ChartProvider extends ChangeNotifier {
 
   // Realtime state
   bool _isWebSocketConnected = false;
-  bool _isAuthenticating = false;
   StreamSubscription? _webSocketSubscription;
   bool _isDisposed = false;
   /// Last time we received a ticker or ohlc message (for "receiving data" vs "connected only").
@@ -72,7 +71,6 @@ class ChartProvider extends ChangeNotifier {
   Future<void> initializeWebSocket(String url, String token) async {
     try {
       _isLoading = true;
-      _isAuthenticating = true;
       _error = null;
       notifyListeners();
 
@@ -133,7 +131,6 @@ class ChartProvider extends ChangeNotifier {
 
   /// Handle authentication response. Re-subscribe to current pair when reconnecting.
   void _handleAuthResponse(Map<String, dynamic> data) {
-    _isAuthenticating = false;
     _isWebSocketConnected = true;
     final userId = data['user_id'];
     _logger.i('✅ Authenticated as user: $userId');
@@ -214,7 +211,6 @@ class ChartProvider extends ChangeNotifier {
     // Handle specific error codes
     switch (errorCode) {
       case 'AUTH_FAILED':
-        _isAuthenticating = false;
         _logger.e('Authentication failed - token may be invalid');
         // Could trigger token refresh here
         break;

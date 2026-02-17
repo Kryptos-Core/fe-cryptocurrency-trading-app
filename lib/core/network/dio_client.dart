@@ -59,11 +59,14 @@ class DioClient {
     );
   }
 
-  /// Auth interceptor to add JWT token to requests
+  /// Auth interceptor to add JWT token to requests (skip for login/register)
   Interceptor _authInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Automatically add token from TokenService to all requests
+        final path = options.path;
+        if (path.contains('/auth/login') || path.contains('/auth/register')) {
+          return handler.next(options);
+        }
         if (tokenService != null) {
           final token = tokenService!.getAccessToken();
           if (token != null && token.isNotEmpty) {

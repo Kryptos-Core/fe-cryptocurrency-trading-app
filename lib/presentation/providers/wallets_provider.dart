@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
@@ -11,6 +12,7 @@ import 'package:crypto_trading_app/domain/usecases/get_transaction_history_useca
 /// Wallets Provider
 /// Following Provider Pattern for State Management
 class WalletsProvider extends ChangeNotifier {
+  final Logger _logger = Logger();
   final GetWalletsUseCase getWalletsUseCase;
   final GetWalletByCurrencyUseCase getWalletByCurrencyUseCase;
   final GetWalletBalanceUseCase getWalletBalanceUseCase;
@@ -35,10 +37,6 @@ class WalletsProvider extends ChangeNotifier {
   List<WalletLedger> _ledger = [];
   bool _isLoading = false;
   String? _error;
-  String? _filterCurrencyId;
-  bool _includeZero = false;
-  String? _filterRefType;
-  String? _filterDirection;
   int _currentPage = 1;
   final int _pageSize = 10;
   bool _hasMore = true;
@@ -86,8 +84,6 @@ class WalletsProvider extends ChangeNotifier {
 
     _isLoading = true;
     _error = null;
-    _filterCurrencyId = currencyId;
-    _includeZero = includeZero;
     notifyListeners();
 
     final result = await getWalletsUseCase(
@@ -179,8 +175,6 @@ class WalletsProvider extends ChangeNotifier {
 
     _isLoading = true;
     _error = null;
-    _filterRefType = refType;
-    _filterDirection = direction;
     notifyListeners();
 
     final result = await getWalletLedgerUseCase(
@@ -259,7 +253,7 @@ class WalletsProvider extends ChangeNotifier {
       return;
     }
 
-    print(
+    _logger.d(
         '[WalletsProvider] Fetching wallet balance for currencyId: $currencyId');
 
     _isLoading = true;
@@ -272,14 +266,14 @@ class WalletsProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        print('[WalletsProvider] ERROR: Failure type: ${failure.runtimeType}');
-        print('[WalletsProvider] ERROR: Failure message: ${failure.message}');
+        _logger.e('[WalletsProvider] ERROR: Failure type: ${failure.runtimeType}');
+        _logger.e('[WalletsProvider] ERROR: Failure message: ${failure.message}');
         _error = _mapFailureToMessage(failure);
         _isLoading = false;
         notifyListeners();
       },
       (balance) {
-        print(
+        _logger.i(
             '[WalletsProvider] SUCCESS: Balance fetched - userId=${balance.userId}, currencyId=${balance.currencyId}, available=${balance.available}, frozen=${balance.frozen}, total=${balance.total}');
         _walletBalance = balance;
         _recentTransactions.clear(); // Clear so we never show another currency's history
@@ -444,16 +438,16 @@ class WalletsProvider extends ChangeNotifier {
   }
 
   String _mapFailureToMessage(Failure failure) {
-    switch (failure.runtimeType) {
-      case ServerFailure:
+    switch (failure) {
+      case ServerFailure _:
         return failure.message.isNotEmpty
             ? failure.message
             : 'Server error. Please try again later.';
-      case NetworkFailure:
+      case NetworkFailure _:
         return 'Network error. Please check your connection.';
-      case ValidationFailure:
+      case ValidationFailure _:
         return failure.message;
-      case NotFoundFailure:
+      case NotFoundFailure _:
         return 'Wallet not found.';
       default:
         return failure.message;

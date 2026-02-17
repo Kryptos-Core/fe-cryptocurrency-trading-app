@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
-import 'package:crypto_trading_app/data/models/auth_response_model.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 
 /// Auth Repository Interface (Domain Layer)

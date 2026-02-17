@@ -39,7 +39,6 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
   final Logger _logger = Logger();
   bool _isReady = false;
   bool _isInitialized = false;
-  int _lastCandleCount = 0;
   bool _isSupported = true;
   String? _initError;
   int _readyAttempts = 0;
@@ -157,12 +156,10 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
     final pairChanged = oldWidget.pairSymbol != widget.pairSymbol;
     if (pairChanged) {
       _controller.executeScript('window.LWChartAPI.clearChart()');
-      _lastCandleCount = 0;
     }
     if (widget.candles.isEmpty) {
       if (!pairChanged) {
         _controller.executeScript('window.LWChartAPI.clearChart()');
-        _lastCandleCount = 0;
       }
       return;
     }
@@ -183,7 +180,6 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
       await _controller.executeScript(
         'window.LWChartAPI.setCandles(${jsonEncode(list)})',
       );
-      _lastCandleCount = widget.candles.length;
       _logger.i('📊 Set ${list.length} candles to TradingView chart');
     } catch (e) {
       _logger.e('Error updating chart: $e');

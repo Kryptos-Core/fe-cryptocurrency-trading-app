@@ -26,8 +26,6 @@ import 'package:crypto_trading_app/domain/usecases/orders_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
-import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
-import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
 import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/markets_usecases.dart';
 import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';

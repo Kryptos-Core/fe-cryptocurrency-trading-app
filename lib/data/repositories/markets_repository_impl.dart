@@ -6,7 +6,6 @@ import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/data/models/create_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
-import 'package:crypto_trading_app/data/models/trade_model.dart';
 
 /// Markets Repository Implementation
 /// Following Repository Pattern - converts exceptions to failures

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/toast_service.dart';
@@ -142,8 +141,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           // Step 4: Navigate to home screen
           if (mounted) {
+            final navigator = Navigator.of(context);
             Future.delayed(const Duration(milliseconds: 500), () {
-              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              if (!mounted) return;
+              navigator.pushNamedAndRemoveUntil('/', (route) => false);
             });
           }
         },

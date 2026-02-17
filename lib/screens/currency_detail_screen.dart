@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 
 /// Currency Detail Screen
