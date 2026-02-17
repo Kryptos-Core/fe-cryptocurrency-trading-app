@@ -9,12 +9,13 @@ import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
 /// Domain layer defines the contract, data layer implements it
 /// Following Interface Segregation Principle (ISP) - clean, focused interface
 abstract class MarketsRepository {
-  /// Get all market pairs with pagination and filtering
-  /// Returns paginated result with total, page, limit
+  /// Get all market pairs with pagination and filtering.
+  /// [includeTickers] when true, result may include tickers for current page (from GET /markets?includeTickers=true).
   Future<Either<Failure, PaginatedMarketsResult>> getMarkets({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    bool includeTickers = false,
   });
 
   /// Get all active market pairs (cached endpoint - faster)
@@ -91,6 +92,8 @@ class PaginatedMarketsResult {
   final int page;
   final int limit;
   final int totalPages;
+  /// Tickers for current page when GET /markets was called with includeTickers=true.
+  final List<MarketTicker>? tickers;
 
   const PaginatedMarketsResult({
     required this.markets,
@@ -98,5 +101,6 @@ class PaginatedMarketsResult {
     required this.page,
     required this.limit,
     required this.totalPages,
+    this.tickers,
   });
 }

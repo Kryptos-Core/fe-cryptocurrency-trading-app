@@ -90,8 +90,8 @@ String _formatDetailAmount(String amountStr) {
   return s;
 }
 
-/// Format fee rate for display. Backend sends decimal rate (e.g. "0.00100000" = 0.1%).
-/// Display as percentage: (rate * 100).toFixed(2) + '%' → "0.10%".
+/// Format fee rate for display. API: maker_fee_rate/taker_fee_rate are decimal rate (e.g. "0.00100000" = 0.1%).
+/// Display as percentage: (parseFloat(rate) * 100).toFixed(2) + '%' → "0.10%".
 String _formatDetailFee(String feeStr) {
   final v = double.tryParse(feeStr);
   if (v == null) return feeStr;

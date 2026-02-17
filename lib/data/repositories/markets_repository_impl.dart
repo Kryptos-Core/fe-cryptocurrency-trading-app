@@ -38,16 +38,18 @@ class MarketsRepositoryImpl implements MarketsRepository {
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    bool includeTickers = false,
   }) async {
     try {
       final result = await remoteDataSource.getMarkets(
         page: page,
         limit: limit,
         includeInactive: includeInactive,
+        includeTickers: includeTickers,
       );
 
       final markets = result.data.map((model) => model.toEntity()).toList();
-      // Calculate totalPages if not provided by API
+      final tickers = result.tickers?.map((model) => model.toEntity()).toList();
       final totalPages = result.totalPages ?? (result.total / result.limit).ceil();
       return Right(
         PaginatedMarketsResult(
@@ -56,6 +58,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
           page: result.page,
           limit: result.limit,
           totalPages: totalPages,
+          tickers: tickers,
         ),
       );
     } catch (e) {

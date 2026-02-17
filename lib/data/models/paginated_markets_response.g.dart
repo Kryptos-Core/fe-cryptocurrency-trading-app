@@ -1,5 +1,4 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element
 
 part of 'paginated_markets_response.dart';
 
@@ -17,6 +16,9 @@ PaginatedMarketsData _$PaginatedMarketsDataFromJson(
       page: (json['page'] as num).toInt(),
       limit: (json['limit'] as num).toInt(),
       totalPages: (json['totalPages'] as num?)?.toInt(),
+      tickers: (json['tickers'] as List<dynamic>?)
+          ?.map((e) => MarketTickerModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$PaginatedMarketsDataToJson(
@@ -27,6 +29,7 @@ Map<String, dynamic> _$PaginatedMarketsDataToJson(
       'page': instance.page,
       'limit': instance.limit,
       'totalPages': instance.totalPages,
+      'tickers': instance.tickers,
     };
 
 PaginatedMarketsResponse _$PaginatedMarketsResponseFromJson(

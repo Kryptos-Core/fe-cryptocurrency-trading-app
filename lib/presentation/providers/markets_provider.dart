@@ -70,16 +70,19 @@ class MarketsProvider extends ChangeNotifier {
   int get total => _total;
   bool get hasMore => _hasMore;
 
-  /// Fetch markets with optional filters
+  /// Fetch markets with optional filters.
+  /// [includeTickers] when true, GET /markets returns tickers for current page; they are merged into [allTickers] (one request instead of separate GET /markets/tickers/all).
   Future<void> fetchMarkets({
     bool? includeInactive,
     bool refresh = false,
+    bool includeTickers = false,
   }) async {
     if (refresh) {
       _currentPage = 1;
       _markets = [];
       _hasMore = true;
       _total = 0;
+      if (includeTickers) _allTickers = [];
     }
 
     if (!_hasMore && !refresh) return;
@@ -96,6 +99,7 @@ class MarketsProvider extends ChangeNotifier {
         page: _currentPage,
         limit: _pageSize,
         includeInactive: _includeInactive,
+        includeTickers: includeTickers,
       ),
     );
 
@@ -114,11 +118,29 @@ class MarketsProvider extends ChangeNotifier {
           _markets.addAll(markets);
         }
 
-        _total = paginatedResult.total;
-        // Update hasMore: check if we have more items to load
-        _hasMore = _markets.length < _total && markets.length == _pageSize;
+        // Merge tickers from this page (when includeTickers=true) into _allTickers by pairId
+        if (paginatedResult.tickers != null && paginatedResult.tickers!.isNotEmpty) {
+          final byPairId = Map<String, MarketTicker>.fromEntries(
+            _allTickers.map((t) => MapEntry(t.pairId, t)),
+          );
+          for (final t in paginatedResult.tickers!) {
+            byPairId[t.pairId] = t;
+          }
+          _allTickers = byPairId.values.toList();
+        }
 
-        // Only increment page if we got a full page of results
+        // Fallback: if we asked for tickers but got none (e.g. backend does not support includeTickers), fetch all tickers once
+        if (includeTickers && refresh && (paginatedResult.tickers == null || paginatedResult.tickers!.isEmpty) && markets.isNotEmpty) {
+          getAllTickersUseCase(NoParams()).then((either) {
+            either.fold((_) {}, (list) {
+              _allTickers = list;
+              notifyListeners();
+            });
+          });
+        }
+
+        _total = paginatedResult.total;
+        _hasMore = _markets.length < _total && markets.length == _pageSize;
         if (markets.length == _pageSize && _hasMore) {
           _currentPage++;
         }
@@ -169,6 +191,7 @@ class MarketsProvider extends ChangeNotifier {
 
     await fetchMarkets(
       includeInactive: _includeInactive,
+      includeTickers: true,
     );
   }
 

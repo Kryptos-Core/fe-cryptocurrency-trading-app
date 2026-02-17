@@ -25,10 +25,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MarketsProvider>();
-      // Load markets and tickers together; list is shown only when we have tickers
-      // so we never show a list full of zeros (best practice).
-      provider.fetchMarkets(refresh: true);
-      provider.fetchAllTickers();
+      // GET /markets?includeTickers=true returns data.pairs + data.tickers (one request). Fallback: GET /markets/tickers/all if no tickers returned.
+      provider.fetchMarkets(refresh: true, includeTickers: true);
     });
 
     // Listen to scroll events to load more when near bottom

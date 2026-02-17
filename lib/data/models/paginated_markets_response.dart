@@ -4,7 +4,8 @@ import 'package:crypto_trading_app/data/models/market_pair_model.dart';
 part 'paginated_markets_response.g.dart';
 
 /// Paginated Markets Response Data
-/// Following the API response structure where markets are nested in data object
+/// GET /markets: data is OBJECT { pairs, total, page, limit, tickers? }.
+/// When includeTickers=true, data.tickers is present (same format as GET /markets/tickers/all).
 @JsonSerializable()
 class PaginatedMarketsData {
   @JsonKey(name: 'pairs') // API uses "pairs" field
@@ -14,6 +15,8 @@ class PaginatedMarketsData {
   final int limit;
   @JsonKey(name: 'totalPages')
   final int? totalPages; // Optional - may not be in response
+  /// Present when GET /markets was called with includeTickers=true.
+  final List<MarketTickerModel>? tickers;
 
   const PaginatedMarketsData({
     required this.data,
@@ -21,6 +24,7 @@ class PaginatedMarketsData {
     required this.page,
     required this.limit,
     this.totalPages,
+    this.tickers,
   });
 
   factory PaginatedMarketsData.fromJson(Map<String, dynamic> json) {
@@ -32,12 +36,20 @@ class PaginatedMarketsData {
             .toList()
         : <MarketPairModel>[];
 
+    final tickersJson = json['tickers'];
+    final tickersList = tickersJson != null && tickersJson is List
+        ? tickersJson
+            .map((e) => MarketTickerModel.fromJson(e as Map<String, dynamic>))
+            .toList()
+        : null;
+
     return PaginatedMarketsData(
       data: pairsList,
       total: (json['total'] as num?)?.toInt() ?? 0,
       page: (json['page'] as num?)?.toInt() ?? 1,
       limit: (json['limit'] as num?)?.toInt() ?? 10,
       totalPages: (json['totalPages'] as num?)?.toInt(),
+      tickers: tickersList,
     );
   }
 

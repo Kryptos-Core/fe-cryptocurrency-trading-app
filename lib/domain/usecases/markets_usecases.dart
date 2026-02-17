@@ -23,6 +23,7 @@ class GetMarketsUseCase
       page: params.page,
       limit: params.limit,
       includeInactive: params.includeInactive,
+      includeTickers: params.includeTickers,
     );
   }
 }
@@ -31,15 +32,17 @@ class GetMarketsParams extends Equatable {
   final int page;
   final int limit;
   final bool includeInactive;
+  final bool includeTickers;
 
   const GetMarketsParams({
     this.page = 1,
     this.limit = 10,
     this.includeInactive = false,
+    this.includeTickers = false,
   });
 
   @override
-  List<Object?> get props => [page, limit, includeInactive];
+  List<Object?> get props => [page, limit, includeInactive, includeTickers];
 }
 
 /// Get Active Markets Use Case

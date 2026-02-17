@@ -13,11 +13,13 @@ import 'package:crypto_trading_app/core/models/error_response.dart';
 /// Following Repository Pattern
 /// Following Interface Segregation Principle (ISP) - clean interface
 abstract class MarketsRemoteDataSource {
-  /// Get all market pairs with pagination and filtering
+  /// Get all market pairs with pagination and filtering.
+  /// [includeTickers] when true, response data includes tickers for current page (one request instead of GET /markets/tickers/all).
   Future<PaginatedMarketsData> getMarkets({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    bool includeTickers = false,
   });
 
   /// Get all active market pairs (cached endpoint)
@@ -140,6 +142,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    bool includeTickers = false,
   }) async {
     try {
       final response = await dio.get(
@@ -148,6 +151,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           'page': page,
           'limit': limit,
           'includeInactive': includeInactive,
+          if (includeTickers) 'includeTickers': true,
         },
       );
 
@@ -168,13 +172,17 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           final Map<String, dynamic> paginatedMeta;
           final List<MarketPairModel> pairs;
 
+          List<MarketTickerModel>? tickers;
           if (dataJson is Map<String, dynamic>) {
             paginatedMeta = dataJson;
             pairs = _parseMarketPairs(dataJson['pairs']);
+            // data.tickers present when includeTickers=true (same format as GET /markets/tickers/all)
+            tickers = _parseTickers(dataJson['tickers']);
           } else if (dataJson is List) {
             // Fallback if backend ever sends data as array
             paginatedMeta = <String, dynamic>{};
             pairs = _parseMarketPairs(dataJson);
+            tickers = null;
             paginatedMeta['total'] = responseData['total'];
             paginatedMeta['page'] = responseData['page'];
             paginatedMeta['limit'] = responseData['limit'];
@@ -182,6 +190,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           } else {
             paginatedMeta = <String, dynamic>{};
             pairs = _parseMarketPairs(responseData['pairs']);
+            tickers = null;
           }
 
           final parsedTotal = _toInt(paginatedMeta['total'], fallback: pairs.length);
@@ -195,6 +204,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
             page: parsedPage,
             limit: parsedLimit,
             totalPages: parsedTotalPages == 0 ? null : parsedTotalPages,
+            tickers: tickers,
           );
         } catch (e) {
           // Catch type cast errors and provide better error message
@@ -243,6 +253,14 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           .toList();
     }
     return <MarketPairModel>[];
+  }
+
+  List<MarketTickerModel>? _parseTickers(dynamic tickersJson) {
+    if (tickersJson == null || tickersJson is! List) return null;
+    return tickersJson
+        .whereType<Map<String, dynamic>>()
+        .map((item) => MarketTickerModel.fromJson(item))
+        .toList();
   }
 
   /// GET /markets/active — API spec: data is ARRAY [ pair, ... ]. List = data.
