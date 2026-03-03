@@ -59,18 +59,9 @@ class WalletsProvider extends ChangeNotifier {
   List<WalletTransactionResponse> get recentTransactions =>
       List.unmodifiable(_recentTransactions);
 
-  /// Calculate total portfolio value in USDT (mock calculation)
-  double get totalPortfolioValue {
-    // In real app, this would fetch current prices and calculate
-    // For now, return a mock value
-    return _wallets.fold(0.0, (sum, wallet) {
-      final total = double.tryParse(wallet.total) ?? 0;
-      // Mock conversion rates
-      final rates = {'BTC': 45000.0, 'ETH': 2850.0, 'USDT': 1.0, 'BNB': 350.0};
-      final rate = rates[wallet.currency.symbol] ?? 1.0;
-      return sum + (total * rate);
-    });
-  }
+  /// Total portfolio value in USDT. Returns 0 when no price source is available;
+  /// integrate with Markets/ticker API for real conversion (e.g. BTC/USDT, ETH/USDT).
+  double get totalPortfolioValue => 0.0;
 
   /// Fetch wallets with optional filters
   Future<void> fetchWallets({

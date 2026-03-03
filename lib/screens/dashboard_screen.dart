@@ -277,14 +277,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Column(
           children: topWallets.map((wallet) {
-            final rates = {'BTC': 45000.0, 'ETH': 2850.0, 'USDT': 1.0, 'BNB': 350.0};
-            final rate = rates[wallet.currency.symbol] ?? 1.0;
-            final total = double.tryParse(wallet.total) ?? 0;
-            final usdValue = total * rate;
-
             return WalletCard(
               wallet: wallet,
-              usdValue: usdValue,
+              usdValue: null,
             );
           }).toList(),
         );

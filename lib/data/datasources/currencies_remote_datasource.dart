@@ -9,7 +9,7 @@ import 'package:crypto_trading_app/core/models/error_response.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 
 /// Currencies Remote Data Source
-/// Following Repository Pattern and Strategy Pattern (Mock vs Real API)
+/// Following Repository Pattern and Strategy Pattern (e.g. real API implementation)
 /// Following Interface Segregation Principle (ISP) - clean interface
 abstract class CurrenciesRemoteDataSource {
   /// Get all currencies with pagination and filtering

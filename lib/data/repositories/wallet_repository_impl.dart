@@ -59,7 +59,8 @@ class WalletRepositoryImpl implements WalletRepository {
   ) async {
     try {
       final list = await remoteDataSource.getTransactionHistory(currencyId);
-      final placeholders = WalletBalance(
+      // Backend history may not return newBalance per row; use empty balance for required field.
+      final emptyBalance = WalletBalance(
         userId: '',
         currencyId: currencyId,
         available: '0',
@@ -87,7 +88,7 @@ class WalletRepositoryImpl implements WalletRepository {
           amount: (e['amount'] ?? '0').toString(),
           refType: refType,
           refId: refId,
-          newBalance: placeholders,
+          newBalance: emptyBalance,
           timestamp: timestamp,
         );
       }).toList();

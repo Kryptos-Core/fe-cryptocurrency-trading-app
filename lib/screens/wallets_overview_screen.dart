@@ -108,15 +108,9 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                     itemCount: provider.wallets.length,
                     itemBuilder: (context, index) {
                       final wallet = provider.wallets[index];
-                      // Calculate USD value (mock)
-                      final rates = {'BTC': 45000.0, 'ETH': 2850.0, 'USDT': 1.0, 'BNB': 350.0};
-                      final rate = rates[wallet.currency.symbol] ?? 1.0;
-                      final total = double.tryParse(wallet.total) ?? 0;
-                      final usdValue = total * rate;
-
                       return WalletCard(
                         wallet: wallet,
-                        usdValue: usdValue,
+                        usdValue: null,
                         onTap: () {
                           Navigator.push(
                             context,
