@@ -1,19 +1,45 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'api_base_url_stub.dart' if (dart.library.io) 'api_base_url_io.dart' as api_base_url;
+
 /// API Configuration Constants
 /// Following Single Responsibility Principle (SRP)
-/// Base URL is loaded from .env file and includes /api/v1 prefix
+///
+/// Base URL rules (override with .env BASE_URL):
+/// - Android Emulator: http://10.0.2.2:3000/api/v1 (10.0.2.2 = host from emulator)
+/// - iOS Simulator / Windows / Chrome: http://localhost:3000/api/v1
+/// - Physical device (same WiFi): http://<your-PC-IP>:3000/api/v1 (set in .env)
 class ApiConstants {
-  // Private constructor để ngăn khởi tạo (Singleton Pattern)
   ApiConstants._();
 
-  /// Base URL from .env file
-  /// Should include /api/v1 prefix, e.g., http://localhost:3000/api/v1
-  static String get baseUrl {
-    final url = dotenv.env['BASE_URL'] ?? 'http://localhost:3000/api/v1';
-    // Ensure no trailing slash
-    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  static String _serverOrigin() {
+    final fromEnv = dotenv.env['BASE_URL'];
+    if (fromEnv != null && fromEnv.isNotEmpty) {
+      final u = fromEnv.trim();
+      final withoutTrailing = u.endsWith('/') ? u.substring(0, u.length - 1) : u;
+      final idx = withoutTrailing.indexOf('/api/v1');
+      if (idx > 0) return withoutTrailing.substring(0, idx);
+      if (idx == 0) return 'http://localhost:3000';
+      return withoutTrailing.replaceFirst(RegExp(r'/api/v1.*'), '');
+    }
+    return api_base_url.getDefaultApiServerOrigin();
   }
+
+  /// Base URL for Dio (includes /api/v1). From .env BASE_URL or platform default.
+  static String get baseUrl {
+    final fromEnv = dotenv.env['BASE_URL'];
+    if (fromEnv != null && fromEnv.isNotEmpty) {
+      final url = fromEnv.endsWith('/') ? fromEnv.substring(0, fromEnv.length - 1) : fromEnv;
+      return url;
+    }
+    return '${_serverOrigin()}/api/v1';
+  }
+
+  /// Server origin (host:port, no path) for WebSocket/Socket.IO. Derived from baseUrl.
+  static String get serverOrigin => _serverOrigin();
+
+  /// WebSocket/Socket.IO URL (server origin + /trading namespace). Use for chart realtime.
+  static String get webSocketUrl => '$serverOrigin/trading';
 
   /// Environment (development/production)
   static String get env => dotenv.env['ENV'] ?? 'development';
@@ -21,6 +47,9 @@ class ApiConstants {
   // Các API Endpoints
   // NOTE: Base URL đã chứa /api/v1 prefix, nên endpoints không cần prefix nữa
   
+  /// Health check: GET returns { "ok": true, "timestamp": "..." }. Use to verify backend is running.
+  static const String health = '/health';
+
   // Auth Endpoints (Xác thực) - Không có prefix /api/v1
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';
@@ -96,7 +125,8 @@ class ApiConstants {
   static String orderById(int orderId) => '$orders/$orderId';
   static String orderCancel(int orderId) => '$orders/$orderId/cancel';
 
-  // Exchange / Sync (Binance → DB: currencies + market_pairs)
+  /// Exchange sync: POST to pull Binance data into DB (currencies + market_pairs).
+  /// After sync, backend price feed starts; if you see "No pairs configured; price feed not started", run this once then restart backend.
   static const String exchangeSyncInfo = '/exchange/sync-info';
 
   // Wallets Endpoints (Ví tiền)

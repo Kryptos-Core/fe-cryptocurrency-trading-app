@@ -19,18 +19,39 @@ class MarketsListScreen extends StatefulWidget {
 class _MarketsListScreenState extends State<MarketsListScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  bool _fallbackTickersRequested = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MarketsProvider>();
-      // GET /markets?includeTickers=true returns data.pairs + data.tickers (one request). Fallback: GET /markets/tickers/all if no tickers returned.
+      // Load pairs and tickers: GET /markets?includeTickers=true and GET /markets/tickers/all (so we get prices even if one source fails).
       provider.fetchMarkets(refresh: true, includeTickers: true);
+      provider.fetchAllTickers();
     });
 
     // Listen to scroll events to load more when near bottom
     _scrollController.addListener(_onScroll);
+  }
+
+  /// When BE returns empty/zero tickers (e.g. /markets/tickers/all not populated), fetch per-pair (GET /markets/:id/ticker) for first page after a short delay.
+  void _maybeFetchTickersFallback(MarketsProvider provider) {
+    if (_fallbackTickersRequested) return;
+    if (provider.markets.isEmpty) return;
+    final hasMeaningfulTicker = provider.allTickers.any((t) {
+      final p = double.tryParse(t.lastPrice);
+      final v = double.tryParse(t.volume24h);
+      return (p != null && p != 0) || (v != null && v != 0);
+    });
+    if (hasMeaningfulTicker) return;
+    _fallbackTickersRequested = true;
+    final pairIds = provider.markets.take(15).map((m) => m.pairId).toList();
+    if (pairIds.isEmpty) return;
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (!mounted) return;
+      context.read<MarketsProvider>().fetchTickersForPairs(pairIds);
+    });
   }
 
   @override
@@ -93,31 +114,21 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
             );
           }
 
-          // Best practice: only show list when we have ticker data, so we don't show zeros
-          // for every row (tickers load after markets). When loading more, allTickers
-          // already covers all pairs from GET /markets/tickers/all.
-          if (provider.allTickers.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading prices...'),
-                ],
-              ),
-            );
-          }
+          // Fallback: if we have markets but no real ticker data (all 0), fetch per-pair tickers once.
+          _maybeFetchTickersFallback(provider);
 
+          // Build map pairId -> ticker; rows without a ticker show "—" (data loading/missing).
           final tickerByPairId = {
-            for (final t in provider.allTickers) t.pairId: t
+            for (final t in provider.allTickers)
+              if (t.pairId.isNotEmpty) t.pairId: t
           };
 
           return RefreshIndicator(
             onRefresh: () async {
               _isLoadingMore = false;
+              _fallbackTickersRequested = false;
               await Future.wait([
-                provider.fetchMarkets(refresh: true),
+                provider.fetchMarkets(refresh: true, includeTickers: true),
                 provider.fetchAllTickers(),
               ]);
             },

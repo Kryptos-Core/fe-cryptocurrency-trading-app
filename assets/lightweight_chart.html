@@ -148,10 +148,12 @@
                 return;
             }
 
-            // TradingView Lightweight Charts – cleaner grid, less visual clutter
+            // TradingView Lightweight Charts – fixed chart: no scroll, no pan, no zoom (display only)
             ChartState.chart = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
                 height: container.clientHeight,
+                handleScroll: false,
+                handleScale: false,
                 layout: {
                     background: { type: 'solid', color: '#ffffff' },
                     textColor: '#1a1d29',

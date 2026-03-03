@@ -1,21 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/currency.dart';
-import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
+import 'package:crypto_trading_app/domain/repositories/currencies_repository.dart';
 
 /// Currencies Provider
 /// Following Provider Pattern for State Management
 /// Single Responsibility: Manage currencies state
 class CurrenciesProvider extends ChangeNotifier {
-  final GetCurrenciesUseCase getCurrenciesUseCase;
-  final GetCurrencyByIdUseCase getCurrencyByIdUseCase;
-  final GetCurrencyBySymbolUseCase getCurrencyBySymbolUseCase;
+  final CurrenciesRepository _currenciesRepository;
 
-  CurrenciesProvider({
-    required this.getCurrenciesUseCase,
-    required this.getCurrencyByIdUseCase,
-    required this.getCurrencyBySymbolUseCase,
-  });
+  CurrenciesProvider({required CurrenciesRepository currenciesRepository})
+      : _currenciesRepository = currenciesRepository;
 
   // State
   List<Currency> _currencies = [];
@@ -59,12 +54,10 @@ class CurrenciesProvider extends ChangeNotifier {
     }
     notifyListeners();
 
-    final result = await getCurrenciesUseCase(
-      GetCurrenciesParams(
-        page: _currentPage,
-        limit: _pageSize,
-        includeInactive: _includeInactive,
-      ),
+    final result = await _currenciesRepository.getCurrencies(
+      page: _currentPage,
+      limit: _pageSize,
+      includeInactive: _includeInactive,
     );
 
     result.fold(
@@ -109,7 +102,7 @@ class CurrenciesProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getCurrencyByIdUseCase(currencyId);
+    final result = await _currenciesRepository.getCurrencyById(currencyId);
 
     result.fold(
       (failure) {
@@ -133,7 +126,7 @@ class CurrenciesProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getCurrencyBySymbolUseCase(symbol);
+    final result = await _currenciesRepository.getCurrencyBySymbol(symbol);
 
     result.fold(
       (failure) {

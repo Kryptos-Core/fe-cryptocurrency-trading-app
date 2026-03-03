@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/core/services/toast_service.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 
@@ -37,8 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
-      final result = await getCurrentUserUseCase(token);
+      final authRepository = sl<AuthRepository>();
+      final result = await authRepository.getCurrentUser(token);
 
       result.fold(
         (failure) {
@@ -48,10 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
           });
 
           if (mounted) {
-            ToastService().show(
+            showAppSnackBar(
               context,
               message: 'Failed to load profile: ${failure.message}',
-              type: ToastType.error,
+              type: SnackBarType.error,
               duration: const Duration(seconds: 3),
             );
           }
@@ -76,10 +76,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Error: ${e.toString()}',
-          type: ToastType.error,
+          type: SnackBarType.error,
           duration: const Duration(seconds: 3),
         );
       }
@@ -116,10 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
       await tokenService.clearTokens();
       
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Logged out successfully',
-          type: ToastType.success,
+          type: SnackBarType.success,
           duration: const Duration(seconds: 1),
         );
 

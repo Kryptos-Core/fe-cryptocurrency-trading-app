@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/core/services/toast_service.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/name_validator.dart';
-import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -55,9 +55,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final lastName = _lastNameController.text.trim();
 
       // Step 1: Register user with email + password + firstName/lastName (REQUIRED)
-      // Note: Form validation ensures these are not empty before reaching here
-      final registerUseCase = sl<RegisterUseCase>();
-      final registerResult = await registerUseCase(
+      final authRepository = sl<AuthRepository>();
+      final registerResult = await authRepository.register(
         email: email,
         password: password,
         firstName: firstName,
@@ -73,10 +72,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _isLoading = false;
             });
             if (mounted) {
-              ToastService().show(
+              showAppSnackBar(
                 context,
                 message: 'Registration failed: ${failure.message}',
-                type: ToastType.error,
+                type: SnackBarType.error,
                 duration: const Duration(seconds: 4),
               );
             }
@@ -88,17 +87,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Registration successful
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Registration successful! Logging in...',
-          type: ToastType.success,
+          type: SnackBarType.success,
           duration: const Duration(seconds: 2),
         );
       }
 
       // Step 2: Auto-login after successful registration
-      final loginUseCase = sl<LoginUseCase>();
-      final loginResult = await loginUseCase(
+      final loginResult = await authRepository.login(
         email: email,
         password: password,
       );
@@ -106,10 +104,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!loginResult.isRight()) {
         // Login failed - navigate to login screen with error
         if (mounted) {
-          ToastService().show(
+          showAppSnackBar(
             context,
             message: 'Login failed. Please try logging in manually.',
-            type: ToastType.warning,
+            type: SnackBarType.warning,
             duration: const Duration(seconds: 3),
           );
           Navigator.of(context).pushReplacement(
@@ -121,10 +119,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Login successful
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Login successful!',
-          type: ToastType.success,
+          type: SnackBarType.success,
           duration: const Duration(seconds: 1),
         );
       }
@@ -155,10 +153,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isLoading = false;
       });
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Error: ${e.toString()}',
-          type: ToastType.error,
+          type: SnackBarType.error,
           duration: const Duration(seconds: 4),
         );
       }

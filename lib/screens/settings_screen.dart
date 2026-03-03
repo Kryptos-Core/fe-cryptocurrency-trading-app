@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
-import 'package:crypto_trading_app/core/services/toast_service.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
@@ -25,34 +25,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final datasource = sl<ExchangeRemoteDataSource>();
       await datasource.syncInfo();
       if (!mounted) return;
-      ToastService().show(
+      showAppSnackBar(
         context,
         message: l10n.syncSuccess,
-        type: ToastType.success,
+        type: SnackBarType.success,
         duration: const Duration(seconds: 3),
       );
     } on AuthenticationException {
       if (!mounted) return;
-      ToastService().show(
+      showAppSnackBar(
         context,
         message: '${l10n.syncFailed}: Unauthorized. Please log in again.',
-        type: ToastType.error,
+        type: SnackBarType.error,
         duration: const Duration(seconds: 3),
       );
     } on NetworkException catch (e) {
       if (!mounted) return;
-      ToastService().show(
+      showAppSnackBar(
         context,
         message: '${l10n.syncFailed}: ${e.message}',
-        type: ToastType.error,
+        type: SnackBarType.error,
         duration: const Duration(seconds: 3),
       );
     } catch (e) {
       if (!mounted) return;
-      ToastService().show(
+      showAppSnackBar(
         context,
         message: '${l10n.syncFailed}: ${e.toString()}',
-        type: ToastType.error,
+        type: SnackBarType.error,
         duration: const Duration(seconds: 3),
       );
     } finally {

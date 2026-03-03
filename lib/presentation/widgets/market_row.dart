@@ -71,9 +71,17 @@ class MarketRow extends StatelessWidget {
   /// When ticker is missing, show "—" so user knows data is loading/missing (not real 0).
   static const String _noData = '—';
 
+  /// Ticker with all-zero/empty price and volume is treated as no data (e.g. BE stub or price feed not started).
+  static bool _isTickerEmpty(market_entity.MarketTicker? t) {
+    if (t == null) return true;
+    final price = double.tryParse(t.lastPrice);
+    final vol = double.tryParse(t.volume24h);
+    return (price == null || price == 0) && (vol == null || vol == 0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final hasTicker = ticker != null;
+    final hasTicker = ticker != null && !_isTickerEmpty(ticker);
     final isPositive = ticker?.isPositive ?? false;
     // API: change24h is % (e.g. "0.52" = 0.52%)
     final changePercent = hasTicker

@@ -8,7 +8,7 @@ import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/services/toast_service.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 
 /// Chuẩn hóa chuỗi số tiền để gửi API: bỏ dấu phẩy (ví dụ "10,000.50" -> "10000.50").
 String _parseAmountForApi(String formatted) {
@@ -751,17 +751,17 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;
                 if (success) {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: l10nSuccess.depositSuccess,
-                    type: ToastType.success,
+                    type: SnackBarType.success,
                   );
                   _fetchBalance();
                 } else {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: '${l10nSuccess.depositFailed}: ${provider.error ?? ''}',
-                    type: ToastType.error,
+                    type: SnackBarType.error,
                     duration: const Duration(seconds: 4),
                   );
                 }
@@ -814,17 +814,17 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;
                 if (success) {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: l10nSuccess.withdrawSuccess,
-                    type: ToastType.success,
+                    type: SnackBarType.success,
                   );
                   _fetchBalance();
                 } else {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: '${l10nSuccess.withdrawFailed}: ${provider.error ?? ''}',
-                    type: ToastType.error,
+                    type: SnackBarType.error,
                     duration: const Duration(seconds: 4),
                   );
                 }
@@ -887,17 +887,17 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 if (!mounted) return;
                 final l10nSuccess = AppLocalizations.of(context)!;
                 if (success) {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: l10nSuccess.transferSuccess,
-                    type: ToastType.success,
+                    type: SnackBarType.success,
                   );
                   _fetchBalance();
                 } else {
-                  ToastService().show(
+                  showAppSnackBar(
                     context,
                     message: '${l10nSuccess.transferFailed}: ${provider.error ?? ''}',
-                    type: ToastType.error,
+                    type: SnackBarType.error,
                     duration: const Duration(seconds: 4),
                   );
                 }

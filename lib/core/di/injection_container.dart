@@ -22,23 +22,11 @@ import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
-import 'package:crypto_trading_app/domain/usecases/orders_usecases.dart';
-import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
-import 'package:crypto_trading_app/domain/usecases/currencies_usecases.dart';
-import 'package:crypto_trading_app/domain/usecases/markets_usecases.dart';
-import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
-import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart'
-    as wallet_api_usecases;
-import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart'
-    as wallet_api_usecases;
-import 'package:crypto_trading_app/domain/usecases/get_transaction_history_usecase.dart'
-    as wallet_api_usecases;
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
-import 'package:crypto_trading_app/data/repositories/chart_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 
@@ -175,71 +163,6 @@ Future<void> initializeDependencies() async {
     () => OrdersRepositoryImpl(remoteDataSource: sl<OrdersRemoteDataSource>()),
   );
 
-  // ===== Use Cases =====
-  // Auth Use Cases
-  sl.registerLazySingleton(() => LoginUseCase(repository: sl()));
-  sl.registerLazySingleton(() => RegisterUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetCurrentUserUseCase(repository: sl()));
-
-  // Currencies Use Cases
-  sl.registerLazySingleton(() => GetCurrenciesUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetActiveCurrenciesUseCase(repository: sl()));
-  sl.registerLazySingleton(
-      () => GetTradableCurrenciesUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetCurrencyByIdUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetCurrencyBySymbolUseCase(repository: sl()));
-  sl.registerLazySingleton(() => CreateCurrencyUseCase(repository: sl()));
-  sl.registerLazySingleton(() => UpdateCurrencyUseCase(repository: sl()));
-  sl.registerLazySingleton(() => DeleteCurrencyUseCase(repository: sl()));
-
-  // Markets Use Cases
-  sl.registerLazySingleton(() => GetMarketsUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetActiveMarketsUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetMarketByIdUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetMarketBySymbolUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetMarketTickerUseCase(repository: sl()));
-  sl.registerLazySingleton(
-      () => GetMarketTickerBySymbolUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetAllTickersUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetOrderBookUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetOrderBookBySymbolUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetTradesUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetTradesBySymbolUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetOHLCVUseCase(repository: sl()));
-  sl.registerLazySingleton(() => CreateMarketPairUseCase(repository: sl()));
-  sl.registerLazySingleton(() => UpdateMarketPairUseCase(repository: sl()));
-  sl.registerLazySingleton(() => DeleteMarketPairUseCase(repository: sl()));
-
-  // Wallets Use Cases
-  sl.registerLazySingleton(() => GetWalletsUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetWalletByCurrencyUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetWalletBalanceUseCase(repository: sl()));
-  sl.registerLazySingleton(() => GetWalletLedgerUseCase(repository: sl()));
-
-  // New Wallet API Use Cases
-  sl.registerLazySingleton(
-    () => wallet_api_usecases.GetWalletBalanceApiUseCase(
-      walletRepository: sl<WalletRepository>(),
-    ),
-  );
-  sl.registerLazySingleton(
-    () => wallet_api_usecases.ExecuteWalletTransactionApiUseCase(
-      walletRepository: sl<WalletRepository>(),
-    ),
-  );
-  sl.registerLazySingleton(
-    () => wallet_api_usecases.GetTransactionHistoryApiUseCase(
-      walletRepository: sl<WalletRepository>(),
-    ),
-  );
-
-  // Orders Use Cases
-  sl.registerLazySingleton(() => CreateOrderUseCase(repository: sl<OrdersRepository>()));
-  sl.registerLazySingleton(() => CancelOrderUseCase(repository: sl<OrdersRepository>()));
-  sl.registerLazySingleton(() => GetOrdersBookUseCase(repository: sl<OrdersRepository>()));
-  sl.registerLazySingleton(() => GetMyOrdersUseCase(repository: sl<OrdersRepository>()));
-  sl.registerLazySingleton(() => GetOrderByIdUseCase(repository: sl<OrdersRepository>()));
-
   // ===== Trading Chart Services =====
   // WebSocket Service - Realtime data
   sl.registerLazySingleton<IWebSocketService>(
@@ -253,14 +176,6 @@ Future<void> initializeDependencies() async {
 
   // Chart Cache - persist chart data per pair/interval (~1 month)
   sl.registerLazySingleton<ChartCacheService>(() => ChartCacheService());
-
-  // Chart Repository - Data access layer
-  sl.registerLazySingleton<IChartRepository>(
-    () => ChartRepository(
-      webSocketService: sl<IWebSocketService>(),
-      dioClient: sl<DioClient>(),
-    ),
-  );
 
   // Chart Provider - State management (factory per screen)
   sl.registerFactory<ChartProvider>(

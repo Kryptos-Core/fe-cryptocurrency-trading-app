@@ -112,7 +112,7 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
                       _includeInactive = false;
                     });
                     // For tradable, we'll filter client-side for now
-                    // TODO: Add GetTradableCurrenciesUseCase to provider
+                    // Optional: add fetchTradableCurrencies() to CurrenciesProvider using repository.getTradableCurrencies()
                     context.read<CurrenciesProvider>().fetchCurrencies(
                           includeInactive: false,
                           refresh: true,

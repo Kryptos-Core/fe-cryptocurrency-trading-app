@@ -1,41 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/core/usecases/usecase.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
-import 'package:crypto_trading_app/domain/usecases/markets_usecases.dart';
+import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 
 /// Markets Provider
 /// Following Provider Pattern for State Management
 /// Single Responsibility: Manage markets state
 class MarketsProvider extends ChangeNotifier {
-  final GetMarketsUseCase getMarketsUseCase;
-  final GetActiveMarketsUseCase getActiveMarketsUseCase;
-  final GetMarketByIdUseCase getMarketByIdUseCase;
-  final GetMarketBySymbolUseCase getMarketBySymbolUseCase;
-  final GetMarketTickerUseCase getMarketTickerUseCase;
-  final GetMarketTickerBySymbolUseCase getMarketTickerBySymbolUseCase;
-  final GetAllTickersUseCase getAllTickersUseCase;
-  final GetOrderBookUseCase getOrderBookUseCase;
-  final GetOrderBookBySymbolUseCase getOrderBookBySymbolUseCase;
-  final GetTradesUseCase getTradesUseCase;
-  final GetTradesBySymbolUseCase getTradesBySymbolUseCase;
-  final GetOHLCVUseCase getOHLCVUseCase;
+  final MarketsRepository _marketsRepository;
 
-  MarketsProvider({
-    required this.getMarketsUseCase,
-    required this.getActiveMarketsUseCase,
-    required this.getMarketByIdUseCase,
-    required this.getMarketBySymbolUseCase,
-    required this.getMarketTickerUseCase,
-    required this.getMarketTickerBySymbolUseCase,
-    required this.getAllTickersUseCase,
-    required this.getOrderBookUseCase,
-    required this.getOrderBookBySymbolUseCase,
-    required this.getTradesUseCase,
-    required this.getTradesBySymbolUseCase,
-    required this.getOHLCVUseCase,
-  });
+  MarketsProvider({required MarketsRepository marketsRepository})
+      : _marketsRepository = marketsRepository;
 
   // State
   List<MarketPair> _markets = [];
@@ -94,13 +70,11 @@ class MarketsProvider extends ChangeNotifier {
     }
     notifyListeners();
 
-    final result = await getMarketsUseCase(
-      GetMarketsParams(
-        page: _currentPage,
-        limit: _pageSize,
-        includeInactive: _includeInactive,
-        includeTickers: includeTickers,
-      ),
+    final result = await _marketsRepository.getMarkets(
+      page: _currentPage,
+      limit: _pageSize,
+      includeInactive: _includeInactive,
+      includeTickers: includeTickers,
     );
 
     result.fold(
@@ -131,7 +105,7 @@ class MarketsProvider extends ChangeNotifier {
 
         // Fallback: if we asked for tickers but got none (e.g. backend does not support includeTickers), fetch all tickers once
         if (includeTickers && refresh && (paginatedResult.tickers == null || paginatedResult.tickers!.isEmpty) && markets.isNotEmpty) {
-          getAllTickersUseCase(NoParams()).then((either) {
+          _marketsRepository.getAllTickers().then((either) {
             either.fold((_) {}, (list) {
               _allTickers = list;
               notifyListeners();
@@ -158,7 +132,7 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getActiveMarketsUseCase(NoParams());
+    final result = await _marketsRepository.getActiveMarkets();
 
     result.fold(
       (failure) {
@@ -201,7 +175,7 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getMarketByIdUseCase(pairId);
+    final result = await _marketsRepository.getMarketById(pairId);
 
     result.fold(
       (failure) {
@@ -225,7 +199,7 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getMarketBySymbolUseCase(symbol);
+    final result = await _marketsRepository.getMarketBySymbol(symbol);
 
     result.fold(
       (failure) {
@@ -248,7 +222,7 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getMarketTickerUseCase(pairId);
+    final result = await _marketsRepository.getMarketTicker(pairId);
 
     result.fold(
       (failure) {
@@ -269,7 +243,7 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getMarketTickerBySymbolUseCase(symbol);
+    final result = await _marketsRepository.getMarketTickerBySymbol(symbol);
 
     result.fold(
       (failure) {
@@ -285,17 +259,18 @@ class MarketsProvider extends ChangeNotifier {
     );
   }
 
-  /// Get all tickers for active markets
+  /// Get all tickers for active markets (e.g. GET /markets/tickers/all).
+  /// On failure, keeps existing _allTickers so tickers from GET /markets?includeTickers=true are not lost.
   Future<void> fetchAllTickers() async {
     _error = null;
     notifyListeners();
 
-    final result = await getAllTickersUseCase(NoParams());
+    final result = await _marketsRepository.getAllTickers();
 
     result.fold(
       (failure) {
         _error = _mapFailureToMessage(failure);
-        _allTickers = [];
+        // Do not clear _allTickers so tickers from paginated response are kept
         notifyListeners();
       },
       (tickers) {
@@ -306,13 +281,32 @@ class MarketsProvider extends ChangeNotifier {
     );
   }
 
+  /// Fallback: fetch ticker per pair (GET /markets/:id/ticker) and merge into [allTickers].
+  /// Use when GET /markets/tickers/all is empty or returns zeros; single-pair endpoint often has real data.
+  Future<void> fetchTickersForPairs(List<String> pairIds) async {
+    if (pairIds.isEmpty) return;
+    final byPairId = <String, MarketTicker>{
+      for (final t in _allTickers) t.pairId: t,
+    };
+    for (final id in pairIds) {
+      final result = await _marketsRepository.getMarketTicker(id);
+      result.fold(
+        (_) {},
+        (ticker) => byPairId[ticker.pairId] = ticker,
+      );
+    }
+    _allTickers = byPairId.values.toList();
+    notifyListeners();
+  }
+
   /// Get order book by ID
   Future<void> fetchOrderBook(String pairId, {int limit = 20}) async {
     _error = null;
     notifyListeners();
 
-    final result = await getOrderBookUseCase(
-      GetOrderBookParams(pairId: pairId, limit: limit),
+    final result = await _marketsRepository.getOrderBook(
+      pairId: pairId,
+      limit: limit,
     );
 
     result.fold(
@@ -334,8 +328,9 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getOrderBookBySymbolUseCase(
-      GetOrderBookBySymbolParams(symbol: symbol, limit: limit),
+    final result = await _marketsRepository.getOrderBookBySymbol(
+      symbol: symbol,
+      limit: limit,
     );
 
     result.fold(
@@ -357,8 +352,9 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getTradesUseCase(
-      GetTradesParams(pairId: pairId, limit: limit),
+    final result = await _marketsRepository.getTrades(
+      pairId: pairId,
+      limit: limit,
     );
 
     result.fold(
@@ -380,8 +376,9 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getTradesBySymbolUseCase(
-      GetTradesBySymbolParams(symbol: symbol, limit: limit),
+    final result = await _marketsRepository.getTradesBySymbol(
+      symbol: symbol,
+      limit: limit,
     );
 
     result.fold(
@@ -415,13 +412,11 @@ class MarketsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getOHLCVUseCase(
-      GetOHLCVParams(
-        pairId: pairId,
-        interval: _selectedInterval,
-        range: range,
-        limit: range != null ? 500 : limit,
-      ),
+    final result = await _marketsRepository.getOHLCV(
+      pairId: pairId,
+      interval: _selectedInterval,
+      range: range,
+      limit: range != null ? 500 : limit,
     );
 
     result.fold(

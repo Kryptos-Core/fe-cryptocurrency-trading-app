@@ -27,6 +27,9 @@ abstract class AuthRemoteDataSource {
   /// Get current user profile
   /// Requires access token in header
   Future<UserModel> getCurrentUser(String token);
+
+  /// Check if backend is reachable (GET /health). Returns true if ok.
+  Future<bool> checkHealth();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -84,8 +87,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException(message: message);
       }
       
+      final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
-        message: 'Network error. Please check your connection.',
+        message: 'Cannot reach server. Ensure backend is running (npm run start:dev). '
+            'Check in browser: $healthUrl',
       );
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -121,15 +126,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final message = e.response!.data['message'] ?? 'Login failed';
 
         if (statusCode == 401) {
-          // Invalid credentials
           throw AuthenticationException(message: message);
         }
-        
         throw ServerException(message: message);
       }
-      
+      final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
-        message: 'Network error. Please check your connection.',
+        message: 'Cannot reach server. Ensure backend is running (npm run start:dev). '
+            'Check in browser: $healthUrl',
       );
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -169,12 +173,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         
         throw ServerException(message: message);
       }
-      
+      final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
-        message: 'Network error. Please check your connection.',
+        message: 'Cannot reach server. Check in browser: $healthUrl',
       );
     } catch (e) {
       throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> checkHealth() async {
+    try {
+      final response = await dio.get(ApiConstants.health);
+      return response.data is Map && (response.data['ok'] == true);
+    } catch (_) {
+      return false;
     }
   }
 }

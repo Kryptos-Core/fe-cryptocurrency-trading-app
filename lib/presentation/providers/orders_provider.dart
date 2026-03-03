@@ -4,28 +4,20 @@ import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
-import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
-import 'package:crypto_trading_app/domain/usecases/orders_usecases.dart';
+import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 
 /// Orders Provider (State management cho Orders + Order Book + Balance cho cặp)
 ///
-/// Single Responsibility: quản lý state orders/my orders/order book, balance base/quote, và gọi use cases.
+/// Single Responsibility: quản lý state orders/my orders/order book, balance base/quote.
 class OrdersProvider extends ChangeNotifier {
-  final CreateOrderUseCase createOrderUseCase;
-  final CancelOrderUseCase cancelOrderUseCase;
-  final GetOrdersBookUseCase getOrdersBookUseCase;
-  final GetMyOrdersUseCase getMyOrdersUseCase;
-  final GetOrderByIdUseCase getOrderByIdUseCase;
-  final GetWalletBalanceApiUseCase? getWalletBalanceApiUseCase;
+  final OrdersRepository _ordersRepository;
+  final WalletRepository? _walletRepository;
 
   OrdersProvider({
-    required this.createOrderUseCase,
-    required this.cancelOrderUseCase,
-    required this.getOrdersBookUseCase,
-    required this.getMyOrdersUseCase,
-    required this.getOrderByIdUseCase,
-    this.getWalletBalanceApiUseCase,
-  });
+    required OrdersRepository ordersRepository,
+    WalletRepository? walletRepository,
+  })  : _ordersRepository = ordersRepository,
+        _walletRepository = walletRepository;
 
   // --- State ---
   List<OrderBookLevel> _orderBookBids = [];
@@ -72,14 +64,14 @@ class OrdersProvider extends ChangeNotifier {
 
   /// Lấy số dư base + quote cho cặp (GET /wallets/balance?currencyId=... x2)
   Future<void> fetchBaseQuoteBalances(String baseCurrencyId, String quoteCurrencyId) async {
-    if (getWalletBalanceApiUseCase == null) {
+    if (_walletRepository == null) {
       _baseBalance = null;
       _quoteBalance = null;
       notifyListeners();
       return;
     }
-    final baseResult = await getWalletBalanceApiUseCase!(GetWalletBalanceParams(currencyId: baseCurrencyId));
-    final quoteResult = await getWalletBalanceApiUseCase!(GetWalletBalanceParams(currencyId: quoteCurrencyId));
+    final baseResult = await _walletRepository!.getBalance(baseCurrencyId);
+    final quoteResult = await _walletRepository!.getBalance(quoteCurrencyId);
     baseResult.fold(
       (_) => _baseBalance = null,
       (b) => _baseBalance = b,
@@ -97,7 +89,7 @@ class OrdersProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await createOrderUseCase(CreateOrderParams(request: request));
+    final result = await _ordersRepository.createOrder(request);
 
     return result.fold<Order?>(
       (failure) {
@@ -122,7 +114,7 @@ class OrdersProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await cancelOrderUseCase(CancelOrderParams(orderId: orderId));
+    final result = await _ordersRepository.cancelOrder(orderId);
 
     return result.fold<Order?>(
       (failure) {
@@ -149,11 +141,15 @@ class OrdersProvider extends ChangeNotifier {
     _orderBookPairId = pairId;
     notifyListeners();
 
-    final bidResult = await getOrdersBookUseCase(
-      GetOrdersBookParams(pairId: pairId, side: 'BUY', limit: limit),
+    final bidResult = await _ordersRepository.getOrderBook(
+      pairId,
+      side: 'BUY',
+      limit: limit,
     );
-    final askResult = await getOrdersBookUseCase(
-      GetOrdersBookParams(pairId: pairId, side: 'SELL', limit: limit),
+    final askResult = await _ordersRepository.getOrderBook(
+      pairId,
+      side: 'SELL',
+      limit: limit,
     );
 
     bidResult.fold(
@@ -194,11 +190,11 @@ class OrdersProvider extends ChangeNotifier {
     _myOrdersStatusFilter = status;
     notifyListeners();
 
-    final result = await getMyOrdersUseCase(GetMyOrdersParams(
+    final result = await _ordersRepository.getMyOrders(
       page: page,
       limit: limit,
       status: status,
-    ));
+    );
 
     result.fold(
       (failure) {
@@ -228,7 +224,7 @@ class OrdersProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getOrderByIdUseCase(GetOrderByIdParams(orderId: orderId));
+    final result = await _ordersRepository.getOrderById(orderId);
 
     result.fold(
       (failure) {

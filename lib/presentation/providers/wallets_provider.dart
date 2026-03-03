@@ -2,34 +2,23 @@ import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
-import 'package:crypto_trading_app/domain/usecases/wallets_usecases.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
-import 'package:crypto_trading_app/domain/usecases/get_wallet_balance_usecase.dart';
-import 'package:crypto_trading_app/domain/usecases/execute_wallet_transaction_usecase.dart';
-import 'package:crypto_trading_app/domain/usecases/get_transaction_history_usecase.dart';
+import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 
 /// Wallets Provider
 /// Following Provider Pattern for State Management
 class WalletsProvider extends ChangeNotifier {
   final Logger _logger = Logger();
-  final GetWalletsUseCase getWalletsUseCase;
-  final GetWalletByCurrencyUseCase getWalletByCurrencyUseCase;
-  final GetWalletBalanceUseCase getWalletBalanceUseCase;
-  final GetWalletLedgerUseCase getWalletLedgerUseCase;
-  final GetWalletBalanceApiUseCase? getWalletBalanceApiUseCase;
-  final ExecuteWalletTransactionApiUseCase? executeWalletTransactionApiUseCase;
-  final GetTransactionHistoryApiUseCase? getTransactionHistoryApiUseCase;
+  final WalletsRepository _walletsRepository;
+  final WalletRepository? _walletRepository;
 
   WalletsProvider({
-    required this.getWalletsUseCase,
-    required this.getWalletByCurrencyUseCase,
-    required this.getWalletBalanceUseCase,
-    required this.getWalletLedgerUseCase,
-    this.getWalletBalanceApiUseCase,
-    this.executeWalletTransactionApiUseCase,
-    this.getTransactionHistoryApiUseCase,
-  });
+    required WalletsRepository walletsRepository,
+    WalletRepository? walletRepository,
+  })  : _walletsRepository = walletsRepository,
+        _walletRepository = walletRepository;
 
   // State
   List<Wallet> _wallets = [];
@@ -77,11 +66,9 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getWalletsUseCase(
-      GetWalletsParams(
-        currencyId: currencyId,
-        includeZero: includeZero,
-      ),
+    final result = await _walletsRepository.getWallets(
+      currencyId: currencyId,
+      includeZero: includeZero,
     );
 
     result.fold(
@@ -105,7 +92,7 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getWalletByCurrencyUseCase(currencyId);
+    final result = await _walletsRepository.getWalletByCurrency(currencyId);
 
     result.fold(
       (failure) {
@@ -129,7 +116,7 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getWalletBalanceUseCase(walletId);
+    final result = await _walletsRepository.getWalletBalance(walletId);
 
     result.fold(
       (failure) {
@@ -168,16 +155,14 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getWalletLedgerUseCase(
-      GetWalletLedgerParams(
-        walletId: walletId,
-        refType: refType,
-        direction: direction,
-        startDate: startDate,
-        endDate: endDate,
-        page: _currentPage,
-        limit: _pageSize,
-      ),
+    final result = await _walletsRepository.getWalletLedger(
+      walletId: walletId,
+      refType: refType,
+      direction: direction,
+      startDate: startDate,
+      endDate: endDate,
+      page: _currentPage,
+      limit: _pageSize,
     );
 
     result.fold(
@@ -238,7 +223,7 @@ class WalletsProvider extends ChangeNotifier {
   /// Fetch wallet balance using new Wallet API
   Future<void> fetchWalletBalance(String currencyId,
       {bool forceRefresh = false}) async {
-    if (getWalletBalanceApiUseCase == null) {
+    if (_walletRepository == null) {
       _error = 'Wallet API not configured';
       notifyListeners();
       return;
@@ -279,11 +264,9 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Fetch transaction history (ledger) for a currency and set as recent transactions
   Future<void> fetchTransactionHistory(String currencyId) async {
-    if (getTransactionHistoryApiUseCase == null) return;
+    if (_walletRepository == null) return;
 
-    final result = await getTransactionHistoryApiUseCase!(
-      GetTransactionHistoryParams(currencyId: currencyId),
-    );
+    final result = await _walletRepository!.getTransactionHistory(currencyId);
 
     result.fold(
       (_) {
@@ -305,7 +288,7 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Execute wallet transaction (CREDIT/DEBIT/FREEZE/UNFREEZE/TRANSFER)
   Future<bool> executeTransaction(WalletTransactionRequest request) async {
-    if (executeWalletTransactionApiUseCase == null) {
+    if (_walletRepository == null) {
       _error = 'Wallet API not configured';
       notifyListeners();
       return false;
@@ -315,9 +298,7 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await executeWalletTransactionApiUseCase!(
-      ExecuteWalletTransactionParams(request: request),
-    );
+    final result = await _walletRepository!.executeTransaction(request);
 
     bool success = false;
     result.fold(

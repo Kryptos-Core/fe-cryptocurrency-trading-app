@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/core/services/toast_service.dart';
-import 'package:crypto_trading_app/domain/usecases/auth_usecases.dart';
+import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
@@ -42,9 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Call login use case
-      final loginUseCase = sl<LoginUseCase>();
-      final result = await loginUseCase(
+      final authRepository = sl<AuthRepository>();
+      final result = await authRepository.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -57,10 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
           });
           if (mounted) {
             final l10n = AppLocalizations.of(context);
-            ToastService().show(
+            showAppSnackBar(
               context,
               message: '${l10n.loginFailed}: ${failure.message}',
-              type: ToastType.error,
+              type: SnackBarType.error,
               duration: const Duration(seconds: 4),
             );
           }
@@ -79,10 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
           });
 
           if (mounted) {
-            ToastService().show(
+            showAppSnackBar(
               context,
               message: 'Login successful!',
-              type: ToastType.success,
+              type: SnackBarType.success,
               duration: const Duration(seconds: 1),
             );
 
@@ -102,10 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
       if (mounted) {
-        ToastService().show(
+        showAppSnackBar(
           context,
           message: 'Error: ${e.toString()}',
-          type: ToastType.error,
+          type: SnackBarType.error,
           duration: const Duration(seconds: 4),
         );
       }
@@ -116,6 +117,27 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const RegisterScreen()),
     );
+  }
+
+  Future<void> _checkConnection() async {
+    final ok = await sl<AuthRemoteDataSource>().checkHealth();
+    if (!mounted) return;
+    final url = '${ApiConstants.baseUrl}/health';
+    if (ok) {
+      showAppSnackBar(
+        context,
+        message: 'Backend is reachable. $url',
+        type: SnackBarType.success,
+        duration: const Duration(seconds: 2),
+      );
+    } else {
+      showAppSnackBar(
+        context,
+        message: 'Cannot reach backend. Open in browser: $url',
+        type: SnackBarType.error,
+        duration: const Duration(seconds: 4),
+      );
+    }
   }
 
   @override
@@ -246,6 +268,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             l10n.login,
                             style: const TextStyle(fontSize: 16),
                           ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: _isLoading ? null : _checkConnection,
+                    icon: const Icon(Icons.wifi_find, size: 18),
+                    label: const Text('Check connection (health)'),
                   ),
                   const SizedBox(height: 16),
 

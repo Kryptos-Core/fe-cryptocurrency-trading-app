@@ -118,19 +118,25 @@ class OHLCData {
 
   factory OHLCData.fromJson(Map<String, dynamic> json) {
     int _int(dynamic v) => (v is int) ? v : (v is num) ? v.toInt() : int.tryParse(v?.toString() ?? '') ?? 0;
+    // BE sends snake_case (open_time, close_time, quote_volume, trades_count, is_closed); support both
+    final rawOpen = json['open_time'] ?? json['openTime'];
+    final rawClose = json['close_time'] ?? json['closeTime'];
+    int toMs(int t) => t < 10000000000 ? t * 1000 : t; // seconds -> ms if Unix seconds
+    final openTime = toMs(_int(rawOpen));
+    final closeTime = toMs(_int(rawClose));
     return OHLCData(
-      pairId: json['pair_id']?.toString() ?? '',
+      pairId: (json['pair_id'] ?? json['pairId'])?.toString() ?? '',
       interval: (json['interval'] as String?) ?? '1m',
-      openTime: _int(json['open_time']),
-      closeTime: _int(json['close_time']),
+      openTime: openTime,
+      closeTime: closeTime,
       open: double.tryParse(json['open']?.toString() ?? '') ?? 0,
       high: double.tryParse(json['high']?.toString() ?? '') ?? 0,
       low: double.tryParse(json['low']?.toString() ?? '') ?? 0,
       close: double.tryParse(json['close']?.toString() ?? '') ?? 0,
       volume: double.tryParse(json['volume']?.toString() ?? '') ?? 0,
-      quoteVolume: double.tryParse(json['quote_volume']?.toString() ?? '') ?? 0,
-      tradesCount: _int(json['trades_count']),
-      isClosed: json['is_closed'] == true,
+      quoteVolume: double.tryParse((json['quote_volume'] ?? json['quoteVolume'])?.toString() ?? '') ?? 0,
+      tradesCount: _int(json['trades_count'] ?? json['tradesCount']),
+      isClosed: json['is_closed'] == true || json['isClosed'] == true,
     );
   }
 

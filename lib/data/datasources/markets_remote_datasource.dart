@@ -255,11 +255,30 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     return <MarketPairModel>[];
   }
 
+  /// Normalize ticker map so both snake_case (pair_id, last_price, ...) and camelCase (pairId, lastPrice, ...) from backend are supported.
+  Map<String, dynamic> _normalizeTickerJson(Map<String, dynamic> item) {
+    return <String, dynamic>{
+      'pairId': item['pairId'] ?? item['pair_id'],
+      'symbol': item['symbol'],
+      'lastPrice': item['lastPrice'] ?? item['last_price'],
+      'open24h': item['open24h'] ?? item['open_24h'],
+      'high24h': item['high24h'] ?? item['high_24h'],
+      'low24h': item['low24h'] ?? item['low_24h'],
+      'volume24h': item['volume24h'] ?? item['volume_24h'],
+      'quoteVolume24h': item['quoteVolume24h'] ?? item['quote_volume_24h'],
+      'change24h': item['change24h'] ?? item['change_24h'],
+      'changeAmount24h': item['changeAmount24h'] ?? item['change_amount_24h'],
+      'bestBid': item['bestBid'] ?? item['best_bid'],
+      'bestAsk': item['bestAsk'] ?? item['best_ask'],
+      'timestamp': item['timestamp'],
+    };
+  }
+
   List<MarketTickerModel>? _parseTickers(dynamic tickersJson) {
     if (tickersJson == null || tickersJson is! List) return null;
     return tickersJson
         .whereType<Map<String, dynamic>>()
-        .map((item) => MarketTickerModel.fromJson(item))
+        .map((item) => MarketTickerModel.fromJson(_normalizeTickerJson(item)))
         .toList();
   }
 
@@ -389,7 +408,9 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         // Response wrap: { success, data: MarketTickerDto, timestamp }
         final apiResponse = ApiResponse<MarketTickerModel>.fromJson(
           response.data as Map<String, dynamic>,
-          (json) => MarketTickerModel.fromJson(json as Map<String, dynamic>),
+          (json) => MarketTickerModel.fromJson(
+            _normalizeTickerJson(json as Map<String, dynamic>),
+          ),
         );
 
         if (apiResponse.success && apiResponse.data != null) {
@@ -423,7 +444,9 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<MarketTickerModel>.fromJson(
           response.data as Map<String, dynamic>,
-          (json) => MarketTickerModel.fromJson(json as Map<String, dynamic>),
+          (json) => MarketTickerModel.fromJson(
+            _normalizeTickerJson(json as Map<String, dynamic>),
+          ),
         );
 
         if (apiResponse.success && apiResponse.data != null) {
@@ -459,8 +482,8 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
         final apiResponse = ApiResponse<List<MarketTickerModel>>.fromJson(
           response.data as Map<String, dynamic>,
           (json) => (json as List)
-              .map((item) =>
-                  MarketTickerModel.fromJson(item as Map<String, dynamic>))
+              .map((item) => MarketTickerModel.fromJson(
+                  _normalizeTickerJson(item as Map<String, dynamic>)))
               .toList(),
         );
 

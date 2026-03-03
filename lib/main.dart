@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
@@ -30,8 +31,7 @@ void main() async {
     // If .env file doesn't exist, use default values
     debugPrint('Warning: .env file not found, using default values');
   }
-  final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:3000/api/v1';
-  debugPrint('API BASE_URL: $baseUrl');
+  debugPrint('API BASE_URL: ${ApiConstants.baseUrl}');
 
   // Initialize dependency injection
   await di.initializeDependencies();
@@ -58,46 +58,24 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => CurrenciesProvider(
-            getCurrenciesUseCase: di.sl(),
-            getCurrencyByIdUseCase: di.sl(),
-            getCurrencyBySymbolUseCase: di.sl(),
+            currenciesRepository: di.sl(),
           ),
         ),
         ChangeNotifierProvider(
           create: (_) => MarketsProvider(
-            getMarketsUseCase: di.sl(),
-            getActiveMarketsUseCase: di.sl(),
-            getMarketByIdUseCase: di.sl(),
-            getMarketBySymbolUseCase: di.sl(),
-            getMarketTickerUseCase: di.sl(),
-            getMarketTickerBySymbolUseCase: di.sl(),
-            getAllTickersUseCase: di.sl(),
-            getOrderBookUseCase: di.sl(),
-            getOrderBookBySymbolUseCase: di.sl(),
-            getTradesUseCase: di.sl(),
-            getTradesBySymbolUseCase: di.sl(),
-            getOHLCVUseCase: di.sl(),
+            marketsRepository: di.sl(),
           ),
         ),
         ChangeNotifierProvider(
           create: (_) => WalletsProvider(
-            getWalletsUseCase: di.sl(),
-            getWalletByCurrencyUseCase: di.sl(),
-            getWalletBalanceUseCase: di.sl(),
-            getWalletLedgerUseCase: di.sl(),
-            getWalletBalanceApiUseCase: di.sl(),
-            executeWalletTransactionApiUseCase: di.sl(),
-            getTransactionHistoryApiUseCase: di.sl(),
+            walletsRepository: di.sl(),
+            walletRepository: di.sl(),
           ),
         ),
         ChangeNotifierProvider(
           create: (_) => OrdersProvider(
-            createOrderUseCase: di.sl(),
-            cancelOrderUseCase: di.sl(),
-            getOrdersBookUseCase: di.sl(),
-            getMyOrdersUseCase: di.sl(),
-            getOrderByIdUseCase: di.sl(),
-            getWalletBalanceApiUseCase: di.sl(),
+            ordersRepository: di.sl(),
+            walletRepository: di.sl(),
           ),
         ),
       ],

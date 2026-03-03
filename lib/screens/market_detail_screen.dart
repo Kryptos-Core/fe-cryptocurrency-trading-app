@@ -12,19 +12,6 @@ import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:logger/logger.dart';
 
-// ============================================================================
-// STRATEGY PATTERN: Data Initialization Strategy
-// ============================================================================
-
-/// Abstract strategy for initializing chart data
-abstract class ChartInitializationStrategy {
-  Future<void> initialize(
-    String pairId,
-    ChartProvider chartProvider,
-    MarketsProvider marketsProvider,
-  );
-}
-
 int _intervalToSeconds(String interval) {
   switch (interval) {
     case '1m': return 60;
@@ -103,22 +90,70 @@ String _formatDetailFee(String feeStr) {
   return '${percent.toStringAsFixed(2)}%';
 }
 
-/// Concrete strategy: Initialize chart with OHLCV data.
-/// Uses cache first so re-entering market detail shows retained data (~1 month).
-class OHLCVChartInitialization implements ChartInitializationStrategy {
+// ============================================================================
+// Market Detail Screen
+// ============================================================================
+
+/// Market Detail Screen
+/// Displays detailed market information with ticker, order book, and chart
+class MarketDetailScreen extends StatefulWidget {
+  final String pairId;
+
+  const MarketDetailScreen({
+    super.key,
+    required this.pairId,
+  });
+
+  @override
+  State<MarketDetailScreen> createState() => _MarketDetailScreenState();
+}
+
+class _MarketDetailScreenState extends State<MarketDetailScreen> {
+  ChartProvider? _chartProvider;
+  late MarketsProvider _marketsProvider;
   final Logger _logger = Logger();
 
   @override
-  Future<void> initialize(
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeProviders();
+      }
+    });
+  }
+
+  Future<void> _initializeProviders() async {
+    if (!mounted) return;
+
+    _marketsProvider = context.read<MarketsProvider>();
+    _chartProvider = context.read<ChartProvider>();
+
+    _marketsProvider.getMarketById(widget.pairId);
+    _marketsProvider.fetchTicker(widget.pairId);
+    _marketsProvider.fetchOrderBook(widget.pairId);
+
+    if (!mounted) return;
+
+    // Default: 1D range with 1m candles (best practice: nhiều nến trong 1 ngày, overlay Interval khớp với selector)
+    _chartProvider!.setInterval('1m');
+
+    // Chart init: loads from cache first, then fetches OHLCV (range 1d for initial load)
+    await _initializeChart(
+      widget.pairId,
+      _chartProvider!,
+      _marketsProvider,
+    );
+  }
+
+  Future<void> _initializeChart(
     String pairId,
     ChartProvider chartProvider,
     MarketsProvider marketsProvider,
   ) async {
     try {
-      String wsUrl = 'ws://localhost:3000/trading';
-      final envUrl = String.fromEnvironment('WS_URL', defaultValue: '');
-      if (envUrl.isNotEmpty) wsUrl = envUrl;
-
+      final wsUrl = ApiConstants.webSocketUrl;
       final TokenService tokenService = di.sl<TokenService>();
       final token = tokenService.getAccessToken() ?? '';
 
@@ -127,7 +162,6 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
       } else {
         _logger.i('🔗 Initializing WebSocket with URL: $wsUrl');
         await chartProvider.initializeWebSocket(wsUrl, token);
-        // Bắt buộc chờ auth xong rồi mới subscribe – nếu subscribe trước auth thì BE trả AUTH_REQUIRED và FE không vào room → không nhận OHLC/ticker
         try {
           await chartProvider.waitForAuthCompletion();
           _logger.i('✅ Auth completed, subscribing to pair $pairId');
@@ -136,14 +170,12 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
         }
       }
 
-      // 1) Subscribe SAU KHI ĐÃ AUTH: load cache (nếu có) và join room pair:N:ohlc:interval để nhận realtime
       chartProvider.subscribeToPair(
         pairId,
         ['ticker', 'ohlc'],
         interval: chartProvider.selectedInterval,
       );
 
-      // 2) Fetch OHLCV: mặc định range 1d (nến 1m) để overlay Interval khớp với selector, không lệch 1d
       await marketsProvider.fetchOHLCV(
         pairId: pairId,
         interval: chartProvider.selectedInterval,
@@ -151,7 +183,6 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
         limit: 500,
       );
 
-      // 3) Merge cache + API: combine and dedupe by openTime so we retain up to ~1 month
       final interval = marketsProvider.selectedInterval;
       final cacheService = di.sl<ChartCacheService>();
       final cached = cacheService.getCandles(pairId, interval);
@@ -187,11 +218,11 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
       var merged = byTime.values.toList()
         ..sort((a, b) => a.openTime.compareTo(b.openTime));
 
-      // Backend OHLCV từ Price Oracle (Binance/Uniswap) on-demand; trống chỉ khi API lỗi hoặc pair chưa được Oracle hỗ trợ. Placeholder để chart vẫn hiển thị; realtime sẽ cập nhật sau.
       if (merged.isEmpty) {
         final now = DateTime.now();
         final intervalSec = _intervalToSeconds(interval);
-        final openTime = now.millisecondsSinceEpoch - (now.millisecondsSinceEpoch % (intervalSec * 1000));
+        final openTime = now.millisecondsSinceEpoch -
+            (now.millisecondsSinceEpoch % (intervalSec * 1000));
         final closeTime = openTime + intervalSec * 1000;
         final price = _lastPriceFromTicker(marketsProvider) ?? 0.0;
         merged = [
@@ -210,7 +241,8 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
             isClosed: false,
           ),
         ];
-        _logger.w('📊 No OHLCV from API/cache – showing placeholder; chart will update when realtime data arrives');
+        _logger.w(
+            '📊 No OHLCV from API/cache – showing placeholder; chart will update when realtime data arrives');
       }
 
       cacheService.putCandles(pairId, interval, merged);
@@ -222,65 +254,6 @@ class OHLCVChartInitialization implements ChartInitializationStrategy {
     } catch (e) {
       _logger.e('Failed to initialize chart: $e');
     }
-  }
-}
-
-// ============================================================================
-// Market Detail Screen
-// ============================================================================
-
-/// Market Detail Screen
-/// Displays detailed market information with ticker, order book, and chart
-class MarketDetailScreen extends StatefulWidget {
-  final String pairId;
-
-  const MarketDetailScreen({
-    super.key,
-    required this.pairId,
-  });
-
-  @override
-  State<MarketDetailScreen> createState() => _MarketDetailScreenState();
-}
-
-class _MarketDetailScreenState extends State<MarketDetailScreen> {
-  ChartProvider? _chartProvider;
-  late MarketsProvider _marketsProvider;
-  late ChartInitializationStrategy _chartStrategy;
-
-  @override
-  void initState() {
-    super.initState();
-    _chartStrategy = OHLCVChartInitialization();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _initializeProviders();
-      }
-    });
-  }
-
-  Future<void> _initializeProviders() async {
-    if (!mounted) return;
-
-    _marketsProvider = context.read<MarketsProvider>();
-    _chartProvider = context.read<ChartProvider>();
-
-    _marketsProvider.getMarketById(widget.pairId);
-    _marketsProvider.fetchTicker(widget.pairId);
-    _marketsProvider.fetchOrderBook(widget.pairId);
-
-    if (!mounted) return;
-
-    // Default: 1D range with 1m candles (best practice: nhiều nến trong 1 ngày, overlay Interval khớp với selector)
-    _chartProvider!.setInterval('1m');
-
-    // Chart init: loads from cache first, then fetches OHLCV (strategy uses range 1d for initial load)
-    await _chartStrategy.initialize(
-      widget.pairId,
-      _chartProvider!,
-      _marketsProvider,
-    );
   }
 
   @override
