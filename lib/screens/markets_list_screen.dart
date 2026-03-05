@@ -31,8 +31,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MarketsProvider>();
       context.read<CurrenciesProvider>().fetchTradableCurrencies();
+      // One request: GET /markets?includeTickers=true returns markets + tickers for current page (avoids slow GET /markets/tickers/all timeout).
       provider.fetchMarkets(refresh: true, includeTickers: true);
-      provider.fetchAllTickers();
     });
     _scrollController.addListener(_onScroll);
   }

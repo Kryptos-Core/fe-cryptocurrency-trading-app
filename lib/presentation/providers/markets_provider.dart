@@ -123,15 +123,7 @@ class MarketsProvider extends ChangeNotifier {
           _allTickers = byPairId.values.toList();
         }
 
-        // Fallback: if we asked for tickers but got none (e.g. backend does not support includeTickers), fetch all tickers once
-        if (includeTickers && refresh && (paginatedResult.tickers == null || paginatedResult.tickers!.isEmpty) && markets.isNotEmpty) {
-          _marketsRepository.getAllTickers().then((either) {
-            either.fold((_) {}, (list) {
-              _allTickers = list;
-              notifyListeners();
-            });
-          });
-        }
+        // If no tickers in response, keep existing _allTickers; UI may call fetchTickersForPairs for visible pairs (avoids slow GET /markets/tickers/all timeout).
 
         _total = paginatedResult.total;
         _hasMore = _markets.length < _total && markets.length == _pageSize;
@@ -209,6 +201,7 @@ class MarketsProvider extends ChangeNotifier {
     notifyListeners();
 
     final combined = <MarketPair>[];
+    final tickersByPairId = <String, MarketTicker>{};
     var total = _total;
     var lastPage = 0;
 
@@ -234,6 +227,9 @@ class MarketsProvider extends ChangeNotifier {
           combined.addAll(paginatedResult.markets);
           total = paginatedResult.total;
           lastPage = k;
+          for (final t in paginatedResult.tickers ?? []) {
+            if (t.pairId.isNotEmpty) tickersByPairId[t.pairId] = t;
+          }
         },
       );
 
@@ -244,12 +240,7 @@ class MarketsProvider extends ChangeNotifier {
     _total = total;
     _currentPage = lastPage + 1;
     _hasMore = _markets.length < _total;
-
-    final tickersResult = await _marketsRepository.getAllTickers();
-    tickersResult.fold(
-      (_) {},
-      (list) => _allTickers = list,
-    );
+    _allTickers = tickersByPairId.values.toList();
 
     _isLoading = false;
     _error = null;
