@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 enum SnackBarType { success, error, warning, info }
 
 /// Shows a Material SnackBar (framework built-in). Replaces custom ToastService.
+/// Clears any existing snackbar first so only one is shown; auto-dismisses and OK dismisses.
 void showAppSnackBar(
   BuildContext context, {
   required String message,
   required SnackBarType type,
-  Duration duration = const Duration(seconds: 3),
+  Duration duration = const Duration(seconds: 5),
 }) {
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.clearSnackBars();
   final color = _colorForType(type);
-  ScaffoldMessenger.of(context).showSnackBar(
+  messenger.showSnackBar(
     SnackBar(
       content: Text(message),
       backgroundColor: color,
@@ -20,8 +23,9 @@ void showAppSnackBar(
       action: SnackBarAction(
         label: 'OK',
         textColor: Colors.white,
-        onPressed: () =>
-            ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+        onPressed: () {
+          messenger.hideCurrentSnackBar();
+        },
       ),
     ),
   );

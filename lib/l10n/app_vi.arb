@@ -128,5 +128,9 @@
   "syncBinanceDescription": "Đồng bộ tiền tệ và cặp thị trường từ Binance vào cơ sở dữ liệu",
   "syncing": "Đang đồng bộ...",
   "syncSuccess": "Đồng bộ xong. Tiền tệ và thị trường đã cập nhật.",
-  "syncFailed": "Đồng bộ thất bại"
+  "syncFailed": "Đồng bộ thất bại",
+  "searchMarketsHint": "Tìm theo symbol (vd. BTC, USDT)",
+  "filterQuote": "Định giá",
+  "filterQuoteAll": "Tất cả",
+  "clearFilters": "Xóa bộ lọc"
 }

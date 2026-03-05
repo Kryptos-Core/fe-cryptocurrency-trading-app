@@ -128,5 +128,9 @@
   "syncBinanceDescription": "Sync currencies and market pairs from Binance into the app database",
   "syncing": "Syncing...",
   "syncSuccess": "Sync completed. Currencies and markets are up to date.",
-  "syncFailed": "Sync failed"
+  "syncFailed": "Sync failed",
+  "searchMarketsHint": "Search by symbol (e.g. BTC, USDT)",
+  "filterQuote": "Quote",
+  "filterQuoteAll": "All",
+  "clearFilters": "Clear filters"
 }

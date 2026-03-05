@@ -396,4 +396,16 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get syncFailed => 'Đồng bộ thất bại';
+
+  @override
+  String get searchMarketsHint => 'Tìm theo symbol (vd. BTC, USDT)';
+
+  @override
+  String get filterQuote => 'Định giá';
+
+  @override
+  String get filterQuoteAll => 'Tất cả';
+
+  @override
+  String get clearFilters => 'Xóa bộ lọc';
 }

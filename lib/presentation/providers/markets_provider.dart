@@ -29,6 +29,9 @@ class MarketsProvider extends ChangeNotifier {
   final int _pageSize = 10;
   int _total = 0;
   bool _hasMore = true;
+  String _searchQuery = '';
+  String? _filterBaseSymbol;
+  String? _filterQuoteSymbol;
 
   // Getters
   List<MarketPair> get markets => _markets;
@@ -45,13 +48,24 @@ class MarketsProvider extends ChangeNotifier {
   int get currentPage => _currentPage;
   int get total => _total;
   bool get hasMore => _hasMore;
+  String get searchQuery => _searchQuery;
+  String? get filterBaseSymbol => _filterBaseSymbol;
+  String? get filterQuoteSymbol => _filterQuoteSymbol;
+  bool get hasActiveFilter =>
+      _searchQuery.trim().isNotEmpty ||
+      (_filterBaseSymbol != null && _filterBaseSymbol!.trim().isNotEmpty) ||
+      (_filterQuoteSymbol != null && _filterQuoteSymbol!.trim().isNotEmpty);
 
   /// Fetch markets with optional filters.
   /// [includeTickers] when true, GET /markets returns tickers for current page; they are merged into [allTickers] (one request instead of separate GET /markets/tickers/all).
+  /// [search] partial symbol search; [baseSymbol], [quoteSymbol] filter by base/quote currency.
   Future<void> fetchMarkets({
     bool? includeInactive,
     bool refresh = false,
     bool includeTickers = false,
+    String? search,
+    String? baseSymbol,
+    String? quoteSymbol,
   }) async {
     if (refresh) {
       _currentPage = 1;
@@ -68,6 +82,9 @@ class MarketsProvider extends ChangeNotifier {
     if (includeInactive != null) {
       _includeInactive = includeInactive;
     }
+    if (search != null) _searchQuery = search;
+    if (baseSymbol != null) _filterBaseSymbol = baseSymbol.isEmpty ? null : baseSymbol;
+    if (quoteSymbol != null) _filterQuoteSymbol = quoteSymbol.isEmpty ? null : quoteSymbol;
     notifyListeners();
 
     final result = await _marketsRepository.getMarkets(
@@ -75,6 +92,9 @@ class MarketsProvider extends ChangeNotifier {
       limit: _pageSize,
       includeInactive: _includeInactive,
       includeTickers: includeTickers,
+      search: _searchQuery.trim().isEmpty ? null : _searchQuery.trim(),
+      baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true ? null : _filterBaseSymbol?.trim(),
+      quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true ? null : _filterQuoteSymbol?.trim(),
     );
 
     result.fold(
@@ -147,6 +167,93 @@ class MarketsProvider extends ChangeNotifier {
         notifyListeners();
       },
     );
+  }
+
+  /// Update search query and refetch (call with debounced value from UI).
+  void setSearchQuery(String value) {
+    if (_searchQuery == value) return;
+    _searchQuery = value;
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
+  /// Set filter by base currency symbol and refetch.
+  void setFilterBaseSymbol(String? symbol) {
+    if (_filterBaseSymbol == symbol) return;
+    _filterBaseSymbol = symbol?.trim().isEmpty ?? true ? null : symbol?.trim();
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
+  /// Set filter by quote currency symbol and refetch.
+  void setFilterQuoteSymbol(String? symbol) {
+    if (_filterQuoteSymbol == symbol) return;
+    _filterQuoteSymbol = symbol?.trim().isEmpty ?? true ? null : symbol?.trim();
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
+  /// Clear all search and filters, then refetch.
+  void clearSearchAndFilters() {
+    _searchQuery = '';
+    _filterBaseSymbol = null;
+    _filterQuoteSymbol = null;
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
+  /// Refresh data while keeping current scroll position (re-fetches all loaded pages).
+  /// Use when user taps Refresh: same number of items, updated data and tickers.
+  Future<void> refreshKeepingPosition() async {
+    final pagesLoaded = _markets.isEmpty ? 1 : (_markets.length / _pageSize).ceil();
+    if (pagesLoaded < 1) return;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    final combined = <MarketPair>[];
+    var total = _total;
+    var lastPage = 0;
+
+    for (var k = 1; k <= pagesLoaded; k++) {
+      final result = await _marketsRepository.getMarkets(
+        page: k,
+        limit: _pageSize,
+        includeInactive: _includeInactive,
+        includeTickers: true,
+        search: _searchQuery.trim().isEmpty ? null : _searchQuery.trim(),
+        baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true ? null : _filterBaseSymbol?.trim(),
+        quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true ? null : _filterQuoteSymbol?.trim(),
+      );
+
+      result.fold(
+        (failure) {
+          _error = _mapFailureToMessage(failure);
+          _isLoading = false;
+          // Do not replace _markets with partial combined on failure; keep current list.
+          notifyListeners();
+        },
+        (paginatedResult) {
+          combined.addAll(paginatedResult.markets);
+          total = paginatedResult.total;
+          lastPage = k;
+        },
+      );
+
+      if (_error != null) return;
+    }
+
+    _markets = combined;
+    _total = total;
+    _currentPage = lastPage + 1;
+    _hasMore = _markets.length < _total;
+
+    final tickersResult = await _marketsRepository.getAllTickers();
+    tickersResult.fold(
+      (_) {},
+      (list) => _allTickers = list,
+    );
+
+    _isLoading = false;
+    _error = null;
+    notifyListeners();
   }
 
   /// Load more markets (pagination)

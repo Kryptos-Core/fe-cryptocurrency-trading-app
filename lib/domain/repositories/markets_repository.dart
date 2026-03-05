@@ -11,11 +11,17 @@ import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
 abstract class MarketsRepository {
   /// Get all market pairs with pagination and filtering.
   /// [includeTickers] when true, result may include tickers for current page (from GET /markets?includeTickers=true).
+  /// [search] partial match on symbol (search as you type).
+  /// [baseSymbol] filter by base currency symbol (e.g. BTC).
+  /// [quoteSymbol] filter by quote currency symbol (e.g. USDT).
   Future<Either<Failure, PaginatedMarketsResult>> getMarkets({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
     bool includeTickers = false,
+    String? search,
+    String? baseSymbol,
+    String? quoteSymbol,
   });
 
   /// Get all active market pairs (cached endpoint - faster)

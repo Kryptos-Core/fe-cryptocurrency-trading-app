@@ -15,11 +15,15 @@ import 'package:crypto_trading_app/core/models/error_response.dart';
 abstract class MarketsRemoteDataSource {
   /// Get all market pairs with pagination and filtering.
   /// [includeTickers] when true, response data includes tickers for current page (one request instead of GET /markets/tickers/all).
+  /// [search] partial match on symbol; [baseSymbol], [quoteSymbol] filter by base/quote currency.
   Future<PaginatedMarketsData> getMarkets({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
     bool includeTickers = false,
+    String? search,
+    String? baseSymbol,
+    String? quoteSymbol,
   });
 
   /// Get all active market pairs (cached endpoint)
@@ -143,16 +147,29 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     int limit = 10,
     bool includeInactive = false,
     bool includeTickers = false,
+    String? search,
+    String? baseSymbol,
+    String? quoteSymbol,
   }) async {
     try {
+      final queryParams = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+        'includeInactive': includeInactive,
+        if (includeTickers) 'includeTickers': true,
+      };
+      if (search != null && search.trim().isNotEmpty) {
+        queryParams['search'] = search.trim();
+      }
+      if (baseSymbol != null && baseSymbol.trim().isNotEmpty) {
+        queryParams['baseSymbol'] = baseSymbol.trim();
+      }
+      if (quoteSymbol != null && quoteSymbol.trim().isNotEmpty) {
+        queryParams['quoteSymbol'] = quoteSymbol.trim();
+      }
       final response = await dio.get(
         ApiConstants.markets,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-          'includeInactive': includeInactive,
-          if (includeTickers) 'includeTickers': true,
-        },
+        queryParameters: queryParams,
       );
 
       if (response.statusCode == 200) {

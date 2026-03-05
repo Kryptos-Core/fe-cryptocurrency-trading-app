@@ -39,6 +39,9 @@ class MarketsRepositoryImpl implements MarketsRepository {
     int limit = 10,
     bool includeInactive = false,
     bool includeTickers = false,
+    String? search,
+    String? baseSymbol,
+    String? quoteSymbol,
   }) async {
     try {
       final result = await remoteDataSource.getMarkets(
@@ -46,6 +49,9 @@ class MarketsRepositoryImpl implements MarketsRepository {
         limit: limit,
         includeInactive: includeInactive,
         includeTickers: includeTickers,
+        search: search,
+        baseSymbol: baseSymbol,
+        quoteSymbol: quoteSymbol,
       );
 
       final markets = result.data.map((model) => model.toEntity()).toList();

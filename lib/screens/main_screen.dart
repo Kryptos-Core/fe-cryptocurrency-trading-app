@@ -54,8 +54,7 @@ class _MainScreenState extends State<MainScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
-                context.read<MarketsProvider>().fetchMarkets(refresh: true);
-                context.read<MarketsProvider>().fetchAllTickers();
+                context.read<MarketsProvider>().refreshKeepingPosition();
               },
               tooltip: l10n.refresh,
             ),

@@ -14,6 +14,7 @@ class CurrenciesProvider extends ChangeNotifier {
 
   // State
   List<Currency> _currencies = [];
+  List<Currency> _tradableCurrencies = [];
   Currency? _selectedCurrency;
   bool _isLoading = false;
   String? _error;
@@ -25,6 +26,7 @@ class CurrenciesProvider extends ChangeNotifier {
 
   // Getters
   List<Currency> get currencies => _currencies;
+  List<Currency> get tradableCurrencies => _tradableCurrencies;
   Currency? get selectedCurrency => _selectedCurrency;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -94,6 +96,16 @@ class CurrenciesProvider extends ChangeNotifier {
         includeInactive: _includeInactive,
       );
     }
+  }
+
+  /// Fetch tradable currencies (for dropdowns, e.g. quote filter in markets)
+  Future<void> fetchTradableCurrencies() async {
+    final result = await _currenciesRepository.getTradableCurrencies();
+    result.fold(
+      (_) => _tradableCurrencies = [],
+      (list) => _tradableCurrencies = list,
+    );
+    notifyListeners();
   }
 
   /// Get currency by ID

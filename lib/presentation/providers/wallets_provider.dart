@@ -236,9 +236,7 @@ class WalletsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final result = await getWalletBalanceApiUseCase!(
-      GetWalletBalanceParams(currencyId: currencyId),
-    );
+    final result = await _walletRepository!.getBalance(currencyId);
 
     result.fold(
       (failure) {

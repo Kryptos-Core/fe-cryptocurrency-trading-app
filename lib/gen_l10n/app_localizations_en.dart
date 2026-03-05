@@ -397,4 +397,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncFailed => 'Sync failed';
+
+  @override
+  String get searchMarketsHint => 'Search by symbol (e.g. BTC, USDT)';
+
+  @override
+  String get filterQuote => 'Quote';
+
+  @override
+  String get filterQuoteAll => 'All';
+
+  @override
+  String get clearFilters => 'Clear filters';
 }

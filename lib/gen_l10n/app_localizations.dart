@@ -871,6 +871,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync failed'**
   String get syncFailed;
+
+  /// No description provided for @searchMarketsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by symbol (e.g. BTC, USDT)'**
+  String get searchMarketsHint;
+
+  /// No description provided for @filterQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote'**
+  String get filterQuote;
+
+  /// No description provided for @filterQuoteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterQuoteAll;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
 }
 
 class _AppLocalizationsDelegate
