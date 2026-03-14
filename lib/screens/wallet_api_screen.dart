@@ -58,7 +58,7 @@ class _AmountInputFormatter extends TextInputFormatter {
     }
     final formatted = decPart.isEmpty
         ? formattedInt.toString()
-        : '${formattedInt}.$decPart';
+        : '$formattedInt.$decPart';
 
     final sel = newValue.selection.extentOffset.clamp(0, newValue.text.length);
     final rawBeforeCursor = newValue.text.substring(0, sel).replaceAll(',', '');
@@ -177,7 +177,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: Consumer<WalletsProvider>(
         builder: (context, provider, child) {
@@ -216,7 +216,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedCurrencyId,
+                  initialValue: _selectedCurrencyId,
                   menuMaxHeight: MediaQuery.of(context).size.height * 0.4,
                   decoration: InputDecoration(
                     labelText: l10n.selectCurrency,
@@ -283,7 +283,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   }
 
   Widget _buildBalanceContent(BuildContext context, WalletsProvider provider) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -717,11 +717,11 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     final l10n = AppLocalizations.of(context);
     switch (refType) {
       case WalletReferenceType.deposit:
-        return l10n?.deposit ?? 'Deposit';
+        return l10n.deposit ?? 'Deposit';
       case WalletReferenceType.withdraw:
-        return l10n?.withdraw ?? 'Withdraw';
+        return l10n.withdraw ?? 'Withdraw';
       case WalletReferenceType.transfer:
-        return l10n?.transfer ?? 'Transfer';
+        return l10n.transfer ?? 'Transfer';
       case WalletReferenceType.order:
         return 'Order';
       case WalletReferenceType.trade:
@@ -736,7 +736,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext)!;
+        final l10n = AppLocalizations.of(dialogContext);
         return AlertDialog(
           title: Text(l10n.deposit),
           content: Column(
@@ -769,7 +769,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   refId: '${DateTime.now().millisecondsSinceEpoch}',
                 );
                 if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context)!;
+                final l10nSuccess = AppLocalizations.of(context);
                 if (success) {
                   showAppSnackBar(
                     context,
@@ -799,7 +799,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext)!;
+        final l10n = AppLocalizations.of(dialogContext);
         return AlertDialog(
           title: Text(l10n.withdraw),
           content: Column(
@@ -832,7 +832,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   refId: '${DateTime.now().millisecondsSinceEpoch}',
                 );
                 if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context)!;
+                final l10nSuccess = AppLocalizations.of(context);
                 if (success) {
                   showAppSnackBar(
                     context,
@@ -863,7 +863,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext)!;
+        final l10n = AppLocalizations.of(dialogContext);
         return AlertDialog(
           title: Text(l10n.transfer),
           content: Column(
@@ -905,7 +905,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   toUserId: toUserIdController.text.trim(),
                 );
                 if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context)!;
+                final l10nSuccess = AppLocalizations.of(context);
                 if (success) {
                   showAppSnackBar(
                     context,

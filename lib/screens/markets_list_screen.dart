@@ -354,7 +354,7 @@ class _QuoteFilterDropdown extends StatelessWidget {
         final symbols = options.map((c) => c.symbol).toList();
         symbols.sort();
         return DropdownButtonFormField<String>(
-          value: selectedQuoteSymbol != null && symbols.contains(selectedQuoteSymbol)
+          initialValue: selectedQuoteSymbol != null && symbols.contains(selectedQuoteSymbol)
               ? selectedQuoteSymbol
               : null,
           menuMaxHeight: MediaQuery.of(context).size.height * 0.45,

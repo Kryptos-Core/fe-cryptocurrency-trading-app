@@ -114,7 +114,7 @@ class CryptoTradingApp extends StatelessWidget {
             colorSchemeSeed: Colors.indigo,
           ),
           locale: localeProvider.locale,
-          localizationsDelegates: [
+          localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

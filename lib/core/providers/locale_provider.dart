@@ -6,7 +6,7 @@ const String _localeKey = 'app_locale';
 /// Holds current [Locale] and persists choice via SharedPreferences.
 /// Best practice: locale lives on FE; BE returns error codes, FE maps to localized strings.
 class LocaleProvider extends ChangeNotifier {
-  LocaleProvider(this._prefs) : _locale = _localeFromCode(_prefs.getString(_localeKey)) {}
+  LocaleProvider(this._prefs) : _locale = _localeFromCode(_prefs.getString(_localeKey));
 
   final SharedPreferences _prefs;
   Locale _locale;

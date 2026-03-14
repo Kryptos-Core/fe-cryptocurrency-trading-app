@@ -1,5 +1,6 @@
 /// Custom exceptions for the application
 /// Following Single Responsibility Principle (SRP)
+library;
 
 class ServerException implements Exception {
   final String message;

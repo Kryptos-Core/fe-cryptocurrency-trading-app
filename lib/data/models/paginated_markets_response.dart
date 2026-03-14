@@ -75,7 +75,7 @@ class PaginatedMarketsResponse {
     // Handle null data field
     final dataJson = json['data'];
     if (dataJson == null) {
-      throw FormatException('Response data field is null');
+      throw const FormatException('Response data field is null');
     }
 
     return PaginatedMarketsResponse(

@@ -20,7 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_isSyncing) return;
     setState(() => _isSyncing = true);
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     try {
       final datasource = sl<ExchangeRemoteDataSource>();
       await datasource.syncInfo();
@@ -62,7 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),

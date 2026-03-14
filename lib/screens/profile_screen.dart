@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (mounted) {
             showAppSnackBar(
               context,
-              message: '${AppLocalizations.of(context)!.failedToLoadProfile}: ${failure.message}',
+              message: '${AppLocalizations.of(context).failedToLoadProfile}: ${failure.message}',
               type: SnackBarType.error,
               duration: const Duration(seconds: 3),
             );
@@ -96,11 +96,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _handleLogout() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        final l10nDialog = AppLocalizations.of(dialogContext)!;
+        final l10nDialog = AppLocalizations.of(dialogContext);
         return AlertDialog(
           title: Text(l10nDialog.logout),
           content: Text(l10nDialog.areYouSureLogout),
@@ -154,10 +154,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (_isLoading) {
-      return Scaffold(
-        body: const Center(
+      return const Scaffold(
+        body: Center(
           child: CircularProgressIndicator(),
         ),
       );
@@ -290,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('🇬🇧', style: TextStyle(fontSize: 20)),
+                        const Text('🇬🇧', style: TextStyle(fontSize: 20)),
                         const SizedBox(width: 8),
                         Text(
                           l10n.english,
@@ -309,7 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('🇻🇳', style: TextStyle(fontSize: 20)),
+                        const Text('🇻🇳', style: TextStyle(fontSize: 20)),
                         const SizedBox(width: 8),
                         Text(
                           l10n.vietnamese,

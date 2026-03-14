@@ -264,7 +264,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Consumer<MarketsProvider>(
@@ -327,7 +327,7 @@ class _TickerCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final isPositive = ticker.isPositive;
     return Card(
       elevation: 2,
@@ -382,7 +382,7 @@ class _MarketInfoCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Card(
       elevation: 2,
       child: Padding(
@@ -439,7 +439,7 @@ class _OrderBookCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final bids = orderBook.bids as List;
     final asks = orderBook.asks as List;
     final isEmpty = bids.isEmpty && asks.isEmpty;
@@ -712,7 +712,7 @@ class _ChartHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -886,7 +886,7 @@ class _ChartContentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (chartProvider.candles.isEmpty) {
       return Container(
         height: 400,
@@ -961,7 +961,7 @@ class _WebSocketStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final isConnected = chartProvider.isWebSocketConnected;
     final receiving = chartProvider.hasReceivedRealtimeDataRecently;
 

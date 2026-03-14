@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Capture context-dependent objects before the async gap.
     final authProvider = context.read<AuthProvider>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     try {
       final result = await authProvider.login(
@@ -188,8 +188,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       labelText: l10n.email,
                       hintText: 'user@example.com',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {

@@ -161,7 +161,7 @@ class OrdersProvider extends ChangeNotifier {
     );
     askResult.fold(
       (failure) {
-        if (_error == null) _error = _mapFailureToMessage(failure);
+        _error ??= _mapFailureToMessage(failure);
         _orderBookAsks = [];
       },
       (list) => _orderBookAsks = list,

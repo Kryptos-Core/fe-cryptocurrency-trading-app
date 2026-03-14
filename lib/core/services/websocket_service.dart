@@ -5,14 +5,10 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// ============================================================================
 /// WebSocket Service - Updated per Backend Specification
-/// ============================================================================
-///
 /// Protocol: Socket.io
 /// Message Format: JSON with type, data, timestamp
 /// Authentication: Bearer token in first auth message
 /// Supported Events: auth, subscribe, ticker, ohlc, error, unsubscribe
-///
-/// ============================================================================
 
 // ============================================================================
 // Message Models (as per BE spec)
@@ -117,13 +113,18 @@ class OHLCData {
   });
 
   factory OHLCData.fromJson(Map<String, dynamic> json) {
-    int _int(dynamic v) => (v is int) ? v : (v is num) ? v.toInt() : int.tryParse(v?.toString() ?? '') ?? 0;
+    int parseInt(dynamic v) => (v is int)
+        ? v
+        : (v is num)
+            ? v.toInt()
+            : int.tryParse(v?.toString() ?? '') ?? 0;
     // BE sends snake_case (open_time, close_time, quote_volume, trades_count, is_closed); support both
     final rawOpen = json['open_time'] ?? json['openTime'];
     final rawClose = json['close_time'] ?? json['closeTime'];
-    int toMs(int t) => t < 10000000000 ? t * 1000 : t; // seconds -> ms if Unix seconds
-    final openTime = toMs(_int(rawOpen));
-    final closeTime = toMs(_int(rawClose));
+    int toMs(int t) =>
+        t < 10000000000 ? t * 1000 : t; // seconds -> ms if Unix seconds
+    final openTime = toMs(parseInt(rawOpen));
+    final closeTime = toMs(parseInt(rawClose));
     return OHLCData(
       pairId: (json['pair_id'] ?? json['pairId'])?.toString() ?? '',
       interval: (json['interval'] as String?) ?? '1m',
@@ -134,8 +135,11 @@ class OHLCData {
       low: double.tryParse(json['low']?.toString() ?? '') ?? 0,
       close: double.tryParse(json['close']?.toString() ?? '') ?? 0,
       volume: double.tryParse(json['volume']?.toString() ?? '') ?? 0,
-      quoteVolume: double.tryParse((json['quote_volume'] ?? json['quoteVolume'])?.toString() ?? '') ?? 0,
-      tradesCount: _int(json['trades_count'] ?? json['tradesCount']),
+      quoteVolume: double.tryParse(
+              (json['quote_volume'] ?? json['quoteVolume'])?.toString() ??
+                  '') ??
+          0,
+      tradesCount: parseInt(json['trades_count'] ?? json['tradesCount']),
       isClosed: json['is_closed'] == true || json['isClosed'] == true,
     );
   }
@@ -199,7 +203,8 @@ abstract class IWebSocketService {
   void send(Map<String, dynamic> message);
 
   // Subscription methods
-  void subscribeToPair(String pairId, List<String> channels, {String? interval});
+  void subscribeToPair(String pairId, List<String> channels,
+      {String? interval});
   void unsubscribeFromPair(String pairId);
 
   // Getters
@@ -228,7 +233,7 @@ class WebSocketService implements IWebSocketService {
 
   @override
   Stream<WebSocketMessage> get messageStream =>
-      _messageController?.stream ?? Stream.empty();
+      _messageController?.stream ?? const Stream.empty();
 
   @override
   Future<void> connect(String url, String token) async {
@@ -432,7 +437,8 @@ class WebSocketService implements IWebSocketService {
   // =========================================================================
 
   @override
-  void subscribeToPair(String pairId, List<String> channels, {String? interval}) {
+  void subscribeToPair(String pairId, List<String> channels,
+      {String? interval}) {
     if (!isConnected) {
       _logger.w('⚠️ Not connected, cannot subscribe to pair $pairId');
       return;
