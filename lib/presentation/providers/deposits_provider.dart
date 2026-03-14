@@ -44,7 +44,7 @@ class DepositsProvider extends ChangeNotifier {
     }
   }
 
-  Future<DepositCheckoutSession?> createDepositLink(double amount) async {
+  Future<DepositCheckoutSession?> createDepositLink(int amount) async {
     try {
       _isCreatingLink = true;
       _error = null;
@@ -72,6 +72,17 @@ class DepositsProvider extends ChangeNotifier {
     } finally {
       _isCreatingLink = false;
       notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> syncDepositStatus(int orderCode) async {
+    try {
+      _error = null;
+      return await repository.syncDepositStatus(orderCode);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return {'updated': false};
     }
   }
 }

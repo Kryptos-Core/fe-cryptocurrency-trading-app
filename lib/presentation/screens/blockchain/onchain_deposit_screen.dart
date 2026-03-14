@@ -124,14 +124,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   }
 
   String _typeLabel(OnchainTxType? type) {
-    if (type == null) return 'All types';
+    final l10n = AppLocalizations.of(context);
+    if (type == null) return l10n.allTypes;
     switch (type) {
       case OnchainTxType.deposit:
-        return 'Deposits';
+        return l10n.txTypeDeposits;
       case OnchainTxType.withdrawal:
-        return 'Withdrawals';
+        return l10n.txTypeWithdrawals;
       case OnchainTxType.transfer:
-        return 'Transfers';
+        return l10n.txTypeTransfers;
     }
   }
 
@@ -228,8 +229,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     if (_depositPreview != null && !_depositPreview!.senderLinked) {
       showAppSnackBar(
         context,
-        message:
-            'Sender wallet is not linked. Link that wallet before submitting deposit.',
+        message: AppLocalizations.of(context).senderWalletNotLinkedError,
         type: SnackBarType.error,
       );
       return;
@@ -247,8 +247,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     showAppSnackBar(
       context,
       message: ok
-          ? 'Deposit submitted successfully'
-          : (provider.error ?? 'Submit failed'),
+          ? AppLocalizations.of(context).depositSubmittedSuccess
+          : (provider.error ?? AppLocalizations.of(context).requestFailed),
       type: ok ? SnackBarType.success : SnackBarType.error,
     );
 
@@ -291,7 +291,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
     showAppSnackBar(
       context,
-      message: 'Deposit address copied',
+      message: AppLocalizations.of(context).depositAddressCopied,
       type: SnackBarType.success,
     );
   }
@@ -311,14 +311,13 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Submit on-chain deposit',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.submitOnchainDeposit,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'After sending tokens from your wallet to exchange deposit address, paste tx hash here.',
-                ),
+                Text(l10n.onchainDepositDesc),
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
@@ -365,16 +364,22 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BlockchainNetwork>(
-                  initialValue: _selectedNetwork,
-                  decoration: const InputDecoration(
-                    labelText: 'Network',
-                    border: OutlineInputBorder(),
+                  value: _selectedNetwork,
+                  isExpanded: true,
+                  menuMaxHeight: 300,
+                  decoration: InputDecoration(
+                    labelText: l10n.networkLabel,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   ),
                   items: BlockchainNetwork.values
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
-                          child: Text(network.label),
+                          child: Text(
+                            network.label,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       )
                       .toList(),
@@ -402,9 +407,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     children: [
                       Row(
                         children: [
-                          const Text(
-                            'Platform deposit address',
-                            style: TextStyle(
+                          Text(
+                            l10n.platformDepositAddress,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
@@ -414,13 +419,13 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                             onPressed: provider.isFetchingDepositAddress
                                 ? null
                                 : () => _loadDepositAddress(forceRefresh: true),
-                            tooltip: 'Refresh address',
+                            tooltip: l10n.refreshAddress,
                             icon: const Icon(Icons.refresh, size: 18),
                           ),
                         ],
                       ),
                       Text(
-                        'Send ${_selectedNetwork.label} assets to this address, then submit tx hash below.',
+                        l10n.sendAssetsToAddress(_selectedNetwork.label),
                         style: TextStyle(
                             color: Colors.grey.shade700, fontSize: 12),
                       ),
@@ -434,16 +439,16 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: const Color(0xFFF2C46D)),
                         ),
-                        child: const Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.warning_amber_rounded,
+                            const Icon(Icons.warning_amber_rounded,
                                 size: 16, color: Color(0xFFB56900)),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.',
-                                style: TextStyle(
+                                l10n.onlyTransferSelectedChain,
+                                style: const TextStyle(
                                     fontSize: 12, color: Color(0xFF7A4A00)),
                               ),
                             ),
@@ -491,7 +496,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                   FilledButton.icon(
                                     onPressed: _copyDepositAddress,
                                     icon: const Icon(Icons.copy, size: 16),
-                                    label: const Text('Copy address'),
+                                    label: Text(l10n.copyAddress),
                                   ),
                                   const SizedBox(height: 8),
                                   OutlinedButton.icon(
@@ -509,8 +514,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                     ),
                                     label: Text(
                                       _showFullDepositAddress
-                                          ? 'Hide full address'
-                                          : 'Show full address',
+                                          ? l10n.hideFullAddress
+                                          : l10n.showFullAddress,
                                     ),
                                   ),
                                   if ((_depositAddress?.note ?? '')
@@ -531,7 +536,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                         ),
                       ] else
                         Text(
-                          provider.error ?? 'Could not load deposit address.',
+                          provider.error ?? l10n.couldNotLoadDepositAddress,
                           style: const TextStyle(color: Colors.redAccent),
                         ),
                     ],
@@ -540,12 +545,12 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _txHashController,
-                  decoration: const InputDecoration(
-                    labelText: 'Transaction hash',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.transactionHashLabel,
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Tx hash is required'
+                      ? l10n.txHashRequired
                       : null,
                 ),
                 if (_depositPreview != null) ...[
@@ -568,14 +573,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Preview: ${_depositPreview!.status} · Amount ${_depositPreview!.onchainAmount}',
+                          l10n.depositPreviewLabel(_depositPreview!.status,
+                              _depositPreview!.onchainAmount),
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _depositPreview!.senderLinked
-                              ? 'Sender wallet is linked. Amount auto-filled from on-chain data.'
-                              : 'Sender wallet is not linked to your account. Link that wallet before submit.',
+                              ? l10n.depositPreviewLinked
+                              : l10n.depositPreviewNotLinked,
                           style: TextStyle(
                             fontSize: 12,
                             color: _depositPreview!.senderLinked
@@ -597,17 +603,17 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   },
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.amount,
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Amount is required';
+                      return l10n.amountRequired;
                     }
                     final n = double.tryParse(value.trim());
                     if (n == null || n <= 0) {
-                      return 'Amount must be > 0';
+                      return l10n.amountMustBePositive;
                     }
                     return null;
                   },
@@ -623,14 +629,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                         : _submit,
                     icon: const Icon(Icons.upload_file),
                     label: Text(provider.isSubmitting
-                        ? 'Submitting...'
-                        : 'Submit Deposit'),
+                        ? l10n.submitting
+                        : l10n.submitOnchainDeposit),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Recent transactions',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  l10n.recentTransactions,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -638,7 +644,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   runSpacing: 8,
                   children: [
                     ChoiceChip(
-                      label: const Text('All networks'),
+                      label: Text(l10n.allNetworks),
                       selected: _txFilterNetwork == null,
                       onSelected: (_) =>
                           setState(() => _txFilterNetwork = null),
@@ -659,7 +665,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   runSpacing: 8,
                   children: [
                     ChoiceChip(
-                      label: const Text('All types'),
+                      label: Text(l10n.allTypes),
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
@@ -676,19 +682,19 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 Row(
                   children: [
                     Text(
-                      '${filteredTransactions.length} result${filteredTransactions.length == 1 ? '' : 's'}',
+                      l10n.txResultCount(filteredTransactions.length),
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     const Spacer(),
                     ChoiceChip(
-                      label: const Text('Newest'),
+                      label: Text(l10n.sortNewest),
                       selected: _sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = true),
                     ),
                     const SizedBox(width: 8),
                     ChoiceChip(
-                      label: const Text('Oldest'),
+                      label: Text(l10n.sortOldest),
                       selected: !_sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = false),
@@ -745,7 +751,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                               Text(
                                   '${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
                               const SizedBox(height: 4),
-                              Text('To: ${_formatAddress(tx.toAddress)}'),
+                              Text(l10n
+                                  .txToAddress(_formatAddress(tx.toAddress))),
                             ],
                           ),
                         ),
@@ -758,11 +765,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                             ? Icons.receipt_long_outlined
                             : Icons.filter_alt_off_outlined,
                         title: provider.recentTransactions.isEmpty
-                            ? 'No on-chain activity yet'
-                            : 'No transactions match these filters',
+                            ? l10n.noOnchainActivityTitle
+                            : l10n.noTxMatchFilters,
                         message: provider.recentTransactions.isEmpty
-                            ? 'Deposits you submit will appear here so users can review status and confirmations.'
-                            : 'Try switching network, type, or sort to surface the transactions you need.',
+                            ? l10n.noOnchainActivityDesc
+                            : l10n.trySwitchingFilters,
                       ),
                     ),
                 ],

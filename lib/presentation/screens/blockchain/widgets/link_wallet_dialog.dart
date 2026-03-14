@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -78,6 +79,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
 
   Future<void> _requestChallenge() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context);
 
     final provider = context.read<BlockchainProvider>();
     final response = await provider.initiateWalletLink(
@@ -93,7 +95,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     if (response == null) {
       showAppSnackBar(
         context,
-        message: provider.error ?? 'Failed to request challenge',
+        message: provider.error ?? l10n.failedToRequestChallenge,
         type: SnackBarType.error,
       );
       return;
@@ -107,21 +109,21 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
 
     showAppSnackBar(
       context,
-      message: 'Challenge received. Expires in ${response.expiresIn}s',
+      message: l10n.challengeReceived(response.expiresIn),
       type: SnackBarType.info,
     );
   }
 
   Future<void> _signWithWallet() async {
     if (_challengeMessage == null) return;
+    final l10n = AppLocalizations.of(context);
 
     if (_testMode) {
       await Clipboard.setData(ClipboardData(text: _challengeMessage!));
       if (!mounted) return;
       showAppSnackBar(
         context,
-        message:
-            'Manual mode: challenge copied. Sign it in wallet manually, then paste signature below.',
+        message: l10n.manualModeCopied,
         type: SnackBarType.info,
       );
       return;
@@ -151,6 +153,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
       _suggestedConnectedAddress = result.suggestedAddress;
     });
 
+    if (!mounted) return;
     showAppSnackBar(
       context,
       message: result.message,
@@ -162,10 +165,11 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
 
   Future<void> _verify() async {
     final signature = _signatureController.text.trim();
+    final l10n = AppLocalizations.of(context);
     if (_challengeMessage == null) {
       showAppSnackBar(
         context,
-        message: 'Please request challenge first.',
+        message: l10n.requestChallengeFirst,
         type: SnackBarType.warning,
       );
       return;
@@ -173,7 +177,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     if (signature.isEmpty) {
       showAppSnackBar(
         context,
-        message: 'Signature is required.',
+        message: l10n.signatureRequired,
         type: SnackBarType.warning,
       );
       return;
@@ -191,14 +195,14 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     if (ok) {
       showAppSnackBar(
         context,
-        message: 'Wallet linked successfully.',
+        message: l10n.walletLinkedSuccess,
         type: SnackBarType.success,
       );
       Navigator.of(context).pop();
     } else {
       showAppSnackBar(
         context,
-        message: provider.error ?? 'Verify failed',
+        message: provider.error ?? l10n.verifyFailed,
         type: SnackBarType.error,
       );
     }
@@ -216,71 +220,71 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     }
   }
 
-  List<String> _nativeGuideSteps() {
+  List<String> _nativeGuideSteps(AppLocalizations l10n) {
     if (_testMode) {
-      return const [
-        'Step 2 copies the challenge text to your clipboard.',
-        'Open your wallet or signer tool manually and sign the exact challenge text.',
-        'Paste the resulting signature into the Signature field, then click Verify Link.',
+      return [
+        l10n.walletGuideTestStep1,
+        l10n.walletGuideNativeTestStep2,
+        l10n.walletGuideNativeTestStep3,
       ];
     }
 
     switch (_selectedNetwork) {
       case BlockchainNetwork.ethSepolia:
-        return const [
-          'Install MetaMask browser extension and unlock it.',
-          'Use an account on Sepolia network that matches the wallet address you entered.',
-          'Click Step 2 to trigger deep-link; if nothing opens, sign manually in MetaMask and paste signature below.',
+        return [
+          l10n.walletGuideNativeEthStep1,
+          l10n.walletGuideNativeEthStep2,
+          l10n.walletGuideNativeEthStep3,
         ];
       case BlockchainNetwork.solanaDevnet:
-        return const [
-          'Install Phantom extension or desktop app and unlock it.',
-          'Switch wallet to Solana Devnet and use the same address you entered.',
-          'Click Step 2; if deep-link fails, sign the challenge manually and paste signature below.',
+        return [
+          l10n.walletGuideNativeSolStep1,
+          l10n.walletGuideNativeSolStep2,
+          l10n.walletGuideNativeSolStep3,
         ];
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
-        return const [
-          'Install TronLink extension/app and unlock it.',
-          'Switch to Nile or Shasta account matching your entered address.',
-          'Click Step 2; if app does not open, open TronLink manually, sign challenge, then paste signature below.',
+        return [
+          l10n.walletGuideNativeTronStep1,
+          l10n.walletGuideNativeTronStep2,
+          l10n.walletGuideNativeTronStep3,
         ];
     }
   }
 
-  List<String> _webGuideSteps() {
+  List<String> _webGuideSteps(AppLocalizations l10n) {
     if (_testMode) {
-      return const [
-        'Step 2 copies the challenge text to your clipboard.',
-        'Sign the exact challenge text in your extension or wallet app.',
-        'Paste signature into the Signature field and click Verify Link.',
+      return [
+        l10n.walletGuideTestStep1,
+        l10n.walletGuideWebTestStep2,
+        l10n.walletGuideWebTestStep3,
       ];
     }
 
     switch (_selectedNetwork) {
       case BlockchainNetwork.ethSepolia:
-        return const [
-          'Use Chrome/Edge profile where MetaMask extension is installed and unlocked.',
-          'Ensure extension has site access on this app host (localhost or your domain).',
-          'Click Step 2 to open MetaMask popup and confirm personal_sign.',
+        return [
+          l10n.walletGuideWebEthStep1,
+          l10n.walletGuideWebEthStep2,
+          l10n.walletGuideWebEthStep3,
         ];
       case BlockchainNetwork.solanaDevnet:
-        return const [
-          'Use browser profile with Phantom extension enabled and unlocked.',
-          'Switch Phantom to Solana Devnet and confirm wallet address matches.',
-          'Click Step 2, approve the signature request, then continue verify.',
+        return [
+          l10n.walletGuideWebSolStep1,
+          l10n.walletGuideWebSolStep2,
+          l10n.walletGuideWebSolStep3,
         ];
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
-        return const [
-          'Use browser profile with TronLink extension enabled and unlocked.',
-          'Switch to Nile or Shasta account that matches your entered address.',
-          'Click Step 2 and confirm signature in TronLink popup.',
+        return [
+          l10n.walletGuideWebTronStep1,
+          l10n.walletGuideWebTronStep2,
+          l10n.walletGuideWebTronStep3,
         ];
     }
   }
 
-  Widget _buildPlatformNoticeCard() {
+  Widget _buildPlatformNoticeCard(AppLocalizations l10n) {
     if (widget.isWebDialog) {
       return Container(
         width: double.infinity,
@@ -296,10 +300,10 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
             Icon(Icons.language_outlined,
                 size: 18, color: Colors.green.shade700),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Web mode: this flow signs via browser extension popup when provider is available.',
-                style: TextStyle(fontSize: 12.5),
+                l10n.webModeNotice,
+                style: const TextStyle(fontSize: 12.5),
               ),
             ),
           ],
@@ -320,10 +324,10 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
         children: [
           Icon(Icons.devices_outlined, size: 18, color: Colors.indigo.shade700),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
-              'App mode: Windows/Mobile uses wallet app or manual-sign fallback depending on network/provider availability.',
-              style: TextStyle(fontSize: 12.5),
+              l10n.appModeNotice,
+              style: const TextStyle(fontSize: 12.5),
             ),
           ),
         ],
@@ -331,9 +335,15 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     );
   }
 
-  Widget _buildSigningGuideCard() {
+  Widget _buildSigningGuideCard(AppLocalizations l10n) {
     final walletName = _walletNameForNetwork();
-    final steps = widget.isWebDialog ? _webGuideSteps() : _nativeGuideSteps();
+    final steps =
+        widget.isWebDialog ? _webGuideSteps(l10n) : _nativeGuideSteps(l10n);
+    final guideTitle = _testMode
+        ? l10n.manualSignGuideTitle
+        : (widget.isWebDialog
+            ? l10n.browserSignGuideTitle(walletName)
+            : l10n.desktopSignGuideTitle(walletName));
 
     return Container(
       width: double.infinity,
@@ -360,11 +370,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
               ),
               const SizedBox(width: 8),
               Text(
-                _testMode
-                    ? 'Manual signing guide (Test mode)'
-                    : (widget.isWebDialog
-                        ? 'Browser signing guide ($walletName)'
-                        : 'Desktop/Mobile signing guide ($walletName)'),
+                guideTitle,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
@@ -384,11 +390,14 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.dialogTitle),
+      title: Text(widget.isWebDialog
+          ? AppLocalizations.of(context).linkWalletWeb
+          : AppLocalizations.of(context).linkWallet),
       content: SizedBox(
         width: widget.dialogWidth,
         child: Consumer<BlockchainProvider>(
           builder: (context, provider, _) {
+            final l10n = AppLocalizations.of(context);
             return SingleChildScrollView(
               child: Form(
                 key: _formKey,
@@ -397,16 +406,22 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     DropdownButtonFormField<BlockchainNetwork>(
-                      initialValue: _selectedNetwork,
-                      decoration: const InputDecoration(
-                        labelText: 'Network',
-                        border: OutlineInputBorder(),
+                      value: _selectedNetwork,
+                      isExpanded: true,
+                      menuMaxHeight: 300,
+                      decoration: InputDecoration(
+                        labelText: l10n.networkLabel,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       ),
                       items: BlockchainNetwork.values
                           .map(
                             (network) => DropdownMenuItem(
                               value: network,
-                              child: Text(network.label),
+                              child: Text(
+                                network.label,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           )
                           .toList(),
@@ -424,18 +439,18 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                             },
                     ),
                     const SizedBox(height: 10),
-                    _buildPlatformNoticeCard(),
+                    _buildPlatformNoticeCard(l10n),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _addressController,
                       enabled: !provider.isSubmitting,
-                      decoration: const InputDecoration(
-                        labelText: 'Wallet address',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.walletAddressLabel,
+                        border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Address is required';
+                          return l10n.walletAddressRequired;
                         }
                         return null;
                       },
@@ -450,8 +465,8 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                         child: OutlinedButton.icon(
                           icon:
                               const Icon(Icons.account_balance_wallet_outlined),
-                          label: Text(
-                              'Use connected account (${_suggestedConnectedAddress!})'),
+                          label: Text(l10n.useConnectedAccount(
+                              _suggestedConnectedAddress!)),
                           onPressed: provider.isSubmitting
                               ? null
                               : () {
@@ -465,8 +480,8 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
 
                                   showAppSnackBar(
                                     context,
-                                    message:
-                                        'Wallet address updated from MetaMask. Request a new challenge before signing.',
+                                    message: AppLocalizations.of(context)
+                                        .walletAddressUpdatedMetamask,
                                     type: SnackBarType.info,
                                   );
                                 },
@@ -477,16 +492,15 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                     TextFormField(
                       controller: _labelController,
                       enabled: !provider.isSubmitting,
-                      decoration: const InputDecoration(
-                        labelText: 'Label (optional)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.labelOptional,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 10),
                     SwitchListTile.adaptive(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text(
-                          'Enable test mode (manual signature fallback)'),
+                      title: Text(l10n.enableTestMode),
                       value: _testMode,
                       onChanged: provider.isSubmitting
                           ? null
@@ -501,16 +515,16 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                         icon: const Icon(Icons.key),
                         label: Text(
                           provider.isSubmitting
-                              ? 'Requesting...'
-                              : '1) Request Challenge',
+                              ? l10n.requestingChallenge
+                              : l10n.requestChallengeStep,
                         ),
                       ),
                     ),
                     if (_challengeMessage != null) ...[
                       const SizedBox(height: 12),
-                      const Text(
-                        'Challenge message',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.challengeMessageTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 6),
                       Container(
@@ -534,24 +548,24 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                           icon: const Icon(Icons.open_in_new),
                           label: Text(
                             _testMode
-                                ? '2) Copy Challenge (Manual)'
+                                ? l10n.copyChallengManual
                                 : (widget.isWebDialog
-                                    ? '2) Open Extension & Sign'
-                                    : '2) Open Wallet & Sign'),
+                                    ? l10n.openExtensionSign
+                                    : l10n.openWalletSign),
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      _buildSigningGuideCard(),
+                      _buildSigningGuideCard(l10n),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _signatureController,
                         maxLines: 3,
                         enabled: !provider.isSubmitting,
-                        decoration: const InputDecoration(
-                          labelText: 'Signature',
-                          hintText: 'Paste wallet signature here',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.signatureLabel,
+                          hintText: l10n.pasteSignatureHint,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],
@@ -565,13 +579,14 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(AppLocalizations.of(context).close),
         ),
         Consumer<BlockchainProvider>(
           builder: (context, provider, _) => FilledButton(
             onPressed: provider.isSubmitting ? null : _verify,
-            child:
-                Text(provider.isSubmitting ? 'Verifying...' : '3) Verify Link'),
+            child: Text(provider.isSubmitting
+                ? AppLocalizations.of(context).verifyingLink
+                : AppLocalizations.of(context).verifyLinkStep),
           ),
         ),
       ],

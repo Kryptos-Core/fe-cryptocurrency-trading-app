@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/linked_wallets_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/onchain_deposit_screen.dart';
@@ -34,20 +35,21 @@ class _BlockchainHubScreenState extends State<BlockchainHubScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('On-chain Wallets'),
+        title: Text(l10n.onchainWalletsTitle),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Linked Wallets'),
-            Tab(text: 'Deposit'),
-            Tab(text: 'Withdraw'),
+          tabs: [
+            Tab(text: l10n.onchainLinkedWallets),
+            Tab(text: l10n.deposit),
+            Tab(text: l10n.withdraw),
           ],
         ),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () async {
               final provider = context.read<BlockchainProvider>();

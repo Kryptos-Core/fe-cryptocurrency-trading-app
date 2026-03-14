@@ -991,6 +991,732 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open On-chain Wallet Flow'**
   String get openOnchainWalletFlow;
+
+  /// No description provided for @onchainWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain Wallets'**
+  String get onchainWalletsTitle;
+
+  /// No description provided for @onchainLinkedWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Wallets'**
+  String get onchainLinkedWallets;
+
+  /// No description provided for @addressCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get addressCopied;
+
+  /// No description provided for @copyFullAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy full address'**
+  String get copyFullAddress;
+
+  /// No description provided for @linkWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Wallet'**
+  String get linkWallet;
+
+  /// No description provided for @linkWalletWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Wallet (Web)'**
+  String get linkWalletWeb;
+
+  /// No description provided for @linkFirstWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Your First Wallet'**
+  String get linkFirstWallet;
+
+  /// No description provided for @noLinkedWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked wallets yet'**
+  String get noLinkedWalletsTitle;
+
+  /// No description provided for @noLinkedWalletsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.'**
+  String get noLinkedWalletsMessage;
+
+  /// No description provided for @unlinkWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink wallet'**
+  String get unlinkWalletTitle;
+
+  /// No description provided for @confirmUnlinkWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to unlink {address}?'**
+  String confirmUnlinkWallet(String address);
+
+  /// No description provided for @walletUnlinkedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet unlinked successfully'**
+  String get walletUnlinkedSuccess;
+
+  /// No description provided for @failedToUnlinkWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to unlink wallet'**
+  String get failedToUnlinkWallet;
+
+  /// No description provided for @walletLabelPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Label: {label}'**
+  String walletLabelPrefix(String label);
+
+  /// No description provided for @linkedAtPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked at: {datetime}'**
+  String linkedAtPrefix(String datetime);
+
+  /// No description provided for @unlinkAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get unlinkAction;
+
+  /// No description provided for @networkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get networkLabel;
+
+  /// No description provided for @walletAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet address'**
+  String get walletAddressLabel;
+
+  /// No description provided for @walletAddressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is required'**
+  String get walletAddressRequired;
+
+  /// No description provided for @labelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (optional)'**
+  String get labelOptional;
+
+  /// No description provided for @enableTestMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable test mode (manual signature fallback)'**
+  String get enableTestMode;
+
+  /// No description provided for @requestingChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting...'**
+  String get requestingChallenge;
+
+  /// No description provided for @requestChallengeStep.
+  ///
+  /// In en, this message translates to:
+  /// **'1) Request Challenge'**
+  String get requestChallengeStep;
+
+  /// No description provided for @challengeMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge message'**
+  String get challengeMessageTitle;
+
+  /// No description provided for @copyChallengManual.
+  ///
+  /// In en, this message translates to:
+  /// **'2) Copy Challenge (Manual)'**
+  String get copyChallengManual;
+
+  /// No description provided for @openExtensionSign.
+  ///
+  /// In en, this message translates to:
+  /// **'2) Open Extension & Sign'**
+  String get openExtensionSign;
+
+  /// No description provided for @openWalletSign.
+  ///
+  /// In en, this message translates to:
+  /// **'2) Open Wallet & Sign'**
+  String get openWalletSign;
+
+  /// No description provided for @signatureLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get signatureLabel;
+
+  /// No description provided for @pasteSignatureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste wallet signature here'**
+  String get pasteSignatureHint;
+
+  /// No description provided for @verifyingLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying...'**
+  String get verifyingLink;
+
+  /// No description provided for @verifyLinkStep.
+  ///
+  /// In en, this message translates to:
+  /// **'3) Verify Link'**
+  String get verifyLinkStep;
+
+  /// No description provided for @failedToRequestChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to request challenge'**
+  String get failedToRequestChallenge;
+
+  /// No description provided for @challengeReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge received. Expires in {seconds}s'**
+  String challengeReceived(int seconds);
+
+  /// No description provided for @manualModeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual mode: challenge copied. Sign it in wallet manually, then paste signature below.'**
+  String get manualModeCopied;
+
+  /// No description provided for @walletAddressUpdatedMetamask.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet address updated from MetaMask. Request a new challenge before signing.'**
+  String get walletAddressUpdatedMetamask;
+
+  /// No description provided for @useConnectedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Use connected account ({address})'**
+  String useConnectedAccount(String address);
+
+  /// No description provided for @requestChallengeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please request challenge first.'**
+  String get requestChallengeFirst;
+
+  /// No description provided for @signatureRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature is required.'**
+  String get signatureRequired;
+
+  /// No description provided for @walletLinkedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet linked successfully.'**
+  String get walletLinkedSuccess;
+
+  /// No description provided for @verifyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify failed'**
+  String get verifyFailed;
+
+  /// No description provided for @webModeNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Web mode: this flow signs via browser extension popup when provider is available.'**
+  String get webModeNotice;
+
+  /// No description provided for @appModeNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'App mode: Windows/Mobile uses wallet app or manual-sign fallback depending on network/provider availability.'**
+  String get appModeNotice;
+
+  /// No description provided for @manualSignGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual signing guide (Test mode)'**
+  String get manualSignGuideTitle;
+
+  /// No description provided for @browserSignGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser signing guide ({wallet})'**
+  String browserSignGuideTitle(String wallet);
+
+  /// No description provided for @desktopSignGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop/Mobile signing guide ({wallet})'**
+  String desktopSignGuideTitle(String wallet);
+
+  /// No description provided for @walletGuideTestStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 copies the challenge text to your clipboard.'**
+  String get walletGuideTestStep1;
+
+  /// No description provided for @walletGuideNativeTestStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open your wallet or signer tool manually and sign the exact challenge text.'**
+  String get walletGuideNativeTestStep2;
+
+  /// No description provided for @walletGuideNativeTestStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the resulting signature into the Signature field, then click Verify Link.'**
+  String get walletGuideNativeTestStep3;
+
+  /// No description provided for @walletGuideWebTestStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign the exact challenge text in your extension or wallet app.'**
+  String get walletGuideWebTestStep2;
+
+  /// No description provided for @walletGuideWebTestStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste signature into the Signature field and click Verify Link.'**
+  String get walletGuideWebTestStep3;
+
+  /// No description provided for @walletGuideNativeEthStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Install MetaMask browser extension and unlock it.'**
+  String get walletGuideNativeEthStep1;
+
+  /// No description provided for @walletGuideNativeEthStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an account on Sepolia network that matches the wallet address you entered.'**
+  String get walletGuideNativeEthStep2;
+
+  /// No description provided for @walletGuideNativeEthStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2 to trigger deep-link; if nothing opens, sign manually in MetaMask and paste signature below.'**
+  String get walletGuideNativeEthStep3;
+
+  /// No description provided for @walletGuideNativeSolStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Phantom extension or desktop app and unlock it.'**
+  String get walletGuideNativeSolStep1;
+
+  /// No description provided for @walletGuideNativeSolStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch wallet to Solana Devnet and use the same address you entered.'**
+  String get walletGuideNativeSolStep2;
+
+  /// No description provided for @walletGuideNativeSolStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2; if deep-link fails, sign the challenge manually and paste signature below.'**
+  String get walletGuideNativeSolStep3;
+
+  /// No description provided for @walletGuideNativeTronStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Install TronLink extension/app and unlock it.'**
+  String get walletGuideNativeTronStep1;
+
+  /// No description provided for @walletGuideNativeTronStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Nile or Shasta account matching your entered address.'**
+  String get walletGuideNativeTronStep2;
+
+  /// No description provided for @walletGuideNativeTronStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2; if app does not open, open TronLink manually, sign challenge, then paste signature below.'**
+  String get walletGuideNativeTronStep3;
+
+  /// No description provided for @walletGuideWebEthStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Chrome/Edge profile where MetaMask extension is installed and unlocked.'**
+  String get walletGuideWebEthStep1;
+
+  /// No description provided for @walletGuideWebEthStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Ensure extension has site access on this app host (localhost or your domain).'**
+  String get walletGuideWebEthStep2;
+
+  /// No description provided for @walletGuideWebEthStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2 to open MetaMask popup and confirm personal_sign.'**
+  String get walletGuideWebEthStep3;
+
+  /// No description provided for @walletGuideWebSolStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Use browser profile with Phantom extension enabled and unlocked.'**
+  String get walletGuideWebSolStep1;
+
+  /// No description provided for @walletGuideWebSolStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Phantom to Solana Devnet and confirm wallet address matches.'**
+  String get walletGuideWebSolStep2;
+
+  /// No description provided for @walletGuideWebSolStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2, approve the signature request, then continue verify.'**
+  String get walletGuideWebSolStep3;
+
+  /// No description provided for @walletGuideWebTronStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Use browser profile with TronLink extension enabled and unlocked.'**
+  String get walletGuideWebTronStep1;
+
+  /// No description provided for @walletGuideWebTronStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Nile or Shasta account that matches your entered address.'**
+  String get walletGuideWebTronStep2;
+
+  /// No description provided for @walletGuideWebTronStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click Step 2 and confirm signature in TronLink popup.'**
+  String get walletGuideWebTronStep3;
+
+  /// No description provided for @submitOnchainDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit on-chain deposit'**
+  String get submitOnchainDeposit;
+
+  /// No description provided for @onchainDepositDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'After sending tokens from your wallet to exchange deposit address, paste tx hash here.'**
+  String get onchainDepositDesc;
+
+  /// No description provided for @platformDepositAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform deposit address'**
+  String get platformDepositAddress;
+
+  /// No description provided for @sendAssetsToAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {network} assets to this address, then submit tx hash below.'**
+  String sendAssetsToAddress(String network);
+
+  /// No description provided for @onlyTransferSelectedChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.'**
+  String get onlyTransferSelectedChain;
+
+  /// No description provided for @refreshAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh address'**
+  String get refreshAddress;
+
+  /// No description provided for @copyAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get copyAddress;
+
+  /// No description provided for @hideFullAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide full address'**
+  String get hideFullAddress;
+
+  /// No description provided for @showFullAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Show full address'**
+  String get showFullAddress;
+
+  /// No description provided for @couldNotLoadDepositAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load deposit address.'**
+  String get couldNotLoadDepositAddress;
+
+  /// No description provided for @transactionHashLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction hash'**
+  String get transactionHashLabel;
+
+  /// No description provided for @txHashRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Tx hash is required'**
+  String get txHashRequired;
+
+  /// No description provided for @depositAddressCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit address copied'**
+  String get depositAddressCopied;
+
+  /// No description provided for @senderWalletNotLinkedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender wallet is not linked. Link that wallet before submitting deposit.'**
+  String get senderWalletNotLinkedError;
+
+  /// No description provided for @depositSubmittedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit submitted successfully'**
+  String get depositSubmittedSuccess;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount is required'**
+  String get amountRequired;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be > 0'**
+  String get amountMustBePositive;
+
+  /// No description provided for @depositPreviewLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender wallet is linked. Amount auto-filled from on-chain data.'**
+  String get depositPreviewLinked;
+
+  /// No description provided for @depositPreviewNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender wallet is not linked to your account. Link that wallet before submit.'**
+  String get depositPreviewNotLinked;
+
+  /// No description provided for @depositPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview: {status} · Amount {amount}'**
+  String depositPreviewLabel(String status, String amount);
+
+  /// No description provided for @allNetworks.
+  ///
+  /// In en, this message translates to:
+  /// **'All networks'**
+  String get allNetworks;
+
+  /// No description provided for @txResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String txResultCount(int count);
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get sortOldest;
+
+  /// No description provided for @noTxMatchFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match these filters'**
+  String get noTxMatchFilters;
+
+  /// No description provided for @trySwitchingFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Try switching network, type, or sort to surface the transactions you need.'**
+  String get trySwitchingFilters;
+
+  /// No description provided for @txToAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'To: {address}'**
+  String txToAddress(String address);
+
+  /// No description provided for @txTypeDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits'**
+  String get txTypeDeposits;
+
+  /// No description provided for @txTypeWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawals'**
+  String get txTypeWithdrawals;
+
+  /// No description provided for @txTypeTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get txTypeTransfers;
+
+  /// No description provided for @noOnchainActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No on-chain activity yet'**
+  String get noOnchainActivityTitle;
+
+  /// No description provided for @noOnchainActivityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits you submit will appear here so users can review status and confirmations.'**
+  String get noOnchainActivityDesc;
+
+  /// No description provided for @trySwitchingFiltersDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Try switching network, type, or sort to surface the transactions you need.'**
+  String get trySwitchingFiltersDeposit;
+
+  /// No description provided for @requestOnchainWithdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Request on-chain withdrawal'**
+  String get requestOnchainWithdrawal;
+
+  /// No description provided for @withdrawalDestinationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal destination must be a verified linked wallet on the same network.'**
+  String get withdrawalDestinationDesc;
+
+  /// No description provided for @linkedWalletDropdownLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked wallet'**
+  String get linkedWalletDropdownLabel;
+
+  /// No description provided for @selectDestinationWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select destination linked wallet'**
+  String get selectDestinationWallet;
+
+  /// No description provided for @withdrawalRequestSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal request submitted'**
+  String get withdrawalRequestSubmitted;
+
+  /// No description provided for @requestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Request failed'**
+  String get requestFailed;
+
+  /// No description provided for @noVerifiedWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No verified wallet on this network'**
+  String get noVerifiedWalletTitle;
+
+  /// No description provided for @noVerifiedWalletDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Link and verify a wallet in the linked-wallets tab before requesting a withdrawal here.'**
+  String get noVerifiedWalletDesc;
+
+  /// No description provided for @submitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get submitting;
+
+  /// No description provided for @requestWithdrawalAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Withdrawal'**
+  String get requestWithdrawalAction;
+
+  /// No description provided for @noWithdrawalActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No withdrawal activity yet'**
+  String get noWithdrawalActivityTitle;
+
+  /// No description provided for @noWithdrawalActivityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved withdrawals will show up here with their latest on-chain status.'**
+  String get noWithdrawalActivityDesc;
+
+  /// No description provided for @tryAnotherFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another network or type chip to quickly bring matching transactions back.'**
+  String get tryAnotherFilter;
+
+  /// No description provided for @payosOpenLinkFallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open PayOS automatically'**
+  String get payosOpenLinkFallbackTitle;
+
+  /// No description provided for @payosOpenLinkFallbackDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment link is ready. You can copy it or try opening it again.'**
+  String get payosOpenLinkFallbackDesc;
+
+  /// No description provided for @payosCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get payosCopyLink;
+
+  /// No description provided for @payosOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get payosOpenInBrowser;
+
+  /// No description provided for @payosLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment link copied'**
+  String get payosLinkCopied;
+
+  /// No description provided for @payosTapToOpenCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open checkout'**
+  String get payosTapToOpenCheckout;
+
+  /// No description provided for @payosPaymentCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment was cancelled or expired.'**
+  String get payosPaymentCancelled;
 }
 
 class _AppLocalizationsDelegate

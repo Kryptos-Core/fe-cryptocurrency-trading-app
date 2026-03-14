@@ -21,9 +21,18 @@ class DepositRepositoryImpl implements DepositRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> createDepositLink(double amount) async {
+  Future<Map<String, dynamic>> createDepositLink(int amount) async {
     try {
       return await remoteDataSource.createDepositLink(amount);
+    } on ServerException catch (e) {
+      throw ServerException(message: e.message);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> syncDepositStatus(int orderCode) async {
+    try {
+      return await remoteDataSource.syncDepositStatus(orderCode);
     } on ServerException catch (e) {
       throw ServerException(message: e.message);
     }

@@ -149,5 +149,184 @@
   "payosOrderProcessing": "Order is being processed. The system will auto-update when PayOS webhook arrives.",
   "payosNeedFiatTitle": "Need fiat deposit instead?",
   "payosNeedFiatDesc": "Use PayOS to top up VND, then return to trade or transfer funds.",
-  "openOnchainWalletFlow": "Open On-chain Wallet Flow"
+  "openOnchainWalletFlow": "Open On-chain Wallet Flow",
+
+  "onchainWalletsTitle": "On-chain Wallets",
+  "onchainLinkedWallets": "Linked Wallets",
+  "addressCopied": "Address copied",
+  "copyFullAddress": "Copy full address",
+  "linkWallet": "Link Wallet",
+  "linkWalletWeb": "Link Wallet (Web)",
+  "linkFirstWallet": "Link Your First Wallet",
+  "noLinkedWalletsTitle": "No linked wallets yet",
+  "noLinkedWalletsMessage": "Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.",
+  "unlinkWalletTitle": "Unlink wallet",
+  "confirmUnlinkWallet": "Are you sure you want to unlink {address}?",
+  "@confirmUnlinkWallet": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "walletUnlinkedSuccess": "Wallet unlinked successfully",
+  "failedToUnlinkWallet": "Failed to unlink wallet",
+  "walletLabelPrefix": "Label: {label}",
+  "@walletLabelPrefix": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "linkedAtPrefix": "Linked at: {datetime}",
+  "@linkedAtPrefix": {
+    "placeholders": {
+      "datetime": { "type": "String" }
+    }
+  },
+  "unlinkAction": "Unlink",
+  "networkLabel": "Network",
+  "walletAddressLabel": "Wallet address",
+  "walletAddressRequired": "Address is required",
+  "labelOptional": "Label (optional)",
+  "enableTestMode": "Enable test mode (manual signature fallback)",
+  "requestingChallenge": "Requesting...",
+  "requestChallengeStep": "1) Request Challenge",
+  "challengeMessageTitle": "Challenge message",
+  "copyChallengManual": "2) Copy Challenge (Manual)",
+  "openExtensionSign": "2) Open Extension & Sign",
+  "openWalletSign": "2) Open Wallet & Sign",
+  "signatureLabel": "Signature",
+  "pasteSignatureHint": "Paste wallet signature here",
+  "verifyingLink": "Verifying...",
+  "verifyLinkStep": "3) Verify Link",
+  "failedToRequestChallenge": "Failed to request challenge",
+  "challengeReceived": "Challenge received. Expires in {seconds}s",
+  "@challengeReceived": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "manualModeCopied": "Manual mode: challenge copied. Sign it in wallet manually, then paste signature below.",
+  "walletAddressUpdatedMetamask": "Wallet address updated from MetaMask. Request a new challenge before signing.",
+  "useConnectedAccount": "Use connected account ({address})",
+  "@useConnectedAccount": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "requestChallengeFirst": "Please request challenge first.",
+  "signatureRequired": "Signature is required.",
+  "walletLinkedSuccess": "Wallet linked successfully.",
+  "verifyFailed": "Verify failed",
+  "webModeNotice": "Web mode: this flow signs via browser extension popup when provider is available.",
+  "appModeNotice": "App mode: Windows/Mobile uses wallet app or manual-sign fallback depending on network/provider availability.",
+  "manualSignGuideTitle": "Manual signing guide (Test mode)",
+  "browserSignGuideTitle": "Browser signing guide ({wallet})",
+  "@browserSignGuideTitle": {
+    "placeholders": {
+      "wallet": { "type": "String" }
+    }
+  },
+  "desktopSignGuideTitle": "Desktop/Mobile signing guide ({wallet})",
+  "@desktopSignGuideTitle": {
+    "placeholders": {
+      "wallet": { "type": "String" }
+    }
+  },
+  "walletGuideTestStep1": "Step 2 copies the challenge text to your clipboard.",
+  "walletGuideNativeTestStep2": "Open your wallet or signer tool manually and sign the exact challenge text.",
+  "walletGuideNativeTestStep3": "Paste the resulting signature into the Signature field, then click Verify Link.",
+  "walletGuideWebTestStep2": "Sign the exact challenge text in your extension or wallet app.",
+  "walletGuideWebTestStep3": "Paste signature into the Signature field and click Verify Link.",
+  "walletGuideNativeEthStep1": "Install MetaMask browser extension and unlock it.",
+  "walletGuideNativeEthStep2": "Use an account on Sepolia network that matches the wallet address you entered.",
+  "walletGuideNativeEthStep3": "Click Step 2 to trigger deep-link; if nothing opens, sign manually in MetaMask and paste signature below.",
+  "walletGuideNativeSolStep1": "Install Phantom extension or desktop app and unlock it.",
+  "walletGuideNativeSolStep2": "Switch wallet to Solana Devnet and use the same address you entered.",
+  "walletGuideNativeSolStep3": "Click Step 2; if deep-link fails, sign the challenge manually and paste signature below.",
+  "walletGuideNativeTronStep1": "Install TronLink extension/app and unlock it.",
+  "walletGuideNativeTronStep2": "Switch to Nile or Shasta account matching your entered address.",
+  "walletGuideNativeTronStep3": "Click Step 2; if app does not open, open TronLink manually, sign challenge, then paste signature below.",
+  "walletGuideWebEthStep1": "Use Chrome/Edge profile where MetaMask extension is installed and unlocked.",
+  "walletGuideWebEthStep2": "Ensure extension has site access on this app host (localhost or your domain).",
+  "walletGuideWebEthStep3": "Click Step 2 to open MetaMask popup and confirm personal_sign.",
+  "walletGuideWebSolStep1": "Use browser profile with Phantom extension enabled and unlocked.",
+  "walletGuideWebSolStep2": "Switch Phantom to Solana Devnet and confirm wallet address matches.",
+  "walletGuideWebSolStep3": "Click Step 2, approve the signature request, then continue verify.",
+  "walletGuideWebTronStep1": "Use browser profile with TronLink extension enabled and unlocked.",
+  "walletGuideWebTronStep2": "Switch to Nile or Shasta account that matches your entered address.",
+  "walletGuideWebTronStep3": "Click Step 2 and confirm signature in TronLink popup.",
+  "submitOnchainDeposit": "Submit on-chain deposit",
+  "onchainDepositDesc": "After sending tokens from your wallet to exchange deposit address, paste tx hash here.",
+  "platformDepositAddress": "Platform deposit address",
+  "sendAssetsToAddress": "Send {network} assets to this address, then submit tx hash below.",
+  "@sendAssetsToAddress": {
+    "placeholders": {
+      "network": { "type": "String" }
+    }
+  },
+  "onlyTransferSelectedChain": "Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.",
+  "refreshAddress": "Refresh address",
+  "copyAddress": "Copy address",
+  "hideFullAddress": "Hide full address",
+  "showFullAddress": "Show full address",
+  "couldNotLoadDepositAddress": "Could not load deposit address.",
+  "transactionHashLabel": "Transaction hash",
+  "txHashRequired": "Tx hash is required",
+  "depositAddressCopied": "Deposit address copied",
+  "senderWalletNotLinkedError": "Sender wallet is not linked. Link that wallet before submitting deposit.",
+  "depositSubmittedSuccess": "Deposit submitted successfully",
+  "amountRequired": "Amount is required",
+  "amountMustBePositive": "Amount must be > 0",
+  "depositPreviewLinked": "Sender wallet is linked. Amount auto-filled from on-chain data.",
+  "depositPreviewNotLinked": "Sender wallet is not linked to your account. Link that wallet before submit.",
+  "depositPreviewLabel": "Preview: {status} · Amount {amount}",
+  "@depositPreviewLabel": {
+    "placeholders": {
+      "status": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "allNetworks": "All networks",
+  "allTypes": "All types",
+  "txResultCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@txResultCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "sortNewest": "Newest",
+  "sortOldest": "Oldest",
+  "noTxMatchFilters": "No transactions match these filters",
+  "trySwitchingFilters": "Try switching network, type, or sort to surface the transactions you need.",
+  "txToAddress": "To: {address}",
+  "@txToAddress": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "txTypeDeposits": "Deposits",
+  "txTypeWithdrawals": "Withdrawals",
+  "txTypeTransfers": "Transfers",
+  "noOnchainActivityTitle": "No on-chain activity yet",
+  "noOnchainActivityDesc": "Deposits you submit will appear here so users can review status and confirmations.",
+  "trySwitchingFiltersDeposit": "Try switching network, type, or sort to surface the transactions you need.",
+  "requestOnchainWithdrawal": "Request on-chain withdrawal",
+  "withdrawalDestinationDesc": "Withdrawal destination must be a verified linked wallet on the same network.",
+  "linkedWalletDropdownLabel": "Linked wallet",
+  "selectDestinationWallet": "Please select destination linked wallet",
+  "withdrawalRequestSubmitted": "Withdrawal request submitted",
+  "requestFailed": "Request failed",
+  "noVerifiedWalletTitle": "No verified wallet on this network",
+  "noVerifiedWalletDesc": "Link and verify a wallet in the linked-wallets tab before requesting a withdrawal here.",
+  "submitting": "Submitting...",
+  "requestWithdrawalAction": "Request Withdrawal",
+  "noWithdrawalActivityTitle": "No withdrawal activity yet",
+  "noWithdrawalActivityDesc": "Approved withdrawals will show up here with their latest on-chain status.",
+  "tryAnotherFilter": "Try another network or type chip to quickly bring matching transactions back.",
+  "payosOpenLinkFallbackTitle": "Unable to open PayOS automatically",
+  "payosOpenLinkFallbackDesc": "Your payment link is ready. You can copy it or try opening it again.",
+  "payosCopyLink": "Copy link",
+  "payosOpenInBrowser": "Open in browser",
+  "payosLinkCopied": "Payment link copied",
+  "payosTapToOpenCheckout": "Tap to open checkout",
+  "payosPaymentCancelled": "Payment was cancelled or expired."
 }

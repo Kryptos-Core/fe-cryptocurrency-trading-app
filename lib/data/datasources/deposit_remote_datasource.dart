@@ -5,7 +5,8 @@ import 'package:dio/dio.dart';
 
 abstract class DepositRemoteDataSource {
   Future<List<DepositModel>> getMyDeposits();
-  Future<Map<String, dynamic>> createDepositLink(double amount);
+  Future<Map<String, dynamic>> createDepositLink(int amount);
+  Future<Map<String, dynamic>> syncDepositStatus(int orderCode);
 }
 
 class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
@@ -32,7 +33,7 @@ class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> createDepositLink(double amount) async {
+  Future<Map<String, dynamic>> createDepositLink(int amount) async {
     try {
       final response = await dioClient.dio.post(
         '/deposits',
@@ -42,6 +43,24 @@ class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
           message: e.response?.data?['message'] ?? 'Failed to create deposit');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> syncDepositStatus(int orderCode) async {
+    try {
+      final response =
+          await dioClient.dio.get('/deposits/$orderCode/sync-status');
+      if (response.data is Map<String, dynamic>) {
+        return response.data as Map<String, dynamic>;
+      }
+      return {'updated': false};
+    } on DioException catch (e) {
+      throw ServerException(
+          message:
+              e.response?.data?['message'] ?? 'Failed to sync deposit status');
     } catch (e) {
       throw ServerException(message: e.toString());
     }

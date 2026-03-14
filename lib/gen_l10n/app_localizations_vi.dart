@@ -286,7 +286,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get filterByType => 'Lọc theo loại';
 
   @override
-  String get allTypes => 'Tất cả';
+  String get allTypes => 'Tất cả loại';
 
   @override
   String get date => 'Ngày';
@@ -460,4 +460,436 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get openOnchainWalletFlow => 'Mở luồng ví On-chain';
+
+  @override
+  String get onchainWalletsTitle => 'Ví On-chain';
+
+  @override
+  String get onchainLinkedWallets => 'Ví đã liên kết';
+
+  @override
+  String get addressCopied => 'Đã sao chép địa chỉ';
+
+  @override
+  String get copyFullAddress => 'Sao chép địa chỉ đầy đủ';
+
+  @override
+  String get linkWallet => 'Liên kết ví';
+
+  @override
+  String get linkWalletWeb => 'Liên kết ví (Web)';
+
+  @override
+  String get linkFirstWallet => 'Liên kết ví đầu tiên';
+
+  @override
+  String get noLinkedWalletsTitle => 'Chưa có ví nào được liên kết';
+
+  @override
+  String get noLinkedWalletsMessage =>
+      'Hãy kết nối ví Tron, Solana hoặc Sepolia trước để có đích nạp và rút tiền đã xác minh.';
+
+  @override
+  String get unlinkWalletTitle => 'Hủy liên kết ví';
+
+  @override
+  String confirmUnlinkWallet(String address) {
+    return 'Bạn có chắc muốn hủy liên kết $address?';
+  }
+
+  @override
+  String get walletUnlinkedSuccess => 'Đã hủy liên kết ví thành công';
+
+  @override
+  String get failedToUnlinkWallet => 'Hủy liên kết ví thất bại';
+
+  @override
+  String walletLabelPrefix(String label) {
+    return 'Nhãn: $label';
+  }
+
+  @override
+  String linkedAtPrefix(String datetime) {
+    return 'Liên kết lúc: $datetime';
+  }
+
+  @override
+  String get unlinkAction => 'Hủy liên kết';
+
+  @override
+  String get networkLabel => 'Mạng lưới';
+
+  @override
+  String get walletAddressLabel => 'Địa chỉ ví';
+
+  @override
+  String get walletAddressRequired => 'Địa chỉ là bắt buộc';
+
+  @override
+  String get labelOptional => 'Nhãn (tùy chọn)';
+
+  @override
+  String get enableTestMode => 'Bật chế độ thử nghiệm (ký thủ công)';
+
+  @override
+  String get requestingChallenge => 'Đang yêu cầu...';
+
+  @override
+  String get requestChallengeStep => '1) Yêu cầu thử thách';
+
+  @override
+  String get challengeMessageTitle => 'Thông điệp thử thách';
+
+  @override
+  String get copyChallengManual => '2) Sao chép thử thách (Thủ công)';
+
+  @override
+  String get openExtensionSign => '2) Mở Extension & Ký';
+
+  @override
+  String get openWalletSign => '2) Mở ví & Ký';
+
+  @override
+  String get signatureLabel => 'Chữ ký';
+
+  @override
+  String get pasteSignatureHint => 'Dán chữ ký ví vào đây';
+
+  @override
+  String get verifyingLink => 'Đang xác minh...';
+
+  @override
+  String get verifyLinkStep => '3) Xác minh liên kết';
+
+  @override
+  String get failedToRequestChallenge => 'Không thể yêu cầu thử thách';
+
+  @override
+  String challengeReceived(int seconds) {
+    return 'Đã nhận thử thách. Hết hạn sau $seconds giây';
+  }
+
+  @override
+  String get manualModeCopied =>
+      'Chế độ thủ công: đã sao chép thử thách. Ký bằng ví thủ công rồi dán chữ ký bên dưới.';
+
+  @override
+  String get walletAddressUpdatedMetamask =>
+      'Địa chỉ ví đã được cập nhật từ MetaMask. Vui lòng yêu cầu thử thách mới trước khi ký.';
+
+  @override
+  String useConnectedAccount(String address) {
+    return 'Dùng tài khoản đã kết nối ($address)';
+  }
+
+  @override
+  String get requestChallengeFirst => 'Vui lòng yêu cầu thử thách trước.';
+
+  @override
+  String get signatureRequired => 'Chữ ký là bắt buộc.';
+
+  @override
+  String get walletLinkedSuccess => 'Liên kết ví thành công.';
+
+  @override
+  String get verifyFailed => 'Xác minh thất bại';
+
+  @override
+  String get webModeNotice =>
+      'Chế độ Web: luồng này ký qua cửa sổ popup của extension trình duyệt khi có provider.';
+
+  @override
+  String get appModeNotice =>
+      'Chế độ App: Windows/Mobile dùng ứng dụng ví hoặc ký thủ công tùy thuộc vào mạng và provider.';
+
+  @override
+  String get manualSignGuideTitle =>
+      'Hướng dẫn ký thủ công (Chế độ thử nghiệm)';
+
+  @override
+  String browserSignGuideTitle(String wallet) {
+    return 'Hướng dẫn ký trên trình duyệt ($wallet)';
+  }
+
+  @override
+  String desktopSignGuideTitle(String wallet) {
+    return 'Hướng dẫn ký trên Desktop/Mobile ($wallet)';
+  }
+
+  @override
+  String get walletGuideTestStep1 =>
+      'Bước 2 sao chép nội dung thử thách vào clipboard.';
+
+  @override
+  String get walletGuideNativeTestStep2 =>
+      'Mở ví hoặc công cụ ký thủ công và ký nội dung thử thách chính xác.';
+
+  @override
+  String get walletGuideNativeTestStep3 =>
+      'Dán chữ ký vào ô Chữ ký, sau đó nhấn Xác minh liên kết.';
+
+  @override
+  String get walletGuideWebTestStep2 =>
+      'Ký nội dung thử thách chính xác trong extension hoặc ứng dụng ví.';
+
+  @override
+  String get walletGuideWebTestStep3 =>
+      'Dán chữ ký vào ô Chữ ký và nhấn Xác minh liên kết.';
+
+  @override
+  String get walletGuideNativeEthStep1 =>
+      'Cài đặt extension MetaMask trên trình duyệt và mở khóa.';
+
+  @override
+  String get walletGuideNativeEthStep2 =>
+      'Dùng tài khoản trên mạng Sepolia khớp với địa chỉ ví đã nhập.';
+
+  @override
+  String get walletGuideNativeEthStep3 =>
+      'Nhấn Bước 2 để kích hoạt deep-link; nếu không mở được, ký thủ công trong MetaMask rồi dán chữ ký.';
+
+  @override
+  String get walletGuideNativeSolStep1 =>
+      'Cài đặt extension hoặc ứng dụng Phantom và mở khóa.';
+
+  @override
+  String get walletGuideNativeSolStep2 =>
+      'Chuyển ví sang Solana Devnet và dùng địa chỉ đã nhập.';
+
+  @override
+  String get walletGuideNativeSolStep3 =>
+      'Nhấn Bước 2; nếu deep-link thất bại, ký thử thách thủ công rồi dán chữ ký.';
+
+  @override
+  String get walletGuideNativeTronStep1 =>
+      'Cài đặt extension/ứng dụng TronLink và mở khóa.';
+
+  @override
+  String get walletGuideNativeTronStep2 =>
+      'Chuyển sang tài khoản Nile hoặc Shasta khớp với địa chỉ đã nhập.';
+
+  @override
+  String get walletGuideNativeTronStep3 =>
+      'Nhấn Bước 2; nếu ứng dụng không mở, mở TronLink thủ công, ký thử thách rồi dán chữ ký.';
+
+  @override
+  String get walletGuideWebEthStep1 =>
+      'Dùng trình duyệt Chrome/Edge có extension MetaMask đã cài và mở khóa.';
+
+  @override
+  String get walletGuideWebEthStep2 =>
+      'Đảm bảo extension có quyền truy cập site này (localhost hoặc domain của bạn).';
+
+  @override
+  String get walletGuideWebEthStep3 =>
+      'Nhấn Bước 2 để mở popup MetaMask và xác nhận personal_sign.';
+
+  @override
+  String get walletGuideWebSolStep1 =>
+      'Dùng trình duyệt có extension Phantom đã bật và mở khóa.';
+
+  @override
+  String get walletGuideWebSolStep2 =>
+      'Chuyển Phantom sang Solana Devnet và xác nhận địa chỉ ví khớp.';
+
+  @override
+  String get walletGuideWebSolStep3 =>
+      'Nhấn Bước 2, chấp nhận yêu cầu ký, sau đó tiếp tục xác minh.';
+
+  @override
+  String get walletGuideWebTronStep1 =>
+      'Dùng trình duyệt có extension TronLink đã bật và mở khóa.';
+
+  @override
+  String get walletGuideWebTronStep2 =>
+      'Chuyển sang tài khoản Nile hoặc Shasta khớp với địa chỉ đã nhập.';
+
+  @override
+  String get walletGuideWebTronStep3 =>
+      'Nhấn Bước 2 và xác nhận chữ ký trong popup TronLink.';
+
+  @override
+  String get submitOnchainDeposit => 'Gửi nạp tiền on-chain';
+
+  @override
+  String get onchainDepositDesc =>
+      'Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.';
+
+  @override
+  String get platformDepositAddress => 'Địa chỉ nạp của sàn';
+
+  @override
+  String sendAssetsToAddress(String network) {
+    return 'Gửi tài sản $network đến địa chỉ này, sau đó gửi tx hash bên dưới.';
+  }
+
+  @override
+  String get onlyTransferSelectedChain =>
+      'Chỉ chuyển trên chain đã chọn. Gửi nhầm chain có thể gây mất vĩnh viễn.';
+
+  @override
+  String get refreshAddress => 'Làm mới địa chỉ';
+
+  @override
+  String get copyAddress => 'Sao chép địa chỉ';
+
+  @override
+  String get hideFullAddress => 'Ẩn địa chỉ đầy đủ';
+
+  @override
+  String get showFullAddress => 'Hiện địa chỉ đầy đủ';
+
+  @override
+  String get couldNotLoadDepositAddress => 'Không thể tải địa chỉ nạp tiền.';
+
+  @override
+  String get transactionHashLabel => 'Hash giao dịch';
+
+  @override
+  String get txHashRequired => 'Hash giao dịch là bắt buộc';
+
+  @override
+  String get depositAddressCopied => 'Đã sao chép địa chỉ nạp tiền';
+
+  @override
+  String get senderWalletNotLinkedError =>
+      'Ví người gửi chưa được liên kết. Hãy liên kết ví đó trước khi gửi nạp tiền.';
+
+  @override
+  String get depositSubmittedSuccess => 'Gửi nạp tiền thành công';
+
+  @override
+  String get amountRequired => 'Số lượng là bắt buộc';
+
+  @override
+  String get amountMustBePositive => 'Số lượng phải > 0';
+
+  @override
+  String get depositPreviewLinked =>
+      'Ví người gửi đã liên kết. Số lượng được tự điền từ dữ liệu on-chain.';
+
+  @override
+  String get depositPreviewNotLinked =>
+      'Ví người gửi chưa liên kết với tài khoản. Hãy liên kết ví đó trước khi gửi.';
+
+  @override
+  String depositPreviewLabel(String status, String amount) {
+    return 'Xem trước: $status · Số lượng $amount';
+  }
+
+  @override
+  String get allNetworks => 'Tất cả mạng lưới';
+
+  @override
+  String txResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kết quả',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sortNewest => 'Mới nhất';
+
+  @override
+  String get sortOldest => 'Cũ nhất';
+
+  @override
+  String get noTxMatchFilters => 'Không có giao dịch phù hợp với bộ lọc';
+
+  @override
+  String get trySwitchingFilters =>
+      'Thử chuyển mạng lưới, loại hoặc sắp xếp để tìm giao dịch cần.';
+
+  @override
+  String txToAddress(String address) {
+    return 'Đến: $address';
+  }
+
+  @override
+  String get txTypeDeposits => 'Nạp tiền';
+
+  @override
+  String get txTypeWithdrawals => 'Rút tiền';
+
+  @override
+  String get txTypeTransfers => 'Chuyển khoản';
+
+  @override
+  String get noOnchainActivityTitle => 'Chưa có hoạt động on-chain';
+
+  @override
+  String get noOnchainActivityDesc =>
+      'Các lần nạp tiền bạn gửi sẽ hiện ở đây để xem trạng thái và xác nhận.';
+
+  @override
+  String get trySwitchingFiltersDeposit =>
+      'Thử chuyển mạng lưới, loại hoặc sắp xếp để tìm giao dịch cần.';
+
+  @override
+  String get requestOnchainWithdrawal => 'Yêu cầu rút tiền on-chain';
+
+  @override
+  String get withdrawalDestinationDesc =>
+      'Đích rút tiền phải là ví đã được xác minh trên cùng mạng lưới.';
+
+  @override
+  String get linkedWalletDropdownLabel => 'Ví đã liên kết';
+
+  @override
+  String get selectDestinationWallet => 'Vui lòng chọn ví đích đã liên kết';
+
+  @override
+  String get withdrawalRequestSubmitted => 'Yêu cầu rút tiền đã được gửi';
+
+  @override
+  String get requestFailed => 'Yêu cầu thất bại';
+
+  @override
+  String get noVerifiedWalletTitle => 'Không có ví đã xác minh trên mạng này';
+
+  @override
+  String get noVerifiedWalletDesc =>
+      'Hãy liên kết và xác minh ví ở tab ví đã liên kết trước khi yêu cầu rút tiền.';
+
+  @override
+  String get submitting => 'Đang gửi...';
+
+  @override
+  String get requestWithdrawalAction => 'Yêu cầu rút tiền';
+
+  @override
+  String get noWithdrawalActivityTitle => 'Chưa có hoạt động rút tiền';
+
+  @override
+  String get noWithdrawalActivityDesc =>
+      'Các lần rút tiền được duyệt sẽ hiện ở đây với trạng thái on-chain mới nhất.';
+
+  @override
+  String get tryAnotherFilter =>
+      'Thử chip mạng lưới hoặc loại khác để tìm giao dịch phù hợp.';
+
+  @override
+  String get payosOpenLinkFallbackTitle => 'Không thể tự mở PayOS';
+
+  @override
+  String get payosOpenLinkFallbackDesc =>
+      'Link thanh toán đã sẵn sàng. Bạn có thể sao chép link hoặc thử mở lại.';
+
+  @override
+  String get payosCopyLink => 'Sao chép link';
+
+  @override
+  String get payosOpenInBrowser => 'Mở trên trình duyệt';
+
+  @override
+  String get payosLinkCopied => 'Đã sao chép link thanh toán';
+
+  @override
+  String get payosTapToOpenCheckout => 'Nhấn để mở trang thanh toán';
+
+  @override
+  String get payosPaymentCancelled => 'Thanh toán đã bị hủy hoặc hết hạn.';
 }

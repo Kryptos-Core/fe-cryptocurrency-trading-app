@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
@@ -52,9 +53,10 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
   Future<void> _copyAddress(String address) async {
     await Clipboard.setData(ClipboardData(text: address));
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     showAppSnackBar(
       context,
-      message: 'Address copied',
+      message: l10n.addressCopied,
       type: SnackBarType.info,
       duration: const Duration(seconds: 2),
     );
@@ -158,7 +160,7 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
               FilledButton.icon(
                 onPressed: onPressed,
                 icon: const Icon(Icons.add_link),
-                label: const Text('Link Your First Wallet'),
+                label: Text(AppLocalizations.of(context).linkFirstWallet),
               ),
             ],
           ),
@@ -183,22 +185,26 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
   }
 
   Future<void> _unlinkWallet(LinkedWallet wallet) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Unlink wallet'),
-        content: Text('Are you sure you want to unlink ${wallet.address}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Unlink'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final dialogL10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(dialogL10n.unlinkWalletTitle),
+          content: Text(dialogL10n.confirmUnlinkWallet(wallet.address)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(dialogL10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(dialogL10n.unlinkAction),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !mounted) return;
@@ -209,7 +215,9 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
 
     showAppSnackBar(
       context,
-      message: ok ? 'Wallet unlinked successfully' : (provider.error ?? 'Failed to unlink wallet'),
+      message: ok
+          ? l10n.walletUnlinkedSuccess
+          : (provider.error ?? l10n.failedToUnlinkWallet),
       type: ok ? SnackBarType.success : SnackBarType.error,
     );
   }
@@ -220,7 +228,7 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showLinkDialog,
         icon: const Icon(Icons.add_link),
-        label: const Text('Link Wallet'),
+        label: Text(AppLocalizations.of(context).linkWallet),
       ),
       body: Consumer<BlockchainProvider>(
         builder: (context, provider, _) {
@@ -237,13 +245,14 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
                   children: [
                     Text(
                       provider.error!,
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: provider.fetchLinkedWallets,
-                      child: const Text('Retry'),
+                      child: Text(AppLocalizations.of(context).retry),
                     ),
                   ],
                 ),
@@ -252,11 +261,11 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
           }
 
           if (provider.linkedWallets.isEmpty) {
+            final l10n = AppLocalizations.of(context);
             return _buildEmptyState(
               icon: Icons.account_balance_wallet_outlined,
-              title: 'No linked wallets yet',
-              message:
-                  'Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.',
+              title: l10n.noLinkedWalletsTitle,
+              message: l10n.noLinkedWalletsMessage,
               onPressed: _showLinkDialog,
             );
           }
@@ -315,19 +324,23 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Copy full address',
+                              tooltip:
+                                  AppLocalizations.of(context).copyFullAddress,
                               icon: const Icon(Icons.copy, size: 18),
                               onPressed: () => _copyAddress(wallet.address),
                             ),
                           ],
                         ),
-                        if (wallet.label != null && wallet.label!.isNotEmpty) ...[
+                        if (wallet.label != null &&
+                            wallet.label!.isNotEmpty) ...[
                           const SizedBox(height: 6),
-                          Text('Label: ${wallet.label!}'),
+                          Text(AppLocalizations.of(context)
+                              .walletLabelPrefix(wallet.label!)),
                         ],
                         if (wallet.linkedAt != null) ...[
                           const SizedBox(height: 6),
-                          Text('Linked at: ${_formatDate(wallet.linkedAt!)}'),
+                          Text(AppLocalizations.of(context)
+                              .linkedAtPrefix(_formatDate(wallet.linkedAt!))),
                         ],
                         const SizedBox(height: 10),
                         Align(
@@ -337,7 +350,8 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
                                 ? null
                                 : () => _unlinkWallet(wallet),
                             icon: const Icon(Icons.link_off),
-                            label: const Text('Unlink'),
+                            label:
+                                Text(AppLocalizations.of(context).unlinkAction),
                           ),
                         ),
                       ],

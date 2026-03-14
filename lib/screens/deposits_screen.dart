@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -40,7 +42,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
       return;
     }
 
-    final amount = double.tryParse(amountText);
+    final amount = int.tryParse(amountText);
     if (amount == null || amount < 10000) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.payosInvalidAmountMin)),
@@ -51,32 +53,22 @@ class _DepositsScreenState extends State<DepositsScreen> {
     final provider = context.read<DepositsProvider>();
     final session = await provider.createDepositLink(amount);
     final checkoutUrl = session?.checkoutUrl;
+    final orderCode = session?.orderCode;
 
     if (checkoutUrl != null && checkoutUrl.isNotEmpty) {
-      final uri = Uri.parse(checkoutUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await _openCheckoutUrl(checkoutUrl);
 
-        // When user returns to the app, we refresh their balance and deposit history.
-        if (mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.read<WalletsProvider>().fetchWallets();
-            provider.fetchMyDeposits();
-          });
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<WalletsProvider>().fetchWallets();
+        provider.fetchMyDeposits();
+      });
 
-          await _pollForPaidStatus(
-            orderCode: session?.orderCode,
-            timeout: const Duration(seconds: 60),
-            interval: const Duration(seconds: 5),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.payosOpenLinkFailed)),
-          );
-        }
-      }
+      await _pollForPaidStatus(
+        orderCode: orderCode,
+        timeout: const Duration(seconds: 90),
+        interval: const Duration(seconds: 5),
+      );
     } else {
       if (mounted && provider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,6 +76,89 @@ class _DepositsScreenState extends State<DepositsScreen> {
         );
       }
     }
+  }
+
+  Future<bool> _tryLaunchCheckoutUrl(Uri uri) async {
+    try {
+      if (kIsWeb) {
+        return await launchUrl(uri, webOnlyWindowName: '_blank');
+      }
+
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _openCheckoutUrl(String checkoutUrl) async {
+    final l10n = AppLocalizations.of(context);
+    final uri = Uri.tryParse(checkoutUrl);
+
+    if (uri == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.payosOpenLinkFailed)),
+        );
+      }
+      return false;
+    }
+
+    final opened = await _tryLaunchCheckoutUrl(uri);
+    if (opened) {
+      return true;
+    }
+
+    if (!mounted) return false;
+
+    final fallbackOpened = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.payosOpenLinkFallbackTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.payosOpenLinkFallbackDesc),
+              const SizedBox(height: 12),
+              SelectableText(checkoutUrl),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: checkoutUrl));
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.payosLinkCopied)),
+                );
+              },
+              child: Text(l10n.payosCopyLink),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.close),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final ok = await _tryLaunchCheckoutUrl(uri);
+                if (!dialogContext.mounted) return;
+                Navigator.of(dialogContext).pop(ok);
+              },
+              child: Text(l10n.payosOpenInBrowser),
+            ),
+          ],
+        );
+      },
+    );
+
+    if ((fallbackOpened ?? false) == false && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.payosOpenLinkFailed)),
+      );
+    }
+
+    return fallbackOpened ?? false;
   }
 
   Future<void> _pollForPaidStatus({
@@ -103,20 +178,37 @@ class _DepositsScreenState extends State<DepositsScreen> {
     final startedAt = DateTime.now();
 
     bool foundPaid = false;
+    bool foundCancelled = false;
     while (mounted && DateTime.now().difference(startedAt) < timeout) {
       await Future<void>.delayed(interval);
       if (!mounted) break;
 
+      if (orderCode != null) {
+        await provider.syncDepositStatus(orderCode);
+      }
       await provider.fetchMyDeposits();
 
-      final isPaid = orderCode != null
-          ? provider.deposits.any(
-              (d) => d.orderCode == orderCode && d.status == 'PAID',
-            )
-          : provider.deposits.any((d) => d.status == 'PAID');
+      String? status;
+      if (orderCode != null) {
+        for (final deposit in provider.deposits) {
+          if (deposit.orderCode == orderCode) {
+            status = deposit.status.toUpperCase();
+            break;
+          }
+        }
+      }
+
+      final isPaid = status == 'PAID' ||
+          (orderCode == null &&
+              provider.deposits.any((d) => d.status.toUpperCase() == 'PAID'));
 
       if (isPaid) {
         foundPaid = true;
+        break;
+      }
+
+      if (status == 'CANCELLED') {
+        foundCancelled = true;
         break;
       }
     }
@@ -127,6 +219,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.payosPaymentUpdated)),
+        );
+      } else if (foundCancelled) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.payosPaymentCancelled)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -232,11 +328,21 @@ class _DepositsScreenState extends State<DepositsScreen> {
                           itemCount: provider.deposits.length,
                           itemBuilder: (context, index) {
                             final deposit = provider.deposits[index];
+                            final isPending =
+                                deposit.status.toUpperCase() == 'PENDING';
                             return Card(
                               child: ListTile(
+                                onTap: isPending &&
+                                        deposit.checkoutUrl.isNotEmpty
+                                    ? () =>
+                                        _openCheckoutUrl(deposit.checkoutUrl)
+                                    : null,
                                 title: Text('${deposit.amount} VND'),
                                 subtitle: Text(
-                                    '${l10n.payosOrderCode}: ${deposit.orderCode}'),
+                                  isPending
+                                      ? '${l10n.payosOrderCode}: ${deposit.orderCode} • ${l10n.payosTapToOpenCheckout}'
+                                      : '${l10n.payosOrderCode}: ${deposit.orderCode}',
+                                ),
                                 trailing: _buildStatusBadge(deposit.status),
                               ),
                             );

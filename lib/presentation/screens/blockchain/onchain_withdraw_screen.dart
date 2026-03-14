@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
@@ -59,7 +60,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     List<OnchainTransaction> source,
   ) {
     final filtered = source.where((tx) {
-      final byNetwork = _txFilterNetwork == null || tx.chain == _txFilterNetwork;
+      final byNetwork =
+          _txFilterNetwork == null || tx.chain == _txFilterNetwork;
       final byType = _txFilterType == null || tx.type == _txFilterType;
       return byNetwork && byType;
     }).toList();
@@ -74,14 +76,15 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   }
 
   String _typeLabel(OnchainTxType? type) {
-    if (type == null) return 'All types';
+    final l10n = AppLocalizations.of(context);
+    if (type == null) return l10n.allTypes;
     switch (type) {
       case OnchainTxType.deposit:
-        return 'Deposits';
+        return l10n.txTypeDeposits;
       case OnchainTxType.withdrawal:
-        return 'Withdrawals';
+        return l10n.txTypeWithdrawals;
       case OnchainTxType.transfer:
-        return 'Transfers';
+        return l10n.txTypeTransfers;
     }
   }
 
@@ -182,7 +185,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     if (_selectedWalletId == null) {
       showAppSnackBar(
         context,
-        message: 'Please select destination linked wallet',
+        message: AppLocalizations.of(context).selectDestinationWallet,
         type: SnackBarType.warning,
       );
       return;
@@ -199,7 +202,9 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
 
     showAppSnackBar(
       context,
-      message: ok ? 'Withdrawal request submitted' : (provider.error ?? 'Request failed'),
+      message: ok
+          ? AppLocalizations.of(context).withdrawalRequestSubmitted
+          : (provider.error ?? AppLocalizations.of(context).requestFailed),
       type: ok ? SnackBarType.success : SnackBarType.error,
     );
 
@@ -210,9 +215,10 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext outerContext) {
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
+        final l10n = AppLocalizations.of(context);
         final wallets = provider.linkedWallets
             .where(
               (wallet) =>
@@ -220,7 +226,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   wallet.status == LinkedWalletStatus.verified,
             )
             .toList();
-          final filteredTransactions = _filteredTransactions(provider.recentTransactions);
+        final filteredTransactions =
+            _filteredTransactions(provider.recentTransactions);
 
         if (_selectedWalletId != null &&
             wallets.every((wallet) => wallet.linkId != _selectedWalletId)) {
@@ -234,26 +241,31 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Request on-chain withdrawal',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.requestOnchainWithdrawal,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Withdrawal destination must be a verified linked wallet on the same network.',
-                ),
+                Text(l10n.withdrawalDestinationDesc),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BlockchainNetwork>(
-                  initialValue: _selectedNetwork,
-                  decoration: const InputDecoration(
-                    labelText: 'Network',
-                    border: OutlineInputBorder(),
+                  value: _selectedNetwork,
+                  isExpanded: true,
+                  menuMaxHeight: 300,
+                  decoration: InputDecoration(
+                    labelText: l10n.networkLabel,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   ),
                   items: BlockchainNetwork.values
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
-                          child: Text(network.label),
+                          child: Text(
+                            network.label,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       )
                       .toList(),
@@ -268,10 +280,13 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedWalletId,
-                  decoration: const InputDecoration(
-                    labelText: 'Linked wallet',
-                    border: OutlineInputBorder(),
+                  value: _selectedWalletId,
+                  isExpanded: true,
+                  menuMaxHeight: 300,
+                  decoration: InputDecoration(
+                    labelText: l10n.linkedWalletDropdownLabel,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   ),
                   items: wallets
                       .map(
@@ -279,6 +294,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                           value: wallet.linkId,
                           child: Text(
                             _formatAddress(wallet.address),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       )
@@ -291,26 +307,26 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   const SizedBox(height: 8),
                   _buildEmptyState(
                     icon: Icons.account_balance_wallet_outlined,
-                    title: 'No verified wallet on this network',
-                    message:
-                        'Link and verify a wallet in the linked-wallets tab before requesting a withdrawal here.',
+                    title: l10n.noVerifiedWalletTitle,
+                    message: l10n.noVerifiedWalletDesc,
                   ),
                 ],
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.amount,
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Amount is required';
+                      return l10n.amountRequired;
                     }
                     final n = double.tryParse(value.trim());
                     if (n == null || n <= 0) {
-                      return 'Amount must be > 0';
+                      return l10n.amountMustBePositive;
                     }
                     return null;
                   },
@@ -321,13 +337,15 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   child: FilledButton.icon(
                     onPressed: provider.isSubmitting ? null : _submit,
                     icon: const Icon(Icons.call_made),
-                    label: Text(provider.isSubmitting ? 'Submitting...' : 'Request Withdrawal'),
+                    label: Text(provider.isSubmitting
+                        ? l10n.submitting
+                        : l10n.requestWithdrawalAction),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Recent transactions',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  l10n.recentTransactions,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -335,15 +353,17 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   runSpacing: 8,
                   children: [
                     ChoiceChip(
-                      label: const Text('All networks'),
+                      label: Text(l10n.allNetworks),
                       selected: _txFilterNetwork == null,
-                      onSelected: (_) => setState(() => _txFilterNetwork = null),
+                      onSelected: (_) =>
+                          setState(() => _txFilterNetwork = null),
                     ),
                     ...BlockchainNetwork.values.map(
                       (network) => ChoiceChip(
                         label: Text(network.label),
                         selected: _txFilterNetwork == network,
-                        onSelected: (_) => setState(() => _txFilterNetwork = network),
+                        onSelected: (_) =>
+                            setState(() => _txFilterNetwork = network),
                       ),
                     ),
                   ],
@@ -354,7 +374,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   runSpacing: 8,
                   children: [
                     ChoiceChip(
-                      label: const Text('All types'),
+                      label: Text(l10n.allTypes),
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
@@ -371,20 +391,22 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 Row(
                   children: [
                     Text(
-                      '${filteredTransactions.length} result${filteredTransactions.length == 1 ? '' : 's'}',
+                      l10n.txResultCount(filteredTransactions.length),
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     const Spacer(),
                     ChoiceChip(
-                      label: const Text('Newest'),
+                      label: Text(l10n.sortNewest),
                       selected: _sortNewestFirst,
-                      onSelected: (_) => setState(() => _sortNewestFirst = true),
+                      onSelected: (_) =>
+                          setState(() => _sortNewestFirst = true),
                     ),
                     const SizedBox(width: 8),
                     ChoiceChip(
-                      label: const Text('Oldest'),
+                      label: Text(l10n.sortOldest),
                       selected: !_sortNewestFirst,
-                      onSelected: (_) => setState(() => _sortNewestFirst = false),
+                      onSelected: (_) =>
+                          setState(() => _sortNewestFirst = false),
                     ),
                   ],
                 ),
@@ -392,9 +414,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 if (provider.isLoading)
                   _buildRecentSkeleton()
                 else ...[
-                  ...filteredTransactions
-                      .take(10)
-                      .map(
+                  ...filteredTransactions.take(10).map(
                         (tx) => Container(
                           width: double.infinity,
                           margin: const EdgeInsets.only(bottom: 10),
@@ -437,9 +457,11 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Text('${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
+                              Text(
+                                  '${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
                               const SizedBox(height: 4),
-                              Text('To: ${_formatAddress(tx.toAddress)}'),
+                              Text(l10n
+                                  .txToAddress(_formatAddress(tx.toAddress))),
                             ],
                           ),
                         ),
@@ -452,11 +474,11 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                             ? Icons.call_made_outlined
                             : Icons.filter_alt_off_outlined,
                         title: provider.recentTransactions.isEmpty
-                            ? 'No withdrawal activity yet'
-                            : 'No transactions match these filters',
+                            ? l10n.noWithdrawalActivityTitle
+                            : l10n.noTxMatchFilters,
                         message: provider.recentTransactions.isEmpty
-                            ? 'Approved withdrawals will show up here with their latest on-chain status.'
-                            : 'Try another network or type chip to quickly bring matching transactions back.',
+                            ? l10n.noWithdrawalActivityDesc
+                            : l10n.tryAnotherFilter,
                       ),
                     ),
                 ],
