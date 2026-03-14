@@ -195,7 +195,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                           );
                         },
                         icon: const Icon(Icons.account_balance_wallet_outlined),
-                        label: const Text('Nạp VND qua PayOS'),
+                        label: Text(l10n.payosTopupVnd),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -210,7 +210,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                           );
                         },
                         icon: const Icon(Icons.account_tree_outlined),
-                        label: const Text('Open On-chain Wallet Flow'),
+                        label: Text(l10n.openOnchainWalletFlow),
                       ),
                     ),
                   ],

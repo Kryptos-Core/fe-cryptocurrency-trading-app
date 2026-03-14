@@ -408,4 +408,56 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get clearFilters => 'Xóa bộ lọc';
+
+  @override
+  String get payosTopupVnd => 'Nạp VND qua PayOS';
+
+  @override
+  String get payosDepositTitle => 'Nạp tiền VND (PayOS)';
+
+  @override
+  String get payosCreateOrder => 'Tạo đơn nạp tiền';
+
+  @override
+  String get payosAmountLabel => 'Số tiền (VND)';
+
+  @override
+  String get payosMinAmountHint => 'Tối thiểu 10,000';
+
+  @override
+  String get payosNoTransactions => 'Chưa có giao dịch nạp tiền nào.';
+
+  @override
+  String get payosOrderCode => 'Mã đơn';
+
+  @override
+  String get payosEnterAmount => 'Vui lòng nhập số tiền.';
+
+  @override
+  String get payosInvalidAmountMin =>
+      'Số tiền không hợp lệ. Tối thiểu là 10,000 VND.';
+
+  @override
+  String get payosOpenLinkFailed => 'Không thể mở liên kết thanh toán.';
+
+  @override
+  String get payosWaitingWebhook => 'Đang chờ webhook PayOS...';
+
+  @override
+  String get payosPaymentUpdated =>
+      'Thanh toán thành công. Số dư và lịch sử đã được cập nhật.';
+
+  @override
+  String get payosOrderProcessing =>
+      'Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.';
+
+  @override
+  String get payosNeedFiatTitle => 'Muốn nạp tiền pháp định thay thế?';
+
+  @override
+  String get payosNeedFiatDesc =>
+      'Dùng PayOS để nạp VND, sau đó quay lại giao dịch hoặc chuyển tiền.';
+
+  @override
+  String get openOnchainWalletFlow => 'Mở luồng ví On-chain';
 }

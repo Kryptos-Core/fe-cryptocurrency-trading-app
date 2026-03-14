@@ -132,5 +132,22 @@
   "searchMarketsHint": "Search by symbol (e.g. BTC, USDT)",
   "filterQuote": "Quote",
   "filterQuoteAll": "All",
-  "clearFilters": "Clear filters"
+  "clearFilters": "Clear filters",
+
+  "payosTopupVnd": "Top up VND via PayOS",
+  "payosDepositTitle": "VND Deposit (PayOS)",
+  "payosCreateOrder": "Create deposit order",
+  "payosAmountLabel": "Amount (VND)",
+  "payosMinAmountHint": "Minimum 10,000",
+  "payosNoTransactions": "No deposit transactions yet.",
+  "payosOrderCode": "Order code",
+  "payosEnterAmount": "Please enter an amount.",
+  "payosInvalidAmountMin": "Invalid amount. Minimum is 10,000 VND.",
+  "payosOpenLinkFailed": "Could not open payment link.",
+  "payosWaitingWebhook": "Waiting for PayOS webhook...",
+  "payosPaymentUpdated": "Payment successful. Balance and history have been updated.",
+  "payosOrderProcessing": "Order is being processed. The system will auto-update when PayOS webhook arrives.",
+  "payosNeedFiatTitle": "Need fiat deposit instead?",
+  "payosNeedFiatDesc": "Use PayOS to top up VND, then return to trade or transfer funds.",
+  "openOnchainWalletFlow": "Open On-chain Wallet Flow"
 }

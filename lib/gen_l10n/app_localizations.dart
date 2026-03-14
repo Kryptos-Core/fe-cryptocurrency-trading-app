@@ -895,6 +895,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear filters'**
   String get clearFilters;
+
+  /// No description provided for @payosTopupVnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up VND via PayOS'**
+  String get payosTopupVnd;
+
+  /// No description provided for @payosDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VND Deposit (PayOS)'**
+  String get payosDepositTitle;
+
+  /// No description provided for @payosCreateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Create deposit order'**
+  String get payosCreateOrder;
+
+  /// No description provided for @payosAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (VND)'**
+  String get payosAmountLabel;
+
+  /// No description provided for @payosMinAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 10,000'**
+  String get payosMinAmountHint;
+
+  /// No description provided for @payosNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No deposit transactions yet.'**
+  String get payosNoTransactions;
+
+  /// No description provided for @payosOrderCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Order code'**
+  String get payosOrderCode;
+
+  /// No description provided for @payosEnterAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an amount.'**
+  String get payosEnterAmount;
+
+  /// No description provided for @payosInvalidAmountMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount. Minimum is 10,000 VND.'**
+  String get payosInvalidAmountMin;
+
+  /// No description provided for @payosOpenLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open payment link.'**
+  String get payosOpenLinkFailed;
+
+  /// No description provided for @payosWaitingWebhook.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for PayOS webhook...'**
+  String get payosWaitingWebhook;
+
+  /// No description provided for @payosPaymentUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment successful. Balance and history have been updated.'**
+  String get payosPaymentUpdated;
+
+  /// No description provided for @payosOrderProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Order is being processed. The system will auto-update when PayOS webhook arrives.'**
+  String get payosOrderProcessing;
+
+  /// No description provided for @payosNeedFiatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Need fiat deposit instead?'**
+  String get payosNeedFiatTitle;
+
+  /// No description provided for @payosNeedFiatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PayOS to top up VND, then return to trade or transfer funds.'**
+  String get payosNeedFiatDesc;
+
+  /// No description provided for @openOnchainWalletFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open On-chain Wallet Flow'**
+  String get openOnchainWalletFlow;
 }
 
 class _AppLocalizationsDelegate

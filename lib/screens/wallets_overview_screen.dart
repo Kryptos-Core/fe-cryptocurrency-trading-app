@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart'
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/screens/wallet_detail_screen.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Wallets Overview Screen
 /// Displays all user wallets with total portfolio value
@@ -25,10 +26,12 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Wallets'),
-        automaticallyImplyLeading: false, // Remove back button when in bottom nav
+        automaticallyImplyLeading:
+            false, // Remove back button when in bottom nav
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -105,7 +108,8 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                 ),
                 // Quick Actions
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
                       Expanded(
@@ -113,11 +117,12 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const DepositsScreen()),
+                              MaterialPageRoute(
+                                  builder: (_) => const DepositsScreen()),
                             );
                           },
                           icon: const Icon(Icons.account_balance_wallet),
-                          label: const Text('Nạp tiền (PayOS)'),
+                          label: Text(l10n.payosTopupVnd),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),

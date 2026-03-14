@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 
@@ -30,10 +31,11 @@ class _DepositsScreenState extends State<DepositsScreen> {
   }
 
   Future<void> _handleDeposit() async {
+    final l10n = AppLocalizations.of(context);
     final amountText = _amountController.text.trim();
     if (amountText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an amount.')),
+        SnackBar(content: Text(l10n.payosEnterAmount)),
       );
       return;
     }
@@ -41,7 +43,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
     final amount = double.tryParse(amountText);
     if (amount == null || amount < 10000) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid amount. Minimum is 10,000 VND.')),
+        SnackBar(content: Text(l10n.payosInvalidAmountMin)),
       );
       return;
     }
@@ -71,7 +73,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open payment link.')),
+            SnackBar(content: Text(l10n.payosOpenLinkFailed)),
           );
         }
       }
@@ -90,6 +92,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
     required Duration interval,
   }) async {
     if (_isPollingAfterCheckout || !mounted) return;
+    final l10n = AppLocalizations.of(context);
 
     setState(() {
       _isPollingAfterCheckout = true;
@@ -123,17 +126,11 @@ class _DepositsScreenState extends State<DepositsScreen> {
         await walletsProvider.fetchWallets();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Thanh toán thành công. Số dư và lịch sử đã được cập nhật.'),
-          ),
+          SnackBar(content: Text(l10n.payosPaymentUpdated)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.'),
-          ),
+          SnackBar(content: Text(l10n.payosOrderProcessing)),
         );
       }
 
@@ -145,11 +142,12 @@ class _DepositsScreenState extends State<DepositsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final provider = context.watch<DepositsProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nạp tiền VND (PayOS)'),
+        title: Text(l10n.payosDepositTitle),
         centerTitle: true,
       ),
       body: Padding(
@@ -166,19 +164,21 @@ class _DepositsScreenState extends State<DepositsScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const Text(
-                      'Tạo đơn nạp tiền',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n.payosCreateOrder,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Số tiền (VND)',
-                        border: OutlineInputBorder(),
-                        hintText: 'Tối thiểu 10,000',
+                      decoration: InputDecoration(
+                        labelText: l10n.payosAmountLabel,
+                        border: const OutlineInputBorder(),
+                        hintText: l10n.payosMinAmountHint,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -204,8 +204,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                 ),
                               )
                             : _isPollingAfterCheckout
-                                ? const Text('Đang chờ webhook PayOS...')
-                                : const Text('Nạp tiền'),
+                                ? Text(l10n.payosWaitingWebhook)
+                                : Text(l10n.payosTopupVnd),
                       ),
                     ),
                     if (_isPollingAfterCheckout) ...[
@@ -218,17 +218,16 @@ class _DepositsScreenState extends State<DepositsScreen> {
             ),
             const SizedBox(height: 24),
             // Deposit history
-            const Text(
-              'Lịch sử nạp tiền',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.recentTransactions,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Expanded(
               child: provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : provider.deposits.isEmpty
-                      ? const Center(
-                          child: Text('Chưa có giao dịch nạp tiền nào.'))
+                      ? Center(child: Text(l10n.payosNoTransactions))
                       : ListView.builder(
                           itemCount: provider.deposits.length,
                           itemBuilder: (context, index) {
@@ -236,7 +235,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
                             return Card(
                               child: ListTile(
                                 title: Text('${deposit.amount} VND'),
-                                subtitle: Text('Mã đơn: ${deposit.orderCode}'),
+                                subtitle: Text(
+                                    '${l10n.payosOrderCode}: ${deposit.orderCode}'),
                                 trailing: _buildStatusBadge(deposit.status),
                               ),
                             );

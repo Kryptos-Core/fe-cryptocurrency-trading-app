@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
@@ -297,6 +298,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
         final filteredTransactions =
@@ -331,17 +333,17 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Need fiat deposit instead?',
-                              style: TextStyle(
+                              l10n.payosNeedFiatTitle,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              'Use PayOS to top up VND, then come back to trade or transfer funds.',
+                              l10n.payosNeedFiatDesc,
                             ),
                           ],
                         ),
@@ -356,7 +358,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                           );
                         },
                         icon: const Icon(Icons.account_balance_wallet_outlined),
-                        label: const Text('Nạp VND qua PayOS'),
+                        label: Text(l10n.payosTopupVnd),
                       ),
                     ],
                   ),

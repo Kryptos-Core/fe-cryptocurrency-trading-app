@@ -409,4 +409,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearFilters => 'Clear filters';
+
+  @override
+  String get payosTopupVnd => 'Top up VND via PayOS';
+
+  @override
+  String get payosDepositTitle => 'VND Deposit (PayOS)';
+
+  @override
+  String get payosCreateOrder => 'Create deposit order';
+
+  @override
+  String get payosAmountLabel => 'Amount (VND)';
+
+  @override
+  String get payosMinAmountHint => 'Minimum 10,000';
+
+  @override
+  String get payosNoTransactions => 'No deposit transactions yet.';
+
+  @override
+  String get payosOrderCode => 'Order code';
+
+  @override
+  String get payosEnterAmount => 'Please enter an amount.';
+
+  @override
+  String get payosInvalidAmountMin => 'Invalid amount. Minimum is 10,000 VND.';
+
+  @override
+  String get payosOpenLinkFailed => 'Could not open payment link.';
+
+  @override
+  String get payosWaitingWebhook => 'Waiting for PayOS webhook...';
+
+  @override
+  String get payosPaymentUpdated =>
+      'Payment successful. Balance and history have been updated.';
+
+  @override
+  String get payosOrderProcessing =>
+      'Order is being processed. The system will auto-update when PayOS webhook arrives.';
+
+  @override
+  String get payosNeedFiatTitle => 'Need fiat deposit instead?';
+
+  @override
+  String get payosNeedFiatDesc =>
+      'Use PayOS to top up VND, then return to trade or transfer funds.';
+
+  @override
+  String get openOnchainWalletFlow => 'Open On-chain Wallet Flow';
 }
