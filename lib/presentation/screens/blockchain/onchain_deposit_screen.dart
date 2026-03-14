@@ -222,6 +222,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_depositPreview != null && !_depositPreview!.senderLinked) {
+      showAppSnackBar(
+        context,
+        message: 'Sender wallet is not linked. Link that wallet before submitting deposit.',
+        type: SnackBarType.error,
+      );
+      return;
+    }
+
     final provider = context.read<BlockchainProvider>();
     final ok = await provider.submitDeposit(
       chain: _selectedNetwork,
@@ -547,7 +556,10 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: provider.isSubmitting ? null : _submit,
+                    onPressed: provider.isSubmitting ||
+                            (_depositPreview != null && !_depositPreview!.senderLinked)
+                        ? null
+                        : _submit,
                     icon: const Icon(Icons.upload_file),
                     label: Text(provider.isSubmitting ? 'Submitting...' : 'Submit Deposit'),
                   ),
