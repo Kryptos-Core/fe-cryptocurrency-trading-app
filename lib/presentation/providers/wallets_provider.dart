@@ -240,8 +240,10 @@ class WalletsProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _logger.e('[WalletsProvider] ERROR: Failure type: ${failure.runtimeType}');
-        _logger.e('[WalletsProvider] ERROR: Failure message: ${failure.message}');
+        _logger
+            .e('[WalletsProvider] ERROR: Failure type: ${failure.runtimeType}');
+        _logger
+            .e('[WalletsProvider] ERROR: Failure message: ${failure.message}');
         _error = _mapFailureToMessage(failure);
         _isLoading = false;
         notifyListeners();
@@ -250,7 +252,8 @@ class WalletsProvider extends ChangeNotifier {
         _logger.i(
             '[WalletsProvider] SUCCESS: Balance fetched - userId=${balance.userId}, currencyId=${balance.currencyId}, available=${balance.available}, frozen=${balance.frozen}, total=${balance.total}');
         _walletBalance = balance;
-        _recentTransactions.clear(); // Clear so we never show another currency's history
+        _recentTransactions
+            .clear(); // Clear so we never show another currency's history
         _isLoading = false;
         _error = null;
         notifyListeners();
@@ -325,38 +328,6 @@ class WalletsProvider extends ChangeNotifier {
     return success;
   }
 
-  /// Deposit (CREDIT action)
-  Future<bool> deposit({
-    required String currencyId,
-    required String amount,
-    required String refId,
-  }) async {
-    final request = WalletTransactionRequest(
-      currencyId: currencyId,
-      action: WalletTransactionAction.credit,
-      amount: amount,
-      refType: WalletReferenceType.deposit,
-      refId: refId,
-    );
-    return await executeTransaction(request);
-  }
-
-  /// Withdraw (DEBIT action)
-  Future<bool> withdraw({
-    required String currencyId,
-    required String amount,
-    required String refId,
-  }) async {
-    final request = WalletTransactionRequest(
-      currencyId: currencyId,
-      action: WalletTransactionAction.debit,
-      amount: amount,
-      refType: WalletReferenceType.withdraw,
-      refId: refId,
-    );
-    return await executeTransaction(request);
-  }
-
   /// Freeze balance (for order placement)
   Future<bool> freezeBalance({
     required String currencyId,
@@ -385,24 +356,6 @@ class WalletsProvider extends ChangeNotifier {
       amount: amount,
       refType: WalletReferenceType.order,
       refId: refId,
-    );
-    return await executeTransaction(request);
-  }
-
-  /// Transfer to another user.
-  /// Uses a unique refId per transfer to avoid duplicate ledger key (TRANSFER-refId-userId-currencyId-direction).
-  Future<bool> transfer({
-    required String currencyId,
-    required String amount,
-    required String toUserId,
-  }) async {
-    final request = WalletTransactionRequest(
-      currencyId: currencyId,
-      action: WalletTransactionAction.transfer,
-      amount: amount,
-      refType: WalletReferenceType.transfer,
-      refId: '${DateTime.now().millisecondsSinceEpoch}',
-      targetUserId: toUserId,
     );
     return await executeTransaction(request);
   }

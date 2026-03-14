@@ -13,6 +13,7 @@ class DepositsScreen extends StatefulWidget {
 
 class _DepositsScreenState extends State<DepositsScreen> {
   final TextEditingController _amountController = TextEditingController();
+  bool _isPollingAfterCheckout = false;
 
   @override
   void initState() {
@@ -40,26 +41,32 @@ class _DepositsScreenState extends State<DepositsScreen> {
     final amount = double.tryParse(amountText);
     if (amount == null || amount < 10000) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Invalid amount. Minimum is 10,000 VND.')),
+        const SnackBar(content: Text('Invalid amount. Minimum is 10,000 VND.')),
       );
       return;
     }
 
     final provider = context.read<DepositsProvider>();
-    final checkoutUrl = await provider.createDepositLink(amount);
+    final session = await provider.createDepositLink(amount);
+    final checkoutUrl = session?.checkoutUrl;
 
     if (checkoutUrl != null && checkoutUrl.isNotEmpty) {
       final uri = Uri.parse(checkoutUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-        
+
         // When user returns to the app, we refresh their balance and deposit history.
         if (mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.read<WalletsProvider>().fetchWallets();
             provider.fetchMyDeposits();
           });
+
+          await _pollForPaidStatus(
+            orderCode: session?.orderCode,
+            timeout: const Duration(seconds: 60),
+            interval: const Duration(seconds: 5),
+          );
         }
       } else {
         if (mounted) {
@@ -74,6 +81,65 @@ class _DepositsScreenState extends State<DepositsScreen> {
           SnackBar(content: Text(provider.error!)),
         );
       }
+    }
+  }
+
+  Future<void> _pollForPaidStatus({
+    required int? orderCode,
+    required Duration timeout,
+    required Duration interval,
+  }) async {
+    if (_isPollingAfterCheckout || !mounted) return;
+
+    setState(() {
+      _isPollingAfterCheckout = true;
+    });
+
+    final provider = context.read<DepositsProvider>();
+    final walletsProvider = context.read<WalletsProvider>();
+    final startedAt = DateTime.now();
+
+    bool foundPaid = false;
+    while (mounted && DateTime.now().difference(startedAt) < timeout) {
+      await Future<void>.delayed(interval);
+      if (!mounted) break;
+
+      await provider.fetchMyDeposits();
+
+      final isPaid = orderCode != null
+          ? provider.deposits.any(
+              (d) => d.orderCode == orderCode && d.status == 'PAID',
+            )
+          : provider.deposits.any((d) => d.status == 'PAID');
+
+      if (isPaid) {
+        foundPaid = true;
+        break;
+      }
+    }
+
+    if (mounted) {
+      if (foundPaid) {
+        await walletsProvider.fetchWallets();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Thanh toán thành công. Số dư và lịch sử đã được cập nhật.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.'),
+          ),
+        );
+      }
+
+      setState(() {
+        _isPollingAfterCheckout = false;
+      });
     }
   }
 
@@ -94,14 +160,16 @@ class _DepositsScreenState extends State<DepositsScreen> {
             // Deposit form
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     const Text(
                       'Tạo đơn nạp tiền',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -122,7 +190,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
                           backgroundColor: Colors.blue.shade700,
                           foregroundColor: Colors.white,
                         ),
-                        onPressed: provider.isCreatingLink ? null : _handleDeposit,
+                        onPressed:
+                            (provider.isCreatingLink || _isPollingAfterCheckout)
+                                ? null
+                                : _handleDeposit,
                         child: provider.isCreatingLink
                             ? const SizedBox(
                                 height: 20,
@@ -132,9 +203,15 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Nạp tiền'),
+                            : _isPollingAfterCheckout
+                                ? const Text('Đang chờ webhook PayOS...')
+                                : const Text('Nạp tiền'),
                       ),
                     ),
+                    if (_isPollingAfterCheckout) ...[
+                      const SizedBox(height: 10),
+                      const LinearProgressIndicator(),
+                    ],
                   ],
                 ),
               ),
@@ -150,7 +227,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
               child: provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : provider.deposits.isEmpty
-                      ? const Center(child: Text('Chưa có giao dịch nạp tiền nào.'))
+                      ? const Center(
+                          child: Text('Chưa có giao dịch nạp tiền nào.'))
                       : ListView.builder(
                           itemCount: provider.deposits.length,
                           itemBuilder: (context, index) {

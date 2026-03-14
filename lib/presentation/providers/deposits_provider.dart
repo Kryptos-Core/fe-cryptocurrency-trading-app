@@ -2,6 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/domain/entities/deposit.dart';
 import 'package:crypto_trading_app/domain/repositories/deposit_repository.dart';
 
+class DepositCheckoutSession {
+  final String checkoutUrl;
+  final int? orderCode;
+  final String? depositId;
+
+  const DepositCheckoutSession({
+    required this.checkoutUrl,
+    this.orderCode,
+    this.depositId,
+  });
+}
+
 class DepositsProvider extends ChangeNotifier {
   final DepositRepository repository;
 
@@ -32,15 +44,26 @@ class DepositsProvider extends ChangeNotifier {
     }
   }
 
-  Future<String?> createDepositLink(double amount) async {
+  Future<DepositCheckoutSession?> createDepositLink(double amount) async {
     try {
       _isCreatingLink = true;
       _error = null;
       notifyListeners();
 
       final result = await repository.createDepositLink(amount);
-      if (result.containsKey('checkoutUrl')) {
-        return result['checkoutUrl'] as String;
+      if (result.containsKey('checkoutUrl') &&
+          result['checkoutUrl'] != null &&
+          (result['checkoutUrl'] as String).isNotEmpty) {
+        final rawOrderCode = result['orderCode'];
+        final orderCode = rawOrderCode is int
+            ? rawOrderCode
+            : int.tryParse(rawOrderCode?.toString() ?? '');
+
+        return DepositCheckoutSession(
+          checkoutUrl: result['checkoutUrl'] as String,
+          orderCode: orderCode,
+          depositId: result['depositId']?.toString(),
+        );
       }
       return null;
     } catch (e) {

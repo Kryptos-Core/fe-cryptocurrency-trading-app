@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 class OnchainDepositScreen extends StatefulWidget {
   const OnchainDepositScreen({super.key});
@@ -106,7 +107,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     List<OnchainTransaction> source,
   ) {
     final filtered = source.where((tx) {
-      final byNetwork = _txFilterNetwork == null || tx.chain == _txFilterNetwork;
+      final byNetwork =
+          _txFilterNetwork == null || tx.chain == _txFilterNetwork;
       final byType = _txFilterType == null || tx.type == _txFilterType;
       return byNetwork && byType;
     }).toList();
@@ -225,7 +227,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     if (_depositPreview != null && !_depositPreview!.senderLinked) {
       showAppSnackBar(
         context,
-        message: 'Sender wallet is not linked. Link that wallet before submitting deposit.',
+        message:
+            'Sender wallet is not linked. Link that wallet before submitting deposit.',
         type: SnackBarType.error,
       );
       return;
@@ -242,7 +245,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
     showAppSnackBar(
       context,
-      message: ok ? 'Deposit submitted successfully' : (provider.error ?? 'Submit failed'),
+      message: ok
+          ? 'Deposit submitted successfully'
+          : (provider.error ?? 'Submit failed'),
       type: ok ? SnackBarType.success : SnackBarType.error,
     );
 
@@ -294,7 +299,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   Widget build(BuildContext context) {
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
-        final filteredTransactions = _filteredTransactions(provider.recentTransactions);
+        final filteredTransactions =
+            _filteredTransactions(provider.recentTransactions);
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -310,6 +316,50 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 const SizedBox(height: 8),
                 const Text(
                   'After sending tokens from your wallet to exchange deposit address, paste tx hash here.',
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Need fiat deposit instead?',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Use PayOS to top up VND, then come back to trade or transfer funds.',
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      FilledButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const DepositsScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.account_balance_wallet_outlined),
+                        label: const Text('Nạp VND qua PayOS'),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BlockchainNetwork>(
@@ -369,12 +419,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       ),
                       Text(
                         'Send ${_selectedNetwork.label} assets to this address, then submit tx hash below.',
-                        style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 12),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFF7E6),
                           borderRadius: BorderRadius.circular(8),
@@ -383,12 +435,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                         child: const Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFB56900)),
+                            Icon(Icons.warning_amber_rounded,
+                                size: 16, color: Color(0xFFB56900)),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF7A4A00)),
+                                style: TextStyle(
+                                    fontSize: 12, color: Color(0xFF7A4A00)),
                               ),
                             ),
                           ],
@@ -403,7 +457,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2.5),
                           ),
                         )
-                      else if ((_depositAddress?.depositAddress ?? '').isNotEmpty) ...[
+                      else if ((_depositAddress?.depositAddress ?? '')
+                          .isNotEmpty) ...[
                         SelectableText(
                           _showFullDepositAddress
                               ? _depositAddress!.depositAddress
@@ -456,7 +511,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                           : 'Show full address',
                                     ),
                                   ),
-                                  if ((_depositAddress?.note ?? '').isNotEmpty) ...[
+                                  if ((_depositAddress?.note ?? '')
+                                      .isNotEmpty) ...[
                                     const SizedBox(height: 8),
                                     Text(
                                       _depositAddress!.note!,
@@ -486,8 +542,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     labelText: 'Transaction hash',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) =>
-                      (value == null || value.trim().isEmpty) ? 'Tx hash is required' : null,
+                  validator: (value) => (value == null || value.trim().isEmpty)
+                      ? 'Tx hash is required'
+                      : null,
                 ),
                 if (_depositPreview != null) ...[
                   const SizedBox(height: 8),
@@ -536,7 +593,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       _amountTouchedByUser = true;
                     }
                   },
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(
                     labelText: 'Amount',
                     border: OutlineInputBorder(),
@@ -557,11 +615,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: provider.isSubmitting ||
-                            (_depositPreview != null && !_depositPreview!.senderLinked)
+                            (_depositPreview != null &&
+                                !_depositPreview!.senderLinked)
                         ? null
                         : _submit,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(provider.isSubmitting ? 'Submitting...' : 'Submit Deposit'),
+                    label: Text(provider.isSubmitting
+                        ? 'Submitting...'
+                        : 'Submit Deposit'),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -577,13 +638,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     ChoiceChip(
                       label: const Text('All networks'),
                       selected: _txFilterNetwork == null,
-                      onSelected: (_) => setState(() => _txFilterNetwork = null),
+                      onSelected: (_) =>
+                          setState(() => _txFilterNetwork = null),
                     ),
                     ...BlockchainNetwork.values.map(
                       (network) => ChoiceChip(
                         label: Text(network.label),
                         selected: _txFilterNetwork == network,
-                        onSelected: (_) => setState(() => _txFilterNetwork = network),
+                        onSelected: (_) =>
+                            setState(() => _txFilterNetwork = network),
                       ),
                     ),
                   ],
@@ -618,13 +681,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     ChoiceChip(
                       label: const Text('Newest'),
                       selected: _sortNewestFirst,
-                      onSelected: (_) => setState(() => _sortNewestFirst = true),
+                      onSelected: (_) =>
+                          setState(() => _sortNewestFirst = true),
                     ),
                     const SizedBox(width: 8),
                     ChoiceChip(
                       label: const Text('Oldest'),
                       selected: !_sortNewestFirst,
-                      onSelected: (_) => setState(() => _sortNewestFirst = false),
+                      onSelected: (_) =>
+                          setState(() => _sortNewestFirst = false),
                     ),
                   ],
                 ),
@@ -632,9 +697,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 if (provider.isLoading)
                   _buildRecentSkeleton()
                 else ...[
-                  ...filteredTransactions
-                      .take(10)
-                      .map(
+                  ...filteredTransactions.take(10).map(
                         (tx) => Container(
                           width: double.infinity,
                           margin: const EdgeInsets.only(bottom: 10),
@@ -677,7 +740,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Text('${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
+                              Text(
+                                  '${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
                               const SizedBox(height: 4),
                               Text('To: ${_formatAddress(tx.toAddress)}'),
                             ],

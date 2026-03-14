@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -8,13 +7,8 @@ import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
-
-/// Chuẩn hóa chuỗi số tiền để gửi API: bỏ dấu phẩy (ví dụ "10,000.50" -> "10000.50").
-String _parseAmountForApi(String formatted) {
-  return formatted.replaceAll(',', '');
-}
+import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 /// Format số tiền hiển thị: dấu phẩy nghìn, tối đa 2 chữ số thập phân (bỏ số 0 thừa).
 String _formatAmountForDisplay(String amountStr) {
@@ -27,73 +21,6 @@ String _formatAmountForDisplay(String amountStr) {
 /// Format ngày giờ giao dịch (ngắn gọn, chuẩn doanh nghiệp).
 String _formatTxDate(DateTime dt) {
   return DateFormat('yyyy-MM-dd HH:mm').format(dt);
-}
-
-/// Formatter hiển thị số tiền: phần nguyên có dấu phẩy, phần thập phân sau dấu chấm (vd 10,000.00).
-class _AmountInputFormatter extends TextInputFormatter {
-  static const int _maxDecimalPlaces = 8;
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) return newValue;
-
-    final raw = newValue.text.replaceAll(',', '');
-    final dotIndex = raw.indexOf('.');
-    String intPart = dotIndex >= 0 ? raw.substring(0, dotIndex) : raw;
-    String decPart = dotIndex >= 0 && dotIndex < raw.length - 1
-        ? raw.substring(dotIndex + 1)
-        : '';
-    intPart = intPart.replaceAll(RegExp(r'\D'), '');
-    if (intPart.isEmpty) intPart = '0';
-    decPart = decPart.replaceAll(RegExp(r'\D'), '');
-    if (decPart.length > _maxDecimalPlaces) decPart = decPart.substring(0, _maxDecimalPlaces);
-
-    final formattedInt = StringBuffer();
-    for (int i = 0; i < intPart.length; i++) {
-      if (i > 0 && (intPart.length - i) % 3 == 0) formattedInt.write(',');
-      formattedInt.write(intPart[i]);
-    }
-    final formatted = decPart.isEmpty
-        ? formattedInt.toString()
-        : '$formattedInt.$decPart';
-
-    final sel = newValue.selection.extentOffset.clamp(0, newValue.text.length);
-    final rawBeforeCursor = newValue.text.substring(0, sel).replaceAll(',', '');
-    int n = 0;
-    bool seenDot = false;
-    for (int i = 0; i < rawBeforeCursor.length; i++) {
-      if (RegExp(r'\d').hasMatch(rawBeforeCursor[i])) {
-        n++;
-      } else if (rawBeforeCursor[i] == '.' && !seenDot) {
-        n++;
-        seenDot = true;
-      }
-    }
-    int newOffset = formatted.length;
-    int count = 0;
-    for (int i = 0; i < formatted.length; i++) {
-      if (count >= n) {
-        newOffset = i;
-        break;
-      }
-      if (formatted[i] == ',') continue;
-      if (formatted[i] == '.') {
-        count++;
-        newOffset = i + 1;
-      } else {
-        count++;
-        newOffset = i + 1;
-      }
-    }
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: newOffset.clamp(0, formatted.length)),
-    );
-  }
 }
 
 /// Wallet API Screen - Hiển thị wallet balance từ API thật
@@ -192,7 +119,8 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 children: [
                   Text(
                     _currenciesError!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -254,24 +182,41 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const BlockchainHubScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.account_tree_outlined),
-                    label: const Text('Open On-chain Wallet Flow'),
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DepositsScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.account_balance_wallet_outlined),
+                        label: const Text('Nạp VND qua PayOS'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const BlockchainHubScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.account_tree_outlined),
+                        label: const Text('Open On-chain Wallet Flow'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),
-
               Expanded(
                 child: _buildBalanceContent(context, provider),
               ),
@@ -352,45 +297,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              Text(
-                l10n.actions,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _buildActionButton(
-                    context,
-                    l10n.deposit,
-                    Icons.add_circle,
-                    Theme.of(context).colorScheme.primary,
-                    () => _showDepositDialog(),
-                  ),
-                  _buildActionButton(
-                    context,
-                    l10n.withdraw,
-                    Icons.remove_circle,
-                    Theme.of(context).colorScheme.error,
-                    () => _showWithdrawDialog(),
-                  ),
-                  _buildActionButton(
-                    context,
-                    l10n.transfer,
-                    Icons.send,
-                    Theme.of(context).colorScheme.secondary,
-                    () => _showTransferDialog(),
-                  ),
-                ],
-              ),
-
               _buildRecentTransactionsSection(context, provider, l10n),
             ],
           ),
@@ -468,11 +374,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
               hint: Text(l10n.filterByType),
               items: [
                 DropdownMenuItem(value: null, child: Text(l10n.allTypes)),
-                ...WalletTransactionAction.values
-                    .map((a) => DropdownMenuItem(
-                          value: a,
-                          child: Text(a.name),
-                        )),
+                ...WalletTransactionAction.values.map((a) => DropdownMenuItem(
+                      value: a,
+                      child: Text(a.name),
+                    )),
               ],
               onChanged: (v) {
                 setState(() => _txFilterType = v);
@@ -482,139 +387,140 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
         ),
         const SizedBox(height: 16),
         Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                Container(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          l10n.date,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 90,
-                        child: Text(
-                          l10n.type,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          l10n.amount,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          l10n.reference,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (showRows)
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, i) {
-                      final tx = filtered[i];
-                      final color = _getActionColor(context, tx.action);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 140,
-                              child: Text(
-                                _formatTxDate(tx.timestamp),
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    _getRefTypeIcon(tx.refType),
-                                    size: 18,
-                                    color: color,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    _getRefTypeLabel(context, tx.refType),
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                _formatAmountForDisplay(tx.amount),
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: color,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 80,
-                              child: Text(
-                                '#${tx.refId}',
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Center(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              Container(
+                color: theme.colorScheme.surfaceContainerHighest,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 140,
                       child: Text(
-                        hasAny
-                            ? l10n.noTransactionsMatch
-                            : l10n.noTransactionsFound,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                        l10n.date,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+                    SizedBox(
+                      width: 90,
+                      child: Text(
+                        l10n.type,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        l10n.amount,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 80,
+                      child: Text(
+                        l10n.reference,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (showRows)
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    final tx = filtered[i];
+                    final color = _getActionColor(context, tx.action);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            child: Text(
+                              _formatTxDate(tx.timestamp),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 100,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getRefTypeIcon(tx.refType),
+                                  size: 18,
+                                  color: color,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _getRefTypeLabel(context, tx.refType),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              _formatAmountForDisplay(tx.amount),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: color,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 80,
+                            child: Text(
+                              '#${tx.refId}',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Center(
+                    child: Text(
+                      hasAny
+                          ? l10n.noTransactionsMatch
+                          : l10n.noTransactionsFound,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
+        ),
       ],
     );
   }
 
-  Widget _buildBalanceRow(
-      BuildContext context, String label, String amount, Color color, IconData icon) {
+  Widget _buildBalanceRow(BuildContext context, String label, String amount,
+      Color color, IconData icon) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -644,41 +550,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
         ),
       ],
     );
-  }
-
-  Widget _buildActionButton(
-      BuildContext context, String label, IconData icon, Color color, VoidCallback onPressed) {
-    final scheme = Theme.of(context).colorScheme;
-    final foreground = color == scheme.primary
-        ? scheme.onPrimary
-        : color == scheme.error
-            ? scheme.onError
-            : scheme.onSecondary;
-    return FilledButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: FilledButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: foreground,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      ),
-    );
-  }
-
-  IconData _getActionIcon(WalletTransactionAction action) {
-    switch (action) {
-      case WalletTransactionAction.credit:
-        return Icons.add_circle;
-      case WalletTransactionAction.debit:
-        return Icons.remove_circle;
-      case WalletTransactionAction.freeze:
-        return Icons.lock;
-      case WalletTransactionAction.unfreeze:
-        return Icons.lock_open;
-      case WalletTransactionAction.transfer:
-        return Icons.send;
-    }
   }
 
   Color _getActionColor(BuildContext context, WalletTransactionAction action) {
@@ -729,204 +600,5 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
       case WalletReferenceType.adjust:
         return 'Adjust';
     }
-  }
-
-  void _showDepositDialog() {
-    final amountController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.deposit),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: amountController,
-                decoration: InputDecoration(
-                  labelText: l10n.amount,
-                  hintText: '0.00',
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [_AmountInputFormatter()],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                final provider = context.read<WalletsProvider>();
-                final success = await provider.deposit(
-                  currencyId: _selectedCurrencyId!,
-                  amount: _parseAmountForApi(amountController.text),
-                  refId: '${DateTime.now().millisecondsSinceEpoch}',
-                );
-                if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context);
-                if (success) {
-                  showAppSnackBar(
-                    context,
-                    message: l10nSuccess.depositSuccess,
-                    type: SnackBarType.success,
-                  );
-                  _fetchBalance();
-                } else {
-                  showAppSnackBar(
-                    context,
-                    message: '${l10nSuccess.depositFailed}: ${provider.error ?? ''}',
-                    type: SnackBarType.error,
-                    duration: const Duration(seconds: 4),
-                  );
-                }
-              },
-              child: Text(l10n.deposit),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showWithdrawDialog() {
-    final amountController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.withdraw),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: amountController,
-                decoration: InputDecoration(
-                  labelText: l10n.amount,
-                  hintText: '0.00',
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [_AmountInputFormatter()],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                final provider = context.read<WalletsProvider>();
-                final success = await provider.withdraw(
-                  currencyId: _selectedCurrencyId!,
-                  amount: _parseAmountForApi(amountController.text),
-                  refId: '${DateTime.now().millisecondsSinceEpoch}',
-                );
-                if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context);
-                if (success) {
-                  showAppSnackBar(
-                    context,
-                    message: l10nSuccess.withdrawSuccess,
-                    type: SnackBarType.success,
-                  );
-                  _fetchBalance();
-                } else {
-                  showAppSnackBar(
-                    context,
-                    message: '${l10nSuccess.withdrawFailed}: ${provider.error ?? ''}',
-                    type: SnackBarType.error,
-                    duration: const Duration(seconds: 4),
-                  );
-                }
-              },
-              child: Text(l10n.withdraw),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showTransferDialog() {
-    final amountController = TextEditingController();
-    final toUserIdController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.transfer),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: toUserIdController,
-                decoration: InputDecoration(
-                  labelText: l10n.toUserId,
-                  hintText: '1',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: amountController,
-                decoration: InputDecoration(
-                  labelText: l10n.amount,
-                  hintText: '0.00',
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [_AmountInputFormatter()],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                final provider = context.read<WalletsProvider>();
-                final success = await provider.transfer(
-                  currencyId: _selectedCurrencyId!,
-                  amount: _parseAmountForApi(amountController.text),
-                  toUserId: toUserIdController.text.trim(),
-                );
-                if (!mounted) return;
-                final l10nSuccess = AppLocalizations.of(context);
-                if (success) {
-                  showAppSnackBar(
-                    context,
-                    message: l10nSuccess.transferSuccess,
-                    type: SnackBarType.success,
-                  );
-                  _fetchBalance();
-                } else {
-                  showAppSnackBar(
-                    context,
-                    message: '${l10nSuccess.transferFailed}: ${provider.error ?? ''}',
-                    type: SnackBarType.error,
-                    duration: const Duration(seconds: 4),
-                  );
-                }
-              },
-              child: Text(l10n.transfer),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
