@@ -60,37 +60,59 @@ flutter doctor
 
 ---
 
-## Visual Studio 2026 Insiders (CMake tìm thư mục Community)
+## Windows desktop build: dùng Visual Studio auto-detect
 
-Nếu bạn cài **Visual Studio Community 2026 Insiders** (thư mục `...\18\Insiders`) mà `flutter run -d windows` báo:
+Với Flutter trên Windows, nên để Flutter/CMake **tự nhận diện** Visual Studio Build Tools hoặc Visual Studio Community đã cài trong máy. Không nên mặc định set sẵn các biến như `CMAKE_GENERATOR`, `CMAKE_GENERATOR_INSTANCE`, `CMAKE_GENERATOR_PLATFORM`, vì nếu giá trị cũ trỏ nhầm sang một instance không còn tồn tại thì `flutter run -d windows` sẽ fail dù toolchain thực tế vẫn hợp lệ.
 
-```text
-could not find specified instance of Visual Studio: ...\18\Community
-```
+Khuyến nghị:
 
-Thì cần tạo **junction** để CMake tìm đúng. Mở **PowerShell hoặc CMD “Run as Administrator”** rồi chạy:
-
-```cmd
-mklink /J "C:\Program Files\Microsoft Visual Studio\18\Community" "C:\Program Files\Microsoft Visual Studio\18\Insiders"
-```
-
-Sau đó chạy lại `flutter run -d windows`.
-
-**Nếu vẫn báo** *"The directory exists, but the instance is not known to the Visual Studio Installer"* thì CMake cần trỏ thẳng tới Insiders. Trong PowerShell (trước khi chạy `flutter run -d windows`), set **cả hai** biến (nếu không set `CMAKE_GENERATOR`, CMake sẽ bỏ qua `CMAKE_GENERATOR_INSTANCE` và báo warning):
+1. Cài **Visual Studio Build Tools** hoặc **Visual Studio Community** có workload **Desktop development with C++**.
+2. Kiểm tra toolchain:
 
 ```powershell
-$env:CMAKE_GENERATOR = "Visual Studio 18 2026"
-$env:CMAKE_GENERATOR_INSTANCE = "C:\Program Files\Microsoft Visual Studio\18\Insiders"
-$env:CMAKE_GENERATOR_PLATFORM = "x64"
+flutter doctor -v
+```
+
+3. Nếu `flutter doctor -v` đã nhận Windows toolchain, chạy build bình thường:
+
+```powershell
+flutter clean
+flutter pub get
 flutter run -d windows
 ```
 
-Để dùng lâu dài, set biến User (không cần gõ mỗi lần):
+## Nếu từng set nhầm biến CMake trước đó
 
-```powershell
-[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR", "Visual Studio 18 2026", "User")
-[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_INSTANCE", "C:\Program Files\Microsoft Visual Studio\18\Insiders", "User")
-[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_PLATFORM", "x64", "User")
+Một lỗi dễ gặp là terminal hoặc User Environment vẫn còn giữ cấu hình cũ, ví dụ trỏ sang một bản Visual Studio Insiders/Community không còn đúng nữa. Khi đó CMake có thể báo lỗi kiểu:
+
+```text
+could not find specified instance of Visual Studio
 ```
 
-Rồi mở lại terminal và chạy `flutter run -d windows`.
+### Reset trong terminal hiện tại
+
+Chạy các lệnh sau trong PowerShell để xoá override khỏi phiên terminal đang mở:
+
+```powershell
+Remove-Item Env:CMAKE_GENERATOR -ErrorAction SilentlyContinue
+Remove-Item Env:CMAKE_GENERATOR_INSTANCE -ErrorAction SilentlyContinue
+Remove-Item Env:CMAKE_GENERATOR_PLATFORM -ErrorAction SilentlyContinue
+flutter clean
+flutter run -d windows
+```
+
+### Xoá luôn ở User Environment
+
+Nếu trước đây bạn đã lưu các biến đó ở mức **User**, xoá luôn để tránh lặp lại lỗi ở các terminal mới:
+
+```powershell
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR", $null, "User")
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_INSTANCE", $null, "User")
+[Environment]::SetEnvironmentVariable("CMAKE_GENERATOR_PLATFORM", $null, "User")
+```
+
+Sau đó đóng toàn bộ terminal/VS Code rồi mở lại.
+
+## Khi nào mới nên override CMake generator?
+
+Chỉ nên tự set `CMAKE_GENERATOR*` khi bạn có lý do rõ ràng và đã xác minh chính xác generator + instance path đang dùng. Đây là trường hợp ngoại lệ để debug môi trường build, không phải cấu hình mặc định nên lưu lâu dài trong máy.

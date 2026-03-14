@@ -22,11 +22,14 @@ import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/blockchain_repository_impl.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 
@@ -163,6 +166,11 @@ Future<void> initializeDependencies() async {
     () => OrdersRepositoryImpl(remoteDataSource: sl<OrdersRemoteDataSource>()),
   );
 
+  // Blockchain Repository
+  sl.registerLazySingleton<BlockchainRepository>(
+    () => BlockchainRepositoryImpl(dio: sl<Dio>()),
+  );
+
   // ===== Trading Chart Services =====
   // WebSocket Service - Realtime data
   sl.registerLazySingleton<IWebSocketService>(
@@ -176,6 +184,28 @@ Future<void> initializeDependencies() async {
 
   // Chart Cache - persist chart data per pair/interval (~1 month)
   sl.registerLazySingleton<ChartCacheService>(() => ChartCacheService());
+
+  // Wallet signing strategy services (MetaMask/Phantom/TronLink + test fallback)
+  sl.registerLazySingleton<MetaMaskWalletService>(
+    () => MetaMaskWalletService(),
+  );
+  sl.registerLazySingleton<PhantomWalletService>(
+    () => PhantomWalletService(),
+  );
+  sl.registerLazySingleton<TronLinkWalletService>(
+    () => TronLinkWalletService(),
+  );
+  sl.registerLazySingleton<ManualTestWalletService>(
+    () => ManualTestWalletService(),
+  );
+  sl.registerLazySingleton<WalletServiceFactory>(
+    () => WalletServiceFactory(
+      metamaskWalletService: sl<MetaMaskWalletService>(),
+      phantomWalletService: sl<PhantomWalletService>(),
+      tronLinkWalletService: sl<TronLinkWalletService>(),
+      manualTestWalletService: sl<ManualTestWalletService>(),
+    ),
+  );
 
   // Chart Provider - State management (factory per screen)
   sl.registerFactory<ChartProvider>(

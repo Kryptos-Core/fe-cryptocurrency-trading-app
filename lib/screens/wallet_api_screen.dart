@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 
 /// Chuẩn hóa chuỗi số tiền để gửi API: bỏ dấu phẩy (ví dụ "10,000.50" -> "10000.50").
 String _parseAmountForApi(String formatted) {
@@ -251,6 +252,25 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BlockchainHubScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.account_tree_outlined),
+                    label: const Text('Open On-chain Wallet Flow'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
 
               Expanded(
                 child: _buildBalanceContent(context, provider),

@@ -134,6 +134,18 @@ class ApiConstants {
   static String walletByCurrency(String currencyId) => '$wallets/currency/$currencyId';
   static String walletBalance(String walletId) => '$wallets/$walletId/balance';
   static String walletLedger(String walletId) => '$wallets/$walletId/ledger';
+
+  // Blockchain Endpoints (Liên kết ví + Nạp/Rút on-chain)
+  static const String blockchain = '/blockchain';
+  static const String blockchainWallets = '$blockchain/wallets';
+  static const String blockchainRequestLink = '$blockchain/wallets/request-link';
+  static const String blockchainVerifyLink = '$blockchain/wallets/verify-link';
+  static String blockchainWalletBalance(String linkId) =>
+      '$blockchain/wallets/$linkId/balance';
+  static String blockchainUnlinkWallet(String linkId) => '$blockchain/wallets/$linkId';
+  static const String blockchainSubmitDeposit = '$blockchain/deposit/submit';
+  static const String blockchainRequestWithdrawal = '$blockchain/withdraw/request';
+  static const String blockchainTransactions = '$blockchain/transactions';
   
   // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);
