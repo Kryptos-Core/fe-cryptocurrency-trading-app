@@ -42,6 +42,10 @@ class MarketsRepositoryImpl implements MarketsRepository {
     String? search,
     String? baseSymbol,
     String? quoteSymbol,
+    List<String>? quoteSymbols,
+    String? sortBy,
+    String? sortOrder,
+    bool fuzzySearch = false,
   }) async {
     try {
       final result = await remoteDataSource.getMarkets(
@@ -52,11 +56,16 @@ class MarketsRepositoryImpl implements MarketsRepository {
         search: search,
         baseSymbol: baseSymbol,
         quoteSymbol: quoteSymbol,
+        quoteSymbols: quoteSymbols,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
+        fuzzySearch: fuzzySearch,
       );
 
       final markets = result.data.map((model) => model.toEntity()).toList();
       final tickers = result.tickers?.map((model) => model.toEntity()).toList();
-      final totalPages = result.totalPages ?? (result.total / result.limit).ceil();
+      final totalPages =
+          result.totalPages ?? (result.total / result.limit).ceil();
       return Right(
         PaginatedMarketsResult(
           markets: markets,
@@ -114,9 +123,11 @@ class MarketsRepositoryImpl implements MarketsRepository {
   }
 
   @override
-  Future<Either<Failure, MarketTicker>> getMarketTickerBySymbol(String symbol) async {
+  Future<Either<Failure, MarketTicker>> getMarketTickerBySymbol(
+      String symbol) async {
     try {
-      final tickerModel = await remoteDataSource.getMarketTickerBySymbol(symbol);
+      final tickerModel =
+          await remoteDataSource.getMarketTickerBySymbol(symbol);
       return Right(tickerModel.toEntity());
     } catch (e) {
       return _handleException(e);
@@ -227,7 +238,8 @@ class MarketsRepositoryImpl implements MarketsRepository {
   }
 
   @override
-  Future<Either<Failure, MarketPair>> createMarketPair(CreateMarketPairDto dto) async {
+  Future<Either<Failure, MarketPair>> createMarketPair(
+      CreateMarketPairDto dto) async {
     try {
       final marketModel = await remoteDataSource.createMarketPair(dto);
       return Right(marketModel.toEntity());

@@ -22,6 +22,10 @@ abstract class MarketsRepository {
     String? search,
     String? baseSymbol,
     String? quoteSymbol,
+    List<String>? quoteSymbols,
+    String? sortBy,
+    String? sortOrder,
+    bool fuzzySearch = false,
   });
 
   /// Get all active market pairs (cached endpoint - faster)
@@ -98,6 +102,7 @@ class PaginatedMarketsResult {
   final int page;
   final int limit;
   final int totalPages;
+
   /// Tickers for current page when GET /markets was called with includeTickers=true.
   final List<MarketTicker>? tickers;
 

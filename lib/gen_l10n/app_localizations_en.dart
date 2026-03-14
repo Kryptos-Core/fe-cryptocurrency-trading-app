@@ -402,10 +402,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchMarketsHint => 'Search by symbol (e.g. BTC, USDT)';
 
   @override
+  String get filterBase => 'Base';
+
+  @override
+  String get filterBaseAll => 'All';
+
+  @override
   String get filterQuote => 'Quote';
 
   @override
   String get filterQuoteAll => 'All';
+
+  @override
+  String get marketsSortBy => 'Sort';
+
+  @override
+  String get marketsSortTopVolume => 'Top Volume';
+
+  @override
+  String get marketsSortTopGainers => 'Top Gainers';
+
+  @override
+  String get marketsSortTopLosers => 'Top Losers';
+
+  @override
+  String get marketsSortSymbolAsc => 'A-Z';
+
+  @override
+  String get marketsSortSymbolDesc => 'Z-A';
+
+  @override
+  String get marketsSortNewest => 'Newest';
+
+  @override
+  String get marketsSortOldest => 'Oldest';
+
+  @override
+  String get marketsFuzzySearch => 'Smart search';
+
+  @override
+  String get marketsResultSuffix => 'pairs';
 
   @override
   String get clearFilters => 'Clear filters';

@@ -24,6 +24,10 @@ abstract class MarketsRemoteDataSource {
     String? search,
     String? baseSymbol,
     String? quoteSymbol,
+    List<String>? quoteSymbols,
+    String? sortBy,
+    String? sortOrder,
+    bool fuzzySearch = false,
   });
 
   /// Get all active market pairs (cached endpoint)
@@ -83,7 +87,8 @@ abstract class MarketsRemoteDataSource {
   Future<MarketPairModel> createMarketPair(CreateMarketPairDto dto);
 
   /// Update market pair (Admin only)
-  Future<MarketPairModel> updateMarketPair(String pairId, UpdateMarketPairDto dto);
+  Future<MarketPairModel> updateMarketPair(
+      String pairId, UpdateMarketPairDto dto);
 
   /// Delete market pair (soft delete - Admin only)
   Future<void> deleteMarketPair(String pairId);
@@ -150,6 +155,10 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     String? search,
     String? baseSymbol,
     String? quoteSymbol,
+    List<String>? quoteSymbols,
+    String? sortBy,
+    String? sortOrder,
+    bool fuzzySearch = false,
   }) async {
     try {
       final queryParams = <String, dynamic>{
@@ -166,6 +175,23 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       }
       if (quoteSymbol != null && quoteSymbol.trim().isNotEmpty) {
         queryParams['quoteSymbol'] = quoteSymbol.trim();
+      }
+      final normalizedQuoteSymbols = (quoteSymbols ?? const <String>[])
+          .map((e) => e.trim().toUpperCase())
+          .where((e) => e.isNotEmpty)
+          .toSet()
+          .toList();
+      if (normalizedQuoteSymbols.isNotEmpty) {
+        queryParams['quoteSymbols'] = normalizedQuoteSymbols.join(',');
+      }
+      if (sortBy != null && sortBy.trim().isNotEmpty) {
+        queryParams['sortBy'] = sortBy.trim();
+      }
+      if (sortOrder != null && sortOrder.trim().isNotEmpty) {
+        queryParams['sortOrder'] = sortOrder.trim();
+      }
+      if (fuzzySearch) {
+        queryParams['fuzzySearch'] = true;
       }
       final response = await dio.get(
         ApiConstants.markets,
@@ -210,10 +236,12 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
             tickers = null;
           }
 
-          final parsedTotal = _toInt(paginatedMeta['total'], fallback: pairs.length);
+          final parsedTotal =
+              _toInt(paginatedMeta['total'], fallback: pairs.length);
           final parsedPage = _toInt(paginatedMeta['page'], fallback: page);
           final parsedLimit = _toInt(paginatedMeta['limit'], fallback: limit);
-          final parsedTotalPages = _toInt(paginatedMeta['totalPages'], fallback: 0);
+          final parsedTotalPages =
+              _toInt(paginatedMeta['totalPages'], fallback: 0);
 
           return PaginatedMarketsData(
             data: pairs,

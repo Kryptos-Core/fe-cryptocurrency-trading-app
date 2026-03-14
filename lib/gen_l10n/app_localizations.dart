@@ -878,6 +878,18 @@ abstract class AppLocalizations {
   /// **'Search by symbol (e.g. BTC, USDT)'**
   String get searchMarketsHint;
 
+  /// No description provided for @filterBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get filterBase;
+
+  /// No description provided for @filterBaseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterBaseAll;
+
   /// No description provided for @filterQuote.
   ///
   /// In en, this message translates to:
@@ -889,6 +901,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get filterQuoteAll;
+
+  /// No description provided for @marketsSortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get marketsSortBy;
+
+  /// No description provided for @marketsSortTopVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Volume'**
+  String get marketsSortTopVolume;
+
+  /// No description provided for @marketsSortTopGainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Gainers'**
+  String get marketsSortTopGainers;
+
+  /// No description provided for @marketsSortTopLosers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Losers'**
+  String get marketsSortTopLosers;
+
+  /// No description provided for @marketsSortSymbolAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'A-Z'**
+  String get marketsSortSymbolAsc;
+
+  /// No description provided for @marketsSortSymbolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Z-A'**
+  String get marketsSortSymbolDesc;
+
+  /// No description provided for @marketsSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get marketsSortNewest;
+
+  /// No description provided for @marketsSortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get marketsSortOldest;
+
+  /// No description provided for @marketsFuzzySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart search'**
+  String get marketsFuzzySearch;
+
+  /// No description provided for @marketsResultSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'pairs'**
+  String get marketsResultSuffix;
 
   /// No description provided for @clearFilters.
   ///

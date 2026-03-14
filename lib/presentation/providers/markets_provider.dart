@@ -4,6 +4,16 @@ import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 
+enum MarketSortOption {
+  symbolAsc,
+  symbolDesc,
+  newest,
+  oldest,
+  topVolume,
+  topGainers,
+  topLosers,
+}
+
 /// Markets Provider
 /// Following Provider Pattern for State Management
 /// Single Responsibility: Manage markets state
@@ -32,6 +42,8 @@ class MarketsProvider extends ChangeNotifier {
   String _searchQuery = '';
   String? _filterBaseSymbol;
   String? _filterQuoteSymbol;
+  MarketSortOption _sortOption = MarketSortOption.topVolume;
+  bool _fuzzySearch = true;
 
   // Getters
   List<MarketPair> get markets => _markets;
@@ -51,10 +63,14 @@ class MarketsProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   String? get filterBaseSymbol => _filterBaseSymbol;
   String? get filterQuoteSymbol => _filterQuoteSymbol;
+  MarketSortOption get sortOption => _sortOption;
+  bool get fuzzySearch => _fuzzySearch;
   bool get hasActiveFilter =>
       _searchQuery.trim().isNotEmpty ||
       (_filterBaseSymbol != null && _filterBaseSymbol!.trim().isNotEmpty) ||
-      (_filterQuoteSymbol != null && _filterQuoteSymbol!.trim().isNotEmpty);
+      (_filterQuoteSymbol != null && _filterQuoteSymbol!.trim().isNotEmpty) ||
+      _sortOption != MarketSortOption.topVolume ||
+      _fuzzySearch != true;
 
   /// Fetch markets with optional filters.
   /// [includeTickers] when true, GET /markets returns tickers for current page; they are merged into [allTickers] (one request instead of separate GET /markets/tickers/all).
@@ -66,6 +82,8 @@ class MarketsProvider extends ChangeNotifier {
     String? search,
     String? baseSymbol,
     String? quoteSymbol,
+    MarketSortOption? sortOption,
+    bool? fuzzySearch,
   }) async {
     if (refresh) {
       _currentPage = 1;
@@ -82,10 +100,24 @@ class MarketsProvider extends ChangeNotifier {
     if (includeInactive != null) {
       _includeInactive = includeInactive;
     }
-    if (search != null) _searchQuery = search;
-    if (baseSymbol != null) _filterBaseSymbol = baseSymbol.isEmpty ? null : baseSymbol;
-    if (quoteSymbol != null) _filterQuoteSymbol = quoteSymbol.isEmpty ? null : quoteSymbol;
+    if (search != null) {
+      _searchQuery = search;
+    }
+    if (baseSymbol != null) {
+      _filterBaseSymbol = baseSymbol.isEmpty ? null : baseSymbol;
+    }
+    if (quoteSymbol != null) {
+      _filterQuoteSymbol = quoteSymbol.isEmpty ? null : quoteSymbol;
+    }
+    if (sortOption != null) {
+      _sortOption = sortOption;
+    }
+    if (fuzzySearch != null) {
+      _fuzzySearch = fuzzySearch;
+    }
     notifyListeners();
+
+    final backendSort = _toBackendSort(_sortOption);
 
     final result = await _marketsRepository.getMarkets(
       page: _currentPage,
@@ -93,8 +125,15 @@ class MarketsProvider extends ChangeNotifier {
       includeInactive: _includeInactive,
       includeTickers: includeTickers,
       search: _searchQuery.trim().isEmpty ? null : _searchQuery.trim(),
-      baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true ? null : _filterBaseSymbol?.trim(),
-      quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true ? null : _filterQuoteSymbol?.trim(),
+      baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true
+          ? null
+          : _filterBaseSymbol?.trim(),
+      quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true
+          ? null
+          : _filterQuoteSymbol?.trim(),
+      sortBy: backendSort.$1,
+      sortOrder: backendSort.$2,
+      fuzzySearch: _fuzzySearch,
     );
 
     result.fold(
@@ -113,7 +152,8 @@ class MarketsProvider extends ChangeNotifier {
         }
 
         // Merge tickers from this page (when includeTickers=true) into _allTickers by pairId
-        if (paginatedResult.tickers != null && paginatedResult.tickers!.isNotEmpty) {
+        if (paginatedResult.tickers != null &&
+            paginatedResult.tickers!.isNotEmpty) {
           final byPairId = Map<String, MarketTicker>.fromEntries(
             _allTickers.map((t) => MapEntry(t.pairId, t)),
           );
@@ -122,6 +162,8 @@ class MarketsProvider extends ChangeNotifier {
           }
           _allTickers = byPairId.values.toList();
         }
+
+        _applyLocalSort();
 
         // If no tickers in response, keep existing _allTickers; UI may call fetchTickersForPairs for visible pairs (avoids slow GET /markets/tickers/all timeout).
 
@@ -182,18 +224,33 @@ class MarketsProvider extends ChangeNotifier {
     fetchMarkets(refresh: true, includeTickers: true);
   }
 
+  void setSortOption(MarketSortOption option) {
+    if (_sortOption == option) return;
+    _sortOption = option;
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
+  void setFuzzySearch(bool enabled) {
+    if (_fuzzySearch == enabled) return;
+    _fuzzySearch = enabled;
+    fetchMarkets(refresh: true, includeTickers: true);
+  }
+
   /// Clear all search and filters, then refetch.
   void clearSearchAndFilters() {
     _searchQuery = '';
     _filterBaseSymbol = null;
     _filterQuoteSymbol = null;
+    _sortOption = MarketSortOption.topVolume;
+    _fuzzySearch = true;
     fetchMarkets(refresh: true, includeTickers: true);
   }
 
   /// Refresh data while keeping current scroll position (re-fetches all loaded pages).
   /// Use when user taps Refresh: same number of items, updated data and tickers.
   Future<void> refreshKeepingPosition() async {
-    final pagesLoaded = _markets.isEmpty ? 1 : (_markets.length / _pageSize).ceil();
+    final pagesLoaded =
+        _markets.isEmpty ? 1 : (_markets.length / _pageSize).ceil();
     if (pagesLoaded < 1) return;
 
     _isLoading = true;
@@ -212,8 +269,15 @@ class MarketsProvider extends ChangeNotifier {
         includeInactive: _includeInactive,
         includeTickers: true,
         search: _searchQuery.trim().isEmpty ? null : _searchQuery.trim(),
-        baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true ? null : _filterBaseSymbol?.trim(),
-        quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true ? null : _filterQuoteSymbol?.trim(),
+        baseSymbol: _filterBaseSymbol?.trim().isEmpty ?? true
+            ? null
+            : _filterBaseSymbol?.trim(),
+        quoteSymbol: _filterQuoteSymbol?.trim().isEmpty ?? true
+            ? null
+            : _filterQuoteSymbol?.trim(),
+        sortBy: _toBackendSort(_sortOption).$1,
+        sortOrder: _toBackendSort(_sortOption).$2,
+        fuzzySearch: _fuzzySearch,
       );
 
       result.fold(
@@ -241,6 +305,7 @@ class MarketsProvider extends ChangeNotifier {
     _currentPage = lastPage + 1;
     _hasMore = _markets.length < _total;
     _allTickers = tickersByPairId.values.toList();
+    _applyLocalSort();
 
     _isLoading = false;
     _error = null;
@@ -373,6 +438,7 @@ class MarketsProvider extends ChangeNotifier {
       },
       (tickers) {
         _allTickers = tickers;
+        _applyLocalSort();
         _error = null;
         notifyListeners();
       },
@@ -394,7 +460,66 @@ class MarketsProvider extends ChangeNotifier {
       );
     }
     _allTickers = byPairId.values.toList();
+    _applyLocalSort();
     notifyListeners();
+  }
+
+  (String, String) _toBackendSort(MarketSortOption option) {
+    switch (option) {
+      case MarketSortOption.symbolDesc:
+        return ('symbol', 'desc');
+      case MarketSortOption.newest:
+        return ('createdAt', 'desc');
+      case MarketSortOption.oldest:
+        return ('createdAt', 'asc');
+      case MarketSortOption.symbolAsc:
+      case MarketSortOption.topVolume:
+      case MarketSortOption.topGainers:
+      case MarketSortOption.topLosers:
+        return ('symbol', 'asc');
+    }
+  }
+
+  void _applyLocalSort() {
+    if (_markets.isEmpty) return;
+    final tickerByPairId = {
+      for (final t in _allTickers)
+        if (t.pairId.isNotEmpty) t.pairId: t,
+    };
+    double asDouble(String value) => double.tryParse(value) ?? 0;
+
+    int compareTicker(
+        MarketPair a, MarketPair b, String Function(MarketTicker) valueOf,
+        {bool desc = true}) {
+      final ta = tickerByPairId[a.pairId];
+      final tb = tickerByPairId[b.pairId];
+      final va = ta == null ? 0 : asDouble(valueOf(ta));
+      final vb = tb == null ? 0 : asDouble(valueOf(tb));
+      return desc ? vb.compareTo(va) : va.compareTo(vb);
+    }
+
+    switch (_sortOption) {
+      case MarketSortOption.symbolAsc:
+        _markets.sort((a, b) => a.symbol.compareTo(b.symbol));
+        break;
+      case MarketSortOption.symbolDesc:
+        _markets.sort((a, b) => b.symbol.compareTo(a.symbol));
+        break;
+      case MarketSortOption.newest:
+      case MarketSortOption.oldest:
+        // Keep backend ordering for createdAt sorts to preserve cross-page consistency.
+        break;
+      case MarketSortOption.topVolume:
+        _markets.sort((a, b) => compareTicker(a, b, (t) => t.volume24h));
+        break;
+      case MarketSortOption.topGainers:
+        _markets.sort((a, b) => compareTicker(a, b, (t) => t.change24h));
+        break;
+      case MarketSortOption.topLosers:
+        _markets.sort(
+            (a, b) => compareTicker(a, b, (t) => t.change24h, desc: false));
+        break;
+    }
   }
 
   /// Get order book by ID

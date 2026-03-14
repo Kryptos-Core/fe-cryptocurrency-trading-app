@@ -401,10 +401,46 @@ class AppLocalizationsVi extends AppLocalizations {
   String get searchMarketsHint => 'Tìm theo symbol (vd. BTC, USDT)';
 
   @override
+  String get filterBase => 'Cơ sở';
+
+  @override
+  String get filterBaseAll => 'Tất cả';
+
+  @override
   String get filterQuote => 'Định giá';
 
   @override
   String get filterQuoteAll => 'Tất cả';
+
+  @override
+  String get marketsSortBy => 'Sắp xếp';
+
+  @override
+  String get marketsSortTopVolume => 'Khối lượng cao';
+
+  @override
+  String get marketsSortTopGainers => 'Tăng mạnh';
+
+  @override
+  String get marketsSortTopLosers => 'Giảm mạnh';
+
+  @override
+  String get marketsSortSymbolAsc => 'A-Z';
+
+  @override
+  String get marketsSortSymbolDesc => 'Z-A';
+
+  @override
+  String get marketsSortNewest => 'Mới nhất';
+
+  @override
+  String get marketsSortOldest => 'Cũ nhất';
+
+  @override
+  String get marketsFuzzySearch => 'Tìm kiếm thông minh';
+
+  @override
+  String get marketsResultSuffix => 'cặp';
 
   @override
   String get clearFilters => 'Xóa bộ lọc';

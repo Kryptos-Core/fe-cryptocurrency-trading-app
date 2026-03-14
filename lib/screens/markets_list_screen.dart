@@ -21,7 +21,8 @@ class MarketsListScreen extends StatefulWidget {
 
 class _MarketsListScreenState extends State<MarketsListScreen> {
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<_MarketSearchBarState> _searchBarKey = GlobalKey<_MarketSearchBarState>();
+  final GlobalKey<_MarketSearchBarState> _searchBarKey =
+      GlobalKey<_MarketSearchBarState>();
   bool _isLoadingMore = false;
   bool _fallbackTickersRequested = false;
 
@@ -134,7 +135,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                                   _searchBarKey.currentState?.clear();
                                   provider.clearSearchAndFilters();
                                 },
-                                icon: const Icon(Icons.filter_alt_off, size: 18),
+                                icon:
+                                    const Icon(Icons.filter_alt_off, size: 18),
                                 label: Text(l10n.clearFilters),
                               ),
                             ],
@@ -169,7 +171,8 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ChangeNotifierProvider(
+                                    builder: (context) =>
+                                        ChangeNotifierProvider(
                                       create: (_) => sl<ChartProvider>(),
                                       child: MarketDetailScreen(
                                         pairId: market.pairId,
@@ -214,15 +217,39 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text(
-                '${l10n.filterQuote}: ',
-                style: theme.textTheme.bodyMedium,
+              Expanded(
+                child: _BaseFilterDropdown(
+                  selectedBaseSymbol: provider.filterBaseSymbol,
+                  onSelected: provider.setFilterBaseSymbol,
+                ),
               ),
+              const SizedBox(width: 8),
               Expanded(
                 child: _QuoteFilterDropdown(
                   selectedQuoteSymbol: provider.filterQuoteSymbol,
                   onSelected: provider.setFilterQuoteSymbol,
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _SortDropdown(
+                  selected: provider.sortOption,
+                  onSelected: provider.setSortOption,
+                ),
+              ),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: Text(l10n.marketsFuzzySearch),
+                selected: provider.fuzzySearch,
+                onSelected: provider.setFuzzySearch,
+              ),
+              Text(
+                ' ${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}',
+                style: theme.textTheme.bodyMedium,
               ),
               if (provider.hasActiveFilter)
                 TextButton.icon(
@@ -354,14 +381,17 @@ class _QuoteFilterDropdown extends StatelessWidget {
         final symbols = options.map((c) => c.symbol).toList();
         symbols.sort();
         return DropdownButtonFormField<String>(
-          initialValue: selectedQuoteSymbol != null && symbols.contains(selectedQuoteSymbol)
+          initialValue: selectedQuoteSymbol != null &&
+                  symbols.contains(selectedQuoteSymbol)
               ? selectedQuoteSymbol
               : null,
           menuMaxHeight: MediaQuery.of(context).size.height * 0.45,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             isDense: true,
+            labelText: l10n.filterQuote,
           ),
           hint: Text(l10n.filterQuoteAll),
           items: [
@@ -376,6 +406,99 @@ class _QuoteFilterDropdown extends StatelessWidget {
           ],
           onChanged: onSelected,
         );
+      },
+    );
+  }
+}
+
+class _BaseFilterDropdown extends StatelessWidget {
+  final String? selectedBaseSymbol;
+  final void Function(String?) onSelected;
+
+  const _BaseFilterDropdown({
+    required this.selectedBaseSymbol,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Consumer<CurrenciesProvider>(
+      builder: (context, currenciesProvider, _) {
+        final options = currenciesProvider.tradableCurrencies;
+        final symbols = options.map((c) => c.symbol).toList();
+        symbols.sort();
+        return DropdownButtonFormField<String>(
+          initialValue:
+              selectedBaseSymbol != null && symbols.contains(selectedBaseSymbol)
+                  ? selectedBaseSymbol
+                  : null,
+          menuMaxHeight: MediaQuery.of(context).size.height * 0.45,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            isDense: true,
+            labelText: l10n.filterBase,
+          ),
+          hint: Text(l10n.filterBaseAll),
+          items: [
+            DropdownMenuItem<String>(
+              value: null,
+              child: Text(l10n.filterBaseAll),
+            ),
+            ...symbols.map((symbol) => DropdownMenuItem<String>(
+                  value: symbol,
+                  child: Text(symbol),
+                )),
+          ],
+          onChanged: onSelected,
+        );
+      },
+    );
+  }
+}
+
+class _SortDropdown extends StatelessWidget {
+  final MarketSortOption selected;
+  final void Function(MarketSortOption) onSelected;
+
+  const _SortDropdown({
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final options = <(MarketSortOption, String)>[
+      (MarketSortOption.topVolume, l10n.marketsSortTopVolume),
+      (MarketSortOption.topGainers, l10n.marketsSortTopGainers),
+      (MarketSortOption.topLosers, l10n.marketsSortTopLosers),
+      (MarketSortOption.symbolAsc, l10n.marketsSortSymbolAsc),
+      (MarketSortOption.symbolDesc, l10n.marketsSortSymbolDesc),
+      (MarketSortOption.newest, l10n.marketsSortNewest),
+      (MarketSortOption.oldest, l10n.marketsSortOldest),
+    ];
+
+    return DropdownButtonFormField<MarketSortOption>(
+      initialValue: selected,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        isDense: true,
+        labelText: l10n.marketsSortBy,
+      ),
+      items: options
+          .map(
+            (item) => DropdownMenuItem<MarketSortOption>(
+              value: item.$1,
+              child: Text(item.$2),
+            ),
+          )
+          .toList(),
+      onChanged: (value) {
+        if (value != null) onSelected(value);
       },
     );
   }
