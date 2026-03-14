@@ -12,6 +12,7 @@ import 'package:crypto_trading_app/data/datasources/wallets_remote_datasource.da
 import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/orders_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/deposit_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
@@ -22,8 +23,10 @@ import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/deposit_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/deposit_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/blockchain_repository_impl.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
@@ -127,6 +130,11 @@ Future<void> initializeDependencies() async {
     () => OrdersRemoteDataSourceImpl(dioClient: sl()),
   );
 
+  // Deposits Remote Data Source
+  sl.registerLazySingleton<DepositRemoteDataSource>(
+    () => DepositRemoteDataSourceImpl(dioClient: sl()),
+  );
+
   // Exchange Remote Data Source (sync Binance → DB)
   sl.registerLazySingleton<ExchangeRemoteDataSource>(
     () => ExchangeRemoteDataSourceImpl(dio: sl()),
@@ -164,6 +172,11 @@ Future<void> initializeDependencies() async {
   // Orders Repository
   sl.registerLazySingleton<OrdersRepository>(
     () => OrdersRepositoryImpl(remoteDataSource: sl<OrdersRemoteDataSource>()),
+  );
+
+  // Deposits Repository
+  sl.registerLazySingleton<DepositRepository>(
+    () => DepositRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Blockchain Repository

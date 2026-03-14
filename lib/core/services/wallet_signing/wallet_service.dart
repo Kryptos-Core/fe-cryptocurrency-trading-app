@@ -4,8 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
-  if (dart.library.html)
-    'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
+    if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
 
 Future<bool> _openWebHelpPage(String url) {
   return launchUrl(
@@ -81,7 +80,8 @@ class MetaMaskWalletService implements WalletService {
         expectedAddress: request.address,
       );
 
-      if (webSignResult.signature != null && webSignResult.signature!.isNotEmpty) {
+      if (webSignResult.signature != null &&
+          webSignResult.signature!.isNotEmpty) {
         return WalletSignResult(
           signature: webSignResult.signature,
           openedExternalWallet: true,
@@ -92,15 +92,24 @@ class MetaMaskWalletService implements WalletService {
       }
 
       if (webSignResult.notInstalled) {
-        await _openWebHelpPage('https://metamask.io/download/');
+        final host = Uri.base.host.toLowerCase();
+        final isLocalhost =
+            host == 'localhost' || host == '127.0.0.1' || host == '::1';
+
+        // On localhost, extension is often installed but blocked/not injected.
+        // Avoid forcing a download tab in that case.
+        if (!isLocalhost) {
+          await _openWebHelpPage('https://metamask.io/download/');
+        }
       }
 
       return WalletSignResult(
         signature: null,
         openedExternalWallet: false,
         requiresManualInput: true,
-        suggestedAddress:
-            webSignResult.accountMismatch ? webSignResult.connectedAddress : null,
+        suggestedAddress: webSignResult.accountMismatch
+            ? webSignResult.connectedAddress
+            : null,
         message: webSignResult.message,
       );
     }
@@ -279,7 +288,8 @@ class WalletServiceFactory {
         _tronLinkWalletService = tronLinkWalletService,
         _manualTestWalletService = manualTestWalletService;
 
-  WalletService forNetwork(BlockchainNetwork network, {required bool testMode}) {
+  WalletService forNetwork(BlockchainNetwork network,
+      {required bool testMode}) {
     if (testMode) {
       return _manualTestWalletService;
     }

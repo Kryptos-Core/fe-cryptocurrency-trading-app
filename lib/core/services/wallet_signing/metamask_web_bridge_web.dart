@@ -1,7 +1,9 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
+// Web-only implementation - loaded only on Flutter web via conditional import.
+// dart:js_interop and dart:js_interop_unsafe are Dart SDK libraries (no pubspec entry needed).
+// ignore_for_file: avoid_web_libraries_in_flutter
 
-import 'dart:html' as html;
-import 'package:js/js_util.dart' as js_util;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 class MetaMaskWebSignResult {
   final String? signature;
@@ -23,28 +25,33 @@ Future<MetaMaskWebSignResult> metaMaskSignOnWeb({
   required String message,
   required String expectedAddress,
 }) async {
-  final ethereum = js_util.getProperty(html.window, 'ethereum');
-  if (ethereum == null) {
+  // globalContext is window on the browser.
+  final ethereumRaw = globalContext['ethereum'];
+  if (ethereumRaw == null) {
     return const MetaMaskWebSignResult(
       signature: null,
       notInstalled: true,
       accountMismatch: false,
       connectedAddress: null,
-      message: 'MetaMask extension is not detected in this browser.',
+      message:
+          'MetaMask provider is not detected. If extension is already installed, make sure it is enabled for this site/profile, unlocked, and allowed on localhost, then refresh and try again.',
     );
   }
 
+  final ethereum = ethereumRaw as JSObject;
+
   try {
-    final dynamic accountsRaw = await js_util.promiseToFuture<dynamic>(
-      js_util.callMethod(ethereum, 'request', [
-        js_util.jsify({'method': 'eth_requestAccounts'})
-      ]),
+    final accountsPromise = ethereum.callMethod<JSPromise<JSAny?>>(
+      'request'.toJS,
+      {'method': 'eth_requestAccounts'}.jsify()!,
     );
 
+    final accountsResult = await accountsPromise.toDart;
     final accounts = <String>[];
-    if (accountsRaw is List) {
-      for (final account in accountsRaw) {
-        accounts.add(account.toString());
+    final accountsAsDart = accountsResult?.dartify();
+    if (accountsAsDart is List) {
+      for (final account in accountsAsDart) {
+        if (account != null) accounts.add(account.toString());
       }
     }
 
@@ -75,16 +82,17 @@ Future<MetaMaskWebSignResult> metaMaskSignOnWeb({
       );
     }
 
-    final dynamic signatureRaw = await js_util.promiseToFuture<dynamic>(
-      js_util.callMethod(ethereum, 'request', [
-        js_util.jsify({
-          'method': 'personal_sign',
-          'params': [message, selected],
-        })
-      ]),
+    final signPromise = ethereum.callMethod<JSPromise<JSAny?>>(
+      'request'.toJS,
+      {
+        'method': 'personal_sign',
+        'params': [message, selected],
+      }.jsify()!,
     );
 
-    final signature = signatureRaw?.toString() ?? '';
+    final signResult = await signPromise.toDart;
+    final signature = signResult?.dartify()?.toString() ?? '';
+
     if (signature.isEmpty) {
       return const MetaMaskWebSignResult(
         signature: null,

@@ -16,6 +16,7 @@ import 'package:crypto_trading_app/presentation/providers/currencies_provider.da
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
@@ -97,6 +98,11 @@ class CryptoTradingApp extends StatelessWidget {
           create: (_) => OrdersProvider(
             ordersRepository: di.sl(),
             walletRepository: di.sl(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DepositsProvider(
+            repository: di.sl(),
           ),
         ),
         ChangeNotifierProvider(

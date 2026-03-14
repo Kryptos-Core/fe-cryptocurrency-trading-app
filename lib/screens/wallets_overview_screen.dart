@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/screens/wallet_detail_screen.dart';
+import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 /// Wallets Overview Screen
 /// Displays all user wallets with total portfolio value
@@ -102,6 +103,30 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                     ],
                   ),
                 ),
+                // Quick Actions
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const DepositsScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.account_balance_wallet),
+                          label: const Text('Nạp tiền (PayOS)'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
                 // Wallets List
                 Expanded(
                   child: ListView.builder(
