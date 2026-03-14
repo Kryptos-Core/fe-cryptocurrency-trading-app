@@ -1717,6 +1717,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment was cancelled or expired.'**
   String get payosPaymentCancelled;
+
+  /// No description provided for @currenciesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies...'**
+  String get currenciesSearchHint;
+
+  /// No description provided for @currenciesFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get currenciesFilterAll;
+
+  /// No description provided for @currenciesTradable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable'**
+  String get currenciesTradable;
+
+  /// No description provided for @currenciesSortTopVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Volume'**
+  String get currenciesSortTopVolume;
+
+  /// No description provided for @currenciesSortTopGainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Gainers'**
+  String get currenciesSortTopGainers;
+
+  /// No description provided for @currenciesSortTopLosers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Losers'**
+  String get currenciesSortTopLosers;
+
+  /// No description provided for @currenciesSortAlphabet.
+  ///
+  /// In en, this message translates to:
+  /// **'A-Z'**
+  String get currenciesSortAlphabet;
+
+  /// No description provided for @currenciesNoCurrenciesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies found'**
+  String get currenciesNoCurrenciesFound;
+
+  /// No description provided for @currenciesNoMatchSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies match your search'**
+  String get currenciesNoMatchSearch;
+
+  /// No description provided for @currenciesDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency Details'**
+  String get currenciesDetailTitle;
+
+  /// No description provided for @currenciesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency not found'**
+  String get currenciesNotFound;
+
+  /// No description provided for @currenciesMarketOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Overview'**
+  String get currenciesMarketOverviewTitle;
+
+  /// No description provided for @currenciesConfigurationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency Configuration'**
+  String get currenciesConfigurationTitle;
+
+  /// No description provided for @currenciesSymbolLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Symbol'**
+  String get currenciesSymbolLabel;
+
+  /// No description provided for @currenciesNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get currenciesNameLabel;
+
+  /// No description provided for @currenciesPrecisionScaleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Precision Scale'**
+  String get currenciesPrecisionScaleLabel;
+
+  /// No description provided for @currenciesMinWithdrawLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Withdraw'**
+  String get currenciesMinWithdrawLabel;
+
+  /// No description provided for @currenciesYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get currenciesYes;
+
+  /// No description provided for @currenciesNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get currenciesNo;
 }
 
 class _AppLocalizationsDelegate

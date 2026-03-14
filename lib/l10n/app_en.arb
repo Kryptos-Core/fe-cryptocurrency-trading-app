@@ -328,5 +328,25 @@
   "payosOpenInBrowser": "Open in browser",
   "payosLinkCopied": "Payment link copied",
   "payosTapToOpenCheckout": "Tap to open checkout",
-  "payosPaymentCancelled": "Payment was cancelled or expired."
+  "payosPaymentCancelled": "Payment was cancelled or expired.",
+
+  "currenciesSearchHint": "Search currencies...",
+  "currenciesFilterAll": "All",
+  "currenciesTradable": "Tradable",
+  "currenciesSortTopVolume": "Top Volume",
+  "currenciesSortTopGainers": "Top Gainers",
+  "currenciesSortTopLosers": "Top Losers",
+  "currenciesSortAlphabet": "A-Z",
+  "currenciesNoCurrenciesFound": "No currencies found",
+  "currenciesNoMatchSearch": "No currencies match your search",
+  "currenciesDetailTitle": "Currency Details",
+  "currenciesNotFound": "Currency not found",
+  "currenciesMarketOverviewTitle": "Market Overview",
+  "currenciesConfigurationTitle": "Currency Configuration",
+  "currenciesSymbolLabel": "Symbol",
+  "currenciesNameLabel": "Name",
+  "currenciesPrecisionScaleLabel": "Precision Scale",
+  "currenciesMinWithdrawLabel": "Min Withdraw",
+  "currenciesYes": "Yes",
+  "currenciesNo": "No"
 }

@@ -35,7 +35,8 @@ abstract class CurrenciesRemoteDataSource {
   Future<CurrencyModel> createCurrency(CreateCurrencyDto dto);
 
   /// Update currency (Admin only)
-  Future<CurrencyModel> updateCurrency(String currencyId, UpdateCurrencyDto dto);
+  Future<CurrencyModel> updateCurrency(
+      String currencyId, UpdateCurrencyDto dto);
 
   /// Delete currency (soft delete - Admin only)
   Future<void> deleteCurrency(String currencyId);
@@ -106,6 +107,7 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
           'page': page,
           'limit': limit,
           'includeInactive': includeInactive,
+          'includeMarketData': true,
         },
       );
 

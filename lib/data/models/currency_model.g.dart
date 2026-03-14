@@ -17,6 +17,10 @@ CurrencyModel _$CurrencyModelFromJson(Map<String, dynamic> json) =>
       isActive: _nullSafeBoolFromJson(json['is_active']),
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
+      lastPrice: _nullableStringFromJson(json['lastPrice']),
+      priceChangePercent24h:
+          _nullableStringFromJson(json['priceChangePercent24h']),
+      volume24h: _nullableStringFromJson(json['volume24h']),
     );
 
 Map<String, dynamic> _$CurrencyModelToJson(CurrencyModel instance) =>
@@ -30,4 +34,7 @@ Map<String, dynamic> _$CurrencyModelToJson(CurrencyModel instance) =>
       'is_active': instance.isActive,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
+      'lastPrice': instance.lastPrice,
+      'priceChangePercent24h': instance.priceChangePercent24h,
+      'volume24h': instance.volume24h,
     };

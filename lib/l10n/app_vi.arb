@@ -272,5 +272,25 @@
   "payosOpenInBrowser": "Mở trên trình duyệt",
   "payosLinkCopied": "Đã sao chép link thanh toán",
   "payosTapToOpenCheckout": "Nhấn để mở trang thanh toán",
-  "payosPaymentCancelled": "Thanh toán đã bị hủy hoặc hết hạn."
+  "payosPaymentCancelled": "Thanh toán đã bị hủy hoặc hết hạn.",
+
+  "currenciesSearchHint": "Tìm kiếm tiền tệ...",
+  "currenciesFilterAll": "Tất cả",
+  "currenciesTradable": "Có thể giao dịch",
+  "currenciesSortTopVolume": "Top Khối lượng",
+  "currenciesSortTopGainers": "Top Tăng giá",
+  "currenciesSortTopLosers": "Top Giảm giá",
+  "currenciesSortAlphabet": "A-Z",
+  "currenciesNoCurrenciesFound": "Không tìm thấy tiền tệ",
+  "currenciesNoMatchSearch": "Không có tiền tệ phù hợp tìm kiếm",
+  "currenciesDetailTitle": "Chi tiết tiền tệ",
+  "currenciesNotFound": "Không tìm thấy tiền tệ",
+  "currenciesMarketOverviewTitle": "Tổng quan thị trường",
+  "currenciesConfigurationTitle": "Cấu hình tiền tệ",
+  "currenciesSymbolLabel": "Mã",
+  "currenciesNameLabel": "Tên",
+  "currenciesPrecisionScaleLabel": "Số chữ số thập phân",
+  "currenciesMinWithdrawLabel": "Rút tối thiểu",
+  "currenciesYes": "Có",
+  "currenciesNo": "Không"
 }

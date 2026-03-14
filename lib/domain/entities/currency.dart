@@ -10,6 +10,9 @@ class Currency {
   final bool isActive;
   final String? createdAt; // ISO 8601 date
   final String? updatedAt; // ISO 8601 date
+  final String? lastPrice;
+  final String? priceChangePercent24h;
+  final String? volume24h;
 
   const Currency({
     required this.currencyId,
@@ -21,6 +24,9 @@ class Currency {
     required this.isActive,
     this.createdAt,
     this.updatedAt,
+    this.lastPrice,
+    this.priceChangePercent24h,
+    this.volume24h,
   });
 
   Currency copyWith({
@@ -33,6 +39,9 @@ class Currency {
     bool? isActive,
     String? createdAt,
     String? updatedAt,
+    String? lastPrice,
+    String? priceChangePercent24h,
+    String? volume24h,
   }) {
     return Currency(
       currencyId: currencyId ?? this.currencyId,
@@ -44,6 +53,10 @@ class Currency {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      lastPrice: lastPrice ?? this.lastPrice,
+      priceChangePercent24h:
+          priceChangePercent24h ?? this.priceChangePercent24h,
+      volume24h: volume24h ?? this.volume24h,
     );
   }
 

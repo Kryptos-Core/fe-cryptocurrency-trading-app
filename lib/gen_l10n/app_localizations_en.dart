@@ -893,4 +893,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payosPaymentCancelled => 'Payment was cancelled or expired.';
+
+  @override
+  String get currenciesSearchHint => 'Search currencies...';
+
+  @override
+  String get currenciesFilterAll => 'All';
+
+  @override
+  String get currenciesTradable => 'Tradable';
+
+  @override
+  String get currenciesSortTopVolume => 'Top Volume';
+
+  @override
+  String get currenciesSortTopGainers => 'Top Gainers';
+
+  @override
+  String get currenciesSortTopLosers => 'Top Losers';
+
+  @override
+  String get currenciesSortAlphabet => 'A-Z';
+
+  @override
+  String get currenciesNoCurrenciesFound => 'No currencies found';
+
+  @override
+  String get currenciesNoMatchSearch => 'No currencies match your search';
+
+  @override
+  String get currenciesDetailTitle => 'Currency Details';
+
+  @override
+  String get currenciesNotFound => 'Currency not found';
+
+  @override
+  String get currenciesMarketOverviewTitle => 'Market Overview';
+
+  @override
+  String get currenciesConfigurationTitle => 'Currency Configuration';
+
+  @override
+  String get currenciesSymbolLabel => 'Symbol';
+
+  @override
+  String get currenciesNameLabel => 'Name';
+
+  @override
+  String get currenciesPrecisionScaleLabel => 'Precision Scale';
+
+  @override
+  String get currenciesMinWithdrawLabel => 'Min Withdraw';
+
+  @override
+  String get currenciesYes => 'Yes';
+
+  @override
+  String get currenciesNo => 'No';
 }

@@ -892,4 +892,61 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get payosPaymentCancelled => 'Thanh toán đã bị hủy hoặc hết hạn.';
+
+  @override
+  String get currenciesSearchHint => 'Tìm kiếm tiền tệ...';
+
+  @override
+  String get currenciesFilterAll => 'Tất cả';
+
+  @override
+  String get currenciesTradable => 'Có thể giao dịch';
+
+  @override
+  String get currenciesSortTopVolume => 'Top Khối lượng';
+
+  @override
+  String get currenciesSortTopGainers => 'Top Tăng giá';
+
+  @override
+  String get currenciesSortTopLosers => 'Top Giảm giá';
+
+  @override
+  String get currenciesSortAlphabet => 'A-Z';
+
+  @override
+  String get currenciesNoCurrenciesFound => 'Không tìm thấy tiền tệ';
+
+  @override
+  String get currenciesNoMatchSearch => 'Không có tiền tệ phù hợp tìm kiếm';
+
+  @override
+  String get currenciesDetailTitle => 'Chi tiết tiền tệ';
+
+  @override
+  String get currenciesNotFound => 'Không tìm thấy tiền tệ';
+
+  @override
+  String get currenciesMarketOverviewTitle => 'Tổng quan thị trường';
+
+  @override
+  String get currenciesConfigurationTitle => 'Cấu hình tiền tệ';
+
+  @override
+  String get currenciesSymbolLabel => 'Mã';
+
+  @override
+  String get currenciesNameLabel => 'Tên';
+
+  @override
+  String get currenciesPrecisionScaleLabel => 'Số chữ số thập phân';
+
+  @override
+  String get currenciesMinWithdrawLabel => 'Rút tối thiểu';
+
+  @override
+  String get currenciesYes => 'Có';
+
+  @override
+  String get currenciesNo => 'Không';
 }

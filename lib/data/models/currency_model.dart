@@ -18,6 +18,16 @@ String _nullSafeStringFromJson(Object? value) {
   return value.toString();
 }
 
+String? _nullableStringFromJson(Object? value) {
+  if (value == null) return null;
+  if (value is String) {
+    if (value.trim().isEmpty) return null;
+    return value;
+  }
+  final parsed = value.toString();
+  return parsed.trim().isEmpty ? null : parsed;
+}
+
 /// Backend may return null for bool; treat as false.
 bool _nullSafeBoolFromJson(Object? value) {
   if (value == null) return false;
@@ -48,6 +58,12 @@ class CurrencyModel {
   final String? createdAt;
   @JsonKey(name: 'updated_at')
   final String? updatedAt;
+  @JsonKey(name: 'lastPrice', fromJson: _nullableStringFromJson)
+  final String? lastPrice;
+  @JsonKey(name: 'priceChangePercent24h', fromJson: _nullableStringFromJson)
+  final String? priceChangePercent24h;
+  @JsonKey(name: 'volume24h', fromJson: _nullableStringFromJson)
+  final String? volume24h;
 
   const CurrencyModel({
     required this.currencyId,
@@ -59,6 +75,9 @@ class CurrencyModel {
     required this.isActive,
     this.createdAt,
     this.updatedAt,
+    this.lastPrice,
+    this.priceChangePercent24h,
+    this.volume24h,
   });
 
   /// Convert from JSON
@@ -80,6 +99,9 @@ class CurrencyModel {
       isActive: isActive,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      lastPrice: lastPrice,
+      priceChangePercent24h: priceChangePercent24h,
+      volume24h: volume24h,
     );
   }
 
@@ -95,6 +117,9 @@ class CurrencyModel {
       isActive: entity.isActive,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      lastPrice: entity.lastPrice,
+      priceChangePercent24h: entity.priceChangePercent24h,
+      volume24h: entity.volume24h,
     );
   }
 }
