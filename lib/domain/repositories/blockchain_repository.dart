@@ -6,6 +6,15 @@ import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 
 abstract class BlockchainRepository {
+  Future<Either<Failure, DepositAddressResponse>> getDepositAddress(
+    BlockchainNetwork chain,
+  );
+
+  Future<Either<Failure, DepositPreviewResponse>> previewDeposit(
+    BlockchainNetwork chain,
+    String txHash,
+  );
+
   Future<Either<Failure, RequestLinkResponse>> requestLink({
     required BlockchainNetwork chain,
     required String address,

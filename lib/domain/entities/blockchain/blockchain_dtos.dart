@@ -24,6 +24,40 @@ class VerifyLinkResponse {
   });
 }
 
+class DepositAddressResponse {
+  final BlockchainNetwork chain;
+  final String depositAddress;
+  final String? note;
+
+  const DepositAddressResponse({
+    required this.chain,
+    required this.depositAddress,
+    this.note,
+  });
+}
+
+class DepositPreviewResponse {
+  final BlockchainNetwork chain;
+  final String txHash;
+  final String status;
+  final int confirmations;
+  final String fromAddress;
+  final String toAddress;
+  final String onchainAmount;
+  final bool senderLinked;
+
+  const DepositPreviewResponse({
+    required this.chain,
+    required this.txHash,
+    required this.status,
+    required this.confirmations,
+    required this.fromAddress,
+    required this.toAddress,
+    required this.onchainAmount,
+    required this.senderLinked,
+  });
+}
+
 class SubmitDepositRequest {
   final BlockchainNetwork chain;
   final String txHash;

@@ -16,6 +16,69 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
   BlockchainRepositoryImpl({required Dio dio}) : _dio = dio;
 
   @override
+  Future<Either<Failure, DepositAddressResponse>> getDepositAddress(
+    BlockchainNetwork chain,
+  ) async {
+    try {
+      final response = await _dio.get(
+        ApiConstants.blockchainDepositAddress,
+        queryParameters: {'chain': chain.apiValue},
+      );
+
+      final data = _extractDataMap(response.data);
+      return Right(
+        DepositAddressResponse(
+          chain: BlockchainNetworkX.fromApiValue(
+            data['chain']?.toString() ?? chain.apiValue,
+          ),
+          depositAddress: data['depositAddress']?.toString() ?? '',
+          note: data['note']?.toString(),
+        ),
+      );
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DepositPreviewResponse>> previewDeposit(
+    BlockchainNetwork chain,
+    String txHash,
+  ) async {
+    try {
+      final response = await _dio.get(
+        ApiConstants.blockchainPreviewDeposit,
+        queryParameters: {
+          'chain': chain.apiValue,
+          'txHash': txHash,
+        },
+      );
+
+      final data = _extractDataMap(response.data);
+      return Right(
+        DepositPreviewResponse(
+          chain: BlockchainNetworkX.fromApiValue(
+            data['chain']?.toString() ?? chain.apiValue,
+          ),
+          txHash: data['txHash']?.toString() ?? txHash,
+          status: data['status']?.toString() ?? 'PENDING',
+          confirmations: (data['confirmations'] as num?)?.toInt() ?? 0,
+          fromAddress: data['fromAddress']?.toString() ?? '',
+          toAddress: data['toAddress']?.toString() ?? '',
+          onchainAmount: data['onchainAmount']?.toString() ?? '0',
+          senderLinked: data['senderLinked'] == true,
+        ),
+      );
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, RequestLinkResponse>> requestLink({
     required BlockchainNetwork chain,
     required String address,

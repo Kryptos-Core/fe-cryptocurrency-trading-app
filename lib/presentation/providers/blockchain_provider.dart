@@ -14,15 +14,78 @@ class BlockchainProvider extends ChangeNotifier {
 
   List<LinkedWallet> _linkedWallets = [];
   List<OnchainTransaction> _recentTransactions = [];
+  final Map<BlockchainNetwork, DepositAddressResponse> _depositAddresses = {};
   bool _isLoading = false;
   bool _isSubmitting = false;
+  bool _isFetchingDepositAddress = false;
   String? _error;
 
   List<LinkedWallet> get linkedWallets => _linkedWallets;
   List<OnchainTransaction> get recentTransactions => _recentTransactions;
+  Map<BlockchainNetwork, DepositAddressResponse> get depositAddresses =>
+      _depositAddresses;
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
+  bool get isFetchingDepositAddress => _isFetchingDepositAddress;
   String? get error => _error;
+
+  DepositAddressResponse? depositAddressFor(BlockchainNetwork chain) =>
+      _depositAddresses[chain];
+
+  Future<DepositAddressResponse?> fetchDepositAddress(
+    BlockchainNetwork chain, {
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh && _depositAddresses.containsKey(chain)) {
+      return _depositAddresses[chain];
+    }
+
+    _isFetchingDepositAddress = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _blockchainRepository.getDepositAddress(chain);
+    DepositAddressResponse? payload;
+
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+      },
+      (response) {
+        _depositAddresses[chain] = response;
+        payload = response;
+      },
+    );
+
+    _isFetchingDepositAddress = false;
+    notifyListeners();
+    return payload;
+  }
+
+  Future<DepositPreviewResponse?> previewDeposit(
+    BlockchainNetwork chain,
+    String txHash,
+  ) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _blockchainRepository.previewDeposit(chain, txHash);
+    DepositPreviewResponse? payload;
+
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+      },
+      (response) {
+        payload = response;
+      },
+    );
+
+    _isSubmitting = false;
+    notifyListeners();
+    return payload;
+  }
 
   Future<void> fetchLinkedWallets() async {
     _isLoading = true;

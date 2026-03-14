@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
@@ -21,6 +25,51 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   BlockchainNetwork? _txFilterNetwork;
   OnchainTxType? _txFilterType;
   bool _sortNewestFirst = true;
+  DepositAddressResponse? _depositAddress;
+  DepositPreviewResponse? _depositPreview;
+  bool _showFullDepositAddress = false;
+  bool _isAutofillingAmount = false;
+  bool _amountTouchedByUser = false;
+  Timer? _txPreviewDebounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _txHashController.addListener(_onTxHashChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDepositAddress();
+    });
+  }
+
+  void _onTxHashChanged() {
+    _txPreviewDebounce?.cancel();
+    final txHash = _txHashController.text.trim();
+
+    if (txHash.length < 16) {
+      if (_depositPreview != null && mounted) {
+        setState(() {
+          _depositPreview = null;
+        });
+      }
+      return;
+    }
+
+    _txPreviewDebounce = Timer(const Duration(milliseconds: 700), () async {
+      final provider = context.read<BlockchainProvider>();
+      final preview = await provider.previewDeposit(_selectedNetwork, txHash);
+      if (!mounted) return;
+
+      setState(() {
+        _depositPreview = preview;
+      });
+
+      if (preview != null && !_amountTouchedByUser && !_isAutofillingAmount) {
+        _isAutofillingAmount = true;
+        _amountController.text = preview.onchainAmount;
+        _isAutofillingAmount = false;
+      }
+    });
+  }
 
   String _formatAddress(String value) {
     if (value.length <= 14) return value;
@@ -163,6 +212,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
   @override
   void dispose() {
+    _txPreviewDebounce?.cancel();
+    _txHashController.removeListener(_onTxHashChanged);
     _txHashController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -189,8 +240,45 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     if (ok) {
       _txHashController.clear();
       _amountController.clear();
+      _amountTouchedByUser = false;
+      _depositPreview = null;
       await provider.fetchRecentTransactions();
     }
+  }
+
+  Future<void> _loadDepositAddress({bool forceRefresh = false}) async {
+    final provider = context.read<BlockchainProvider>();
+    final response = await provider.fetchDepositAddress(
+      _selectedNetwork,
+      forceRefresh: forceRefresh,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _depositAddress = response;
+    });
+
+    if (response == null && provider.error != null) {
+      showAppSnackBar(
+        context,
+        message: provider.error!,
+        type: SnackBarType.error,
+      );
+    }
+  }
+
+  Future<void> _copyDepositAddress() async {
+    final address = _depositAddress?.depositAddress ?? '';
+    if (address.isEmpty) return;
+
+    await Clipboard.setData(ClipboardData(text: address));
+    if (!mounted) return;
+
+    showAppSnackBar(
+      context,
+      message: 'Deposit address copied',
+      type: SnackBarType.success,
+    );
   }
 
   @override
@@ -231,9 +319,156 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      setState(() => _selectedNetwork = value);
+                      setState(() {
+                        _selectedNetwork = value;
+                        _depositAddress = null;
+                      });
+                      _loadDepositAddress();
                     }
                   },
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Platform deposit address',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: provider.isFetchingDepositAddress
+                                ? null
+                                : () => _loadDepositAddress(forceRefresh: true),
+                            tooltip: 'Refresh address',
+                            icon: const Icon(Icons.refresh, size: 18),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        'Send ${_selectedNetwork.label} assets to this address, then submit tx hash below.',
+                        style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7E6),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFF2C46D)),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFB56900)),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.',
+                                style: TextStyle(fontSize: 12, color: Color(0xFF7A4A00)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (provider.isFetchingDepositAddress &&
+                          (_depositAddress?.depositAddress ?? '').isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 18),
+                            child: CircularProgressIndicator(strokeWidth: 2.5),
+                          ),
+                        )
+                      else if ((_depositAddress?.depositAddress ?? '').isNotEmpty) ...[
+                        SelectableText(
+                          _showFullDepositAddress
+                              ? _depositAddress!.depositAddress
+                              : _formatAddress(_depositAddress!.depositAddress),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 92,
+                              height: 92,
+                              child: QrImageView(
+                                data: _depositAddress!.depositAddress,
+                                version: QrVersions.auto,
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.all(6),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FilledButton.icon(
+                                    onPressed: _copyDepositAddress,
+                                    icon: const Icon(Icons.copy, size: 16),
+                                    label: const Text('Copy address'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _showFullDepositAddress =
+                                            !_showFullDepositAddress;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _showFullDepositAddress
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      size: 16,
+                                    ),
+                                    label: Text(
+                                      _showFullDepositAddress
+                                          ? 'Hide full address'
+                                          : 'Show full address',
+                                    ),
+                                  ),
+                                  if ((_depositAddress?.note ?? '').isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _depositAddress!.note!,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else
+                        Text(
+                          provider.error ?? 'Could not load deposit address.',
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -245,9 +480,53 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   validator: (value) =>
                       (value == null || value.trim().isEmpty) ? 'Tx hash is required' : null,
                 ),
+                if (_depositPreview != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: _depositPreview!.senderLinked
+                          ? const Color(0xFFEAF8F1)
+                          : const Color(0xFFFFF1F2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _depositPreview!.senderLinked
+                            ? const Color(0xFFB8E6CC)
+                            : const Color(0xFFF5C2C7),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Preview: ${_depositPreview!.status} · Amount ${_depositPreview!.onchainAmount}',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _depositPreview!.senderLinked
+                              ? 'Sender wallet is linked. Amount auto-filled from on-chain data.'
+                              : 'Sender wallet is not linked to your account. Link that wallet before submit.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _depositPreview!.senderLinked
+                                ? const Color(0xFF0F8A49)
+                                : const Color(0xFFB3261E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _amountController,
+                  onChanged: (_) {
+                    if (!_isAutofillingAmount) {
+                      _amountTouchedByUser = true;
+                    }
+                  },
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(
                     labelText: 'Amount',

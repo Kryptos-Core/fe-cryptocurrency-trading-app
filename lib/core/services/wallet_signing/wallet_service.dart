@@ -14,6 +14,19 @@ Future<bool> _openWebHelpPage(String url) {
   );
 }
 
+bool _isMobileNativePlatform() {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+}
+
+bool _isDesktopNativePlatform() {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux;
+}
+
 enum WalletClient {
   metamask,
   phantom,
@@ -92,6 +105,34 @@ class MetaMaskWalletService implements WalletService {
       );
     }
 
+    // Mobile native: deep-link directly into wallet app.
+    if (_isMobileNativePlatform()) {
+      final opened = await launchUrl(
+        Uri.parse('metamask://'),
+        mode: LaunchMode.externalApplication,
+      );
+
+      return WalletSignResult(
+        signature: null,
+        openedExternalWallet: opened,
+        requiresManualInput: true,
+        message: opened
+            ? 'Opened MetaMask app. Sign the challenge and paste the signature below.'
+            : 'Could not open MetaMask app. Install/open MetaMask and try again.',
+      );
+    }
+
+    // Desktop native (Windows/macOS/Linux): no in-app extension bridge.
+    if (_isDesktopNativePlatform()) {
+      return const WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        message:
+            'Desktop app mode cannot access Chrome extensions directly. For MetaMask extension signing, run app on Chrome (`flutter run -d chrome`). Otherwise use test/manual signature mode.',
+      );
+    }
+
     final opened = await launchUrl(
       Uri.parse('metamask://'),
       mode: LaunchMode.externalApplication,
@@ -122,6 +163,16 @@ class PhantomWalletService implements WalletService {
         requiresManualInput: true,
         message:
             'Web mode: opened Phantom install/help page in a new tab. Open Phantom extension, sign challenge manually, then paste signature below.',
+      );
+    }
+
+    if (_isDesktopNativePlatform()) {
+      return const WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        message:
+            'Desktop app mode cannot access browser extensions directly. For Phantom extension signing, run app on Chrome (`flutter run -d chrome`). Otherwise use manual signature mode.',
       );
     }
 
@@ -160,6 +211,16 @@ class TronLinkWalletService implements WalletService {
         requiresManualInput: true,
         message:
             'Web mode: opened TronLink help page in a new tab. Open TronLink extension/app, sign challenge manually, then paste signature below.',
+      );
+    }
+
+    if (_isDesktopNativePlatform()) {
+      return const WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        message:
+            'Desktop app mode cannot access browser extensions directly. For TronLink extension signing, run app on Chrome (`flutter run -d chrome`). Otherwise use manual signature mode.',
       );
     }
 

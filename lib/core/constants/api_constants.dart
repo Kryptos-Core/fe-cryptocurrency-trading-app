@@ -140,6 +140,8 @@ class ApiConstants {
   static const String blockchainWallets = '$blockchain/wallets';
   static const String blockchainRequestLink = '$blockchain/wallets/request-link';
   static const String blockchainVerifyLink = '$blockchain/wallets/verify-link';
+  static const String blockchainDepositAddress = '$blockchain/deposit/address';
+  static const String blockchainPreviewDeposit = '$blockchain/deposit/preview';
   static String blockchainWalletBalance(String linkId) =>
       '$blockchain/wallets/$linkId/balance';
   static String blockchainUnlinkWallet(String linkId) => '$blockchain/wallets/$linkId';
