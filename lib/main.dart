@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -23,9 +24,14 @@ void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive for local storage with proper path
-  final appDocDir = await getApplicationDocumentsDirectory();
-  await Hive.initFlutter(appDocDir.path);
+  // Web does not support getApplicationDocumentsDirectory().
+  // Hive.initFlutter() without a path uses the web-compatible backend.
+  if (kIsWeb) {
+    await Hive.initFlutter();
+  } else {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    await Hive.initFlutter(appDocDir.path);
+  }
 
   // Load environment variables from .env file
   try {

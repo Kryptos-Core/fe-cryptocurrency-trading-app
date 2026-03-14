@@ -1,7 +1,18 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
+  if (dart.library.html)
+    'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
+
+Future<bool> _openWebHelpPage(String url) {
+  return launchUrl(
+    Uri.parse(url),
+    webOnlyWindowName: '_blank',
+  );
+}
 
 enum WalletClient {
   metamask,
@@ -26,12 +37,14 @@ class WalletSignResult {
   final String? signature;
   final bool openedExternalWallet;
   final bool requiresManualInput;
+  final String? suggestedAddress;
   final String message;
 
   const WalletSignResult({
     required this.signature,
     required this.openedExternalWallet,
     required this.requiresManualInput,
+    this.suggestedAddress,
     required this.message,
   });
 }
@@ -48,8 +61,37 @@ class MetaMaskWalletService implements WalletService {
 
   @override
   Future<WalletSignResult> signMessage(WalletSignRequest request) async {
-    // WalletConnect is not wired yet in this project; we deep-link to MetaMask app
-    // and keep a manual signature fallback for test/demo flows.
+    // On web, try direct extension signing first.
+    if (kIsWeb) {
+      final webSignResult = await metaMaskSignOnWeb(
+        message: request.message,
+        expectedAddress: request.address,
+      );
+
+      if (webSignResult.signature != null && webSignResult.signature!.isNotEmpty) {
+        return WalletSignResult(
+          signature: webSignResult.signature,
+          openedExternalWallet: true,
+          requiresManualInput: false,
+          suggestedAddress: webSignResult.connectedAddress,
+          message: 'MetaMask signature captured from extension popup.',
+        );
+      }
+
+      if (webSignResult.notInstalled) {
+        await _openWebHelpPage('https://metamask.io/download/');
+      }
+
+      return WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        suggestedAddress:
+            webSignResult.accountMismatch ? webSignResult.connectedAddress : null,
+        message: webSignResult.message,
+      );
+    }
+
     final opened = await launchUrl(
       Uri.parse('metamask://'),
       mode: LaunchMode.externalApplication,
@@ -72,6 +114,17 @@ class PhantomWalletService implements WalletService {
 
   @override
   Future<WalletSignResult> signMessage(WalletSignRequest request) async {
+    if (kIsWeb) {
+      await _openWebHelpPage('https://phantom.app/download');
+      return const WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        message:
+            'Web mode: opened Phantom install/help page in a new tab. Open Phantom extension, sign challenge manually, then paste signature below.',
+      );
+    }
+
     final encodedMessage = base64Url.encode(utf8.encode(request.message));
     final deepLink = Uri.parse(
       'phantom://ul/v1/signMessage?message=$encodedMessage&display=utf8',
@@ -99,6 +152,17 @@ class TronLinkWalletService implements WalletService {
 
   @override
   Future<WalletSignResult> signMessage(WalletSignRequest request) async {
+    if (kIsWeb) {
+      await _openWebHelpPage('https://www.tronlink.org/');
+      return const WalletSignResult(
+        signature: null,
+        openedExternalWallet: false,
+        requiresManualInput: true,
+        message:
+            'Web mode: opened TronLink help page in a new tab. Open TronLink extension/app, sign challenge manually, then paste signature below.',
+      );
+    }
+
     final opened = await launchUrl(
       Uri.parse('tronlinkoutside://'),
       mode: LaunchMode.externalApplication,

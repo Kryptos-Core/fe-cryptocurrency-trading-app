@@ -23,6 +23,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
   BlockchainNetwork _selectedNetwork = BlockchainNetwork.ethSepolia;
   bool _testMode = false;
   String? _challengeMessage;
+  String? _suggestedConnectedAddress;
 
   @override
   void dispose() {
@@ -56,6 +57,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
     setState(() {
       _challengeMessage = response.message;
       _signatureController.clear();
+      _suggestedConnectedAddress = null;
     });
 
     showAppSnackBar(
@@ -98,6 +100,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
     if (result.signature != null && result.signature!.isNotEmpty) {
       _signatureController.text = result.signature!;
     }
+
+    setState(() {
+      _suggestedConnectedAddress = result.suggestedAddress;
+    });
 
     showAppSnackBar(
       context,
@@ -276,6 +282,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
                                   _selectedNetwork = value;
                                   _challengeMessage = null;
                                   _signatureController.clear();
+                                  _suggestedConnectedAddress = null;
                                 });
                               }
                             },
@@ -295,6 +302,37 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
                         return null;
                       },
                     ),
+                    if (_suggestedConnectedAddress != null &&
+                        _suggestedConnectedAddress!.isNotEmpty &&
+                        _suggestedConnectedAddress!.toLowerCase() !=
+                            _addressController.text.trim().toLowerCase()) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.account_balance_wallet_outlined),
+                          label: Text('Use connected account (${_suggestedConnectedAddress!})'),
+                          onPressed: provider.isSubmitting
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _addressController.text =
+                                        _suggestedConnectedAddress!;
+                                    _challengeMessage = null;
+                                    _signatureController.clear();
+                                    _suggestedConnectedAddress = null;
+                                  });
+
+                                  showAppSnackBar(
+                                    context,
+                                    message:
+                                        'Wallet address updated from MetaMask. Request a new challenge before signing.',
+                                    type: SnackBarType.info,
+                                  );
+                                },
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _labelController,
