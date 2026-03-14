@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 
@@ -62,7 +61,7 @@ class MetaMaskWalletService implements WalletService {
       requiresManualInput: true,
       message: opened
           ? 'Opened MetaMask. Sign the challenge and paste the signature below.'
-          : 'Could not open MetaMask. Use manual signature input (test mode).',
+          : 'Could not open MetaMask app (deep-link). Install/open MetaMask first, or enable test mode for manual signature.',
     );
   }
 }
@@ -89,7 +88,7 @@ class PhantomWalletService implements WalletService {
       requiresManualInput: true,
       message: opened
           ? 'Opened Phantom. Sign the challenge and paste the signature below.'
-          : 'Could not open Phantom. Use manual signature input (test mode).',
+          : 'Could not open Phantom app (deep-link). Install/open Phantom first, or enable test mode for manual signature.',
     );
   }
 }
@@ -105,13 +104,21 @@ class TronLinkWalletService implements WalletService {
       mode: LaunchMode.externalApplication,
     );
 
+    if (!opened) {
+      // Fallback to official page so user gets a visible action on desktop.
+      await launchUrl(
+        Uri.parse('https://www.tronlink.org/'),
+        mode: LaunchMode.externalApplication,
+      );
+    }
+
     return WalletSignResult(
       signature: null,
       openedExternalWallet: opened,
       requiresManualInput: true,
       message: opened
           ? 'Opened TronLink. Sign the challenge and paste the signature below.'
-          : 'Could not open TronLink. Use manual signature input (test mode).',
+          : 'Could not open TronLink app (deep-link). Open TronLink manually or enable test mode for manual signature.',
     );
   }
 }
@@ -148,7 +155,7 @@ class WalletServiceFactory {
         _manualTestWalletService = manualTestWalletService;
 
   WalletService forNetwork(BlockchainNetwork network, {required bool testMode}) {
-    if (testMode || kDebugMode) {
+    if (testMode) {
       return _manualTestWalletService;
     }
 

@@ -7,6 +7,10 @@ import '../constants/api_constants.dart';
 /// Following Dependency Inversion Principle (DIP)
 /// High-level modules should not depend on low-level modules
 class DioClient {
+  /// Global 403-Forbidden callback.
+  /// Set by [AuthProvider] after it is created so the interceptor can
+  /// notify the UI without a hard dependency on the Provider tree.
+  static void Function()? onForbidden;
   final Dio _dio;
   final Logger _logger = Logger();
   final TokenService? tokenService;
@@ -80,10 +84,14 @@ class DioClient {
         // Handle 401 Unauthorized - token expired
         if (error.response?.statusCode == 401) {
           _logger.w('Unauthorized - Token expired or invalid');
-          // Clear token when 401 received
           if (tokenService != null) {
             await tokenService!.clearTokens();
           }
+        }
+        // Handle 403 Forbidden - insufficient role/permission
+        if (error.response?.statusCode == 403) {
+          _logger.w('Forbidden - Insufficient permissions for ${error.requestOptions.path}');
+          DioClient.onForbidden?.call();
         }
         return handler.next(error);
       },

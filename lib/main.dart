@@ -6,9 +6,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
@@ -56,6 +58,18 @@ class CryptoTradingApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<LocaleProvider>.value(
           value: di.sl<LocaleProvider>(),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) {
+            final provider = AuthProvider(
+              authRepository: di.sl(),
+              tokenService: di.sl(),
+            );
+            provider.restoreSession();
+            // Wire 403 responses from DioClient through to AuthProvider.
+            DioClient.onForbidden = provider.handleForbidden;
+            return provider;
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => CurrenciesProvider(

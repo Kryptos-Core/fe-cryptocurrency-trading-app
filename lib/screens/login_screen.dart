@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
-import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
+import 'package:provider/provider.dart';
 
 /// Login Screen
 /// Allows users to authenticate with email and password
@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    // Validate form
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -43,9 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
+    // Capture context-dependent objects before the async gap.
+    final authProvider = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
+
     try {
-      final authRepository = sl<AuthRepository>();
-      final result = await authRepository.login(
+      final result = await authProvider.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -57,7 +59,6 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading = false;
           });
           if (mounted) {
-            final l10n = AppLocalizations.of(context);
             showAppSnackBar(
               context,
               message: '${l10n.loginFailed}: ${failure.message}',
@@ -67,14 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         // Success
-        (authResponse) async {
-          // Save tokens
-          final tokenService = sl<TokenService>();
-          await tokenService.saveTokens(
-            accessToken: authResponse.accessToken,
-            refreshToken: authResponse.refreshToken,
-          );
-
+        (_) {
           setState(() {
             _isLoading = false;
           });

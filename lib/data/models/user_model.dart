@@ -8,6 +8,7 @@ class UserModel {
   final String firstName;
   final String lastName;
   final bool isActive;
+  final String role;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,6 +18,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     required this.isActive,
+    this.role = 'TRADER',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -29,6 +31,7 @@ class UserModel {
       firstName: firstName,
       lastName: lastName,
       isActive: isActive,
+      role: role,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -44,6 +47,7 @@ class UserModel {
     final lastName = (json['lastName'] ?? json['last_name'] ?? '') as String;
     final isActive = json['isActive'] as bool? ?? 
                      (json['status'] == 'ACTIVE' ? true : false);
+    final role = json['role'] as String? ?? 'TRADER';
     
     // Parse createdAt - handle both ISO 8601 string and snake_case key
     final createdAtStr = json['createdAt'] as String? ?? json['created_at'] as String?;
@@ -63,6 +67,7 @@ class UserModel {
       firstName: firstName,
       lastName: lastName,
       isActive: isActive,
+      role: role,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -76,6 +81,7 @@ class UserModel {
       'firstName': firstName,
       'lastName': lastName,
       'isActive': isActive,
+      'role': role,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

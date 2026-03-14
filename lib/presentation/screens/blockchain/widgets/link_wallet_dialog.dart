@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
@@ -20,7 +21,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
   final _signatureController = TextEditingController();
 
   BlockchainNetwork _selectedNetwork = BlockchainNetwork.ethSepolia;
-  bool _testMode = true;
+  bool _testMode = false;
   String? _challengeMessage;
 
   @override
@@ -66,6 +67,17 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
 
   Future<void> _signWithWallet() async {
     if (_challengeMessage == null) return;
+
+    if (_testMode) {
+      await Clipboard.setData(ClipboardData(text: _challengeMessage!));
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        message: 'Manual mode: challenge copied. Sign it in wallet manually, then paste signature below.',
+        type: SnackBarType.info,
+      );
+      return;
+    }
 
     final walletServiceFactory = sl<WalletServiceFactory>();
     final walletService = walletServiceFactory.forNetwork(
@@ -136,6 +148,95 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
         type: SnackBarType.error,
       );
     }
+  }
+
+  String _walletNameForNetwork() {
+    switch (_selectedNetwork) {
+      case BlockchainNetwork.ethSepolia:
+        return 'MetaMask';
+      case BlockchainNetwork.solanaDevnet:
+        return 'Phantom';
+      case BlockchainNetwork.tronNile:
+      case BlockchainNetwork.tronShasta:
+        return 'TronLink';
+    }
+  }
+
+  List<String> _desktopGuideSteps() {
+    if (_testMode) {
+      return const [
+        'Step 2 copies the challenge text to your clipboard.',
+        'Open your wallet or signer tool manually and sign the exact challenge text.',
+        'Paste the resulting signature into the Signature field, then click Verify Link.',
+      ];
+    }
+
+    switch (_selectedNetwork) {
+      case BlockchainNetwork.ethSepolia:
+        return const [
+          'Install MetaMask browser extension and unlock it.',
+          'Use an account on Sepolia network that matches the wallet address you entered.',
+          'Click Step 2 to trigger deep-link; if nothing opens, sign manually in MetaMask and paste signature below.',
+        ];
+      case BlockchainNetwork.solanaDevnet:
+        return const [
+          'Install Phantom extension or desktop app and unlock it.',
+          'Switch wallet to Solana Devnet and use the same address you entered.',
+          'Click Step 2; if deep-link fails, sign the challenge manually and paste signature below.',
+        ];
+      case BlockchainNetwork.tronNile:
+      case BlockchainNetwork.tronShasta:
+        return const [
+          'Install TronLink extension/app and unlock it.',
+          'Switch to Nile or Shasta account matching your entered address.',
+          'Click Step 2; if app does not open, open TronLink manually, sign challenge, then paste signature below.',
+        ];
+    }
+  }
+
+  Widget _buildSigningGuideCard() {
+    final walletName = _walletNameForNetwork();
+    final steps = _desktopGuideSteps();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _testMode ? Colors.amber.shade50 : Colors.blue.shade50,
+        border: Border.all(
+          color: _testMode ? Colors.amber.shade200 : Colors.blue.shade200,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                _testMode ? Icons.science_outlined : Icons.desktop_windows_outlined,
+                size: 18,
+                color: _testMode ? Colors.orange.shade700 : Colors.blue.shade700,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _testMode
+                    ? 'Manual signing guide (Test mode)'
+                    : 'Desktop signing guide ($walletName)',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ...steps.map(
+            (step) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text('- $step', style: const TextStyle(fontSize: 12.5)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -248,9 +349,15 @@ class _LinkWalletDialogState extends State<LinkWalletDialog> {
                         child: OutlinedButton.icon(
                           onPressed: provider.isSubmitting ? null : _signWithWallet,
                           icon: const Icon(Icons.open_in_new),
-                          label: const Text('2) Open Wallet & Sign'),
+                          label: Text(
+                            _testMode
+                                ? '2) Copy Challenge (Manual)'
+                                : '2) Open Wallet & Sign',
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      _buildSigningGuideCard(),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _signatureController,

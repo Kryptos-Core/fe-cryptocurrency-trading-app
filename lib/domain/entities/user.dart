@@ -7,6 +7,7 @@ class User {
   final String firstName;
   final String lastName;
   final bool isActive;
+  final String role;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -16,6 +17,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.isActive,
+    this.role = 'TRADER',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -43,6 +45,7 @@ class User {
     String? firstName,
     String? lastName,
     bool? isActive,
+    String? role,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -52,6 +55,7 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       isActive: isActive ?? this.isActive,
+      role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -67,6 +71,6 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, email: $email, fullName: $fullName, isActive: $isActive)';
+    return 'User(id: $id, email: $email, fullName: $fullName, role: $role, isActive: $isActive)';
   }
 }
