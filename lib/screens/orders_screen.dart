@@ -427,11 +427,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 suffixIcon: (_side == 'SELL' && _selectedMarket != null)
                     ? TextButton(
                         onPressed: () {
-                          final available = ordersProvider.baseBalance?.available ?? '';
+                          final available =
+                              ordersProvider.baseBalance?.available ?? '';
                           if (available.isEmpty) return;
 
                           final amountScale = _selectedMarket!.amountScale;
-                          final maxSell = _truncateToScale(available, amountScale);
+                          final maxSell =
+                              _truncateToScale(available, amountScale);
                           if (maxSell.isEmpty) return;
 
                           _amountController.text = maxSell;
