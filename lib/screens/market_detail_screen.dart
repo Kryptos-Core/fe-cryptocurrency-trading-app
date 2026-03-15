@@ -70,11 +70,12 @@ String _formatDetailVolume(String volumeStr) {
   if (v == 0) return '0';
   if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
   if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
-  if (v >= 1)
+  if (v >= 1) {
     return v
         .toStringAsFixed(2)
         .replaceAll(RegExp(r'0+$'), '')
         .replaceAll(RegExp(r'\.$'), '');
+  }
   return v
       .toStringAsFixed(4)
       .replaceAll(RegExp(r'0+$'), '')

@@ -250,7 +250,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 Text(l10n.withdrawalDestinationDesc),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BlockchainNetwork>(
-                  value: _selectedNetwork,
+                  initialValue: _selectedNetwork,
                   isExpanded: true,
                   menuMaxHeight: 300,
                   decoration: InputDecoration(
@@ -280,7 +280,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _selectedWalletId,
+                  initialValue: _selectedWalletId,
                   isExpanded: true,
                   menuMaxHeight: 300,
                   decoration: InputDecoration(

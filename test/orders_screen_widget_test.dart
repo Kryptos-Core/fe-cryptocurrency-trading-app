@@ -49,7 +49,7 @@ class FakeOrdersRepository implements OrdersRepository {
 
   @override
   Future<Either<Failure, Order>> cancelOrder(String orderId) async {
-    return Left(ServerFailure(message: 'Not implemented'));
+    return const Left(ServerFailure(message: 'Not implemented'));
   }
 
   @override
@@ -67,8 +67,8 @@ class FakeOrdersRepository implements OrdersRepository {
     int limit = 20,
     String? status,
   }) async {
-    return Right(
-      const MyOrdersResult(
+    return const Right(
+      MyOrdersResult(
         data: [],
         total: 0,
         page: 1,
@@ -79,7 +79,7 @@ class FakeOrdersRepository implements OrdersRepository {
 
   @override
   Future<Either<Failure, Order>> getOrderById(String orderId) async {
-    return Left(ServerFailure(message: 'Not implemented'));
+    return const Left(ServerFailure(message: 'Not implemented'));
   }
 }
 
@@ -122,7 +122,7 @@ class FakeWalletRepository implements WalletRepository {
       );
     }
 
-    return Left(ServerFailure(message: 'Unknown currencyId'));
+    return const Left(ServerFailure(message: 'Unknown currencyId'));
   }
 
   @override
@@ -137,7 +137,7 @@ class FakeWalletRepository implements WalletRepository {
   Future<Either<Failure, WalletTransactionResponse>> executeTransaction(
     WalletTransactionRequest request,
   ) async {
-    return Left(ServerFailure(message: 'Not implemented'));
+    return const Left(ServerFailure(message: 'Not implemented'));
   }
 
   @override
@@ -345,10 +345,10 @@ Widget _buildTestApp({
         ),
       ),
     ],
-    child: MaterialApp(
+    child: const MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const OrdersScreen(),
+      home: OrdersScreen(),
     ),
   );
 }

@@ -30,8 +30,9 @@ String _formatPriceDisplay(String raw) {
   }
   final pattern = '#,##0.${'#' * decimals}';
   var s = NumberFormat(pattern).format(v);
-  if (s.contains('.'))
+  if (s.contains('.')) {
     s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
   return s;
 }
 
@@ -51,8 +52,9 @@ String _formatAmountDisplay(String raw) {
   if (v == null) return raw;
   if (v == 0) return '0';
   var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.'))
+  if (s.contains('.')) {
     s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
   return s;
 }
 
@@ -62,8 +64,9 @@ String _formatMinAmountDisplay(String raw) {
   if (v == null) return raw;
   if (v == 0) return '0';
   var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.'))
+  if (s.contains('.')) {
     s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  }
   return s;
 }
 
@@ -294,14 +297,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 padding: WidgetStateProperty.all(
                     const EdgeInsets.symmetric(vertical: 12)),
                 backgroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected))
+                  if (states.contains(WidgetState.selected)) {
                     return colorScheme.primary;
+                  }
                   return colorScheme.surfaceContainerHighest
                       .withValues(alpha: 0.5);
                 }),
                 foregroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected))
+                  if (states.contains(WidgetState.selected)) {
                     return colorScheme.onPrimary;
+                  }
                   return colorScheme.onSurface;
                 }),
               ),
@@ -330,15 +335,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           const EdgeInsets.symmetric(vertical: 10)),
                       backgroundColor:
                           WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected))
+                        if (states.contains(WidgetState.selected)) {
                           return colorScheme.primary;
+                        }
                         return colorScheme.surfaceContainerHighest
                             .withValues(alpha: 0.5);
                       }),
                       foregroundColor:
                           WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected))
+                        if (states.contains(WidgetState.selected)) {
                           return colorScheme.onPrimary;
+                        }
                         return colorScheme.onSurface;
                       }),
                     ),

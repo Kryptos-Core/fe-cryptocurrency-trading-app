@@ -364,7 +364,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<BlockchainNetwork>(
-                  value: _selectedNetwork,
+                  initialValue: _selectedNetwork,
                   isExpanded: true,
                   menuMaxHeight: 300,
                   decoration: InputDecoration(

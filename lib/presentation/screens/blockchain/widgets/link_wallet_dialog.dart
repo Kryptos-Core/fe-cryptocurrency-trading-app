@@ -406,7 +406,7 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     DropdownButtonFormField<BlockchainNetwork>(
-                      value: _selectedNetwork,
+                      initialValue: _selectedNetwork,
                       isExpanded: true,
                       menuMaxHeight: 300,
                       decoration: InputDecoration(

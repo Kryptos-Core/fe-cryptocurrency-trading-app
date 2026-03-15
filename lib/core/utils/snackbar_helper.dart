@@ -37,9 +37,6 @@ void showAppSnackBar(
   Duration duration = const Duration(seconds: 5),
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
-  if (overlay == null) {
-    return;
-  }
 
   _dismissActiveToast();
 
