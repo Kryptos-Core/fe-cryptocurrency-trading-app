@@ -44,6 +44,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isAdmin => _role == UserRole.admin;
   bool get isSupportAgent => _role == UserRole.supportAgent;
   bool get isRiskOfficer => _role == UserRole.riskOfficer;
+  bool get canSyncExchange => isAdmin && hasPermission('exchange:sync');
 
   /// True for roles that can view the user list (admin, support, risk officer).
   bool get canViewUserList => isAdmin || isSupportAgent || isRiskOfficer;
@@ -72,7 +73,8 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    final result = await _authRepository.login(email: email, password: password);
+    final result =
+        await _authRepository.login(email: email, password: password);
 
     return result.fold(
       Left.new,

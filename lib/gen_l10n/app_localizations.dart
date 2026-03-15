@@ -842,6 +842,42 @@ abstract class AppLocalizations {
   /// **'You will receive'**
   String get youWillReceive;
 
+  /// No description provided for @estimatedFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated fee'**
+  String get estimatedFee;
+
+  /// No description provided for @spotWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot wallet'**
+  String get spotWallet;
+
+  /// No description provided for @orderFundsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From wallet'**
+  String get orderFundsFrom;
+
+  /// No description provided for @orderFundsTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To wallet'**
+  String get orderFundsTo;
+
+  /// No description provided for @orderInsufficientBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient base balance. Available'**
+  String get orderInsufficientBase;
+
+  /// No description provided for @orderInsufficientQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient quote balance. Available'**
+  String get orderInsufficientQuote;
+
   /// No description provided for @syncBinance.
   ///
   /// In en, this message translates to:
@@ -853,6 +889,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync currencies and market pairs from Binance into the app database'**
   String get syncBinanceDescription;
+
+  /// No description provided for @manualResyncBinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual re-sync from Binance'**
+  String get manualResyncBinance;
+
+  /// No description provided for @manualResyncBinanceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this only when you need to manually refresh market catalog from Binance.'**
+  String get manualResyncBinanceDescription;
+
+  /// No description provided for @lastManualSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last manual sync'**
+  String get lastManualSync;
+
+  /// No description provided for @neverSyncedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get neverSyncedYet;
 
   /// No description provided for @syncing.
   ///

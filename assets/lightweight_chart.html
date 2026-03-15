@@ -114,6 +114,8 @@
         function applyCandlesToChart() {
             if (!ChartState.candlestickSeries || !ChartState.volumeSeries || ChartState.candleArray.length === 0) return;
 
+            applyDynamicPriceFormat();
+
             const candleData = ChartState.candleArray.map(c => ({
                 time: c.time,
                 open: c.open,
@@ -135,6 +137,45 @@
             } else {
                 timeScale.fitContent();
             }
+        }
+
+        function computePricePrecision() {
+            const prices = [];
+            for (let i = 0; i < ChartState.candleArray.length; i++) {
+                const c = ChartState.candleArray[i];
+                if (Number.isFinite(c.open) && c.open > 0) prices.push(c.open);
+                if (Number.isFinite(c.high) && c.high > 0) prices.push(c.high);
+                if (Number.isFinite(c.low) && c.low > 0) prices.push(c.low);
+                if (Number.isFinite(c.close) && c.close > 0) prices.push(c.close);
+            }
+
+            if (prices.length === 0) return 2;
+
+            let minPrice = prices[0];
+            for (let i = 1; i < prices.length; i++) {
+                if (prices[i] < minPrice) minPrice = prices[i];
+            }
+
+            if (minPrice >= 1000) return 2;
+            if (minPrice >= 1) return 4;
+            if (minPrice >= 0.01) return 6;
+            if (minPrice >= 0.0001) return 8;
+            if (minPrice >= 0.000001) return 10;
+            return 12;
+        }
+
+        function applyDynamicPriceFormat() {
+            if (!ChartState.candlestickSeries) return;
+            const precision = computePricePrecision();
+            const minMove = Math.pow(10, -precision);
+
+            ChartState.candlestickSeries.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: precision,
+                    minMove: minMove,
+                },
+            });
         }
 
         function initializeChart() {

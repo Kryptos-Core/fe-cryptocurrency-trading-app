@@ -74,7 +74,6 @@ abstract class MarketsRepository {
   /// [range] optional: 1d, 1M, 3M, 1y, 5y – bộ lọc theo khoảng thời gian (now − range) đến now
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
     required String pairId,
-    String interval = '1h',
     String? range,
     String? startTime,
     String? endTime,

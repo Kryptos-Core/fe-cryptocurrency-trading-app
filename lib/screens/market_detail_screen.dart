@@ -14,13 +14,20 @@ import 'package:logger/logger.dart';
 
 int _intervalToSeconds(String interval) {
   switch (interval) {
-    case '1m': return 60;
-    case '5m': return 300;
-    case '15m': return 900;
-    case '1h': return 3600;
-    case '4h': return 14400;
-    case '1d': return 86400;
-    default: return 60;
+    case '1m':
+      return 60;
+    case '5m':
+      return 300;
+    case '15m':
+      return 900;
+    case '1h':
+      return 3600;
+    case '4h':
+      return 14400;
+    case '1d':
+      return 86400;
+    default:
+      return 60;
   }
 }
 
@@ -49,7 +56,9 @@ String _formatDetailPrice(String priceStr) {
   }
   final formatted = v.toStringAsFixed(decimals);
   if (formatted.contains('.')) {
-    return formatted.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return formatted
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
   return formatted;
 }
@@ -61,8 +70,15 @@ String _formatDetailVolume(String volumeStr) {
   if (v == 0) return '0';
   if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
   if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
-  if (v >= 1) return v.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  if (v >= 1)
+    return v
+        .toStringAsFixed(2)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
+  return v
+      .toStringAsFixed(4)
+      .replaceAll(RegExp(r'0+$'), '')
+      .replaceAll(RegExp(r'\.$'), '');
 }
 
 /// Format min order amount / small decimal: trim trailing zeros, max 8 decimals.
@@ -178,7 +194,6 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
       await marketsProvider.fetchOHLCV(
         pairId: pairId,
-        interval: chartProvider.selectedInterval,
         range: '1d',
         limit: 500,
       );
@@ -509,11 +524,7 @@ class _TradingChartWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with interval selector and range filter (1D, 1M, 3M, 1Y, 5Y)
-                _ChartHeaderWidget(
-                  chartProvider: chartProvider,
-                  pairId: pairId,
-                ),
+                const _ChartHeaderWidget(),
                 const SizedBox(height: 8),
                 _ChartRangeRow(pairId: pairId),
                 const SizedBox(height: 16),
@@ -698,17 +709,9 @@ class _OrderSideSection extends StatelessWidget {
   }
 }
 
-/// Chart header with interval selector
+/// Chart header
 class _ChartHeaderWidget extends StatelessWidget {
-  final ChartProvider chartProvider;
-  final String pairId;
-
-  const _ChartHeaderWidget({
-    required this.chartProvider,
-    required this.pairId,
-  });
-
-  static const List<String> _intervals = ['1m', '5m', '15m', '1h', '4h', '1d'];
+  const _ChartHeaderWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -716,85 +719,13 @@ class _ChartHeaderWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          l10n.tradingChart,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-            letterSpacing: 0.2,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: colorScheme.outline.withOpacity(0.2),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.schedule_rounded,
-                size: 18,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: chartProvider.selectedInterval,
-                  isDense: true,
-                  icon: Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 22,
-                  ),
-                  dropdownColor: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  elevation: 8,
-                  focusColor: colorScheme.primaryContainer,
-                  items: _intervals
-                      .map((interval) => DropdownMenuItem(
-                            value: interval,
-                            child: Text(
-                              interval,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      chartProvider.setInterval(value);
-                      chartProvider.subscribeToPair(
-                        pairId,
-                        ['ticker', 'ohlc'],
-                        interval: value,
-                      );
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Text(
+      l10n.tradingChart,
+      style: theme.textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: colorScheme.onSurface,
+        letterSpacing: 0.2,
+      ),
     );
   }
 }

@@ -30,7 +30,8 @@ String _formatPriceDisplay(String raw) {
   }
   final pattern = '#,##0.${'#' * decimals}';
   var s = NumberFormat(pattern).format(v);
-  if (s.contains('.')) s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  if (s.contains('.'))
+    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   return s;
 }
 
@@ -50,7 +51,8 @@ String _formatAmountDisplay(String raw) {
   if (v == null) return raw;
   if (v == 0) return '0';
   var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.')) s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  if (s.contains('.'))
+    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   return s;
 }
 
@@ -60,13 +62,50 @@ String _formatMinAmountDisplay(String raw) {
   if (v == null) return raw;
   if (v == 0) return '0';
   var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.')) s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+  if (s.contains('.'))
+    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   return s;
 }
 
 /// Tổng tiền (quote): 2 số thập phân, dấu phẩy nghìn.
 String _formatTotalDisplay(double value) {
   return NumberFormat('#,##0.00').format(value);
+}
+
+double? _parseDecimalInput(String raw) {
+  final sanitized = raw.replaceAll(',', '').trim();
+  if (sanitized.isEmpty) return null;
+  return double.tryParse(sanitized);
+}
+
+String _trimTrailingZeros(String value) {
+  if (!value.contains('.')) return value;
+  return value.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+}
+
+String _truncateToScale(String raw, int scale) {
+  final sanitized = raw.replaceAll(',', '').trim();
+  if (sanitized.isEmpty) return '';
+
+  final isNegative = sanitized.startsWith('-');
+  final unsigned = isNegative ? sanitized.substring(1) : sanitized;
+  final parts = unsigned.split('.');
+  final integerPart = parts.first.isEmpty ? '0' : parts.first;
+
+  if (parts.length == 1 || scale <= 0) {
+    return isNegative ? '-$integerPart' : integerPart;
+  }
+
+  final decimalPart = parts[1].replaceAll(RegExp(r'[^0-9]'), '');
+  final kept = decimalPart.substring(0, min(scale, decimalPart.length));
+  final combined = kept.isEmpty ? integerPart : '$integerPart.$kept';
+  return _trimTrailingZeros(isNegative ? '-$combined' : combined);
+}
+
+int _countDecimals(String raw) {
+  final sanitized = raw.replaceAll(',', '').trim();
+  if (!sanitized.contains('.')) return 0;
+  return sanitized.split('.')[1].length;
 }
 
 /// Màn hình Orders: Danh sách lệnh của user + Order book (theo pair).
@@ -161,10 +200,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
       labelText: l10n.tradingPair,
       filled: true,
       fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(_kInputRadius)),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_kInputRadius)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_kInputRadius),
-        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
+        borderSide:
+            BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_kInputRadius),
@@ -175,7 +216,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
     return Card(
       elevation: _kCardElevation,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_kCardRadius)),
       child: Padding(
         padding: const EdgeInsets.all(_kSectionPadding),
         child: Column(
@@ -196,7 +238,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               items: markets
                   .map((m) => DropdownMenuItem<MarketPair>(
                         value: m,
-                        child: Text(_formatSymbol(m.symbol), style: theme.textTheme.bodyLarge),
+                        child: Text(_formatSymbol(m.symbol),
+                            style: theme.textTheme.bodyLarge),
                       ))
                   .toList(),
               onChanged: markets.isEmpty
@@ -207,7 +250,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         marketsProvider.fetchTicker(v.pairId);
                         marketsProvider.fetchOrderBook(v.pairId, limit: 20);
                         marketsProvider.fetchTrades(v.pairId, limit: 20);
-                        ordersProvider.fetchBaseQuoteBalances(v.baseCurrencyId, v.quoteCurrencyId);
+                        ordersProvider.fetchBaseQuoteBalances(
+                            v.baseCurrencyId, v.quoteCurrencyId);
                         ordersProvider.fetchOrderBook(v.pairId, limit: 20);
                       } else {
                         ordersProvider.clearPairBalances();
@@ -226,25 +270,38 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ButtonSegment(
                   value: 'BUY',
                   label: Text(l10n.buy),
-                  icon: Icon(Icons.arrow_upward, size: 18, color: _side == 'BUY' ? colorScheme.onPrimary : Colors.green.shade700),
+                  icon: Icon(Icons.arrow_upward,
+                      size: 18,
+                      color: _side == 'BUY'
+                          ? colorScheme.onPrimary
+                          : Colors.green.shade700),
                 ),
                 ButtonSegment(
                   value: 'SELL',
                   label: Text(l10n.sell),
-                  icon: Icon(Icons.arrow_downward, size: 18, color: _side == 'SELL' ? colorScheme.onPrimary : Colors.red.shade700),
+                  icon: Icon(Icons.arrow_downward,
+                      size: 18,
+                      color: _side == 'SELL'
+                          ? colorScheme.onPrimary
+                          : Colors.red.shade700),
                 ),
               ],
               selected: {_side},
-              onSelectionChanged: (Set<String> s) => setState(() => _side = s.first),
+              onSelectionChanged: (Set<String> s) =>
+                  setState(() => _side = s.first),
               style: ButtonStyle(
                 visualDensity: VisualDensity.comfortable,
-                padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 12)),
+                padding: WidgetStateProperty.all(
+                    const EdgeInsets.symmetric(vertical: 12)),
                 backgroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) return colorScheme.primary;
-                  return colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
+                  if (states.contains(WidgetState.selected))
+                    return colorScheme.primary;
+                  return colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5);
                 }),
                 foregroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) return colorScheme.onPrimary;
+                  if (states.contains(WidgetState.selected))
+                    return colorScheme.onPrimary;
                   return colorScheme.onSurface;
                 }),
               ),
@@ -252,25 +309,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
             const SizedBox(height: 14),
             Row(
               children: [
-                Text('${l10n.orderType}: ', style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface)),
+                Text('${l10n.orderType}: ',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.onSurface)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: SegmentedButton<String>(
                     segments: [
-                      ButtonSegment(value: 'LIMIT', label: Text(l10n.limitOrder)),
-                      ButtonSegment(value: 'MARKET', label: Text(l10n.marketOrder)),
+                      ButtonSegment(
+                          value: 'LIMIT', label: Text(l10n.limitOrder)),
+                      ButtonSegment(
+                          value: 'MARKET', label: Text(l10n.marketOrder)),
                     ],
                     selected: {_orderType},
-                    onSelectionChanged: (Set<String> s) => setState(() => _orderType = s.first),
+                    onSelectionChanged: (Set<String> s) =>
+                        setState(() => _orderType = s.first),
                     style: ButtonStyle(
                       visualDensity: VisualDensity.comfortable,
-                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 10)),
-                      backgroundColor: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) return colorScheme.primary;
-                        return colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
+                      padding: WidgetStateProperty.all(
+                          const EdgeInsets.symmetric(vertical: 10)),
+                      backgroundColor:
+                          WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected))
+                          return colorScheme.primary;
+                        return colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5);
                       }),
-                      foregroundColor: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) return colorScheme.onPrimary;
+                      foregroundColor:
+                          WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected))
+                          return colorScheme.onPrimary;
                         return colorScheme.onSurface;
                       }),
                     ),
@@ -286,36 +354,47 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   Expanded(
                     child: TextField(
                       controller: _priceController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       style: theme.textTheme.bodyLarge,
                       decoration: InputDecoration(
                         labelText: l10n.price,
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(_kInputRadius)),
+                        fillColor: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(_kInputRadius)),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(_kInputRadius),
-                          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
+                          borderSide: BorderSide(
+                              color:
+                                  colorScheme.outline.withValues(alpha: 0.5)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(_kInputRadius),
-                          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                          borderSide: BorderSide(
+                              color: colorScheme.primary, width: 1.5),
                         ),
-                        hintText: marketsProvider.ticker != null ? marketsProvider.ticker!.lastPrice : 'e.g. 50000.00',
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        hintText: marketsProvider.ticker != null
+                            ? marketsProvider.ticker!.lastPrice
+                            : 'e.g. 50000.00',
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   if (marketsProvider.ticker != null)
                     FilledButton.tonalIcon(
-                      onPressed: () => _priceController.text = marketsProvider.ticker!.lastPrice,
+                      onPressed: () => _priceController.text =
+                          marketsProvider.ticker!.lastPrice,
                       icon: const Icon(Icons.touch_app, size: 18),
                       label: Text(l10n.lastPrice),
                       style: FilledButton.styleFrom(
                         backgroundColor: colorScheme.primaryContainer,
                         foregroundColor: colorScheme.onPrimaryContainer,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
                       ),
                     ),
                 ],
@@ -324,23 +403,47 @@ class _OrdersScreenState extends State<OrdersScreen> {
             const SizedBox(height: 14),
             TextField(
               controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               style: theme.textTheme.bodyLarge,
               decoration: InputDecoration(
                 labelText: l10n.amount,
                 filled: true,
-                fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(_kInputRadius)),
+                fillColor:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(_kInputRadius)),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(_kInputRadius),
-                  borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
+                  borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.5)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(_kInputRadius),
-                  borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                  borderSide:
+                      BorderSide(color: colorScheme.primary, width: 1.5),
                 ),
                 hintText: 'e.g. 0.01',
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                suffixIcon: (_side == 'SELL' && _selectedMarket != null)
+                    ? TextButton(
+                        onPressed: () {
+                          final available = ordersProvider.baseBalance?.available ?? '';
+                          if (available.isEmpty) return;
+
+                          final amountScale = _selectedMarket!.amountScale;
+                          final maxSell = _truncateToScale(available, amountScale);
+                          if (maxSell.isEmpty) return;
+
+                          _amountController.text = maxSell;
+                          _amountController.selection = TextSelection.collapsed(
+                            offset: _amountController.text.length,
+                          );
+                        },
+                        child: const Text('MAX'),
+                      )
+                    : null,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
             ),
             if (_selectedMarket != null) ...[
@@ -353,36 +456,49 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
               const SizedBox(height: 10),
               ListenableBuilder(
-                listenable: Listenable.merge([_priceController, _amountController]),
+                listenable:
+                    Listenable.merge([_priceController, _amountController]),
                 builder: (context, _) => _buildTotalRow(context),
               ),
             ],
             if (ordersProvider.error != null) ...[
               const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: colorScheme.errorContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(_kInputRadius),
                 ),
                 child: Text(
                   ordersProvider.error!,
-                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.onErrorContainer),
                 ),
               ),
             ],
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: ordersProvider.isLoading ? null : () => _submitOrder(context),
+              onPressed:
+                  ordersProvider.isLoading ? null : () => _submitOrder(context),
               icon: ordersProvider.isLoading
-                  ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onPrimary))
-                  : Icon(Icons.send_rounded, size: 20, color: colorScheme.onPrimary),
-              label: Text(l10n.placeOrder, style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.w600)),
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: colorScheme.onPrimary))
+                  : Icon(Icons.send_rounded,
+                      size: 20, color: colorScheme.onPrimary),
+              label: Text(l10n.placeOrder,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimary,
+                      fontWeight: FontWeight.w600)),
               style: FilledButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kInputRadius)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(_kInputRadius)),
               ),
             ),
           ],
@@ -391,12 +507,49 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
+  String? _validateOrderInput(BuildContext context) {
+    if (_selectedMarket == null) return null;
+
+    final l10n = AppLocalizations.of(context);
+    final amountRaw = _amountController.text.trim();
+    final amount = _parseDecimalInput(amountRaw);
+    if (amount == null || amount <= 0) {
+      return '${l10n.amount} must be a positive number';
+    }
+
+    final amountScale = _selectedMarket!.amountScale;
+    if (_countDecimals(amountRaw) > amountScale) {
+      return 'Amount supports up to $amountScale decimal places';
+    }
+
+    if (_orderType == 'LIMIT') {
+      final priceRaw = _priceController.text.trim();
+      final price = _parseDecimalInput(priceRaw);
+      if (price == null || price <= 0) {
+        return '${l10n.price} must be a positive number';
+      }
+
+      final priceScale = _selectedMarket!.priceScale;
+      if (_countDecimals(priceRaw) > priceScale) {
+        return 'Price supports up to $priceScale decimal places';
+      }
+    }
+
+    return null;
+  }
+
   static String _baseSymbol(MarketPair m) {
-    return m.baseCurrency?.symbol ?? (m.symbol.contains('/') ? m.symbol.split('/').first : m.symbol.replaceAll('USDT', '').replaceAll(RegExp(r'[^A-Za-z]'), ''));
+    return m.baseCurrency?.symbol ??
+        (m.symbol.contains('/')
+            ? m.symbol.split('/').first
+            : m.symbol
+                .replaceAll('USDT', '')
+                .replaceAll(RegExp(r'[^A-Za-z]'), ''));
   }
 
   static String _quoteSymbol(MarketPair m) {
-    return m.quoteCurrency?.symbol ?? (m.symbol.contains('/') ? m.symbol.split('/').last : 'USDT');
+    return m.quoteCurrency?.symbol ??
+        (m.symbol.contains('/') ? m.symbol.split('/').last : 'USDT');
   }
 
   Widget _buildTickerBlock(BuildContext context) {
@@ -438,13 +591,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (ticker.isPositive ? Colors.green : Colors.red).withValues(alpha: 0.15),
+                  color: (ticker.isPositive ? Colors.green : Colors.red)
+                      .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   ticker.changePercentFormatted,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: ticker.isPositive ? Colors.green.shade700 : Colors.red.shade700,
+                    color: ticker.isPositive
+                        ? Colors.green.shade700
+                        : Colors.red.shade700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -458,9 +614,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
             children: [
               _tickerChip(context, 'Bid', _formatPriceDisplay(ticker.bestBid)),
               _tickerChip(context, 'Ask', _formatPriceDisplay(ticker.bestAsk)),
-              _tickerChip(context, '24h H', _formatPriceDisplay(ticker.high24h)),
+              _tickerChip(
+                  context, '24h H', _formatPriceDisplay(ticker.high24h)),
               _tickerChip(context, '24h L', _formatPriceDisplay(ticker.low24h)),
-              _tickerChip(context, 'Vol', _formatVolumeDisplay(ticker.volume24h)),
+              _tickerChip(
+                  context, 'Vol', _formatVolumeDisplay(ticker.volume24h)),
             ],
           ),
         ],
@@ -494,6 +652,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ? _formatAmountDisplay(ordersProvider.quoteBalance!.available)
         : '—';
     final isBuy = _side == 'BUY';
+    final baseFrozen = ordersProvider.baseBalance?.frozen != null
+        ? _formatAmountDisplay(ordersProvider.baseBalance!.frozen)
+        : '—';
+    final quoteFrozen = ordersProvider.quoteBalance?.frozen != null
+        ? _formatAmountDisplay(ordersProvider.quoteBalance!.frozen)
+        : '—';
+
+    final fromWallet = isBuy ? quoteSym : baseSym;
+    final toWallet = isBuy ? baseSym : quoteSym;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -515,32 +683,53 @@ class _OrdersScreenState extends State<OrdersScreen> {
           Row(
             children: [
               Expanded(
-                child: _balanceChip(context, baseSym, baseAvail, highlight: !isBuy),
+                child: _balanceChip(context, baseSym, baseAvail,
+                    highlight: !isBuy),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _balanceChip(context, quoteSym, quoteAvail, highlight: isBuy),
+                child: _balanceChip(context, quoteSym, quoteAvail,
+                    highlight: isBuy),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${l10n.frozen}: $baseSym $baseFrozen • $quoteSym $quoteFrozen',
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${l10n.orderFundsFrom}: ${l10n.spotWallet} ($fromWallet)  →  ${l10n.orderFundsTo}: ${l10n.spotWallet} ($toWallet)',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _balanceChip(BuildContext context, String symbol, String value, {required bool highlight}) {
+  Widget _balanceChip(BuildContext context, String symbol, String value,
+      {required bool highlight}) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight ? colorScheme.primaryContainer.withValues(alpha: 0.6) : colorScheme.surface.withValues(alpha: 0.5),
+        color: highlight
+            ? colorScheme.primaryContainer.withValues(alpha: 0.6)
+            : colorScheme.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(symbol, style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+          Text(symbol,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 2),
           Text(
             value,
@@ -565,24 +754,56 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ? (context.watch<MarketsProvider>().ticker?.lastPrice ?? '')
         : _priceController.text.trim();
     final amountStr = _amountController.text.trim();
-    final price = double.tryParse(priceStr);
-    final amount = double.tryParse(amountStr);
+    final price = _parseDecimalInput(priceStr);
+    final amount = _parseDecimalInput(amountStr);
     final total = (price != null && amount != null) ? price * amount : null;
     if (total == null) return const SizedBox.shrink();
+    final amountValue = amount ?? 0;
+
+    final feeRate = _side == 'BUY'
+        ? _parseDecimalInput(_selectedMarket!.takerFeeRate) ?? 0
+        : _parseDecimalInput(_selectedMarket!.makerFeeRate) ?? 0;
+    final estimatedFee = total * feeRate;
+    final estimatedReceive = _side == 'BUY'
+        ? (amountValue - (amountValue * feeRate))
+        : (total - estimatedFee);
+    final receiveSym = _side == 'BUY'
+        ? _baseSymbol(_selectedMarket!)
+        : _quoteSymbol(_selectedMarket!);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        _side == 'BUY'
-            ? '${l10n.total}: ${_formatTotalDisplay(total)} $quoteSym'
-            : '${l10n.youWillReceive}: ${_formatTotalDisplay(total)} $quoteSym',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _side == 'BUY'
+                ? '${l10n.total}: ${_formatTotalDisplay(total)} $quoteSym'
+                : '${l10n.youWillReceive}: ${_formatTotalDisplay(total)} $quoteSym',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${l10n.estimatedFee}: ${_formatTotalDisplay(estimatedFee)} $quoteSym',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${l10n.youWillReceive}: ${_formatAmountDisplay(estimatedReceive.toString())} $receiveSym',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -595,7 +816,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (trades.isEmpty) return const SizedBox.shrink();
     return Card(
       elevation: _kCardElevation,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_kCardRadius)),
       child: Padding(
         padding: const EdgeInsets.all(_kSectionPadding),
         child: Column(
@@ -614,7 +836,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   const SizedBox(width: 6),
                   Text(
                     '(${_formatSymbol(_selectedMarket!.symbol)})',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ],
               ],
@@ -623,34 +847,123 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Table(
-                columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(1), 2: FlexColumnWidth(0.8), 3: FlexColumnWidth(1.2)},
+                columnWidths: const {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(1),
+                  2: FlexColumnWidth(0.8),
+                  3: FlexColumnWidth(1.2),
+                },
                 children: [
                   TableRow(
-                    decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                    ),
                     children: [
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), child: Text(l10n.price, style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant))),
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), child: Text(l10n.amount, style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant))),
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), child: Text('Side', style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant))),
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), child: Text('Time', style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant))),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          l10n.price,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          l10n.amount,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          'Side',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          'Time',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   ...trades.take(15).map((t) {
                     return TableRow(
                       decoration: BoxDecoration(color: colorScheme.surface),
                       children: [
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), child: Text(_formatPriceDisplay(t.price), style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface))),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), child: Text(_formatAmountDisplay(t.amount), style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface))),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            _formatPriceDisplay(t.price),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            _formatAmountDisplay(t.amount),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
                           child: Text(
                             t.isBuy ? l10n.buy : l10n.sell,
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: t.isBuy ? Colors.green.shade700 : Colors.red.shade700,
+                              color: t.isBuy
+                                  ? Colors.green.shade700
+                                  : Colors.red.shade700,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), child: Text(_formatTradeTime(t.createdAt), style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant))),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            _formatTradeTime(t.createdAt),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
                       ],
                     );
                   }),
@@ -680,27 +993,83 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return symbol;
   }
 
+  bool _hasEnoughBalanceForOrder(OrdersProvider provider) {
+    if (_selectedMarket == null) return false;
+
+    final amount = _parseDecimalInput(_amountController.text);
+    if (amount == null || amount <= 0) return false;
+
+    if (_side == 'SELL') {
+      final availableBase =
+          _parseDecimalInput(provider.baseBalance?.available ?? '0') ?? 0;
+      return availableBase >= amount;
+    }
+
+    final priceInput = _orderType == 'MARKET'
+        ? (context.read<MarketsProvider>().ticker?.lastPrice ?? '')
+        : _priceController.text;
+    final price = _parseDecimalInput(priceInput);
+    if (price == null || price <= 0) return false;
+
+    final requiredQuote = amount * price;
+    final availableQuote =
+        _parseDecimalInput(provider.quoteBalance?.available ?? '0') ?? 0;
+    return availableQuote >= requiredQuote;
+  }
+
+  void _showInsufficientBalanceMessage(
+      BuildContext context, OrdersProvider provider) {
+    final l10n = AppLocalizations.of(context);
+    if (_selectedMarket == null) return;
+
+    if (_side == 'SELL') {
+      final baseSym = _baseSymbol(_selectedMarket!);
+      final available =
+          _formatAmountDisplay(provider.baseBalance?.available ?? '0');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('${l10n.orderInsufficientBase}: $available $baseSym')),
+      );
+      return;
+    }
+
+    final quoteSym = _quoteSymbol(_selectedMarket!);
+    final available =
+        _formatAmountDisplay(provider.quoteBalance?.available ?? '0');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content:
+              Text('${l10n.orderInsufficientQuote}: $available $quoteSym')),
+    );
+  }
+
   Future<void> _submitOrder(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final provider = context.read<OrdersProvider>();
     if (_selectedMarket == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.tradingPair} ${l10n.retry}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.tradingPair} ${l10n.retry}')));
       return;
     }
+
+    final inputError = _validateOrderInput(context);
+    if (inputError != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(inputError)));
+      return;
+    }
+
     final pairId = _selectedMarket!.pairId;
     final amount = _amountController.text.trim();
-    if (amount.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.amount} required')));
+
+    if (!_hasEnoughBalanceForOrder(provider)) {
+      _showInsufficientBalanceMessage(context, provider);
       return;
     }
-    if (_orderType == 'LIMIT') {
-      final price = _priceController.text.trim();
-      if (price.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.price} required for Limit order')));
-        return;
-      }
-    }
-    final idempotencyKey = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(0x7FFFFFFF)}';
+
+    final idempotencyKey =
+        '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(0x7FFFFFFF)}';
     final request = CreateOrderRequest(
       pairId: pairId,
       side: _side,
@@ -713,12 +1082,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (!context.mounted) return;
     if (order != null) {
       provider.clearError();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.orderPlacedSuccess)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.orderPlacedSuccess)));
       _amountController.clear();
       if (_orderType == 'LIMIT') _priceController.clear();
       provider.fetchOrderBook(pairId);
       provider.fetchMyOrders(refresh: true);
-      provider.fetchBaseQuoteBalances(_selectedMarket!.baseCurrencyId, _selectedMarket!.quoteCurrencyId);
+      provider.fetchBaseQuoteBalances(
+          _selectedMarket!.baseCurrencyId, _selectedMarket!.quoteCurrencyId);
     }
   }
 
@@ -729,7 +1100,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final provider = context.watch<OrdersProvider>();
     return Card(
       elevation: _kCardElevation,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_kCardRadius)),
       child: Padding(
         padding: const EdgeInsets.all(_kSectionPadding),
         child: Column(
@@ -748,7 +1120,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   const SizedBox(width: 8),
                   Text(
                     '(${_formatSymbol(_selectedMarket!.symbol)})',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.primary),
                   ),
                 ],
               ],
@@ -763,8 +1136,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: colorScheme.surfaceContainerHighest,
                 foregroundColor: colorScheme.onSurface,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kInputRadius)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(_kInputRadius)),
               ),
             ),
             if (_selectedMarket == null)
@@ -772,21 +1147,26 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   l10n.tradingPair,
-                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.outline),
                 ),
               ),
             if (provider.error != null) ...[
               const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: colorScheme.errorContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(provider.error!, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer)),
+                child: Text(provider.error!,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: colorScheme.onErrorContainer)),
               ),
             ],
-            if (provider.orderBookBids.isNotEmpty || provider.orderBookAsks.isNotEmpty) ...[
+            if (provider.orderBookBids.isNotEmpty ||
+                provider.orderBookAsks.isNotEmpty) ...[
               const SizedBox(height: 16),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -796,7 +1176,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       title: l10n.bidsBuy,
                       levels: provider.orderBookBids,
                       isBid: true,
-                      onPriceTap: _orderType == 'LIMIT' ? (price) => setState(() => _priceController.text = price) : null,
+                      onPriceTap: _orderType == 'LIMIT'
+                          ? (price) =>
+                              setState(() => _priceController.text = price)
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -805,7 +1188,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       title: l10n.asksSell,
                       levels: provider.orderBookAsks,
                       isBid: false,
-                      onPriceTap: _orderType == 'LIMIT' ? (price) => setState(() => _priceController.text = price) : null,
+                      onPriceTap: _orderType == 'LIMIT'
+                          ? (price) =>
+                              setState(() => _priceController.text = price)
+                          : null,
                     ),
                   ),
                 ],
@@ -825,17 +1211,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (provider.error != null && provider.myOrders.isEmpty) {
       return Card(
         elevation: _kCardElevation,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_kCardRadius)),
         child: Padding(
           padding: const EdgeInsets.all(_kSectionPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline_rounded, size: 48, color: colorScheme.error),
+              Icon(Icons.error_outline_rounded,
+                  size: 48, color: colorScheme.error),
               const SizedBox(height: 12),
-              Text(provider.error!, style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.error), textAlign: TextAlign.center),
+              Text(provider.error!,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.error),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              FilledButton.tonal(onPressed: () => provider.fetchMyOrders(refresh: true), child: Text(l10n.retry)),
+              FilledButton.tonal(
+                  onPressed: () => provider.fetchMyOrders(refresh: true),
+                  child: Text(l10n.retry)),
             ],
           ),
         ),
@@ -844,7 +1237,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (provider.isLoading && provider.myOrders.isEmpty) {
       return Card(
         elevation: _kCardElevation,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_kCardRadius)),
         child: const Padding(
           padding: EdgeInsets.all(32),
           child: Center(child: CircularProgressIndicator()),
@@ -854,13 +1248,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
     if (provider.myOrders.isEmpty) {
       return Card(
         elevation: _kCardElevation,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_kCardRadius)),
         child: Padding(
           padding: const EdgeInsets.all(_kSectionPadding),
           child: Center(
             child: Text(
               l10n.orderBookEmpty,
-              style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ),
         ),
@@ -868,7 +1264,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
     return Card(
       elevation: _kCardElevation,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_kCardRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_kCardRadius)),
       child: Padding(
         padding: const EdgeInsets.all(_kSectionPadding),
         child: Column(
@@ -896,7 +1293,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: provider.myOrders.length,
-              separatorBuilder: (_, __) => Divider(height: 1, color: colorScheme.outline.withValues(alpha: 0.3)),
+              separatorBuilder: (_, __) => Divider(
+                  height: 1, color: colorScheme.outline.withValues(alpha: 0.3)),
               itemBuilder: (context, index) {
                 final order = provider.myOrders[index];
                 return _OrderListTile(
@@ -954,25 +1352,48 @@ class _OrderBookTable extends StatelessWidget {
             },
             children: [
               TableRow(
-                decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest),
+                decoration:
+                    BoxDecoration(color: colorScheme.surfaceContainerHighest),
                 children: [
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8), child: _cell(context, 'Price', isHeader: true)),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8), child: _cell(context, 'Size', isHeader: true)),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8), child: _cell(context, 'Count', isHeader: true)),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: _cell(context, 'Price', isHeader: true)),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: _cell(context, 'Size', isHeader: true)),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: _cell(context, 'Count', isHeader: true)),
                 ],
               ),
               ...levels.take(10).map((l) {
-                const cellPadding = EdgeInsets.symmetric(vertical: 6, horizontal: 8);
+                const cellPadding =
+                    EdgeInsets.symmetric(vertical: 6, horizontal: 8);
                 return TableRow(
                   children: [
                     onPriceTap != null
                         ? InkWell(
                             onTap: () => onPriceTap!(l.price),
-                            child: Padding(padding: cellPadding, child: _cell(context, _formatPriceDisplay(l.price), isBid: isBid)),
+                            child: Padding(
+                                padding: cellPadding,
+                                child: _cell(
+                                    context, _formatPriceDisplay(l.price),
+                                    isBid: isBid)),
                           )
-                        : Padding(padding: cellPadding, child: _cell(context, _formatPriceDisplay(l.price), isBid: isBid)),
-                    Padding(padding: cellPadding, child: _cell(context, _formatAmountDisplay(l.remaining))),
-                    Padding(padding: cellPadding, child: _cell(context, '${l.orderCount}')),
+                        : Padding(
+                            padding: cellPadding,
+                            child: _cell(context, _formatPriceDisplay(l.price),
+                                isBid: isBid)),
+                    Padding(
+                        padding: cellPadding,
+                        child:
+                            _cell(context, _formatAmountDisplay(l.remaining))),
+                    Padding(
+                        padding: cellPadding,
+                        child: _cell(context, '${l.orderCount}')),
                   ],
                 );
               }),
@@ -983,7 +1404,8 @@ class _OrderBookTable extends StatelessWidget {
     );
   }
 
-  Widget _cell(BuildContext context, String text, {bool isHeader = false, bool? isBid}) {
+  Widget _cell(BuildContext context, String text,
+      {bool isHeader = false, bool? isBid}) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     Color? color;
@@ -1015,24 +1437,29 @@ class _OrderListTile extends StatelessWidget {
         '${order.side.value} ${order.type.value}',
         style: theme.textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w600,
-          color: order.side == OrderSide.buy ? Colors.green.shade700 : Colors.red.shade700,
+          color: order.side == OrderSide.buy
+              ? Colors.green.shade700
+              : Colors.red.shade700,
         ),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Text(
           'Price: ${order.price ?? "MKT"} | Amount: ${order.amount} | Filled: ${order.filledAmount} | ${order.status.value}',
-          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodySmall
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
       ),
       trailing: order.isCancellable
           ? FilledButton.tonal(
               onPressed: onCancel,
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(AppLocalizations.of(context).cancel),
             )

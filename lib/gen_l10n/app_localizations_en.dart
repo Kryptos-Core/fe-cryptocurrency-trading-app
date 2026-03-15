@@ -382,11 +382,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get youWillReceive => 'You will receive';
 
   @override
+  String get estimatedFee => 'Estimated fee';
+
+  @override
+  String get spotWallet => 'Spot wallet';
+
+  @override
+  String get orderFundsFrom => 'From wallet';
+
+  @override
+  String get orderFundsTo => 'To wallet';
+
+  @override
+  String get orderInsufficientBase => 'Insufficient base balance. Available';
+
+  @override
+  String get orderInsufficientQuote => 'Insufficient quote balance. Available';
+
+  @override
   String get syncBinance => 'Sync Binance';
 
   @override
   String get syncBinanceDescription =>
       'Sync currencies and market pairs from Binance into the app database';
+
+  @override
+  String get manualResyncBinance => 'Manual re-sync from Binance';
+
+  @override
+  String get manualResyncBinanceDescription =>
+      'Use this only when you need to manually refresh market catalog from Binance.';
+
+  @override
+  String get lastManualSync => 'Last manual sync';
+
+  @override
+  String get neverSyncedYet => 'Never';
 
   @override
   String get syncing => 'Syncing...';

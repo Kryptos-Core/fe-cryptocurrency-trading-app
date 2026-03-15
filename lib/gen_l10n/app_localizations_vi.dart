@@ -382,11 +382,43 @@ class AppLocalizationsVi extends AppLocalizations {
   String get youWillReceive => 'Sẽ nhận';
 
   @override
+  String get estimatedFee => 'Phí ước tính';
+
+  @override
+  String get spotWallet => 'Ví spot';
+
+  @override
+  String get orderFundsFrom => 'Ví nguồn';
+
+  @override
+  String get orderFundsTo => 'Ví đích';
+
+  @override
+  String get orderInsufficientBase => 'Không đủ số dư tài sản cơ sở. Khả dụng';
+
+  @override
+  String get orderInsufficientQuote =>
+      'Không đủ số dư tài sản định giá. Khả dụng';
+
+  @override
   String get syncBinance => 'Đồng bộ Binance';
 
   @override
   String get syncBinanceDescription =>
       'Đồng bộ tiền tệ và cặp thị trường từ Binance vào cơ sở dữ liệu';
+
+  @override
+  String get manualResyncBinance => 'Đồng bộ lại thủ công từ Binance';
+
+  @override
+  String get manualResyncBinanceDescription =>
+      'Chỉ dùng khi cần làm mới thủ công danh mục thị trường từ Binance.';
+
+  @override
+  String get lastManualSync => 'Lần đồng bộ thủ công gần nhất';
+
+  @override
+  String get neverSyncedYet => 'Chưa từng';
 
   @override
   String get syncing => 'Đang đồng bộ...';

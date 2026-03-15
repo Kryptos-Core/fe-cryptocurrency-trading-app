@@ -92,7 +92,8 @@ class _MainScreenState extends State<MainScreen> {
           if (_currentIndex == 2)
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () => context.read<WalletsProvider>().fetchWallets(refresh: true),
+              onPressed: () =>
+                  context.read<WalletsProvider>().fetchWallets(refresh: true),
               tooltip: l10n.refresh,
             ),
           if (_currentIndex == 2)
@@ -170,8 +171,8 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       child: Text(
                         auth.role.displayName,
-                        style: const TextStyle(
-                            fontSize: 11, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 11, color: Colors.white),
                       ),
                     ),
                   ],
@@ -187,8 +188,7 @@ class _MainScreenState extends State<MainScreen> {
                             ? auth.currentUser!.fullName[0]
                             : '?')
                         .toUpperCase(),
-                    style: const TextStyle(
-                        fontSize: 28, color: Colors.white),
+                    style: const TextStyle(fontSize: 28, color: Colors.white),
                   ),
                 ),
               ),
@@ -257,7 +257,8 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('User management screen — coming soon'),
+                            content:
+                                Text('User management screen — coming soon'),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -265,16 +266,17 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     if (auth.isAdmin) ...[
                       ListTile(
-                        leading: const Icon(Icons.sync,
-                            color: Colors.deepOrange),
-                        title: const Text('Sync Binance'),
+                        leading:
+                            const Icon(Icons.sync, color: Colors.deepOrange),
+                        title: const Text('Manual re-sync Binance'),
                         subtitle: const Text('Admin area',
                             style: TextStyle(fontSize: 11)),
                         onTap: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Exchange sync — coming soon'),
+                              content:
+                                  Text('Manual exchange re-sync — coming soon'),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );

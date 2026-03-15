@@ -622,14 +622,11 @@ class MarketsProvider extends ChangeNotifier {
   /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range sẽ dùng interval gợi ý (1d→1m, 1M→1h, 3M→4h, 1y/5y→1d)
   Future<void> fetchOHLCV({
     required String pairId,
-    String? interval,
     String? range,
     int limit = 100,
   }) async {
     if (range != null) {
       _selectedInterval = ApiConstants.intervalForRange(range);
-    } else if (interval != null) {
-      _selectedInterval = interval;
     }
 
     _error = null;
@@ -637,7 +634,6 @@ class MarketsProvider extends ChangeNotifier {
 
     final result = await _marketsRepository.getOHLCV(
       pairId: pairId,
-      interval: _selectedInterval,
       range: range,
       limit: range != null ? 500 : limit,
     );

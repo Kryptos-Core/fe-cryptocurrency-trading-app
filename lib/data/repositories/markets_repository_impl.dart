@@ -214,7 +214,6 @@ class MarketsRepositoryImpl implements MarketsRepository {
   @override
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
     required String pairId,
-    String interval = '1h',
     String? range,
     String? startTime,
     String? endTime,
@@ -223,7 +222,6 @@ class MarketsRepositoryImpl implements MarketsRepository {
     try {
       final ohlcvModels = await remoteDataSource.getOHLCV(
         pairId: pairId,
-        interval: interval,
         range: range,
         startTime: startTime,
         endTime: endTime,

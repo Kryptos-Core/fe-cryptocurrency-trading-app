@@ -1,11 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:crypto_trading_app/core/utils/checkout_tab_preopen.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+
+class _AmountThousandsSeparatorFormatter extends TextInputFormatter {
+  final NumberFormat _numberFormat = NumberFormat('#,###');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
+    final number = int.tryParse(digitsOnly);
+    if (number == null) {
+      return oldValue;
+    }
+
+    final formatted = _numberFormat.format(number);
+    final selectionFromRight = newValue.text.length - newValue.selection.end;
+    var newOffset = formatted.length - selectionFromRight;
+    if (newOffset < 0) newOffset = 0;
+    if (newOffset > formatted.length) newOffset = formatted.length;
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: newOffset),
+    );
+  }
+}
 
 class DepositsScreen extends StatefulWidget {
   const DepositsScreen({super.key});
@@ -16,7 +52,14 @@ class DepositsScreen extends StatefulWidget {
 
 class _DepositsScreenState extends State<DepositsScreen> {
   final TextEditingController _amountController = TextEditingController();
+  final _amountFormatter = _AmountThousandsSeparatorFormatter();
   bool _isPollingAfterCheckout = false;
+
+  int? _parseAmountFromInput(String input) {
+    final digitsOnly = input.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.isEmpty) return null;
+    return int.tryParse(digitsOnly);
+  }
 
   @override
   void initState() {
@@ -42,7 +85,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
       return;
     }
 
-    final amount = int.tryParse(amountText);
+    final amount = _parseAmountFromInput(amountText);
     if (amount == null || amount < 10000) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.payosInvalidAmountMin)),
@@ -50,13 +93,24 @@ class _DepositsScreenState extends State<DepositsScreen> {
       return;
     }
 
+    // Open a blank tab immediately on user click to reduce popup-blocker risk on web.
+    final preopenedTab = kIsWeb ? preopenCheckoutTab() : null;
+
     final provider = context.read<DepositsProvider>();
     final session = await provider.createDepositLink(amount);
     final checkoutUrl = session?.checkoutUrl;
     final orderCode = session?.orderCode;
 
     if (checkoutUrl != null && checkoutUrl.isNotEmpty) {
-      await _openCheckoutUrl(checkoutUrl);
+      if (preopenedTab != null) {
+        final navigated = preopenedTab.navigateTo(checkoutUrl);
+        if (!navigated) {
+          preopenedTab.close();
+          await _openCheckoutUrl(checkoutUrl);
+        }
+      } else {
+        await _openCheckoutUrl(checkoutUrl);
+      }
 
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,6 +124,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
         interval: const Duration(seconds: 5),
       );
     } else {
+      preopenedTab?.close();
       if (mounted && provider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(provider.error!)),
@@ -81,9 +136,15 @@ class _DepositsScreenState extends State<DepositsScreen> {
   Future<bool> _tryLaunchCheckoutUrl(Uri uri) async {
     try {
       if (kIsWeb) {
-        return await launchUrl(uri, webOnlyWindowName: '_blank');
+        final openedInNewTab =
+            await launchUrl(uri, webOnlyWindowName: '_blank');
+        if (openedInNewTab) return true;
+
+        // Fallback for popup blockers: navigate in current tab.
+        return await launchUrl(uri, webOnlyWindowName: '_self');
       }
 
+      // Mobile/Desktop: open external browser/payment app.
       return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
       return false;
@@ -271,6 +332,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
                     TextField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [_amountFormatter],
                       decoration: InputDecoration(
                         labelText: l10n.payosAmountLabel,
                         border: const OutlineInputBorder(),

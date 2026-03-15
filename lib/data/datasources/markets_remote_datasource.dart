@@ -76,7 +76,6 @@ abstract class MarketsRemoteDataSource {
   /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range thì backend chỉ trả nến trong khoảng (now − range) đến now; tối đa 500 nến.
   Future<List<OHLCVModel>> getOHLCV({
     required String pairId,
-    String interval = '1h',
     String? range,
     String? startTime,
     String? endTime,
@@ -726,7 +725,6 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
   @override
   Future<List<OHLCVModel>> getOHLCV({
     required String pairId,
-    String interval = '1h',
     String? range,
     String? startTime,
     String? endTime,
@@ -737,7 +735,6 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
       final response = await dio.get(
         ApiConstants.marketOHLCV(pairId),
         queryParameters: {
-          'interval': interval,
           if (range != null) 'range': range,
           if (startTime != null && range == null) 'start_time': startTime,
           if (endTime != null && range == null) 'end_time': endTime,

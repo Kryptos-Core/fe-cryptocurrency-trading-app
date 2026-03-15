@@ -14,19 +14,30 @@ class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
 
   DepositRemoteDataSourceImpl({required this.dioClient});
 
+  T _unwrapApiData<T>(dynamic payload) {
+    if (payload is Map<String, dynamic> && payload['data'] is T) {
+      return payload['data'] as T;
+    }
+    if (payload is T) {
+      return payload;
+    }
+    throw const FormatException('Unexpected API response format');
+  }
+
   @override
   Future<List<DepositModel>> getMyDeposits() async {
     try {
       final response = await dioClient.dio.get('/deposits');
-      if (response.data != null && response.data is List) {
-        return (response.data as List)
-            .map((json) => DepositModel.fromJson(json))
-            .toList();
-      }
-      return [];
+      final rawList = _unwrapApiData<List<dynamic>>(response.data);
+      return rawList
+          .whereType<Map<String, dynamic>>()
+          .map((json) => DepositModel.fromJson(json))
+          .toList();
     } on DioException catch (e) {
       throw ServerException(
           message: e.response?.data?['message'] ?? 'Failed to load deposits');
+    } on FormatException {
+      throw ServerException(message: 'Failed to parse deposits response');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -39,10 +50,12 @@ class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
         '/deposits',
         data: {'amount': amount},
       );
-      return response.data;
+      return _unwrapApiData<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
       throw ServerException(
           message: e.response?.data?['message'] ?? 'Failed to create deposit');
+    } on FormatException {
+      throw ServerException(message: 'Failed to parse create deposit response');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -53,14 +66,13 @@ class DepositRemoteDataSourceImpl implements DepositRemoteDataSource {
     try {
       final response =
           await dioClient.dio.get('/deposits/$orderCode/sync-status');
-      if (response.data is Map<String, dynamic>) {
-        return response.data as Map<String, dynamic>;
-      }
-      return {'updated': false};
+      return _unwrapApiData<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
       throw ServerException(
           message:
               e.response?.data?['message'] ?? 'Failed to sync deposit status');
+    } on FormatException {
+      throw ServerException(message: 'Failed to parse sync deposit response');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
