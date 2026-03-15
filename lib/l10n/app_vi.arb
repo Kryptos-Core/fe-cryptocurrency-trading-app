@@ -200,6 +200,7 @@
   "copyChallengManual": "2) Sao chép thử thách (Thủ công)",
   "openExtensionSign": "2) Mở Extension & Ký",
   "openWalletSign": "2) Mở ví & Ký",
+  "openWalletManualSign": "2) Mở ví & ký thủ công",
   "signatureLabel": "Chữ ký",
   "pasteSignatureHint": "Dán chữ ký ví vào đây",
   "verifyingLink": "Đang xác minh...",
@@ -265,6 +266,11 @@
     }
   },
   "walletExtensionReadyAction": "Sẵn sàng",
+  "walletDontAskAgainSession": "Đừng hỏi lại trong phiên này",
+  "walletOpenTronLinkExtension": "Mở quản lý TronLink Extension",
+  "walletWindowsNativeSignNotice": "Ứng dụng Windows native không thể bật popup ký trực tiếp của extension. Popup ký trực tiếp chỉ hỗ trợ trên web (Chrome/Edge).",
+  "walletTronLinkExtensionOpened": "Đã mở trang TronLink extension.",
+  "walletExtensionOpenFailed": "Không thể mở trang extension.",
   "walletExtensionInstallOpenedInfo": "Đã mở trang cài {extension}. Cài đặt xong, quay lại và kiểm tra lại.",
   "@walletExtensionInstallOpenedInfo": {
     "placeholders": {

@@ -7,10 +7,12 @@ typedef OpenExternalUrlFn = Future<bool> Function(String url);
 class WalletExtensionTarget {
   final String name;
   final String installUrl;
+  final List<String> extensionPageUrls;
 
   const WalletExtensionTarget({
     required this.name,
     required this.installUrl,
+    this.extensionPageUrls = const <String>[],
   });
 }
 
@@ -60,12 +62,19 @@ class WalletExtensionPrecheckService {
         return const WalletExtensionTarget(
           name: 'MetaMask',
           installUrl: 'https://metamask.io/download/',
+          extensionPageUrls: <String>[
+            'https://chromewebstore.google.com/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn',
+          ],
         );
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return const WalletExtensionTarget(
           name: 'TronLink',
-          installUrl: 'https://www.tronlink.org/',
+          installUrl:
+              'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
+          extensionPageUrls: <String>[
+            'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
+          ],
         );
       default:
         return null;
@@ -76,5 +85,20 @@ class WalletExtensionPrecheckService {
     final target = targetForNetwork(network);
     if (target == null) return false;
     return _openExternalUrl(target.installUrl);
+  }
+
+  Future<bool> openExtensionPage(BlockchainNetwork network) async {
+    final target = targetForNetwork(network);
+    if (target == null || target.extensionPageUrls.isEmpty) {
+      return false;
+    }
+
+    for (final url in target.extensionPageUrls) {
+      if (url.isEmpty) continue;
+      final opened = await _openExternalUrl(url);
+      if (opened) return true;
+    }
+
+    return false;
   }
 }

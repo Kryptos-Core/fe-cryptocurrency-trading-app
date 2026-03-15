@@ -215,6 +215,7 @@
   "copyChallengManual": "2) Copy Challenge (Manual)",
   "openExtensionSign": "2) Open Extension & Sign",
   "openWalletSign": "2) Open Wallet & Sign",
+  "openWalletManualSign": "2) Open Wallet (Manual Sign)",
   "signatureLabel": "Signature",
   "pasteSignatureHint": "Paste wallet signature here",
   "verifyingLink": "Verifying...",
@@ -300,6 +301,11 @@
     }
   },
   "walletExtensionReadyAction": "Ready",
+  "walletDontAskAgainSession": "Don't ask again in this session",
+  "walletOpenTronLinkExtension": "Open TronLink Extension Manager",
+  "walletWindowsNativeSignNotice": "Windows native app cannot trigger extension signing popup directly. Direct popup signing is available only on web (Chrome/Edge).",
+  "walletTronLinkExtensionOpened": "Opened TronLink extension page.",
+  "walletExtensionOpenFailed": "Could not open extension page.",
   "walletExtensionInstallOpenedInfo": "Opened {extension} install page. After installation, return and run check again.",
   "@walletExtensionInstallOpenedInfo": {
     "placeholders": {

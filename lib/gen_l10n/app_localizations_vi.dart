@@ -618,6 +618,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get openWalletSign => '2) Mở ví & Ký';
 
   @override
+  String get openWalletManualSign => '2) Mở ví & ký thủ công';
+
+  @override
   String get signatureLabel => 'Chữ ký';
 
   @override
@@ -811,6 +814,22 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get walletExtensionReadyAction => 'Sẵn sàng';
+
+  @override
+  String get walletDontAskAgainSession => 'Đừng hỏi lại trong phiên này';
+
+  @override
+  String get walletOpenTronLinkExtension => 'Mở quản lý TronLink Extension';
+
+  @override
+  String get walletWindowsNativeSignNotice =>
+      'Ứng dụng Windows native không thể bật popup ký trực tiếp của extension. Popup ký trực tiếp chỉ hỗ trợ trên web (Chrome/Edge).';
+
+  @override
+  String get walletTronLinkExtensionOpened => 'Đã mở trang TronLink extension.';
+
+  @override
+  String get walletExtensionOpenFailed => 'Không thể mở trang extension.';
 
   @override
   String walletExtensionInstallOpenedInfo(String extension) {

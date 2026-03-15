@@ -1286,6 +1286,12 @@ abstract class AppLocalizations {
   /// **'2) Open Wallet & Sign'**
   String get openWalletSign;
 
+  /// No description provided for @openWalletManualSign.
+  ///
+  /// In en, this message translates to:
+  /// **'2) Open Wallet (Manual Sign)'**
+  String get openWalletManualSign;
+
   /// No description provided for @signatureLabel.
   ///
   /// In en, this message translates to:
@@ -1585,6 +1591,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ready'**
   String get walletExtensionReadyAction;
+
+  /// No description provided for @walletDontAskAgainSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t ask again in this session'**
+  String get walletDontAskAgainSession;
+
+  /// No description provided for @walletOpenTronLinkExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'Open TronLink Extension Manager'**
+  String get walletOpenTronLinkExtension;
+
+  /// No description provided for @walletWindowsNativeSignNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows native app cannot trigger extension signing popup directly. Direct popup signing is available only on web (Chrome/Edge).'**
+  String get walletWindowsNativeSignNotice;
+
+  /// No description provided for @walletTronLinkExtensionOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened TronLink extension page.'**
+  String get walletTronLinkExtensionOpened;
+
+  /// No description provided for @walletExtensionOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open extension page.'**
+  String get walletExtensionOpenFailed;
 
   /// No description provided for @walletExtensionInstallOpenedInfo.
   ///

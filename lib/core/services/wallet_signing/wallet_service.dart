@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
+    if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
 
 Future<bool> _openWebHelpPage(String url) {
   return launchUrl(
@@ -213,13 +215,40 @@ class TronLinkWalletService implements WalletService {
   @override
   Future<WalletSignResult> signMessage(WalletSignRequest request) async {
     if (kIsWeb) {
-      await _openWebHelpPage('https://www.tronlink.org/');
-      return const WalletSignResult(
+      final webSignResult = await tronLinkSignOnWeb(
+        message: request.message,
+        expectedAddress: request.address,
+      );
+
+      if (webSignResult.signature != null &&
+          webSignResult.signature!.isNotEmpty) {
+        return WalletSignResult(
+          signature: webSignResult.signature,
+          openedExternalWallet: true,
+          requiresManualInput: false,
+          suggestedAddress: webSignResult.connectedAddress,
+          message: 'TronLink signature captured from extension popup.',
+        );
+      }
+
+      if (webSignResult.notInstalled) {
+        final host = Uri.base.host.toLowerCase();
+        final isLocalhost =
+            host == 'localhost' || host == '127.0.0.1' || host == '::1';
+
+        if (!isLocalhost) {
+          await _openWebHelpPage('https://www.tronlink.org/');
+        }
+      }
+
+      return WalletSignResult(
         signature: null,
         openedExternalWallet: false,
         requiresManualInput: true,
-        message:
-            'Web mode: opened TronLink help page in a new tab. Open TronLink extension/app, sign challenge manually, then paste signature below.',
+        suggestedAddress: webSignResult.accountMismatch
+            ? webSignResult.connectedAddress
+            : null,
+        message: webSignResult.message,
       );
     }
 

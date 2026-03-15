@@ -24,7 +24,10 @@ void main() {
       expect(nileTarget, isNotNull);
       expect(nileTarget!.name, 'TronLink');
       expect(shastaTarget, isNotNull);
-      expect(shastaTarget!.installUrl, 'https://www.tronlink.org/');
+      expect(
+        shastaTarget!.installUrl,
+        'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
+      );
     });
 
     test('does not require precheck outside windows desktop', () {
@@ -84,7 +87,40 @@ void main() {
           await service.openExtensionInstallPage(BlockchainNetwork.tronNile);
 
       expect(opened, isTrue);
-      expect(openedUrl, 'https://www.tronlink.org/');
+      expect(
+        openedUrl,
+        'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
+      );
+    });
+
+    test('opens extension page using injected opener', () async {
+      var openedUrl = '';
+      final service = WalletExtensionPrecheckService(
+        openExternalUrl: (url) async {
+          openedUrl = url;
+          return true;
+        },
+      );
+
+      final opened =
+          await service.openExtensionPage(BlockchainNetwork.tronNile);
+
+      expect(opened, isTrue);
+      expect(
+        openedUrl,
+        'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
+      );
+    });
+
+    test('returns false when extension page cannot be opened', () async {
+      final service = WalletExtensionPrecheckService(
+        openExternalUrl: (_) async => false,
+      );
+
+      final opened =
+          await service.openExtensionPage(BlockchainNetwork.tronNile);
+
+      expect(opened, isFalse);
     });
   });
 }

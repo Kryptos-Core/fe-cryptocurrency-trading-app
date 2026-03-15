@@ -35,6 +35,25 @@ class WalletChallengeSection extends StatelessWidget {
     required this.onWindowsPrecheckChanged,
   });
 
+  bool get _showWindowsNativeTronNotice {
+    final isTronNetwork = network == BlockchainNetwork.tronNile ||
+        network == BlockchainNetwork.tronShasta;
+    return !isWebDialog && isTronNetwork;
+  }
+
+  String _step2Label(AppLocalizations l10n) {
+    if (testMode) return l10n.copyChallengManual;
+    if (isWebDialog) return l10n.openExtensionSign;
+
+    final isNativeTron = network == BlockchainNetwork.tronNile ||
+        network == BlockchainNetwork.tronShasta;
+    if (isNativeTron) {
+      return l10n.openWalletManualSign;
+    }
+
+    return l10n.openWalletSign;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -65,15 +84,28 @@ class WalletChallengeSection extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: isSubmitting ? null : onSignPressed,
             icon: const Icon(Icons.open_in_new),
-            label: Text(
-              testMode
-                  ? l10n.copyChallengManual
-                  : (isWebDialog
-                      ? l10n.openExtensionSign
-                      : l10n.openWalletSign),
-            ),
+            label: Text(_step2Label(l10n)),
           ),
         ),
+        if (_showWindowsNativeTronNotice) ...[
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              border: Border.all(color: Colors.blue.shade200),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              l10n.walletWindowsNativeSignNotice,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.blue.shade900,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         if (showWindowsPrecheck) ...[
           WindowsExtensionPrecheckCard(

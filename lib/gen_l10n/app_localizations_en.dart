@@ -617,6 +617,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openWalletSign => '2) Open Wallet & Sign';
 
   @override
+  String get openWalletManualSign => '2) Open Wallet (Manual Sign)';
+
+  @override
   String get signatureLabel => 'Signature';
 
   @override
@@ -808,6 +811,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletExtensionReadyAction => 'Ready';
+
+  @override
+  String get walletDontAskAgainSession => 'Don\'t ask again in this session';
+
+  @override
+  String get walletOpenTronLinkExtension => 'Open TronLink Extension Manager';
+
+  @override
+  String get walletWindowsNativeSignNotice =>
+      'Windows native app cannot trigger extension signing popup directly. Direct popup signing is available only on web (Chrome/Edge).';
+
+  @override
+  String get walletTronLinkExtensionOpened => 'Opened TronLink extension page.';
+
+  @override
+  String get walletExtensionOpenFailed => 'Could not open extension page.';
 
   @override
   String walletExtensionInstallOpenedInfo(String extension) {

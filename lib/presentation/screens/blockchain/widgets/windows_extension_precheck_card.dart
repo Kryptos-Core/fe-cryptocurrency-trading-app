@@ -33,46 +33,101 @@ class WindowsExtensionPrecheckCard extends StatefulWidget {
 
 class WindowsExtensionPrecheckCardState
     extends State<WindowsExtensionPrecheckCard> {
+  static bool _skipConfirmInSession = false;
+
+  @visibleForTesting
+  static void resetSessionPreference() {
+    _skipConfirmInSession = false;
+  }
+
+  bool get _isTronNetwork {
+    return widget.network == BlockchainNetwork.tronNile ||
+        widget.network == BlockchainNetwork.tronShasta;
+  }
+
+  Future<void> _openTronLinkExtensionPage() async {
+    final l10n = AppLocalizations.of(context);
+    final opened =
+        await widget.precheckService.openExtensionPage(widget.network);
+
+    if (!mounted) return;
+
+    showAppSnackBar(
+      context,
+      message: opened
+          ? l10n.walletTronLinkExtensionOpened
+          : l10n.walletExtensionOpenFailed,
+      type: opened ? SnackBarType.info : SnackBarType.warning,
+    );
+  }
+
   Future<bool> runPrecheckFlow() async {
     final target = widget.precheckService.targetForNetwork(widget.network);
     if (target == null) {
       return true;
     }
 
+    if (_skipConfirmInSession) {
+      widget.onPrecheckChanged(true);
+      return true;
+    }
+
     final l10n = AppLocalizations.of(context);
     final extensionName = target.name;
-    await widget.precheckService.openExtensionInstallPage(widget.network);
-
-    if (!mounted) return false;
+    var dontAskAgain = _skipConfirmInSession;
 
     final action = await showDialog<_WindowsExtensionCheckAction>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(l10n.walletExtensionCheckTitle(extensionName)),
-          content: Text(
-            l10n.walletExtensionCheckMessage(extensionName),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(_WindowsExtensionCheckAction.cancel),
-              child: Text(l10n.walletExtensionCheckClose),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(_WindowsExtensionCheckAction.install),
-              child: Text(l10n.walletExtensionInstallAction(extensionName)),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(_WindowsExtensionCheckAction.ready),
-              child: Text(l10n.walletExtensionReadyAction),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(l10n.walletExtensionCheckTitle(extensionName)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.walletExtensionCheckMessage(extensionName),
+                  ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(l10n.walletDontAskAgainSession),
+                    value: dontAskAgain,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        dontAskAgain = value ?? false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext)
+                      .pop(_WindowsExtensionCheckAction.cancel),
+                  child: Text(l10n.walletExtensionCheckClose),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext)
+                      .pop(_WindowsExtensionCheckAction.install),
+                  child: Text(l10n.walletExtensionInstallAction(extensionName)),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext)
+                      .pop(_WindowsExtensionCheckAction.ready),
+                  child: Text(l10n.walletExtensionReadyAction),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+
+    _skipConfirmInSession = dontAskAgain;
 
     if (action == _WindowsExtensionCheckAction.ready) {
       widget.onPrecheckChanged(true);
@@ -148,6 +203,17 @@ class WindowsExtensionPrecheckCardState
                 : l10n.walletWindowsPrecheckCheck),
           ),
         ),
+        if (_isTronNetwork) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: widget.enabled ? _openTronLinkExtensionPage : null,
+              icon: const Icon(Icons.extension_outlined),
+              label: Text(l10n.walletOpenTronLinkExtension),
+            ),
+          ),
+        ],
       ],
     );
   }
