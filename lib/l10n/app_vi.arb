@@ -241,6 +241,37 @@
   "walletGuideWebTronStep1": "Dùng trình duyệt có extension TronLink đã bật và mở khóa.",
   "walletGuideWebTronStep2": "Chuyển sang tài khoản Nile hoặc Shasta khớp với địa chỉ đã nhập.",
   "walletGuideWebTronStep3": "Nhấn Bước 2 và xác nhận chữ ký trong popup TronLink.",
+  "walletWindowsPrecheckReady": "Pre-check Windows: extension đã sẵn sàng, bạn có thể tiếp tục ký.",
+  "walletWindowsPrecheckRequired": "Pre-check Windows: cần xác nhận extension đã cài trước khi ký.",
+  "walletWindowsPrecheckCheck": "Kiểm tra extension trên trình duyệt",
+  "walletWindowsPrecheckRecheck": "Kiểm tra lại extension",
+  "walletExtensionCheckTitle": "Kiểm tra {extension}",
+  "@walletExtensionCheckTitle": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionCheckMessage": "Đã mở trình duyệt để bạn kiểm tra {extension}. Nếu đã cài và mở khóa extension, chọn Sẵn sàng để tiếp tục liên kết ví.",
+  "@walletExtensionCheckMessage": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionCheckClose": "Đóng",
+  "walletExtensionInstallAction": "Cài {extension}",
+  "@walletExtensionInstallAction": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionReadyAction": "Sẵn sàng",
+  "walletExtensionInstallOpenedInfo": "Đã mở trang cài {extension}. Cài đặt xong, quay lại và kiểm tra lại.",
+  "@walletExtensionInstallOpenedInfo": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionPrecheckSuccess": "Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.",
   "submitOnchainDeposit": "Gửi nạp tiền on-chain",
   "onchainDepositDesc": "Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.",
   "platformDepositAddress": "Địa chỉ nạp của sàn",

@@ -33,6 +33,7 @@ import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 
@@ -199,6 +200,9 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<ChartCacheService>(() => ChartCacheService());
 
   // Wallet signing strategy services (MetaMask/Phantom/TronLink + test fallback)
+  sl.registerLazySingleton<WalletExtensionPrecheckService>(
+    () => WalletExtensionPrecheckService(),
+  );
   sl.registerLazySingleton<MetaMaskWalletService>(
     () => MetaMaskWalletService(),
   );

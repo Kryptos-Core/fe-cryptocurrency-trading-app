@@ -5,9 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/windows_extension_precheck_card.dart';
+import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/platform_notice_card.dart';
+import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wallet_challenge_section.dart';
 
 class LinkWalletDialog extends StatelessWidget {
   const LinkWalletDialog({super.key});
@@ -59,6 +63,8 @@ abstract class _PlatformLinkWalletDialog extends StatefulWidget {
 }
 
 class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
+  final _extensionPrecheckService = sl<WalletExtensionPrecheckService>();
+  final _windowsPrecheckKey = GlobalKey<WindowsExtensionPrecheckCardState>();
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _labelController = TextEditingController();
@@ -68,6 +74,17 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
   bool _testMode = false;
   String? _challengeMessage;
   String? _suggestedConnectedAddress;
+  bool _windowsExtensionPrechecked = false;
+
+  bool get _requiresWindowsExtensionPrecheck {
+    return _extensionPrecheckService.requiresPrecheck(
+      network: _selectedNetwork,
+      isWebDialog: widget.isWebDialog,
+      isTestMode: _testMode,
+      isWeb: kIsWeb,
+      platform: defaultTargetPlatform,
+    );
+  }
 
   @override
   void dispose() {
@@ -125,6 +142,24 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
         context,
         message: l10n.manualModeCopied,
         type: SnackBarType.info,
+      );
+      return;
+    }
+
+    if (_requiresWindowsExtensionPrecheck) {
+      if (!_windowsExtensionPrechecked) {
+        final ready =
+            await _windowsPrecheckKey.currentState?.runPrecheckFlow() ?? false;
+        if (!ready || !mounted) return;
+      }
+
+      await Clipboard.setData(ClipboardData(text: _challengeMessage!));
+      if (!mounted) return;
+
+      showAppSnackBar(
+        context,
+        message: l10n.walletExtensionPrecheckSuccess,
+        type: SnackBarType.success,
       );
       return;
     }
@@ -208,185 +243,6 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
     }
   }
 
-  String _walletNameForNetwork() {
-    switch (_selectedNetwork) {
-      case BlockchainNetwork.ethSepolia:
-        return 'MetaMask';
-      case BlockchainNetwork.solanaDevnet:
-        return 'Phantom';
-      case BlockchainNetwork.tronNile:
-      case BlockchainNetwork.tronShasta:
-        return 'TronLink';
-    }
-  }
-
-  List<String> _nativeGuideSteps(AppLocalizations l10n) {
-    if (_testMode) {
-      return [
-        l10n.walletGuideTestStep1,
-        l10n.walletGuideNativeTestStep2,
-        l10n.walletGuideNativeTestStep3,
-      ];
-    }
-
-    switch (_selectedNetwork) {
-      case BlockchainNetwork.ethSepolia:
-        return [
-          l10n.walletGuideNativeEthStep1,
-          l10n.walletGuideNativeEthStep2,
-          l10n.walletGuideNativeEthStep3,
-        ];
-      case BlockchainNetwork.solanaDevnet:
-        return [
-          l10n.walletGuideNativeSolStep1,
-          l10n.walletGuideNativeSolStep2,
-          l10n.walletGuideNativeSolStep3,
-        ];
-      case BlockchainNetwork.tronNile:
-      case BlockchainNetwork.tronShasta:
-        return [
-          l10n.walletGuideNativeTronStep1,
-          l10n.walletGuideNativeTronStep2,
-          l10n.walletGuideNativeTronStep3,
-        ];
-    }
-  }
-
-  List<String> _webGuideSteps(AppLocalizations l10n) {
-    if (_testMode) {
-      return [
-        l10n.walletGuideTestStep1,
-        l10n.walletGuideWebTestStep2,
-        l10n.walletGuideWebTestStep3,
-      ];
-    }
-
-    switch (_selectedNetwork) {
-      case BlockchainNetwork.ethSepolia:
-        return [
-          l10n.walletGuideWebEthStep1,
-          l10n.walletGuideWebEthStep2,
-          l10n.walletGuideWebEthStep3,
-        ];
-      case BlockchainNetwork.solanaDevnet:
-        return [
-          l10n.walletGuideWebSolStep1,
-          l10n.walletGuideWebSolStep2,
-          l10n.walletGuideWebSolStep3,
-        ];
-      case BlockchainNetwork.tronNile:
-      case BlockchainNetwork.tronShasta:
-        return [
-          l10n.walletGuideWebTronStep1,
-          l10n.walletGuideWebTronStep2,
-          l10n.walletGuideWebTronStep3,
-        ];
-    }
-  }
-
-  Widget _buildPlatformNoticeCard(AppLocalizations l10n) {
-    if (widget.isWebDialog) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.green.shade50,
-          border: Border.all(color: Colors.green.shade200),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.language_outlined,
-                size: 18, color: Colors.green.shade700),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                l10n.webModeNotice,
-                style: const TextStyle(fontSize: 12.5),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.indigo.shade50,
-        border: Border.all(color: Colors.indigo.shade200),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.devices_outlined, size: 18, color: Colors.indigo.shade700),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              l10n.appModeNotice,
-              style: const TextStyle(fontSize: 12.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSigningGuideCard(AppLocalizations l10n) {
-    final walletName = _walletNameForNetwork();
-    final steps =
-        widget.isWebDialog ? _webGuideSteps(l10n) : _nativeGuideSteps(l10n);
-    final guideTitle = _testMode
-        ? l10n.manualSignGuideTitle
-        : (widget.isWebDialog
-            ? l10n.browserSignGuideTitle(walletName)
-            : l10n.desktopSignGuideTitle(walletName));
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _testMode ? Colors.amber.shade50 : Colors.blue.shade50,
-        border: Border.all(
-          color: _testMode ? Colors.amber.shade200 : Colors.blue.shade200,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                _testMode
-                    ? Icons.science_outlined
-                    : Icons.desktop_windows_outlined,
-                size: 18,
-                color:
-                    _testMode ? Colors.orange.shade700 : Colors.blue.shade700,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                guideTitle,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ...steps.map(
-            (step) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text('- $step', style: const TextStyle(fontSize: 12.5)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -412,7 +268,8 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                       decoration: InputDecoration(
                         labelText: l10n.networkLabel,
                         border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 15),
                       ),
                       items: BlockchainNetwork.values
                           .map(
@@ -434,12 +291,13 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                                   _challengeMessage = null;
                                   _signatureController.clear();
                                   _suggestedConnectedAddress = null;
+                                  _windowsExtensionPrechecked = false;
                                 });
                               }
                             },
                     ),
                     const SizedBox(height: 10),
-                    _buildPlatformNoticeCard(l10n),
+                    PlatformNoticeCard(isWebDialog: widget.isWebDialog),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _addressController,
@@ -504,7 +362,12 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                       value: _testMode,
                       onChanged: provider.isSubmitting
                           ? null
-                          : (value) => setState(() => _testMode = value),
+                          : (value) {
+                              setState(() {
+                                _testMode = value;
+                                _windowsExtensionPrechecked = false;
+                              });
+                            },
                     ),
                     const SizedBox(height: 6),
                     SizedBox(
@@ -522,51 +385,23 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                     ),
                     if (_challengeMessage != null) ...[
                       const SizedBox(height: 12),
-                      Text(
-                        l10n.challengeMessageTitle,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: SelectableText(
-                          _challengeMessage!,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed:
-                              provider.isSubmitting ? null : _signWithWallet,
-                          icon: const Icon(Icons.open_in_new),
-                          label: Text(
-                            _testMode
-                                ? l10n.copyChallengManual
-                                : (widget.isWebDialog
-                                    ? l10n.openExtensionSign
-                                    : l10n.openWalletSign),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildSigningGuideCard(l10n),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _signatureController,
-                        maxLines: 3,
-                        enabled: !provider.isSubmitting,
-                        decoration: InputDecoration(
-                          labelText: l10n.signatureLabel,
-                          hintText: l10n.pasteSignatureHint,
-                          border: const OutlineInputBorder(),
-                        ),
+                      WalletChallengeSection(
+                        challengeMessage: _challengeMessage!,
+                        testMode: _testMode,
+                        isWebDialog: widget.isWebDialog,
+                        isSubmitting: provider.isSubmitting,
+                        network: _selectedNetwork,
+                        onSignPressed: _signWithWallet,
+                        signatureController: _signatureController,
+                        showWindowsPrecheck: _requiresWindowsExtensionPrecheck,
+                        windowsPrechecked: _windowsExtensionPrechecked,
+                        extensionPrecheckService: _extensionPrecheckService,
+                        windowsPrecheckKey: _windowsPrecheckKey,
+                        onWindowsPrecheckChanged: (value) {
+                          setState(() {
+                            _windowsExtensionPrechecked = value;
+                          });
+                        },
                       ),
                     ],
                   ],

@@ -777,6 +777,51 @@ class AppLocalizationsVi extends AppLocalizations {
       'Nhấn Bước 2 và xác nhận chữ ký trong popup TronLink.';
 
   @override
+  String get walletWindowsPrecheckReady =>
+      'Pre-check Windows: extension đã sẵn sàng, bạn có thể tiếp tục ký.';
+
+  @override
+  String get walletWindowsPrecheckRequired =>
+      'Pre-check Windows: cần xác nhận extension đã cài trước khi ký.';
+
+  @override
+  String get walletWindowsPrecheckCheck =>
+      'Kiểm tra extension trên trình duyệt';
+
+  @override
+  String get walletWindowsPrecheckRecheck => 'Kiểm tra lại extension';
+
+  @override
+  String walletExtensionCheckTitle(String extension) {
+    return 'Kiểm tra $extension';
+  }
+
+  @override
+  String walletExtensionCheckMessage(String extension) {
+    return 'Đã mở trình duyệt để bạn kiểm tra $extension. Nếu đã cài và mở khóa extension, chọn Sẵn sàng để tiếp tục liên kết ví.';
+  }
+
+  @override
+  String get walletExtensionCheckClose => 'Đóng';
+
+  @override
+  String walletExtensionInstallAction(String extension) {
+    return 'Cài $extension';
+  }
+
+  @override
+  String get walletExtensionReadyAction => 'Sẵn sàng';
+
+  @override
+  String walletExtensionInstallOpenedInfo(String extension) {
+    return 'Đã mở trang cài $extension. Cài đặt xong, quay lại và kiểm tra lại.';
+  }
+
+  @override
+  String get walletExtensionPrecheckSuccess =>
+      'Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.';
+
+  @override
   String get submitOnchainDeposit => 'Gửi nạp tiền on-chain';
 
   @override

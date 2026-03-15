@@ -1532,6 +1532,72 @@ abstract class AppLocalizations {
   /// **'Click Step 2 and confirm signature in TronLink popup.'**
   String get walletGuideWebTronStep3;
 
+  /// No description provided for @walletWindowsPrecheckReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows pre-check: extension is ready, you can continue signing.'**
+  String get walletWindowsPrecheckReady;
+
+  /// No description provided for @walletWindowsPrecheckRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows pre-check: confirm extension is installed before signing.'**
+  String get walletWindowsPrecheckRequired;
+
+  /// No description provided for @walletWindowsPrecheckCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check extension in browser'**
+  String get walletWindowsPrecheckCheck;
+
+  /// No description provided for @walletWindowsPrecheckRecheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check extension'**
+  String get walletWindowsPrecheckRecheck;
+
+  /// No description provided for @walletExtensionCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check {extension}'**
+  String walletExtensionCheckTitle(String extension);
+
+  /// No description provided for @walletExtensionCheckMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser has been opened so you can check {extension}. If installed and unlocked, click Ready to continue wallet linking.'**
+  String walletExtensionCheckMessage(String extension);
+
+  /// No description provided for @walletExtensionCheckClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get walletExtensionCheckClose;
+
+  /// No description provided for @walletExtensionInstallAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Install {extension}'**
+  String walletExtensionInstallAction(String extension);
+
+  /// No description provided for @walletExtensionReadyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get walletExtensionReadyAction;
+
+  /// No description provided for @walletExtensionInstallOpenedInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened {extension} install page. After installation, return and run check again.'**
+  String walletExtensionInstallOpenedInfo(String extension);
+
+  /// No description provided for @walletExtensionPrecheckSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-check completed. Open extension, sign challenge, then paste signature below.'**
+  String get walletExtensionPrecheckSuccess;
+
   /// No description provided for @submitOnchainDeposit.
   ///
   /// In en, this message translates to:

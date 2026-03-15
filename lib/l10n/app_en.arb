@@ -276,6 +276,37 @@
   "walletGuideWebTronStep1": "Use browser profile with TronLink extension enabled and unlocked.",
   "walletGuideWebTronStep2": "Switch to Nile or Shasta account that matches your entered address.",
   "walletGuideWebTronStep3": "Click Step 2 and confirm signature in TronLink popup.",
+  "walletWindowsPrecheckReady": "Windows pre-check: extension is ready, you can continue signing.",
+  "walletWindowsPrecheckRequired": "Windows pre-check: confirm extension is installed before signing.",
+  "walletWindowsPrecheckCheck": "Check extension in browser",
+  "walletWindowsPrecheckRecheck": "Re-check extension",
+  "walletExtensionCheckTitle": "Check {extension}",
+  "@walletExtensionCheckTitle": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionCheckMessage": "Browser has been opened so you can check {extension}. If installed and unlocked, click Ready to continue wallet linking.",
+  "@walletExtensionCheckMessage": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionCheckClose": "Close",
+  "walletExtensionInstallAction": "Install {extension}",
+  "@walletExtensionInstallAction": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionReadyAction": "Ready",
+  "walletExtensionInstallOpenedInfo": "Opened {extension} install page. After installation, return and run check again.",
+  "@walletExtensionInstallOpenedInfo": {
+    "placeholders": {
+      "extension": { "type": "String" }
+    }
+  },
+  "walletExtensionPrecheckSuccess": "Pre-check completed. Open extension, sign challenge, then paste signature below.",
   "submitOnchainDeposit": "Submit on-chain deposit",
   "onchainDepositDesc": "After sending tokens from your wallet to exchange deposit address, paste tx hash here.",
   "platformDepositAddress": "Platform deposit address",

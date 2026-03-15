@@ -775,6 +775,50 @@ class AppLocalizationsEn extends AppLocalizations {
       'Click Step 2 and confirm signature in TronLink popup.';
 
   @override
+  String get walletWindowsPrecheckReady =>
+      'Windows pre-check: extension is ready, you can continue signing.';
+
+  @override
+  String get walletWindowsPrecheckRequired =>
+      'Windows pre-check: confirm extension is installed before signing.';
+
+  @override
+  String get walletWindowsPrecheckCheck => 'Check extension in browser';
+
+  @override
+  String get walletWindowsPrecheckRecheck => 'Re-check extension';
+
+  @override
+  String walletExtensionCheckTitle(String extension) {
+    return 'Check $extension';
+  }
+
+  @override
+  String walletExtensionCheckMessage(String extension) {
+    return 'Browser has been opened so you can check $extension. If installed and unlocked, click Ready to continue wallet linking.';
+  }
+
+  @override
+  String get walletExtensionCheckClose => 'Close';
+
+  @override
+  String walletExtensionInstallAction(String extension) {
+    return 'Install $extension';
+  }
+
+  @override
+  String get walletExtensionReadyAction => 'Ready';
+
+  @override
+  String walletExtensionInstallOpenedInfo(String extension) {
+    return 'Opened $extension install page. After installation, return and run check again.';
+  }
+
+  @override
+  String get walletExtensionPrecheckSuccess =>
+      'Pre-check completed. Open extension, sign challenge, then paste signature below.';
+
+  @override
   String get submitOnchainDeposit => 'Submit on-chain deposit';
 
   @override
