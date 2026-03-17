@@ -214,7 +214,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<bool> checkHealth() async {
     try {
       final response = await dio.get(ApiConstants.health);
-      return response.data is Map && (response.data['ok'] == true);
+      if (response.statusCode != 200 || response.data is! Map) return false;
+      final body = response.data as Map;
+      // BE trả về { success: true, data: { ok: true, ... } }
+      final data = body['data'];
+      if (data is Map) return data['ok'] == true;
+      // Fallback: một số endpoint trả flat { ok: true }
+      return body['ok'] == true || body['success'] == true;
     } catch (_) {
       return false;
     }

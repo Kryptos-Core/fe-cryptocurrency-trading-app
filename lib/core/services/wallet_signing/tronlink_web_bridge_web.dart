@@ -24,10 +24,11 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
   required String message,
   required String expectedAddress,
 }) async {
-  final tronLinkRaw = globalContext['tronLink'];
-  final tronWebRaw = globalContext['tronWeb'];
-
-  if (tronLinkRaw == null && tronWebRaw == null) {
+  final hasTronEnv = globalContext.callMethod<JSAny?>(
+    'eval'.toJS,
+    '!!(window.tronLink || window.tronWeb)'.toJS,
+  );
+  if (hasTronEnv?.dartify() != true) {
     return const TronLinkWebSignResult(
       signature: null,
       notInstalled: true,
@@ -38,7 +39,9 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
     );
   }
 
+  final tronLinkRaw = globalContext['tronLink'];
   final tronLink = tronLinkRaw is JSObject ? tronLinkRaw : null;
+  final tronWebRaw = globalContext['tronWeb'];
   final tronWeb = tronWebRaw is JSObject ? tronWebRaw : null;
 
   try {
@@ -46,7 +49,8 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
       await _tryRequestAccounts(tronLink);
     }
 
-    final connectedAddress = _resolveConnectedAddress(tronWeb, tronLink);
+    // Lấy địa chỉ qua eval để tránh Proxy edge cases
+    final connectedAddress = _getAddressViaEval();
 
     if (connectedAddress.isEmpty) {
       return const TronLinkWebSignResult(
@@ -68,7 +72,7 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
         accountMismatch: true,
         connectedAddress: connectedAddress,
         message:
-            'Address mismatch: entered $expectedAddress but TronLink connected $connectedAddress. Use the same address, then try again.',
+            'Address mismatch: connected $connectedAddress but expected $expectedAddress.',
       );
     }
 
@@ -106,25 +110,45 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
   }
 }
 
+/// Lấy địa chỉ TRON hiện tại qua JS eval — hoàn toàn bỏ qua Dart interop Proxy issues.
+String _getAddressViaEval() {
+  final result = globalContext.callMethod<JSAny?>(
+    'eval'.toJS,
+    r'''(function() {
+      try {
+        var tw = window.tronWeb || (window.tronLink && window.tronLink.tronWeb);
+        if (!tw || !tw.defaultAddress) return '';
+        var b58 = tw.defaultAddress.base58;
+        if (b58 && typeof b58 === 'string' && b58.length === 34 && b58[0] === 'T') return b58;
+        var hex = tw.defaultAddress.hex;
+        if (hex && typeof hex === 'string' && hex.length === 42 && hex.indexOf('41') === 0) return hex;
+        return '';
+      } catch(e) { return ''; }
+    })()'''.toJS,
+  );
+  final addr = result?.dartify();
+  return (addr is String) ? addr : '';
+}
+
 /// Lấy địa chỉ TronLink đang kết nối, trả null nếu không có.
 Future<String?> tronLinkGetAddressOnWeb() async {
+  final hasTronEnv = globalContext.callMethod<JSAny?>(
+    'eval'.toJS,
+    '!!(window.tronLink || window.tronWeb)'.toJS,
+  );
+  if (hasTronEnv?.dartify() != true) return null;
+
+  // Yêu cầu kết nối để TronLink unlock account
   final tronLinkRaw = globalContext['tronLink'];
-  final tronWebRaw = globalContext['tronWeb'];
-  if (tronLinkRaw == null && tronWebRaw == null) return null;
-
-  final tronLink = tronLinkRaw is JSObject ? tronLinkRaw : null;
-  final tronWeb = tronWebRaw is JSObject ? tronWebRaw : null;
-
-  if (tronLink != null) {
+  if (tronLinkRaw is JSObject) {
     try {
-      await _tryRequestAccounts(tronLink);
-      // Đợi TronLink cập nhật defaultAddress sau khi user approve
-      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await _tryRequestAccounts(tronLinkRaw);
+      await Future<void>.delayed(const Duration(milliseconds: 500));
     } catch (_) {}
   }
 
-  final address = _resolveConnectedAddress(tronWeb, tronLink);
-  return address.isNotEmpty ? address : null;
+  final addr = _getAddressViaEval();
+  return addr.isNotEmpty ? addr : null;
 }
 
 Future<void> _tryRequestAccounts(JSObject tronLink) async {
@@ -140,44 +164,6 @@ Future<void> _tryRequestAccounts(JSObject tronLink) async {
   }
 }
 
-/// Kiểm tra chuỗi địa chỉ có phải giá trị hợp lệ (không phải "false"/"null"/"undefined").
-bool _isValidAddressString(String? s) =>
-    s != null &&
-    s.isNotEmpty &&
-    s != 'false' &&
-    s != 'null' &&
-    s != 'undefined';
-
-String _resolveConnectedAddress(JSObject? tronWeb, JSObject? tronLink) {
-  String fromTronWeb(JSObject? source) {
-    if (source == null) return '';
-
-    final defaultAddressRaw = source['defaultAddress'];
-    if (defaultAddressRaw is JSObject) {
-      final base58 = defaultAddressRaw['base58']?.dartify()?.toString();
-      if (_isValidAddressString(base58)) return base58!;
-
-      final hex = defaultAddressRaw['hex']?.dartify()?.toString();
-      if (_isValidAddressString(hex)) return hex!;
-    }
-
-    final address = source['address']?.dartify()?.toString();
-    return _isValidAddressString(address) ? address! : '';
-  }
-
-  final direct = fromTronWeb(tronWeb);
-  if (direct.isNotEmpty) return direct;
-
-  if (tronLink != null) {
-    final embeddedTronWeb = tronLink['tronWeb'];
-    if (embeddedTronWeb is JSObject) {
-      final embedded = fromTronWeb(embeddedTronWeb);
-      if (embedded.isNotEmpty) return embedded;
-    }
-  }
-
-  return '';
-}
 
 Future<String> _requestSignature({
   required JSObject? tronLink,
