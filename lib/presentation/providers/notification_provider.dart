@@ -1,0 +1,196 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/services/websocket_service.dart';
+import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
+import 'package:crypto_trading_app/domain/entities/notification_entity.dart';
+import 'package:crypto_trading_app/domain/repositories/notification_repository.dart';
+
+/// Notification Provider
+/// Observer Pattern: subscribes to WebSocket 'notification:new' events.
+/// State: notifications list, unread badge count, loading flag.
+class NotificationProvider extends ChangeNotifier {
+  final NotificationRepository _repository;
+  final NotificationRemoteDataSource? _remoteDataSource;
+
+  List<NotificationEntity> _notifications = [];
+  int _unreadCount = 0;
+  bool _isLoading = false;
+  String? _error;
+  StreamSubscription<WebSocketMessage>? _socketSubscription;
+
+  NotificationProvider({
+    required NotificationRepository repository,
+    NotificationRemoteDataSource? remoteDataSource,
+  })  : _repository = repository,
+        _remoteDataSource = remoteDataSource;
+
+  // ── Getters ────────────────────────────────────────────────────────────────
+
+  List<NotificationEntity> get notifications => _notifications;
+  int get unreadCount => _unreadCount;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  // ── Initialization ─────────────────────────────────────────────────────────
+
+  /// Fetch initial notifications + unread count.
+  /// Also registers FCM token if [fcmToken] is provided.
+  /// Call after user authenticates.
+  Future<void> initialize({String? fcmToken}) async {
+    if (fcmToken != null && _remoteDataSource != null) {
+      try {
+        await _remoteDataSource!.saveFcmToken(fcmToken);
+      } catch (_) {}
+    }
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    final results = await Future.wait([
+      _repository.getNotifications(),
+      _repository.getUnreadCount(),
+    ]);
+
+    results[0].fold(
+      (f) => _error = f.message,
+      (list) => _notifications = list as List<NotificationEntity>,
+    );
+
+    results[1].fold(
+      (_) {},
+      (count) => _unreadCount = count as int,
+    );
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Subscribe to WebSocket stream for real-time 'notification:new' events.
+  /// Tái sử dụng WebSocketService.messageStream — zero new sockets.
+  void listenSocket(IWebSocketService wsService) {
+    _socketSubscription?.cancel();
+    _socketSubscription = wsService.messageStream
+        .where((msg) => msg.type == 'notification:new')
+        .listen(_onNewNotification);
+  }
+
+  void stopListening() {
+    _socketSubscription?.cancel();
+    _socketSubscription = null;
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  Future<void> markRead(String notificationId) async {
+    // Optimistic update
+    _applyMarkRead(notificationId);
+
+    final result = await _repository.markRead(notificationId);
+    result.fold(
+      (_) => _rollbackMarkRead(notificationId), // revert on failure
+      (_) {},
+    );
+    notifyListeners();
+  }
+
+  Future<void> markAllRead() async {
+    // Optimistic update
+    final previous = List<NotificationEntity>.from(_notifications);
+    final previousCount = _unreadCount;
+
+    _notifications = _notifications
+        .map((n) => n.isRead ? n : n.copyWith(isRead: true, readAt: DateTime.now()))
+        .toList();
+    _unreadCount = 0;
+    notifyListeners();
+
+    final result = await _repository.markAllRead();
+    result.fold(
+      (_) {
+        _notifications = previous;
+        _unreadCount = previousCount;
+        notifyListeners();
+      },
+      (_) {},
+    );
+  }
+
+  Future<void> loadMore({int page = 1}) async {
+    final result = await _repository.getNotifications(page: page);
+    result.fold(
+      (_) {},
+      (list) {
+        if (page == 1) {
+          _notifications = list;
+        } else {
+          _notifications = [..._notifications, ...list];
+        }
+        notifyListeners();
+      },
+    );
+  }
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  void _onNewNotification(WebSocketMessage message) {
+    final data = message.data;
+    final notif = _buildFromSocketPayload(data);
+    if (notif == null) return;
+
+    _notifications = [notif, ..._notifications];
+    _unreadCount += 1;
+    notifyListeners();
+  }
+
+  void _applyMarkRead(String notificationId) {
+    _notifications = _notifications.map((n) {
+      if (n.notificationId == notificationId && !n.isRead) {
+        _unreadCount = (_unreadCount - 1).clamp(0, double.maxFinite.toInt());
+        return n.copyWith(isRead: true, readAt: DateTime.now());
+      }
+      return n;
+    }).toList();
+    notifyListeners();
+  }
+
+  void _rollbackMarkRead(String notificationId) {
+    _notifications = _notifications.map((n) {
+      if (n.notificationId == notificationId && n.isRead) {
+        _unreadCount += 1;
+        return n.copyWith(isRead: false);
+      }
+      return n;
+    }).toList();
+  }
+
+  NotificationEntity? _buildFromSocketPayload(Map<String, dynamic> data) {
+    try {
+      final notifId = data['notification_id']?.toString() ?? '';
+      if (notifId.isEmpty) return null;
+      return NotificationEntity(
+        id: notifId,
+        userId: '',
+        notificationId: notifId,
+        isRead: false,
+        createdAt: DateTime.now(),
+        title: data['title']?.toString() ?? '',
+        body: data['body']?.toString() ?? '',
+        type: NotificationTypeX.fromString(data['type']?.toString()),
+        createdBy: '',
+        data: data['data'] is Map ? Map<String, dynamic>.from(data['data'] as Map) : null,
+        notificationCreatedAt: DateTime.tryParse(
+              data['created_at']?.toString() ?? '',
+            ) ??
+            DateTime.now(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    stopListening();
+    super.dispose();
+  }
+}

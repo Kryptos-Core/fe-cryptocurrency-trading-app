@@ -20,6 +20,9 @@ import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
+import 'package:crypto_trading_app/core/services/fcm_service.dart';
+import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
 void main() async {
@@ -46,6 +49,13 @@ void main() async {
 
   // Initialize dependency injection
   await di.initializeDependencies();
+
+  // Initialize Firebase + FCM (silently skipped on unsupported platforms like Windows)
+  final fcmToken = await di.sl<FcmService>().initialize();
+  if (fcmToken != null) {
+    // Register token with BE after user logs in — done in NotificationProvider.initialize()
+    di.sl<di.SharedPreferences>().setString('pending_fcm_token', fcmToken);
+  }
 
   runApp(const CryptoTradingApp());
 }
@@ -120,6 +130,12 @@ class CryptoTradingApp extends StatelessWidget {
             wsService: di.sl(),
             tokenService: di.sl(),
           ),
+        ),
+        ChangeNotifierProvider<NotificationProvider>.value(
+          value: di.sl<NotificationProvider>(),
+        ),
+        Provider<NotificationRemoteDataSource>.value(
+          value: di.sl<NotificationRemoteDataSource>(),
         ),
       ],
       child: Consumer2<LocaleProvider, ThemeProvider>(

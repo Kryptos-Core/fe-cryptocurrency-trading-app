@@ -1167,4 +1167,60 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get requestSentPendingApproval =>
       'Yêu cầu đã gửi. Đang chờ xét duyệt.';
+
+  @override
+  String get broadcastNotificationTitle => 'Phát thông báo';
+
+  @override
+  String get broadcastInfoBanner =>
+      'Thông báo này sẽ được gửi đến tất cả người dùng đang hoạt động theo thời gian thực và được lưu trong lịch sử thông báo.';
+
+  @override
+  String get broadcastTypeLabel => 'Loại';
+
+  @override
+  String get broadcastTypeSystem => 'Hệ thống';
+
+  @override
+  String get broadcastTypeAlert => 'Cảnh báo';
+
+  @override
+  String get broadcastTypePromo => 'Khuyến mãi';
+
+  @override
+  String get broadcastTitleLabel => 'Tiêu đề';
+
+  @override
+  String get broadcastTitleHint => 'vd: Bảo trì hệ thống lúc 23:00 tối nay';
+
+  @override
+  String get broadcastTitleRequired => 'Tiêu đề là bắt buộc';
+
+  @override
+  String get broadcastTitleTooShort => 'Tiêu đề quá ngắn';
+
+  @override
+  String get broadcastMessageLabel => 'Nội dung';
+
+  @override
+  String get broadcastMessageHint => 'Nhập nội dung thông báo tại đây...';
+
+  @override
+  String get broadcastMessageRequired => 'Nội dung thông báo là bắt buộc';
+
+  @override
+  String get broadcastMessageTooShort => 'Nội dung quá ngắn';
+
+  @override
+  String get broadcastSending => 'Đang gửi...';
+
+  @override
+  String get broadcastSendAllUsers => 'Gửi đến tất cả người dùng';
+
+  @override
+  String get broadcastSuccess => 'Phát thông báo thành công';
+
+  @override
+  String get broadcastFailedTryAgain =>
+      'Gửi thông báo thất bại. Vui lòng thử lại.';
 }

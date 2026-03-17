@@ -2,6 +2,9 @@
 cmake_minimum_required(VERSION 3.14)
 # Suppress CMP0175 from webview_windows plugin (add_custom_command DEPENDS) before any subdir
 cmake_policy(SET CMP0175 OLD)
+# Workaround: Firebase C++ SDK declares cmake_minimum_required < 3.5 which CMake >= 3.30 rejects.
+# This flag tells CMake to treat old cmake_minimum_required declarations as 3.5+ compatible.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 # Let CMake/Flutter auto-detect Visual Studio (e.g. VS 2022). If you previously
 # had VS 2026 Insiders and see "could not find specified instance", run:

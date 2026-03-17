@@ -1165,4 +1165,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestSentPendingApproval => 'Request sent. Pending approval.';
+
+  @override
+  String get broadcastNotificationTitle => 'Broadcast Notification';
+
+  @override
+  String get broadcastInfoBanner =>
+      'This notification will be delivered to all active users in real-time and persisted in their notification history.';
+
+  @override
+  String get broadcastTypeLabel => 'Type';
+
+  @override
+  String get broadcastTypeSystem => 'System';
+
+  @override
+  String get broadcastTypeAlert => 'Alert';
+
+  @override
+  String get broadcastTypePromo => 'Promo';
+
+  @override
+  String get broadcastTitleLabel => 'Title';
+
+  @override
+  String get broadcastTitleHint => 'e.g. System maintenance tonight at 23:00';
+
+  @override
+  String get broadcastTitleRequired => 'Title is required';
+
+  @override
+  String get broadcastTitleTooShort => 'Title too short';
+
+  @override
+  String get broadcastMessageLabel => 'Message';
+
+  @override
+  String get broadcastMessageHint => 'Write your notification message here...';
+
+  @override
+  String get broadcastMessageRequired => 'Message body is required';
+
+  @override
+  String get broadcastMessageTooShort => 'Message too short';
+
+  @override
+  String get broadcastSending => 'Sending...';
+
+  @override
+  String get broadcastSendAllUsers => 'Send to all users';
+
+  @override
+  String get broadcastSuccess => 'Notification broadcast successfully';
+
+  @override
+  String get broadcastFailedTryAgain =>
+      'Failed to send notification. Please try again.';
 }

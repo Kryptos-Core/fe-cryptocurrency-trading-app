@@ -183,6 +183,18 @@ class ApiConstants {
   // Deposit Methods — public endpoint (no auth required)
   static const String depositMethods = '/deposit/methods';
 
+  // Notifications Endpoints
+  static const String notifications = '/notifications';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+  static const String notificationsReadAll = '/notifications/read-all';
+  static String notificationMarkRead(String id) => '/notifications/$id/read';
+
+  /// Notification Socket.IO URL (server origin + /notifications namespace).
+  static String get notificationsSocketUrl => '$serverOrigin/notifications';
+
+  // User FCM token endpoint
+  static const String usersMeFcmToken = '/users/me/fcm-token';
+
   // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

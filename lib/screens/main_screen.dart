@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
@@ -16,6 +17,8 @@ import 'package:crypto_trading_app/screens/orders_screen.dart';
 import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
+import 'package:crypto_trading_app/screens/notifications_screen.dart';
+import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
@@ -34,14 +37,18 @@ class _MainScreenState extends State<MainScreen> {
   /// Stored reference so we can remove the listener in dispose() without using context.
   /// Using context in dispose() is unsafe because the widget tree is already deactivated.
   AuthProvider? _authProvider;
+  bool _notificationsInitialized = false;
 
   @override
   void initState() {
     super.initState();
     // Listen for 403 events from DioClient via AuthProvider and show a SnackBar.
+    // Also initialize NotificationProvider once user is authenticated.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authProvider = context.read<AuthProvider>();
       _authProvider!.addListener(_onAuthChanged);
+      // Trigger once for existing session (restoreSession runs before this listener)
+      _maybeInitNotifications();
     });
   }
 
@@ -63,6 +70,18 @@ class _MainScreenState extends State<MainScreen> {
           duration: Duration(seconds: 3),
         ),
       );
+    }
+    _maybeInitNotifications();
+  }
+
+  void _maybeInitNotifications() {
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+    if (auth.isAuthenticated && !_notificationsInitialized) {
+      _notificationsInitialized = true;
+      context.read<NotificationProvider>().initialize();
+    } else if (!auth.isAuthenticated) {
+      _notificationsInitialized = false;
     }
   }
 
@@ -124,6 +143,27 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 );
               },
+            ),
+          // Notification bell — visible for all authenticated users
+          if (isAuthenticated)
+            Consumer<NotificationProvider>(
+              builder: (_, prov, __) => IconButton(
+                tooltip: 'Notifications',
+                icon: Badge(
+                  isLabelVisible: prov.unreadCount > 0,
+                  label: Text(
+                    prov.unreadCount > 99 ? '99+' : '${prov.unreadCount}',
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  child: const Icon(Icons.notifications_outlined),
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  ),
+                ),
+              ),
             ),
         ],
       ),
@@ -316,6 +356,23 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
                     if (auth.isAdmin) ...[
+                      ListTile(
+                        leading: const Icon(Icons.campaign_outlined,
+                            color: Colors.deepOrange),
+                        title: const Text('Broadcast Notification'),
+                        subtitle: const Text('Send to all users',
+                            style: TextStyle(fontSize: 11)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const BroadcastNotificationScreen(),
+                            ),
+                          );
+                        },
+                      ),
                       ListTile(
                         leading:
                             const Icon(Icons.sync, color: Colors.deepOrange),

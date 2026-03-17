@@ -34,6 +34,11 @@ import 'package:crypto_trading_app/data/repositories/managed_wallets_repository_
 import 'package:crypto_trading_app/domain/repositories/managed_wallets_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
+import 'package:crypto_trading_app/core/services/fcm_service.dart';
+import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
+import 'package:crypto_trading_app/data/repositories/notification_repository_impl.dart';
+import 'package:crypto_trading_app/domain/repositories/notification_repository.dart';
+import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
@@ -67,7 +72,7 @@ Future<void> initializeDependencies() async {
         chartCacheService: sl<ChartCacheService>(),
       ),
     );
-    return;
+    return; // All other singletons remain registered
   }
 
   // ===== External Dependencies =====
@@ -257,6 +262,24 @@ Future<void> initializeDependencies() async {
       webSocketService: sl<IWebSocketService>(),
       indicatorService: sl<IndicatorService>(),
       chartCacheService: sl<ChartCacheService>(),
+    ),
+  );
+
+  // ===== Notifications =====
+  sl.registerLazySingleton<FcmService>(() => FcmService());
+
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(dioClient: sl<DioClient>()),
+  );
+
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<NotificationProvider>(
+    () => NotificationProvider(
+      repository: sl<NotificationRepository>(),
+      remoteDataSource: sl<NotificationRemoteDataSource>(),
     ),
   );
 }

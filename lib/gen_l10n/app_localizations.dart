@@ -2227,6 +2227,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request sent. Pending approval.'**
   String get requestSentPendingApproval;
+
+  /// No description provided for @broadcastNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast Notification'**
+  String get broadcastNotificationTitle;
+
+  /// No description provided for @broadcastInfoBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This notification will be delivered to all active users in real-time and persisted in their notification history.'**
+  String get broadcastInfoBanner;
+
+  /// No description provided for @broadcastTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get broadcastTypeLabel;
+
+  /// No description provided for @broadcastTypeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get broadcastTypeSystem;
+
+  /// No description provided for @broadcastTypeAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get broadcastTypeAlert;
+
+  /// No description provided for @broadcastTypePromo.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo'**
+  String get broadcastTypePromo;
+
+  /// No description provided for @broadcastTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get broadcastTitleLabel;
+
+  /// No description provided for @broadcastTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. System maintenance tonight at 23:00'**
+  String get broadcastTitleHint;
+
+  /// No description provided for @broadcastTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title is required'**
+  String get broadcastTitleRequired;
+
+  /// No description provided for @broadcastTitleTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Title too short'**
+  String get broadcastTitleTooShort;
+
+  /// No description provided for @broadcastMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get broadcastMessageLabel;
+
+  /// No description provided for @broadcastMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your notification message here...'**
+  String get broadcastMessageHint;
+
+  /// No description provided for @broadcastMessageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Message body is required'**
+  String get broadcastMessageRequired;
+
+  /// No description provided for @broadcastMessageTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Message too short'**
+  String get broadcastMessageTooShort;
+
+  /// No description provided for @broadcastSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get broadcastSending;
+
+  /// No description provided for @broadcastSendAllUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to all users'**
+  String get broadcastSendAllUsers;
+
+  /// No description provided for @broadcastSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification broadcast successfully'**
+  String get broadcastSuccess;
+
+  /// No description provided for @broadcastFailedTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send notification. Please try again.'**
+  String get broadcastFailedTryAgain;
 }
 
 class _AppLocalizationsDelegate
