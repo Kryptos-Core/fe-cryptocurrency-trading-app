@@ -53,6 +53,8 @@ class ApiConstants {
   // Auth Endpoints (Xác thực) - Không có prefix /api/v1
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';
+  static const String authWalletNonce = '/auth/wallet-nonce';
+  static const String authWalletVerify = '/auth/wallet-verify';
   // Note: getCurrentUser should use /users/me instead of /auth/me
   // Backend's /auth/me is not exposed - use users service instead
   

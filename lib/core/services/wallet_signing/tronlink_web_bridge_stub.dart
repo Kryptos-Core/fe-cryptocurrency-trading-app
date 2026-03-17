@@ -26,3 +26,6 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
     message: 'TronLink direct signing is only available on web.',
   );
 }
+
+/// Lấy địa chỉ TronLink đang kết nối (stub — non-web).
+Future<String?> tronLinkGetAddressOnWeb() async => null;

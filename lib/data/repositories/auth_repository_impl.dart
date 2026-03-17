@@ -19,6 +19,13 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, User>> getCurrentUser(String token);
+
+  /// Đăng nhập/đăng ký bằng ví (MetaMask / TronLink)
+  Future<Either<Failure, AuthResponse>> loginWithWallet({
+    required String chain,
+    required String address,
+    required String signature,
+  });
 }
 
 /// Auth Response entity
@@ -104,6 +111,36 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(userModel.toEntity());
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> loginWithWallet({
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    try {
+      final authResponseModel = await remoteDataSource.walletVerify(
+        chain: chain,
+        address: address,
+        signature: signature,
+      );
+      return Right(AuthResponse(
+        accessToken: authResponseModel.accessToken,
+        refreshToken: authResponseModel.refreshToken,
+        user: authResponseModel.user.toEntity(),
+      ));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on ServerException catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/utils/wallet_auth_handler.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -8,6 +9,40 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
 import 'package:provider/provider.dart';
+
+/// Nút kết nối ví — dùng chung cho MetaMask và TronLink
+class _WalletLoginButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final bool disabled;
+  final VoidCallback onPressed;
+
+  const _WalletLoginButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.disabled,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: disabled ? null : onPressed,
+        icon: Icon(icon, color: disabled ? null : color, size: 20),
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          side: BorderSide(color: disabled ? Colors.grey : color),
+          foregroundColor: disabled ? null : color,
+        ),
+      ),
+    );
+  }
+}
 
 /// Login Screen
 /// Allows users to authenticate with email and password
@@ -111,6 +146,23 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const RegisterScreen()),
     );
+  }
+
+  void _onWalletAuthSuccess() {
+    if (!mounted) return;
+    showAppSnackBar(
+      context,
+      message: 'Đăng nhập bằng ví thành công!',
+      type: SnackBarType.success,
+      duration: const Duration(seconds: 1),
+    );
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      }
+    });
   }
 
   Future<void> _checkConnection() async {
@@ -268,6 +320,52 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _isLoading ? null : _checkConnection,
                     icon: const Icon(Icons.wifi_find, size: 18),
                     label: const Text('Check connection (health)'),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Wallet login divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'Hoặc đăng nhập bằng ví',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // MetaMask button
+                  _WalletLoginButton(
+                    label: 'Connect MetaMask',
+                    icon: Icons.account_balance_wallet_outlined,
+                    color: const Color(0xFFE2761B),
+                    disabled: _isLoading,
+                    onPressed: () => WalletAuthHandler.connectMetaMask(
+                      context,
+                      datasource: sl<AuthRemoteDataSource>(),
+                      onSuccess: _onWalletAuthSuccess,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // TronLink button
+                  _WalletLoginButton(
+                    label: 'Connect TronLink',
+                    icon: Icons.link,
+                    color: const Color(0xFFEF0027),
+                    disabled: _isLoading,
+                    onPressed: () => WalletAuthHandler.connectTronLink(
+                      context,
+                      datasource: sl<AuthRemoteDataSource>(),
+                      onSuccess: _onWalletAuthSuccess,
+                    ),
                   ),
                   const SizedBox(height: 16),
 

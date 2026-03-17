@@ -75,29 +75,22 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     final result =
         await _authRepository.login(email: email, password: password);
+    return result.fold(Left.new, (r) async => _applyAuthResponse(r));
+  }
 
-    return result.fold(
-      Left.new,
-      (authResponse) async {
-        await _tokenService.saveTokens(
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-        );
-
-        _currentUser = authResponse.user;
-
-        // JWT claims are authoritative for role/permissions (snapshot at issue time).
-        final claims = _decodeJwt(authResponse.accessToken);
-        _role = UserRole.fromString(
-          claims['role'] as String? ?? authResponse.user.role,
-        );
-        _permissions = _parsePermissions(claims['permissions']);
-        _isAuthenticated = true;
-        notifyListeners();
-
-        return const Right(null);
-      },
+  /// Đăng nhập hoặc đăng ký bằng ví (MetaMask / TronLink).
+  /// BE tự tạo tài khoản nếu chưa tồn tại và liên kết ví luôn.
+  Future<Either<Failure, void>> loginWithWallet({
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    final result = await _authRepository.loginWithWallet(
+      chain: chain,
+      address: address,
+      signature: signature,
     );
+    return result.fold(Left.new, (r) async => _applyAuthResponse(r));
   }
 
   /// Clear all auth state and stored tokens.
@@ -123,6 +116,23 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
+
+  /// Lưu token, decode JWT claims, cập nhật state sau login/register thành công.
+  Future<Right<Failure, void>> _applyAuthResponse(AuthResponse authResponse) async {
+    await _tokenService.saveTokens(
+      accessToken: authResponse.accessToken,
+      refreshToken: authResponse.refreshToken,
+    );
+    _currentUser = authResponse.user;
+    final claims = _decodeJwt(authResponse.accessToken);
+    _role = UserRole.fromString(
+      claims['role'] as String? ?? authResponse.user.role,
+    );
+    _permissions = _parsePermissions(claims['permissions']);
+    _isAuthenticated = true;
+    notifyListeners();
+    return const Right(null);
+  }
 
   /// Base64url-decode the JWT payload section without verifying the signature.
   /// Used only for reading claims on the client side; the server validates the

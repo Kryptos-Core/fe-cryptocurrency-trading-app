@@ -26,3 +26,6 @@ Future<MetaMaskWebSignResult> metaMaskSignOnWeb({
     message: 'MetaMask direct signing is only available on web.',
   );
 }
+
+/// Lấy địa chỉ ví MetaMask hiện đang kết nối (stub — non-web).
+Future<String?> metaMaskGetAddressOnWeb() async => null;

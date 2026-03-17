@@ -3,8 +3,11 @@ import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/name_validator.dart';
+import 'package:crypto_trading_app/core/utils/wallet_auth_handler.dart';
+import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
+import 'package:crypto_trading_app/screens/main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -165,6 +168,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _navigateToLogin() {
     Navigator.of(context).pop();
+  }
+
+  void _onWalletAuthSuccess() {
+    if (!mounted) return;
+    showAppSnackBar(
+      context,
+      message: 'Đăng ký & đăng nhập bằng ví thành công!',
+      type: SnackBarType.success,
+      duration: const Duration(seconds: 1),
+    );
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+          (_) => false,
+        );
+      }
+    });
   }
 
   @override
@@ -407,6 +428,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             'Register',
                             style: TextStyle(fontSize: 16),
                           ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Wallet register divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'Đăng ký nhanh bằng ví',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // MetaMask register
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading
+                          ? null
+                          : () => WalletAuthHandler.connectMetaMask(
+                                context,
+                                datasource: sl<AuthRemoteDataSource>(),
+                                onSuccess: _onWalletAuthSuccess,
+                              ),
+                      icon: const Icon(Icons.account_balance_wallet_outlined,
+                          color: Color(0xFFE2761B), size: 20),
+                      label: const Text('Đăng ký bằng MetaMask'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFFE2761B)),
+                        foregroundColor: const Color(0xFFE2761B),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // TronLink register
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading
+                          ? null
+                          : () => WalletAuthHandler.connectTronLink(
+                                context,
+                                datasource: sl<AuthRemoteDataSource>(),
+                                onSuccess: _onWalletAuthSuccess,
+                              ),
+                      icon: const Icon(Icons.link,
+                          color: Color(0xFFEF0027), size: 20),
+                      label: const Text('Đăng ký bằng TronLink'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFFEF0027)),
+                        foregroundColor: const Color(0xFFEF0027),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
 

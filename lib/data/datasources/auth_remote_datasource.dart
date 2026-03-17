@@ -30,6 +30,34 @@ abstract class AuthRemoteDataSource {
 
   /// Check if backend is reachable (GET /health). Returns true if ok.
   Future<bool> checkHealth();
+
+  /// Request nonce for wallet auth (MetaMask / TronLink). Returns message to sign and TTL.
+  Future<WalletNonceResponse> walletNonce({
+    required String chain,
+    required String address,
+  });
+
+  /// Verify wallet signature and get JWT (login or register).
+  Future<AuthResponseModel> walletVerify({
+    required String chain,
+    required String address,
+    required String signature,
+  });
+}
+
+/// Response from POST /auth/wallet-nonce
+class WalletNonceResponse {
+  final String message;
+  final int expiresIn;
+
+  const WalletNonceResponse({required this.message, required this.expiresIn});
+
+  factory WalletNonceResponse.fromJson(Map<String, dynamic> json) {
+    return WalletNonceResponse(
+      message: json['message'] as String,
+      expiresIn: json['expiresIn'] as int,
+    );
+  }
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -189,6 +217,90 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return response.data is Map && (response.data['ok'] == true);
     } catch (_) {
       return false;
+    }
+  }
+
+  @override
+  Future<WalletNonceResponse> walletNonce({
+    required String chain,
+    required String address,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authWalletNonce,
+        data: {'chain': chain, 'address': address},
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        if (raw == null) throw ServerException(message: 'Invalid response');
+        final data = raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw;
+        return WalletNonceResponse.fromJson(data);
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to get nonce',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message = e.response!.data['message'] ?? 'Failed to get nonce';
+        if (e.response!.statusCode == 400) {
+          throw ValidationException(message: message);
+        }
+        throw ServerException(message: message);
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<AuthResponseModel> walletVerify({
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authWalletVerify,
+        data: {
+          'chain': chain,
+          'address': address,
+          'signature': signature,
+        },
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        if (raw == null) throw ServerException(message: 'Invalid response');
+        final data = raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw;
+        return AuthResponseModel(
+          accessToken: data['accessToken'] as String,
+          refreshToken: data['refreshToken'] as String?,
+          user: UserModel.fromJson(data['user'] as Map<String, dynamic>),
+        );
+      }
+      throw AuthenticationException(
+        message: response.data['message'] ?? 'Wallet verification failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message =
+            e.response!.data['message'] ?? 'Wallet verification failed';
+        if (e.response!.statusCode == 401 || e.response!.statusCode == 400) {
+          throw AuthenticationException(message: message);
+        }
+        throw ServerException(message: message);
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      throw ServerException(message: e.toString());
     }
   }
 }

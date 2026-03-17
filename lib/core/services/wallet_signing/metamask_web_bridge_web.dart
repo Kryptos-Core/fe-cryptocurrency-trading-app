@@ -120,3 +120,27 @@ Future<MetaMaskWebSignResult> metaMaskSignOnWeb({
     );
   }
 }
+
+/// Lấy địa chỉ MetaMask đang kết nối (eth_requestAccounts), trả null nếu không có.
+Future<String?> metaMaskGetAddressOnWeb() async {
+  final ethereumRaw = globalContext['ethereum'];
+  if (ethereumRaw == null) return null;
+  final ethereum = ethereumRaw as JSObject;
+  try {
+    final promise = ethereum.callMethod<JSPromise<JSAny?>>(
+      'request'.toJS,
+      {'method': 'eth_requestAccounts'}.jsify()!,
+    );
+    final result = await promise.toDart;
+    final accounts = <String>[];
+    final dartified = result?.dartify();
+    if (dartified is List) {
+      for (final a in dartified) {
+        if (a != null) accounts.add(a.toString());
+      }
+    }
+    return accounts.isNotEmpty ? accounts.first : null;
+  } catch (_) {
+    return null;
+  }
+}

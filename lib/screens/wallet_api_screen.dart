@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/currency_model.dart';
@@ -53,6 +54,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   void initState() {
     super.initState();
     _loadCurrencies();
+    // Load tất cả ví cho portfolio overview
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WalletsProvider>().fetchWallets(includeZero: false);
+    });
   }
 
   Future<void> _loadCurrencies() async {
@@ -102,6 +107,14 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     }
   }
 
+  /// Refresh cả portfolio overview lẫn balance của currency đang chọn.
+  /// Được gọi khi quay lại từ DepositsScreen hoặc BlockchainHubScreen.
+  void _refreshAll() {
+    final provider = context.read<WalletsProvider>();
+    provider.fetchWallets(includeZero: false);
+    _fetchBalance();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -141,6 +154,9 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
           return Column(
             children: [
+              // Portfolio overview — tất cả coin đang có số dư
+              if (provider.wallets.isNotEmpty)
+                _PortfolioOverview(wallets: provider.wallets),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: DropdownButtonFormField<String>(
@@ -186,13 +202,14 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   children: [
                     Expanded(
                       child: FilledButton.icon(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const DepositsScreen(),
                             ),
                           );
+                          if (context.mounted) _refreshAll();
                         },
                         icon: const Icon(Icons.account_balance_wallet_outlined),
                         label: Text(l10n.payosTopupVnd),
@@ -201,13 +218,14 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const BlockchainHubScreen(),
                             ),
                           );
+                          if (context.mounted) _refreshAll();
                         },
                         icon: const Icon(Icons.account_tree_outlined),
                         label: Text(l10n.openOnchainWalletFlow),
@@ -588,11 +606,11 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     final l10n = AppLocalizations.of(context);
     switch (refType) {
       case WalletReferenceType.deposit:
-        return l10n.deposit ?? 'Deposit';
+        return l10n.deposit;
       case WalletReferenceType.withdraw:
-        return l10n.withdraw ?? 'Withdraw';
+        return l10n.withdraw;
       case WalletReferenceType.transfer:
-        return l10n.transfer ?? 'Transfer';
+        return l10n.transfer;
       case WalletReferenceType.order:
         return 'Order';
       case WalletReferenceType.trade:
@@ -600,5 +618,141 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
       case WalletReferenceType.adjust:
         return 'Adjust';
     }
+  }
+}
+
+// ── Portfolio Overview ───────────────────────────────────────────────────────
+
+/// Hiển thị tổng quan danh mục: tất cả đồng coin đang có số dư + tổng quy USDT.
+class _PortfolioOverview extends StatelessWidget {
+  final List<Wallet> wallets;
+
+  const _PortfolioOverview({required this.wallets});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final totalUsdt = wallets.fold<double>(
+      0,
+      (sum, w) => sum + (double.tryParse(w.total) ?? 0),
+    );
+    final fmt = NumberFormat('#,##0.########');
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(Icons.pie_chart_outline,
+                    color: theme.colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Tổng danh mục',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Coin rows
+            ...wallets.map((w) => _CoinBalanceRow(wallet: w, fmt: fmt)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CoinBalanceRow extends StatelessWidget {
+  final Wallet wallet;
+  final NumberFormat fmt;
+
+  const _CoinBalanceRow({required this.wallet, required this.fmt});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final available = double.tryParse(wallet.available) ?? 0;
+    final frozen = double.tryParse(wallet.frozen) ?? 0;
+    final total = double.tryParse(wallet.total) ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // Symbol badge
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              wallet.currency.symbol.length > 4
+                  ? wallet.currency.symbol.substring(0, 4)
+                  : wallet.currency.symbol,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Currency name
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  wallet.currency.symbol,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                if (frozen > 0)
+                  Text(
+                    'Đóng băng: ${fmt.format(frozen)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Available + Total
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                fmt.format(total),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Khả dụng: ${fmt.format(available)}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

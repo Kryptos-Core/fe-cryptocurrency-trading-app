@@ -106,6 +106,27 @@ Future<TronLinkWebSignResult> tronLinkSignOnWeb({
   }
 }
 
+/// Lấy địa chỉ TronLink đang kết nối, trả null nếu không có.
+Future<String?> tronLinkGetAddressOnWeb() async {
+  final tronLinkRaw = globalContext['tronLink'];
+  final tronWebRaw = globalContext['tronWeb'];
+  if (tronLinkRaw == null && tronWebRaw == null) return null;
+
+  final tronLink = tronLinkRaw is JSObject ? tronLinkRaw : null;
+  final tronWeb = tronWebRaw is JSObject ? tronWebRaw : null;
+
+  if (tronLink != null) {
+    try {
+      await _tryRequestAccounts(tronLink);
+      // Đợi TronLink cập nhật defaultAddress sau khi user approve
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    } catch (_) {}
+  }
+
+  final address = _resolveConnectedAddress(tronWeb, tronLink);
+  return address.isNotEmpty ? address : null;
+}
+
 Future<void> _tryRequestAccounts(JSObject tronLink) async {
   try {
     final req = <Object, Object>{'method': 'tron_requestAccounts'};
@@ -119,21 +140,29 @@ Future<void> _tryRequestAccounts(JSObject tronLink) async {
   }
 }
 
+/// Kiểm tra chuỗi địa chỉ có phải giá trị hợp lệ (không phải "false"/"null"/"undefined").
+bool _isValidAddressString(String? s) =>
+    s != null &&
+    s.isNotEmpty &&
+    s != 'false' &&
+    s != 'null' &&
+    s != 'undefined';
+
 String _resolveConnectedAddress(JSObject? tronWeb, JSObject? tronLink) {
   String fromTronWeb(JSObject? source) {
     if (source == null) return '';
 
     final defaultAddressRaw = source['defaultAddress'];
     if (defaultAddressRaw is JSObject) {
-      final base58 = defaultAddressRaw['base58']?.dartify()?.toString() ?? '';
-      if (base58.isNotEmpty) return base58;
+      final base58 = defaultAddressRaw['base58']?.dartify()?.toString();
+      if (_isValidAddressString(base58)) return base58!;
 
-      final hex = defaultAddressRaw['hex']?.dartify()?.toString() ?? '';
-      if (hex.isNotEmpty) return hex;
+      final hex = defaultAddressRaw['hex']?.dartify()?.toString();
+      if (_isValidAddressString(hex)) return hex!;
     }
 
-    final address = source['address']?.dartify()?.toString() ?? '';
-    return address;
+    final address = source['address']?.dartify()?.toString();
+    return _isValidAddressString(address) ? address! : '';
   }
 
   final direct = fromTronWeb(tronWeb);
