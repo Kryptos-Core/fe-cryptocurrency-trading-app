@@ -9,6 +9,8 @@ import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
+import 'package:crypto_trading_app/screens/login_screen.dart';
+import 'package:crypto_trading_app/screens/register_screen.dart';
 import 'package:crypto_trading_app/screens/orders_screen.dart';
 import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
@@ -27,18 +29,24 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// Stored reference so we can remove the listener in dispose() without using context.
+  /// Using context in dispose() is unsafe because the widget tree is already deactivated.
+  AuthProvider? _authProvider;
+
   @override
   void initState() {
     super.initState();
     // Listen for 403 events from DioClient via AuthProvider and show a SnackBar.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().addListener(_onAuthChanged);
+      _authProvider = context.read<AuthProvider>();
+      _authProvider!.addListener(_onAuthChanged);
     });
   }
 
   @override
   void dispose() {
-    context.read<AuthProvider>().removeListener(_onAuthChanged);
+    _authProvider?.removeListener(_onAuthChanged);
+    _authProvider = null;
     super.dispose();
   }
 
@@ -56,12 +64,14 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  final List<Widget> _screens = [
-    const DashboardScreen(), // Home: Dashboard với overview
-    const MarketsListScreen(), // Markets
-    const WalletApiScreen(), // Wallets (Real API)
-    const ProfileScreen(), // Profile
-  ];
+  // Public tabs always rendered — no auth required.
+  // Auth-gated tabs are replaced with _AuthRequiredTab when user is a guest.
+  List<Widget> _buildScreens(bool isAuthenticated) => [
+        const DashboardScreen(),
+        const MarketsListScreen(),
+        isAuthenticated ? const WalletApiScreen() : const _AuthRequiredTab(returnTab: 2),
+        isAuthenticated ? const ProfileScreen() : const _GuestProfileTab(),
+      ];
 
   static const List<String> _tabTitles = [
     'Dashboard',
@@ -73,6 +83,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isAuthenticated = context.select<AuthProvider, bool>((a) => a.isAuthenticated);
+    final screens = _buildScreens(isAuthenticated);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -91,14 +103,14 @@ class _MainScreenState extends State<MainScreen> {
               },
               tooltip: l10n.refresh,
             ),
-          if (_currentIndex == 2)
+          if (_currentIndex == 2 && isAuthenticated)
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () =>
                   context.read<WalletsProvider>().fetchWallets(refresh: true),
               tooltip: l10n.refresh,
             ),
-          if (_currentIndex == 2)
+          if (_currentIndex == 2 && isAuthenticated)
             IconButton(
               icon: const Icon(Icons.account_tree_outlined),
               tooltip: 'On-chain',
@@ -115,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -328,17 +340,228 @@ class _MainScreenState extends State<MainScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.redAccent),
-              title: const Text('Logout',
-                  style: TextStyle(color: Colors.redAccent)),
-              onTap: () {
-                Navigator.pop(context);
-                context.read<AuthProvider>().logout();
-              },
+            if (isAuthenticated)
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.redAccent),
+                title: const Text('Logout',
+                    style: TextStyle(color: Colors.redAccent)),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.read<AuthProvider>().logout();
+                },
+              )
+            else
+              ListTile(
+                leading: const Icon(Icons.login, color: Colors.indigo),
+                title: const Text('Sign In',
+                    style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Guest guard widgets ────────────────────────────────────────────────────────
+
+/// Shown in place of any protected tab when the user is not authenticated.
+/// Provides a clear CTA to go to login, with an optional returnTab hint.
+class _AuthRequiredTab extends StatelessWidget {
+  final int returnTab;
+
+  const _AuthRequiredTab({required this.returnTab});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.lock_outline,
+              size: 64,
+              color: colorScheme.primary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Sign in required',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please sign in to access this feature.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.outline,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                icon: const Icon(Icons.login),
+                label: const Text('Sign In'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  );
+                },
+                child: const Text('Create Account'),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Profile tab content shown to guests — highlights what they can do after signing in.
+class _GuestProfileTab extends StatelessWidget {
+  const _GuestProfileTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          CircleAvatar(
+            radius: 44,
+            backgroundColor: colorScheme.primaryContainer,
+            child: Icon(
+              Icons.person_outline,
+              size: 44,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Welcome, Guest',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sign in to access your wallet, place orders, and manage your account.',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: colorScheme.outline),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(Icons.login),
+              label: const Text('Sign In'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
+              },
+              child: const Text('Create Account'),
+            ),
+          ),
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 16),
+          // Public features available to guests
+          Text(
+            'Available without signing in',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: colorScheme.outline,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 12),
+          _FeatureRow(
+            icon: Icons.trending_up,
+            label: 'Live market data & charts',
+            colorScheme: colorScheme,
+          ),
+          _FeatureRow(
+            icon: Icons.currency_bitcoin,
+            label: 'Supported currencies & networks',
+            colorScheme: colorScheme,
+          ),
+          _FeatureRow(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Platform deposit methods',
+            colorScheme: colorScheme,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeatureRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final ColorScheme colorScheme;
+
+  const _FeatureRow({
+    required this.icon,
+    required this.label,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: colorScheme.primary),
+          const SizedBox(width: 12),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+        ],
       ),
     );
   }

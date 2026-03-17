@@ -167,6 +167,18 @@ class ApiConstants {
   static const String blockchainRequestWithdrawal = '$blockchain/withdraw/request';
   static const String blockchainTransactions = '$blockchain/transactions';
   
+  // Managed Wallets Endpoints (Treasury / Finance Manager — RISK_OFFICER)
+  static const String managedWallets = '/managed-wallets';
+  static const String managedWalletsDepositDefaults = '$managedWallets/deposit-defaults';
+  static const String managedWalletsRecommendedChain = '$managedWallets/settings/recommended-chain';
+  static String managedWalletById(String walletId) => '$managedWallets/$walletId';
+  static String managedWalletTransactions(String walletId) => '$managedWallets/$walletId/transactions';
+  static String managedWalletSend(String walletId) => '$managedWallets/$walletId/send';
+  static String managedWalletSetDefault(String walletId) => '$managedWallets/$walletId/set-deposit-default';
+
+  // Deposit Methods — public endpoint (no auth required)
+  static const String depositMethods = '/deposit/methods';
+
   // Thời gian timeout cho các request
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

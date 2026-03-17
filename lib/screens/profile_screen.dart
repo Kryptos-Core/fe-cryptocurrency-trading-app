@@ -13,6 +13,9 @@ import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
+import 'package:crypto_trading_app/core/enums/user_role.dart';
+import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallets_screen.dart';
 
 /// Profile Screen - User account information
 class ProfileScreen extends StatefulWidget {
@@ -558,6 +561,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             const Divider(),
             // Additional Options
+            if (UserRole.fromString(_currentUser!.role) == UserRole.riskOfficer)
+              ListTile(
+                leading: Icon(
+                  Icons.account_balance_wallet,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text('Treasury Management'),
+                subtitle: const Text('Manage company wallets & deposit settings'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                        value: context.read<ManagedWalletsProvider>(),
+                        child: const ManagedWalletsScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ListTile(
               leading: const Icon(Icons.currency_bitcoin),
               title: Text(l10n.currencies),

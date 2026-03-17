@@ -29,6 +29,9 @@ import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart
 import 'package:crypto_trading_app/data/repositories/deposit_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/blockchain_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/managed_wallets_repository_impl.dart';
+import 'package:crypto_trading_app/domain/repositories/managed_wallets_repository.dart';
+import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/chart_cache_service.dart';
@@ -186,6 +189,16 @@ Future<void> initializeDependencies() async {
   // Blockchain Repository
   sl.registerLazySingleton<BlockchainRepository>(
     () => BlockchainRepositoryImpl(dio: sl<Dio>()),
+  );
+
+  // Managed Wallets Repository (Treasury / Finance Manager)
+  sl.registerLazySingleton<ManagedWalletsRepository>(
+    () => ManagedWalletsRepositoryImpl(dio: sl<Dio>()),
+  );
+
+  // Managed Wallets Provider
+  sl.registerLazySingleton<ManagedWalletsProvider>(
+    () => ManagedWalletsProvider(repository: sl<ManagedWalletsRepository>()),
   );
 
   // ===== Trading Chart Services =====

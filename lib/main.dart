@@ -8,7 +8,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/network/dio_client.dart';
-import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
@@ -18,8 +17,8 @@ import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart'
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
-import 'package:crypto_trading_app/screens/login_screen.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -57,9 +56,6 @@ class CryptoTradingApp extends StatelessWidget {
     // Re-initialize on hot reload if needed
     di.initializeDependencies();
 
-    // Check if user is authenticated
-    final tokenService = di.sl<TokenService>();
-    final isAuthenticated = tokenService.isAuthenticated();
 
     return MultiProvider(
       providers: [
@@ -110,6 +106,9 @@ class CryptoTradingApp extends StatelessWidget {
             blockchainRepository: di.sl(),
           ),
         ),
+        ChangeNotifierProvider<ManagedWalletsProvider>.value(
+          value: di.sl<ManagedWalletsProvider>(),
+        ),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, _) => MaterialApp(
@@ -127,7 +126,7 @@ class CryptoTradingApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: LocaleProvider.supportedLocales,
-          home: isAuthenticated ? const MainScreen() : const LoginScreen(),
+          home: const MainScreen(),
         ),
       ),
     );

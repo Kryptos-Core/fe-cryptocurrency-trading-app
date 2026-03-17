@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transactio
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/deposit_methods_card.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 class OnchainDepositScreen extends StatefulWidget {
@@ -319,7 +320,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(l10n.onchainDepositDesc),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                const DepositMethodsCard(),
+                const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
