@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -102,32 +104,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<String?> _askOtp(BuildContext context) async {
-    final controller = TextEditingController();
+  Future<String?> _askOtp(BuildContext context, AuthRepository repo, String token) async {
     return showDialog<String>(
       context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(ctx).otpVerificationTitle),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(ctx).otpEnterCodeHint,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(AppLocalizations.of(ctx).cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-              child: Text(AppLocalizations.of(ctx).otpVerify),
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => _OtpDialog(repo: repo, token: token),
     );
   }
 
@@ -162,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         type: SnackBarType.success,
       );
 
-      final otp = await _askOtp(context);
+      final otp = await _askOtp(context, repo, token);
       if (otp == null || otp.isEmpty) return;
 
       final result = enable
@@ -381,6 +361,116 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+// ── OTP Dialog with resend cooldown ─────────────────────────────────────────
+
+class _OtpDialog extends StatefulWidget {
+  final AuthRepository repo;
+  final String token;
+
+  const _OtpDialog({required this.repo, required this.token});
+
+  @override
+  State<_OtpDialog> createState() => _OtpDialogState();
+}
+
+class _OtpDialogState extends State<_OtpDialog> {
+  static const int _cooldownSeconds = 15;
+
+  final _controller = TextEditingController();
+  int _countdown = _cooldownSeconds; // starts counting down immediately
+  Timer? _timer;
+  bool _isSending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _startCountdown() {
+    _timer?.cancel();
+    setState(() => _countdown = _cooldownSeconds);
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() {
+        if (_countdown > 0) {
+          _countdown--;
+        } else {
+          t.cancel();
+        }
+      });
+    });
+  }
+
+  Future<void> _resend() async {
+    if (_isSending || _countdown > 0) return;
+    setState(() => _isSending = true);
+    final result = await widget.repo.send2faOtp(widget.token);
+    if (!mounted) return;
+    setState(() => _isSending = false);
+    result.fold(
+      (f) => ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(f.message))),
+      (_) => _startCountdown(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final canResend = _countdown == 0 && !_isSending;
+
+    return AlertDialog(
+      title: Text(l10n.otpVerificationTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(hintText: l10n.otpEnterCodeHint),
+          ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: canResend ? _resend : null,
+            icon: _isSending
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh, size: 16),
+            label: Text(
+              _countdown > 0
+                  ? 'Gửi lại OTP (${_countdown}s)'
+                  : 'Gửi lại OTP',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text.trim()),
+          child: Text(l10n.otpVerify),
+        ),
+      ],
     );
   }
 }

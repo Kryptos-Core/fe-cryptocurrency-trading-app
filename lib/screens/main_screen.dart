@@ -15,6 +15,7 @@ import 'package:crypto_trading_app/screens/register_screen.dart';
 import 'package:crypto_trading_app/screens/orders_screen.dart';
 import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
+import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
@@ -264,6 +265,12 @@ class _MainScreenState extends State<MainScreen> {
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
               },
             ),
             const Divider(),
