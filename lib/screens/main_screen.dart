@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
 import 'package:crypto_trading_app/screens/orders_screen.dart';
+import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
@@ -183,13 +184,20 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white24,
-                  child: Text(
-                    (auth.currentUser?.fullName.isNotEmpty == true
-                            ? auth.currentUser!.fullName[0]
-                            : '?')
-                        .toUpperCase(),
-                    style: const TextStyle(fontSize: 28, color: Colors.white),
-                  ),
+                  backgroundImage: auth.currentUser?.avatarUrl != null &&
+                          auth.currentUser!.avatarUrl!.isNotEmpty
+                      ? NetworkImage(auth.currentUser!.avatarUrl!)
+                      : null,
+                  child: auth.currentUser?.avatarUrl == null ||
+                          auth.currentUser!.avatarUrl!.isEmpty
+                      ? Text(
+                          (auth.currentUser?.fullName.isNotEmpty == true
+                                  ? auth.currentUser!.fullName[0]
+                                  : '?')
+                              .toUpperCase(),
+                          style: const TextStyle(fontSize: 28, color: Colors.white),
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -264,6 +272,24 @@ class _MainScreenState extends State<MainScreen> {
                         );
                       },
                     ),
+                    if (auth.canReviewSecurityRequests)
+                      ListTile(
+                        leading: const Icon(Icons.security,
+                            color: Colors.deepOrange),
+                        title: const Text('Security requests'),
+                        subtitle: const Text('Approve/reject email & password changes',
+                            style: TextStyle(fontSize: 11)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const SecurityRequestsReviewScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     if (auth.isAdmin) ...[
                       ListTile(
                         leading:

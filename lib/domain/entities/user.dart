@@ -8,6 +8,7 @@ class User {
   final String lastName;
   final bool isActive;
   final String role;
+  final String? avatarUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -18,6 +19,7 @@ class User {
     required this.lastName,
     required this.isActive,
     this.role = 'TRADER',
+    this.avatarUrl,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -46,6 +48,7 @@ class User {
     String? lastName,
     bool? isActive,
     String? role,
+    String? avatarUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -56,6 +59,7 @@ class User {
       lastName: lastName ?? this.lastName,
       isActive: isActive ?? this.isActive,
       role: role ?? this.role,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

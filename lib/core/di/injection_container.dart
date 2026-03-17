@@ -144,7 +144,10 @@ Future<void> initializeDependencies() async {
   // ===== Repositories =====
   // Auth Repository
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl()),
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl(),
+      userRemoteDataSource: sl(),
+    ),
   );
 
   // Currencies Repository

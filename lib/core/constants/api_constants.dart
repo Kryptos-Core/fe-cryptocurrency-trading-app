@@ -62,6 +62,15 @@ class ApiConstants {
   static const String users = '/users';
   static const String usersMe = '/users/me';
   static const String usersStatistics = '/users/statistics';
+  static const String usersMeProfileBasic = '/users/me/profile-basic';
+  static const String usersMeSecurityChangeRequests = '/users/me/security-change-requests';
+  static const String usersMeAvatar = '/users/me/avatar';
+  static const String usersSecurityChangeRequestsPending =
+      '/users/security-change-requests/pending';
+  static String usersSecurityChangeRequestApprove(String id) =>
+      '/users/security-change-requests/$id/approve';
+  static String usersSecurityChangeRequestReject(String id) =>
+      '/users/security-change-requests/$id/reject';
   
   // Currencies Endpoints (Tiền ảo)
   static const String currencies = '/currencies';

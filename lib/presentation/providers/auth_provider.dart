@@ -49,6 +49,10 @@ class AuthProvider extends ChangeNotifier {
   /// True for roles that can view the user list (admin, support, risk officer).
   bool get canViewUserList => isAdmin || isSupportAgent || isRiskOfficer;
 
+  /// True for roles that can review security change requests (admin, risk officer).
+  bool get canReviewSecurityRequests =>
+      hasPermission('users:security_review') || isAdmin || isRiskOfficer;
+
   bool hasPermission(String permission) => _permissions.contains(permission);
 
   // ── Public API ─────────────────────────────────────────────────────────────
@@ -100,6 +104,12 @@ class AuthProvider extends ChangeNotifier {
     _role = UserRole.trader;
     _permissions = [];
     _isAuthenticated = false;
+    notifyListeners();
+  }
+
+  /// Cập nhật currentUser sau khi sửa hồ sơ hoặc avatar (đồng bộ drawer và UI).
+  void updateCurrentUser(User user) {
+    _currentUser = user;
     notifyListeners();
   }
 

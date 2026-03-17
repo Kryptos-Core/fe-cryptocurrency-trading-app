@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
@@ -8,6 +9,7 @@ import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
@@ -152,6 +154,130 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _pickAndUploadAvatar() async {
+    final token = sl<TokenService>().getAccessToken();
+    if (token == null || token.isEmpty) return;
+    final picker = ImagePicker();
+    final xFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, imageQuality: 85);
+    if (xFile == null || !mounted) return;
+    final bytes = await xFile.readAsBytes();
+    final ext = xFile.name.split('.').last.toLowerCase();
+    final mime = ext == 'jpg' || ext == 'jpeg' ? 'image/jpeg' : ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+    final authRepo = sl<AuthRepository>();
+    final result = await authRepo.uploadAvatar(
+      token: token,
+      fileBytes: bytes,
+      fileName: xFile.name,
+      mimeType: mime,
+    );
+    result.fold(
+      (f) {
+        if (mounted) {
+          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        }
+      },
+      (user) {
+        setState(() => _currentUser = user);
+        context.read<AuthProvider>().updateCurrentUser(user);
+        if (mounted) {
+          showAppSnackBar(context, message: 'Avatar updated', type: SnackBarType.success);
+        }
+      },
+    );
+  }
+
+  Future<void> _editProfileBasic() async {
+    if (_currentUser == null) return;
+    final first = TextEditingController(text: _currentUser!.firstName);
+    final last = TextEditingController(text: _currentUser!.lastName);
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit name'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: first, decoration: const InputDecoration(labelText: 'First name')),
+            const SizedBox(height: 12),
+            TextField(controller: last, decoration: const InputDecoration(labelText: 'Last name')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final token = sl<TokenService>().getAccessToken();
+    if (token == null) return;
+    final result = await sl<AuthRepository>().updateProfileBasic(
+      token: token,
+      firstName: first.text.trim().isEmpty ? null : first.text.trim(),
+      lastName: last.text.trim().isEmpty ? null : last.text.trim(),
+    );
+    result.fold(
+      (f) {
+        if (mounted) {
+          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        }
+      },
+      (user) {
+        setState(() => _currentUser = user);
+        context.read<AuthProvider>().updateCurrentUser(user);
+        if (mounted) {
+          showAppSnackBar(context, message: 'Profile updated', type: SnackBarType.success);
+        }
+      },
+    );
+  }
+
+  Future<void> _requestSecurityChange(String changeType, {String? label, String? hint, bool isPassword = false}) async {
+    final token = sl<TokenService>().getAccessToken();
+    if (token == null) return;
+    final controller = TextEditingController();
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(label ?? changeType),
+        content: TextField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(hintText: hint),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Submit request')),
+        ],
+      ),
+    );
+    if (ok != true || controller.text.trim().isEmpty) return;
+    final payload = isPassword ? {'password': controller.text.trim()} : {'email': controller.text.trim()};
+    final result = await sl<AuthRepository>().requestSecurityChange(
+      token: token,
+      changeType: changeType,
+      payload: payload,
+    );
+    result.fold(
+      (f) {
+        if (mounted) {
+          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        }
+      },
+      (_) {
+        if (mounted) {
+          showAppSnackBar(
+          context,
+          message: 'Request sent. Pending approval.',
+          type: SnackBarType.success,
+        );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -192,18 +318,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // User Avatar
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                _getInitials(_currentUser!),
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+            // User Avatar (tap to change)
+            GestureDetector(
+              onTap: _pickAndUploadAvatar,
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                backgroundImage: _currentUser!.avatarUrl != null && _currentUser!.avatarUrl!.isNotEmpty
+                    ? (_currentUser!.avatarUrl!.startsWith('http')
+                        ? NetworkImage(_currentUser!.avatarUrl!)
+                        : null)
+                    : null,
+                child: _currentUser!.avatarUrl == null || _currentUser!.avatarUrl!.isEmpty
+                    ? Text(
+                        _getInitials(_currentUser!),
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                      )
+                    : null,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tap to change avatar',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 24),
 
@@ -228,6 +369,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _editProfileBasic,
+              icon: const Icon(Icons.edit, size: 18),
+              label: const Text('Edit name'),
             ),
             const SizedBox(height: 32),
 
@@ -341,6 +488,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Text(l10n.lastUpdated),
               subtitle: Text(
                 '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
+              ),
+            ),
+            const Divider(),
+            // Security (requires approval)
+            Text(
+              'Security (requires approval)',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text('Change email'),
+              subtitle: const Text('Request will be reviewed by admin'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _requestSecurityChange(
+                'EMAIL_CHANGE',
+                label: 'New email',
+                hint: 'Enter new email',
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Change password'),
+              subtitle: const Text('Request will be reviewed by admin'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _requestSecurityChange(
+                'PASSWORD_CHANGE',
+                label: 'New password',
+                hint: 'Min 8 characters',
+                isPassword: true,
               ),
             ),
             const Divider(),
