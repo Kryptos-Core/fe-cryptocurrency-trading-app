@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Wallet Card Widget
 /// Displays wallet balance information
@@ -82,9 +83,9 @@ class WalletCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildBalanceColumn('Available', available, wallet.currency.symbol),
-                  _buildBalanceColumn('Frozen', frozen, wallet.currency.symbol),
-                  _buildBalanceColumn('Total', total, wallet.currency.symbol),
+                  _buildBalanceColumn(AppLocalizations.of(context).walletAvailable, available, wallet.currency.symbol),
+                  _buildBalanceColumn(AppLocalizations.of(context).walletFrozen, frozen, wallet.currency.symbol),
+                  _buildBalanceColumn(AppLocalizations.of(context).walletTotal, total, wallet.currency.symbol),
                 ],
               ),
               // USD Value
@@ -99,12 +100,9 @@ class WalletCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'USD Value',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      Text(
+                        AppLocalizations.of(context).walletUsdValue,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         '\$${usdValue!.toStringAsFixed(2)}',

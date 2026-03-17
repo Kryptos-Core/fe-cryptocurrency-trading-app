@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/deposit_method.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 
 /// Public widget — shows platform deposit methods (no auth required).
@@ -75,7 +76,7 @@ class _CardHeader extends StatelessWidget {
           Icon(Icons.account_balance_wallet_outlined, size: 20, color: colorScheme.primary),
           const SizedBox(width: 8),
           Text(
-            'Platform Deposit Methods',
+            AppLocalizations.of(context).depositMethodsTitle,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface,
@@ -149,7 +150,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'Recommended',
+                                AppLocalizations.of(context).depositMethodRecommended,
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: colorScheme.onPrimaryContainer,
@@ -173,7 +174,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                 if (method.hasAddress)
                   IconButton(
                     icon: const Icon(Icons.copy, size: 18),
-                    tooltip: 'Copy address',
+                    tooltip: AppLocalizations.of(context).copyAddressTooltip,
                     onPressed: () => _copyAddress(context, method.depositAddress!),
                     visualDensity: VisualDensity.compact,
                   ),
@@ -196,7 +197,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
     Clipboard.setData(ClipboardData(text: address));
     showAppSnackBar(
       context,
-      message: 'Deposit address copied',
+      message: AppLocalizations.of(context).createWalletAddressCopied,
       type: SnackBarType.success,
       duration: const Duration(seconds: 2),
     );

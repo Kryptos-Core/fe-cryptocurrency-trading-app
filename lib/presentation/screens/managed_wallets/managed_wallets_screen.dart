@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallet_detail_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/create_wallet_sheet.dart';
@@ -65,7 +66,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
     final error = await provider.setRecommendedChain(chain);
     if (!mounted) return;
     if (error == null) {
-      showAppSnackBar(context, message: 'Recommended chain updated to $chain', type: SnackBarType.success);
+      showAppSnackBar(context, message: AppLocalizations.of(context).recommendedChainUpdated(chain), type: SnackBarType.success);
     } else {
       showAppSnackBar(context, message: error, type: SnackBarType.error);
     }
@@ -88,12 +89,12 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Treasury Management'),
+        title: Text(AppLocalizations.of(context).treasuryTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadAll,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context).refresh,
           ),
         ],
       ),
@@ -123,14 +124,12 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                 Row(
                   children: [
                     Text(
-                      'Wallets',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      AppLocalizations.of(context).managedWalletsSection,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const Spacer(),
                     Text(
-                      '${provider.wallets.length} total',
+                      AppLocalizations.of(context).managedWalletsTotalCount(provider.wallets.length),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.outline,
                           ),
@@ -159,7 +158,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openCreateSheet,
         icon: const Icon(Icons.add),
-        label: const Text('New Wallet'),
+        label: Text(AppLocalizations.of(context).managedWalletsNewWallet),
       ),
     );
   }
@@ -186,10 +185,8 @@ class _DepositDefaultsCard extends StatelessWidget {
                 Icon(Icons.input, size: 18, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Active Deposit Defaults',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  AppLocalizations.of(context).managedWalletsActiveDefaults,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -274,7 +271,7 @@ class _DepositDefaultRow extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              'Not configured',
+              AppLocalizations.of(context).managedWalletsNotConfigured,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
             ),
           ],
@@ -313,7 +310,7 @@ class _RecommendedChainCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Recommended Chain for Users',
+                    AppLocalizations.of(context).managedWalletsRecommendedChainTitle,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -323,14 +320,14 @@ class _RecommendedChainCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Users will see this chain as the primary deposit option.',
+              AppLocalizations.of(context).managedWalletsRecommendedChainDesc,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
             ),
             const SizedBox(height: 12),
             AppDropdownField<String>(
               value: currentChain,
-              labelText: 'Recommended Chain',
-              hintText: 'Select chain',
+              labelText: AppLocalizations.of(context).managedWalletsRecommendedChainLabel,
+              hintText: AppLocalizations.of(context).managedWalletsSelectChain,
               items: chains
                   .map((c) => DropdownMenuItem(value: c.$1, child: Text(c.$2)))
                   .toList(),
@@ -360,12 +357,12 @@ class _EmptyWalletsState extends StatelessWidget {
             Icon(Icons.account_balance_wallet_outlined, size: 56, color: colorScheme.outline),
             const SizedBox(height: 12),
             Text(
-              'No wallets yet',
+              AppLocalizations.of(context).managedWalletsNoWallets,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              'Generate your first treasury wallet to start accepting deposits.',
+              AppLocalizations.of(context).managedWalletsNoWalletsDesc,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
               textAlign: TextAlign.center,
             ),
@@ -373,7 +370,7 @@ class _EmptyWalletsState extends StatelessWidget {
             FilledButton.icon(
               onPressed: onAdd,
               icon: const Icon(Icons.add),
-              label: const Text('Create First Wallet'),
+              label: Text(AppLocalizations.of(context).managedWalletsCreateFirst),
             ),
           ],
         ),

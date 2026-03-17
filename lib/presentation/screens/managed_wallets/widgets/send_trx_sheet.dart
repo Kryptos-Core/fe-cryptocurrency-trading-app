@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 
 /// Bottom sheet for sending TRX from a managed wallet.
@@ -31,23 +32,18 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.send_outlined),
-        title: const Text('Confirm Send'),
-        content: Text(
-          'Send ${_amountController.text.trim()} TRX to\n${_toAddressController.text.trim()}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Confirm'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          icon: const Icon(Icons.send_outlined),
+          title: Text(l10n.sendTrxConfirmTitle),
+          content: Text(l10n.sendTrxConfirmContent(_amountController.text.trim(), _toAddressController.text.trim())),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.sendTrxConfirm)),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !mounted) return;
@@ -61,7 +57,7 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
 
     if (!mounted) return;
     if (error == null) {
-      showAppSnackBar(context, message: 'Transaction sent successfully', type: SnackBarType.success);
+      showAppSnackBar(context, message: AppLocalizations.of(context).sendTrxSuccess, type: SnackBarType.success);
       if (mounted) Navigator.pop(context, true);
     } else {
       showAppSnackBar(context, message: error, type: SnackBarType.error);
@@ -71,6 +67,7 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -92,10 +89,8 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                     const Icon(Icons.send_outlined),
                     const SizedBox(width: 8),
                     Text(
-                      'Send TRX',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      l10n.sendTrxTitle,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -110,14 +105,14 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                 TextFormField(
                   controller: _toAddressController,
                   decoration: InputDecoration(
-                    labelText: 'Recipient Address',
-                    hintText: 'T...',
+                    labelText: l10n.sendTrxRecipientLabel,
+                    hintText: l10n.sendTrxRecipientHint,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     isDense: true,
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Address is required';
-                    if (v.trim().length < 20) return 'Invalid address';
+                    if (v == null || v.trim().isEmpty) return l10n.sendTrxAddressRequired;
+                    if (v.trim().length < 20) return l10n.sendTrxInvalidAddress;
                     return null;
                   },
                 ),
@@ -126,16 +121,16 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: 'Amount (TRX)',
-                    hintText: '0.00',
+                    labelText: l10n.sendTrxAmountLabel,
+                    hintText: l10n.sendTrxAmountHint,
                     suffixText: 'TRX',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     isDense: true,
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Amount is required';
+                    if (v == null || v.trim().isEmpty) return l10n.sendTrxAmountRequired;
                     final amount = double.tryParse(v.trim());
-                    if (amount == null || amount <= 0) return 'Enter a valid amount';
+                    if (amount == null || amount <= 0) return l10n.sendTrxAmountInvalid;
                     return null;
                   },
                 ),
@@ -151,7 +146,7 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.send),
-                    label: Text(provider.isSubmitting ? 'Sending…' : 'Send'),
+                    label: Text(provider.isSubmitting ? l10n.sendTrxSending : l10n.sendTrxSend),
                   ),
                 ),
               ],

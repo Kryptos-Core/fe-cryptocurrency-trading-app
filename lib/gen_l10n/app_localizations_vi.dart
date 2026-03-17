@@ -1223,4 +1223,489 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get broadcastFailedTryAgain =>
       'Gửi thông báo thất bại. Vui lòng thử lại.';
+
+  @override
+  String get noPermissionMessage =>
+      'Bạn không có quyền thực hiện thao tác này.';
+
+  @override
+  String get menuTooltip => 'Menu';
+
+  @override
+  String get onchainTooltip => 'On-chain';
+
+  @override
+  String get notificationsTooltip => 'Thông báo';
+
+  @override
+  String get drawerOnchainWallets => 'Ví On-chain';
+
+  @override
+  String get drawerSettings => 'Cài đặt';
+
+  @override
+  String get drawerUserManagement => 'Quản lý người dùng';
+
+  @override
+  String get drawerAdminArea => 'Khu vực quản trị';
+
+  @override
+  String get drawerUserMgmtComingSoon =>
+      'Màn hình quản lý người dùng — sắp ra mắt';
+
+  @override
+  String get drawerBroadcastNotification => 'Phát thông báo';
+
+  @override
+  String get drawerBroadcastSubtitle => 'Gửi tới tất cả người dùng';
+
+  @override
+  String get drawerManualResync => 'Đồng bộ thủ công Binance';
+
+  @override
+  String get drawerManualResyncComingSoon =>
+      'Đồng bộ sàn giao dịch thủ công — sắp ra mắt';
+
+  @override
+  String get drawerSecurityRequests => 'Yêu cầu bảo mật';
+
+  @override
+  String get drawerSecuritySubtitle =>
+      'Duyệt/từ chối yêu cầu đổi email & mật khẩu';
+
+  @override
+  String get authRequiredTitle => 'Yêu cầu đăng nhập';
+
+  @override
+  String get authRequiredSubtitle =>
+      'Vui lòng đăng nhập để truy cập tính năng này.';
+
+  @override
+  String get createAccount => 'Tạo tài khoản';
+
+  @override
+  String get welcomeGuest => 'Xin chào, Khách';
+
+  @override
+  String get guestSignInDesc =>
+      'Đăng nhập để truy cập ví, đặt lệnh và quản lý tài khoản.';
+
+  @override
+  String get guestFeaturesTitle => 'Có thể dùng mà không cần đăng nhập';
+
+  @override
+  String get guestFeatureLiveMarkets =>
+      'Dữ liệu & biểu đồ thị trường trực tiếp';
+
+  @override
+  String get guestFeatureCurrencies => 'Các đồng tiền & mạng lưới được hỗ trợ';
+
+  @override
+  String get guestFeatureDeposit => 'Phương thức nạp tiền của sàn';
+
+  @override
+  String get notificationsTitle => 'Thông báo';
+
+  @override
+  String get notificationsMarkAllRead => 'Đánh dấu tất cả đã đọc';
+
+  @override
+  String get notificationsEmpty => 'Chưa có thông báo nào';
+
+  @override
+  String get notificationsJustNow => 'Vừa xong';
+
+  @override
+  String notificationsMinAgo(int count) {
+    return '$count phút trước';
+  }
+
+  @override
+  String notificationsHourAgo(int count) {
+    return '$count giờ trước';
+  }
+
+  @override
+  String notificationsDayAgo(int count) {
+    return '$count ngày trước';
+  }
+
+  @override
+  String get notificationsDetails => 'Chi tiết';
+
+  @override
+  String get notificationsTypeAlert => 'Cảnh báo';
+
+  @override
+  String get notificationsTypePromo => 'Khuyến mãi';
+
+  @override
+  String get notificationsTypeSystem => 'Hệ thống';
+
+  @override
+  String get dashboardTopMarkets => 'Thị trường hàng đầu';
+
+  @override
+  String get dashboardMyWallets => 'Ví của tôi';
+
+  @override
+  String get dashboardTotalPortfolioValue => 'Tổng giá trị danh mục';
+
+  @override
+  String get dashboardSeeAll => 'Xem tất cả';
+
+  @override
+  String get dashboardNoMarketsAvailable => 'Không có thị trường nào';
+
+  @override
+  String get dashboardNoFundedWallets =>
+      'Chưa có ví nào có số dư.\nNạp tiền hoặc giao dịch để xem số dư tại đây.';
+
+  @override
+  String get dashboardWallets => 'Ví';
+
+  @override
+  String get dashboardActive => 'Đang hoạt động';
+
+  @override
+  String get securityRequestsTitle => 'Yêu cầu thay đổi bảo mật';
+
+  @override
+  String get securityRequestApproved => 'Yêu cầu đã được duyệt';
+
+  @override
+  String get securityRequestRejected => 'Yêu cầu đã bị từ chối';
+
+  @override
+  String get securityRejectDialogTitle => 'Từ chối yêu cầu';
+
+  @override
+  String get securityRejectReasonHint => 'Lý do (không bắt buộc)';
+
+  @override
+  String get securityRequestNoPending => 'Không có yêu cầu nào đang chờ';
+
+  @override
+  String securityRequestRequested(String date) {
+    return 'Yêu cầu lúc: $date';
+  }
+
+  @override
+  String get securityRequestApprove => 'Duyệt';
+
+  @override
+  String get securityRequestReject => 'Từ chối';
+
+  @override
+  String get registerCreateAccount => 'Tạo tài khoản';
+
+  @override
+  String get registerSignUpSubtitle => 'Đăng ký để bắt đầu';
+
+  @override
+  String get registerFirstNameLabel => 'Tên';
+
+  @override
+  String get registerFirstNameHelper => 'Chỉ được dùng chữ cái và khoảng trắng';
+
+  @override
+  String get registerFirstNameRequired => 'Tên là bắt buộc';
+
+  @override
+  String get registerLastNameLabel => 'Họ';
+
+  @override
+  String get registerLastNameRequired => 'Họ là bắt buộc';
+
+  @override
+  String get registerEmailHint => 'user@example.com';
+
+  @override
+  String get registerPasswordLabel => 'Mật khẩu';
+
+  @override
+  String get registerPasswordHint =>
+      'Tối thiểu 8 ký tự, gồm chữ hoa, thường, số';
+
+  @override
+  String get registerPasswordRequired => 'Mật khẩu là bắt buộc';
+
+  @override
+  String get registerPasswordMinLength => 'Mật khẩu phải có ít nhất 8 ký tự';
+
+  @override
+  String get registerPasswordNeedsUppercase =>
+      'Mật khẩu phải có ít nhất 1 chữ hoa';
+
+  @override
+  String get registerPasswordNeedsLowercase =>
+      'Mật khẩu phải có ít nhất 1 chữ thường';
+
+  @override
+  String get registerPasswordNeedsNumber => 'Mật khẩu phải có ít nhất 1 chữ số';
+
+  @override
+  String get registerPasswordNeedsSpecial =>
+      'Mật khẩu phải có ít nhất 1 ký tự đặc biệt';
+
+  @override
+  String get registerConfirmPasswordLabel => 'Xác nhận mật khẩu';
+
+  @override
+  String get registerConfirmPasswordHint => 'Nhập lại mật khẩu';
+
+  @override
+  String get registerConfirmPasswordRequired => 'Xác nhận mật khẩu là bắt buộc';
+
+  @override
+  String get registerPasswordsNoMatch => 'Mật khẩu không khớp';
+
+  @override
+  String get registerWalletDivider => 'Đăng ký bằng ví';
+
+  @override
+  String get registerWithMetaMask => 'Đăng ký bằng MetaMask';
+
+  @override
+  String get registerWithTronLink => 'Đăng ký bằng TronLink';
+
+  @override
+  String get registerSuccessLoggingIn =>
+      'Đăng ký thành công! Đang đăng nhập...';
+
+  @override
+  String get registerLoginFailedManual =>
+      'Đăng nhập thất bại. Vui lòng đăng nhập thủ công.';
+
+  @override
+  String get registerLoginSuccess => 'Đăng nhập thành công!';
+
+  @override
+  String get registerWalletSuccess => 'Đăng ký & đăng nhập bằng ví thành công!';
+
+  @override
+  String get walletDetails => 'Chi tiết ví';
+
+  @override
+  String get walletNotFound => 'Không tìm thấy ví';
+
+  @override
+  String get walletAvailableBalance => 'Số dư khả dụng';
+
+  @override
+  String get walletFrozen => 'Đóng băng';
+
+  @override
+  String get walletTotal => 'Tổng';
+
+  @override
+  String get walletAvailable => 'Khả dụng';
+
+  @override
+  String get walletTransactionHistory => 'Lịch sử giao dịch';
+
+  @override
+  String get walletNoTransactions => 'Không có giao dịch nào';
+
+  @override
+  String walletBalanceAfter(String amount) {
+    return 'Số dư: $amount';
+  }
+
+  @override
+  String get walletUsdValue => 'Giá trị USD';
+
+  @override
+  String get totalPortfolioValue => 'Tổng giá trị danh mục';
+
+  @override
+  String get noWalletsFound => 'Không tìm thấy ví nào';
+
+  @override
+  String get myWallets => 'Ví của tôi';
+
+  @override
+  String get treasuryTitle => 'Quản lý kho quỹ';
+
+  @override
+  String get treasuryManageSubtitle => 'Quản lý ví công ty & cài đặt nạp tiền';
+
+  @override
+  String recommendedChainUpdated(String chain) {
+    return 'Đã cập nhật chain ưu tiên thành $chain';
+  }
+
+  @override
+  String get managedWalletsSection => 'Ví';
+
+  @override
+  String managedWalletsTotalCount(int count) {
+    return '$count ví';
+  }
+
+  @override
+  String get managedWalletsNewWallet => 'Ví mới';
+
+  @override
+  String get managedWalletsActiveDefaults => 'Địa chỉ nạp tiền mặc định';
+
+  @override
+  String get managedWalletsNotConfigured => 'Chưa cấu hình';
+
+  @override
+  String get managedWalletsRecommendedChainTitle =>
+      'Chain ưu tiên cho người dùng';
+
+  @override
+  String get managedWalletsRecommendedChainDesc =>
+      'Người dùng sẽ thấy chain này là tùy chọn nạp tiền chính.';
+
+  @override
+  String get managedWalletsRecommendedChainLabel => 'Chain ưu tiên';
+
+  @override
+  String get managedWalletsSelectChain => 'Chọn chain';
+
+  @override
+  String get managedWalletsNoWallets => 'Chưa có ví nào';
+
+  @override
+  String get managedWalletsNoWalletsDesc =>
+      'Tạo ví kho quỹ đầu tiên để bắt đầu nhận nạp tiền.';
+
+  @override
+  String get managedWalletsCreateFirst => 'Tạo ví đầu tiên';
+
+  @override
+  String get walletSetAsDefault => 'Đã đặt làm địa chỉ nạp tiền mặc định';
+
+  @override
+  String get walletDeactivated => 'Đã vô hiệu hóa ví';
+
+  @override
+  String get deactivateWalletTitle => 'Vô hiệu hóa ví';
+
+  @override
+  String get deactivateWalletContent =>
+      'Ví này sẽ bị vô hiệu hóa và không thể nhận hoặc gửi tiền nữa. Thao tác này không thể hoàn tác.';
+
+  @override
+  String get deactivateWalletAction => 'Vô hiệu hóa';
+
+  @override
+  String get managedWalletOnchainBalance => 'Số dư on-chain';
+
+  @override
+  String get managedWalletSetDefault => 'Đặt làm mặc định';
+
+  @override
+  String get managedWalletDefaultDeposit => 'Nạp tiền mặc định';
+
+  @override
+  String get managedWalletSendTrx => 'Gửi TRX';
+
+  @override
+  String get managedWalletTxHistory => 'Lịch sử giao dịch';
+
+  @override
+  String get managedWalletNoTx => 'Chưa có giao dịch nào';
+
+  @override
+  String get sendTrxTitle => 'Gửi TRX';
+
+  @override
+  String get sendTrxConfirmTitle => 'Xác nhận gửi';
+
+  @override
+  String sendTrxConfirmContent(String amount, String address) {
+    return 'Gửi $amount TRX tới\n$address?';
+  }
+
+  @override
+  String get sendTrxConfirm => 'Xác nhận';
+
+  @override
+  String get sendTrxRecipientLabel => 'Địa chỉ nhận';
+
+  @override
+  String get sendTrxRecipientHint => 'T...';
+
+  @override
+  String get sendTrxAddressRequired => 'Địa chỉ là bắt buộc';
+
+  @override
+  String get sendTrxInvalidAddress => 'Địa chỉ không hợp lệ';
+
+  @override
+  String get sendTrxAmountLabel => 'Số lượng (TRX)';
+
+  @override
+  String get sendTrxAmountHint => '0.00';
+
+  @override
+  String get sendTrxAmountRequired => 'Số lượng là bắt buộc';
+
+  @override
+  String get sendTrxAmountInvalid => 'Nhập số lượng hợp lệ';
+
+  @override
+  String get sendTrxSending => 'Đang gửi...';
+
+  @override
+  String get sendTrxSend => 'Gửi';
+
+  @override
+  String get sendTrxSuccess => 'Giao dịch đã được gửi thành công';
+
+  @override
+  String get createWalletTitle => 'Tạo ví kho quỹ';
+
+  @override
+  String get createWalletBlockchainLabel => 'Blockchain';
+
+  @override
+  String get createWalletLabelField => 'Nhãn (không bắt buộc)';
+
+  @override
+  String get createWalletLabelHint => 'vd: Quỹ chính, Dự phòng AML';
+
+  @override
+  String get createWalletGenerating => 'Đang tạo...';
+
+  @override
+  String get createWalletGenerate => 'Tạo ví';
+
+  @override
+  String get createWalletSecurityNote =>
+      'Một ví Tron mới sẽ được tạo. Khóa riêng tư được mã hóa và lưu trữ an toàn. Bạn sẽ không bao giờ được hiển thị khóa riêng tư.';
+
+  @override
+  String get createWalletSuccess => 'Đã tạo ví!';
+
+  @override
+  String get createWalletAddressLabel => 'Địa chỉ ví';
+
+  @override
+  String get createWalletAddressCopied => 'Đã sao chép địa chỉ';
+
+  @override
+  String get createWalletDone => 'Xong';
+
+  @override
+  String get createWalletFailed => 'Không thể tạo ví';
+
+  @override
+  String get walletBadgeDefault => 'MẶC ĐỊNH';
+
+  @override
+  String get walletBadgeInactive => 'KHÔNG HOẠT ĐỘNG';
+
+  @override
+  String get depositMethodsTitle => 'Phương thức nạp tiền của sàn';
+
+  @override
+  String get depositMethodRecommended => 'Khuyến nghị';
+
+  @override
+  String get copyAddressTooltip => 'Sao chép địa chỉ';
 }

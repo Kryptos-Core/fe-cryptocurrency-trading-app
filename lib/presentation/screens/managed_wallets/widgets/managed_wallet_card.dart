@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 class ManagedWalletCard extends StatelessWidget {
   final ManagedWallet wallet;
@@ -85,7 +86,7 @@ class ManagedWalletCard extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: wallet.address));
     showAppSnackBar(
       context,
-      message: 'Address copied',
+      message: AppLocalizations.of(context).createWalletAddressCopied,
       type: SnackBarType.success,
       duration: const Duration(seconds: 2),
     );
@@ -141,12 +142,8 @@ class _DefaultBadge extends StatelessWidget {
           Icon(Icons.circle, size: 8, color: Colors.green.shade600),
           const SizedBox(width: 4),
           Text(
-            'DEFAULT',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.green.shade700,
-            ),
+            AppLocalizations.of(context).walletBadgeDefault,
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green.shade700),
           ),
         ],
       ),
@@ -169,12 +166,8 @@ class _InactiveBadge extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Text(
-        'INACTIVE',
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey.shade600,
-        ),
+        AppLocalizations.of(context).walletBadgeInactive,
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
       ),
     );
   }

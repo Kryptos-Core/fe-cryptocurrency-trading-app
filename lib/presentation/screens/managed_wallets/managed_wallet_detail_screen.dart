@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet_transaction.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/send_trx_sheet.dart';
 
@@ -41,7 +42,7 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
     final error = await provider.setDepositDefault(_wallet.walletId);
     if (!mounted) return;
     if (error == null) {
-      showAppSnackBar(context, message: 'Wallet set as default deposit address', type: SnackBarType.success);
+      showAppSnackBar(context, message: AppLocalizations.of(context).walletSetAsDefault, type: SnackBarType.success);
       setState(() {
         _wallet = ManagedWallet(
           walletId: _wallet.walletId,
@@ -64,21 +65,22 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
   Future<void> _deactivate() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.warning_amber_outlined),
-        title: const Text('Deactivate Wallet'),
-        content: const Text(
-          'This wallet will be deactivated and can no longer receive or send funds. This cannot be undone.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Deactivate'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          icon: const Icon(Icons.warning_amber_outlined),
+          title: Text(l10n.deactivateWalletTitle),
+          content: Text(l10n.deactivateWalletContent),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.deactivateWalletAction),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !mounted) return;
@@ -88,7 +90,7 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
     if (!mounted) return;
 
     if (error == null) {
-      showAppSnackBar(context, message: 'Wallet deactivated', type: SnackBarType.success);
+      showAppSnackBar(context, message: AppLocalizations.of(context).walletDeactivated, type: SnackBarType.success);
       Navigator.pop(context);
     } else {
       showAppSnackBar(context, message: error, type: SnackBarType.error);
@@ -129,21 +131,21 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refresh,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context).refresh,
           ),
           if (_wallet.isActive)
             PopupMenuButton<_Action>(
               onSelected: (action) {
                 if (action == _Action.deactivate) _deactivate();
               },
-              itemBuilder: (_) => [
-                const PopupMenuItem(
+              itemBuilder: (ctx) => [
+                PopupMenuItem(
                   value: _Action.deactivate,
                   child: Row(
                     children: [
-                      Icon(Icons.block, color: Colors.red, size: 18),
-                      SizedBox(width: 8),
-                      Text('Deactivate', style: TextStyle(color: Colors.red)),
+                      const Icon(Icons.block, color: Colors.red, size: 18),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(ctx).deactivateWalletAction, style: const TextStyle(color: Colors.red)),
                     ],
                   ),
                 ),
@@ -233,7 +235,7 @@ class _BalanceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'On-chain Balance',
+              AppLocalizations.of(context).managedWalletOnchainBalance,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.outline),
             ),
             const SizedBox(height: 8),
@@ -275,7 +277,7 @@ class _ActionRow extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: isSubmitting ? null : onSetDefault,
               icon: const Icon(Icons.star_outline, size: 18),
-              label: const Text('Set as Default'),
+              label: Text(AppLocalizations.of(context).managedWalletSetDefault),
             ),
           ),
           const SizedBox(width: 12),
@@ -284,7 +286,7 @@ class _ActionRow extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: null,
               icon: const Icon(Icons.star, size: 18, color: Colors.green),
-              label: const Text('Default Deposit'),
+              label: Text(AppLocalizations.of(context).managedWalletDefaultDeposit),
               style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
             ),
           ),
@@ -293,8 +295,8 @@ class _ActionRow extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onSend,
-            icon: const Icon(Icons.send_outlined, size: 18),
-            label: const Text('Send TRX'),
+              icon: const Icon(Icons.send_outlined, size: 18),
+              label: Text(AppLocalizations.of(context).managedWalletSendTrx),
           ),
         ),
       ],
@@ -321,7 +323,7 @@ class _TransactionHistory extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Transaction History',
+          AppLocalizations.of(context).managedWalletTxHistory,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
@@ -335,7 +337,7 @@ class _TransactionHistory extends StatelessWidget {
                 children: [
                   Icon(Icons.receipt_long_outlined, size: 40, color: colorScheme.outline),
                   const SizedBox(height: 8),
-                  Text('No transactions yet', style: TextStyle(color: colorScheme.outline)),
+                  Text(AppLocalizations.of(context).managedWalletNoTx, style: TextStyle(color: colorScheme.outline)),
                 ],
               ),
             ),

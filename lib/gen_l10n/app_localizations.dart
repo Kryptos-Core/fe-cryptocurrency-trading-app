@@ -2335,6 +2335,906 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to send notification. Please try again.'**
   String get broadcastFailedTryAgain;
+
+  /// No description provided for @noPermissionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to perform this action.'**
+  String get noPermissionMessage;
+
+  /// No description provided for @menuTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menuTooltip;
+
+  /// No description provided for @onchainTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain'**
+  String get onchainTooltip;
+
+  /// No description provided for @notificationsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTooltip;
+
+  /// No description provided for @drawerOnchainWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain Wallets'**
+  String get drawerOnchainWallets;
+
+  /// No description provided for @drawerSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get drawerSettings;
+
+  /// No description provided for @drawerUserManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get drawerUserManagement;
+
+  /// No description provided for @drawerAdminArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin area'**
+  String get drawerAdminArea;
+
+  /// No description provided for @drawerUserMgmtComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'User management screen — coming soon'**
+  String get drawerUserMgmtComingSoon;
+
+  /// No description provided for @drawerBroadcastNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast Notification'**
+  String get drawerBroadcastNotification;
+
+  /// No description provided for @drawerBroadcastSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to all users'**
+  String get drawerBroadcastSubtitle;
+
+  /// No description provided for @drawerManualResync.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual re-sync Binance'**
+  String get drawerManualResync;
+
+  /// No description provided for @drawerManualResyncComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual exchange re-sync — coming soon'**
+  String get drawerManualResyncComingSoon;
+
+  /// No description provided for @drawerSecurityRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Security requests'**
+  String get drawerSecurityRequests;
+
+  /// No description provided for @drawerSecuritySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve/reject email & password changes'**
+  String get drawerSecuritySubtitle;
+
+  /// No description provided for @authRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get authRequiredTitle;
+
+  /// No description provided for @authRequiredSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to access this feature.'**
+  String get authRequiredSubtitle;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @welcomeGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, Guest'**
+  String get welcomeGuest;
+
+  /// No description provided for @guestSignInDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to access your wallet, place orders, and manage your account.'**
+  String get guestSignInDesc;
+
+  /// No description provided for @guestFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available without signing in'**
+  String get guestFeaturesTitle;
+
+  /// No description provided for @guestFeatureLiveMarkets.
+  ///
+  /// In en, this message translates to:
+  /// **'Live market data & charts'**
+  String get guestFeatureLiveMarkets;
+
+  /// No description provided for @guestFeatureCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported currencies & networks'**
+  String get guestFeatureCurrencies;
+
+  /// No description provided for @guestFeatureDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform deposit methods'**
+  String get guestFeatureDeposit;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get notificationsJustNow;
+
+  /// No description provided for @notificationsMinAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String notificationsMinAgo(int count);
+
+  /// No description provided for @notificationsHourAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String notificationsHourAgo(int count);
+
+  /// No description provided for @notificationsDayAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String notificationsDayAgo(int count);
+
+  /// No description provided for @notificationsDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get notificationsDetails;
+
+  /// No description provided for @notificationsTypeAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get notificationsTypeAlert;
+
+  /// No description provided for @notificationsTypePromo.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo'**
+  String get notificationsTypePromo;
+
+  /// No description provided for @notificationsTypeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationsTypeSystem;
+
+  /// No description provided for @dashboardTopMarkets.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Markets'**
+  String get dashboardTopMarkets;
+
+  /// No description provided for @dashboardMyWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'My Wallets'**
+  String get dashboardMyWallets;
+
+  /// No description provided for @dashboardTotalPortfolioValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Portfolio Value'**
+  String get dashboardTotalPortfolioValue;
+
+  /// No description provided for @dashboardSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get dashboardSeeAll;
+
+  /// No description provided for @dashboardNoMarketsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No markets available'**
+  String get dashboardNoMarketsAvailable;
+
+  /// No description provided for @dashboardNoFundedWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'No funded wallets yet.\nDeposit or trade to see balances here.'**
+  String get dashboardNoFundedWallets;
+
+  /// No description provided for @dashboardWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get dashboardWallets;
+
+  /// No description provided for @dashboardActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get dashboardActive;
+
+  /// No description provided for @securityRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security change requests'**
+  String get securityRequestsTitle;
+
+  /// No description provided for @securityRequestApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Request approved'**
+  String get securityRequestApproved;
+
+  /// No description provided for @securityRequestRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Request rejected'**
+  String get securityRequestRejected;
+
+  /// No description provided for @securityRejectDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject request'**
+  String get securityRejectDialogTitle;
+
+  /// No description provided for @securityRejectReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional reason'**
+  String get securityRejectReasonHint;
+
+  /// No description provided for @securityRequestNoPending.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get securityRequestNoPending;
+
+  /// No description provided for @securityRequestRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested: {date}'**
+  String securityRequestRequested(String date);
+
+  /// No description provided for @securityRequestApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get securityRequestApprove;
+
+  /// No description provided for @securityRequestReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get securityRequestReject;
+
+  /// No description provided for @registerCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get registerCreateAccount;
+
+  /// No description provided for @registerSignUpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up to get started'**
+  String get registerSignUpSubtitle;
+
+  /// No description provided for @registerFirstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get registerFirstNameLabel;
+
+  /// No description provided for @registerFirstNameHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Only letters and spaces allowed'**
+  String get registerFirstNameHelper;
+
+  /// No description provided for @registerFirstNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'First name is required'**
+  String get registerFirstNameRequired;
+
+  /// No description provided for @registerLastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get registerLastNameLabel;
+
+  /// No description provided for @registerLastNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name is required'**
+  String get registerLastNameRequired;
+
+  /// No description provided for @registerEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'user@example.com'**
+  String get registerEmailHint;
+
+  /// No description provided for @registerPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get registerPasswordLabel;
+
+  /// No description provided for @registerPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Min 8 characters with uppercase, lowercase, number'**
+  String get registerPasswordHint;
+
+  /// No description provided for @registerPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get registerPasswordRequired;
+
+  /// No description provided for @registerPasswordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get registerPasswordMinLength;
+
+  /// No description provided for @registerPasswordNeedsUppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain uppercase letter'**
+  String get registerPasswordNeedsUppercase;
+
+  /// No description provided for @registerPasswordNeedsLowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain lowercase letter'**
+  String get registerPasswordNeedsLowercase;
+
+  /// No description provided for @registerPasswordNeedsNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain a number'**
+  String get registerPasswordNeedsNumber;
+
+  /// No description provided for @registerPasswordNeedsSpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain a special character'**
+  String get registerPasswordNeedsSpecial;
+
+  /// No description provided for @registerConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get registerConfirmPasswordLabel;
+
+  /// No description provided for @registerConfirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your password'**
+  String get registerConfirmPasswordHint;
+
+  /// No description provided for @registerConfirmPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password is required'**
+  String get registerConfirmPasswordRequired;
+
+  /// No description provided for @registerPasswordsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get registerPasswordsNoMatch;
+
+  /// No description provided for @registerWalletDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with wallet'**
+  String get registerWalletDivider;
+
+  /// No description provided for @registerWithMetaMask.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with MetaMask'**
+  String get registerWithMetaMask;
+
+  /// No description provided for @registerWithTronLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with TronLink'**
+  String get registerWithTronLink;
+
+  /// No description provided for @registerSuccessLoggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful! Logging in...'**
+  String get registerSuccessLoggingIn;
+
+  /// No description provided for @registerLoginFailedManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please try logging in manually.'**
+  String get registerLoginFailedManual;
+
+  /// No description provided for @registerLoginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login successful!'**
+  String get registerLoginSuccess;
+
+  /// No description provided for @registerWalletSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet registration & login successful!'**
+  String get registerWalletSuccess;
+
+  /// No description provided for @walletDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Details'**
+  String get walletDetails;
+
+  /// No description provided for @walletNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not found'**
+  String get walletNotFound;
+
+  /// No description provided for @walletAvailableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Balance'**
+  String get walletAvailableBalance;
+
+  /// No description provided for @walletFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get walletFrozen;
+
+  /// No description provided for @walletTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get walletTotal;
+
+  /// No description provided for @walletAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get walletAvailable;
+
+  /// No description provided for @walletTransactionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction History'**
+  String get walletTransactionHistory;
+
+  /// No description provided for @walletNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions found'**
+  String get walletNoTransactions;
+
+  /// No description provided for @walletBalanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {amount}'**
+  String walletBalanceAfter(String amount);
+
+  /// No description provided for @walletUsdValue.
+  ///
+  /// In en, this message translates to:
+  /// **'USD Value'**
+  String get walletUsdValue;
+
+  /// No description provided for @totalPortfolioValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Portfolio Value'**
+  String get totalPortfolioValue;
+
+  /// No description provided for @noWalletsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets found'**
+  String get noWalletsFound;
+
+  /// No description provided for @myWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'My Wallets'**
+  String get myWallets;
+
+  /// No description provided for @treasuryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury Management'**
+  String get treasuryTitle;
+
+  /// No description provided for @treasuryManageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage company wallets & deposit settings'**
+  String get treasuryManageSubtitle;
+
+  /// No description provided for @recommendedChainUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended chain updated to {chain}'**
+  String recommendedChainUpdated(String chain);
+
+  /// No description provided for @managedWalletsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get managedWalletsSection;
+
+  /// No description provided for @managedWalletsTotalCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} total'**
+  String managedWalletsTotalCount(int count);
+
+  /// No description provided for @managedWalletsNewWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'New Wallet'**
+  String get managedWalletsNewWallet;
+
+  /// No description provided for @managedWalletsActiveDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Deposit Defaults'**
+  String get managedWalletsActiveDefaults;
+
+  /// No description provided for @managedWalletsNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured'**
+  String get managedWalletsNotConfigured;
+
+  /// No description provided for @managedWalletsRecommendedChainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Chain for Users'**
+  String get managedWalletsRecommendedChainTitle;
+
+  /// No description provided for @managedWalletsRecommendedChainDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Users will see this chain as the primary deposit option.'**
+  String get managedWalletsRecommendedChainDesc;
+
+  /// No description provided for @managedWalletsRecommendedChainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Chain'**
+  String get managedWalletsRecommendedChainLabel;
+
+  /// No description provided for @managedWalletsSelectChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Select chain'**
+  String get managedWalletsSelectChain;
+
+  /// No description provided for @managedWalletsNoWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets yet'**
+  String get managedWalletsNoWallets;
+
+  /// No description provided for @managedWalletsNoWalletsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate your first treasury wallet to start accepting deposits.'**
+  String get managedWalletsNoWalletsDesc;
+
+  /// No description provided for @managedWalletsCreateFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create First Wallet'**
+  String get managedWalletsCreateFirst;
+
+  /// No description provided for @walletSetAsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet set as default deposit address'**
+  String get walletSetAsDefault;
+
+  /// No description provided for @walletDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deactivated'**
+  String get walletDeactivated;
+
+  /// No description provided for @deactivateWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate Wallet'**
+  String get deactivateWalletTitle;
+
+  /// No description provided for @deactivateWalletContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet will be deactivated and can no longer receive or send funds. This cannot be undone.'**
+  String get deactivateWalletContent;
+
+  /// No description provided for @deactivateWalletAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivateWalletAction;
+
+  /// No description provided for @managedWalletOnchainBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain Balance'**
+  String get managedWalletOnchainBalance;
+
+  /// No description provided for @managedWalletSetDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as Default'**
+  String get managedWalletSetDefault;
+
+  /// No description provided for @managedWalletDefaultDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Deposit'**
+  String get managedWalletDefaultDeposit;
+
+  /// No description provided for @managedWalletSendTrx.
+  ///
+  /// In en, this message translates to:
+  /// **'Send TRX'**
+  String get managedWalletSendTrx;
+
+  /// No description provided for @managedWalletTxHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction History'**
+  String get managedWalletTxHistory;
+
+  /// No description provided for @managedWalletNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get managedWalletNoTx;
+
+  /// No description provided for @sendTrxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send TRX'**
+  String get sendTrxTitle;
+
+  /// No description provided for @sendTrxConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Send'**
+  String get sendTrxConfirmTitle;
+
+  /// No description provided for @sendTrxConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount} TRX to\n{address}?'**
+  String sendTrxConfirmContent(String amount, String address);
+
+  /// No description provided for @sendTrxConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get sendTrxConfirm;
+
+  /// No description provided for @sendTrxRecipientLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient Address'**
+  String get sendTrxRecipientLabel;
+
+  /// No description provided for @sendTrxRecipientHint.
+  ///
+  /// In en, this message translates to:
+  /// **'T...'**
+  String get sendTrxRecipientHint;
+
+  /// No description provided for @sendTrxAddressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is required'**
+  String get sendTrxAddressRequired;
+
+  /// No description provided for @sendTrxInvalidAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid address'**
+  String get sendTrxInvalidAddress;
+
+  /// No description provided for @sendTrxAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (TRX)'**
+  String get sendTrxAmountLabel;
+
+  /// No description provided for @sendTrxAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0.00'**
+  String get sendTrxAmountHint;
+
+  /// No description provided for @sendTrxAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount is required'**
+  String get sendTrxAmountRequired;
+
+  /// No description provided for @sendTrxAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get sendTrxAmountInvalid;
+
+  /// No description provided for @sendTrxSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get sendTrxSending;
+
+  /// No description provided for @sendTrxSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get sendTrxSend;
+
+  /// No description provided for @sendTrxSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction sent successfully'**
+  String get sendTrxSuccess;
+
+  /// No description provided for @createWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Treasury Wallet'**
+  String get createWalletTitle;
+
+  /// No description provided for @createWalletBlockchainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockchain'**
+  String get createWalletBlockchainLabel;
+
+  /// No description provided for @createWalletLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (optional)'**
+  String get createWalletLabelField;
+
+  /// No description provided for @createWalletLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Main Fund, AML Reserve'**
+  String get createWalletLabelHint;
+
+  /// No description provided for @createWalletGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating...'**
+  String get createWalletGenerating;
+
+  /// No description provided for @createWalletGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Wallet'**
+  String get createWalletGenerate;
+
+  /// No description provided for @createWalletSecurityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A new Tron wallet will be generated. The private key is encrypted and stored securely. You will never be shown the private key.'**
+  String get createWalletSecurityNote;
+
+  /// No description provided for @createWalletSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Created!'**
+  String get createWalletSuccess;
+
+  /// No description provided for @createWalletAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Address'**
+  String get createWalletAddressLabel;
+
+  /// No description provided for @createWalletAddressCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get createWalletAddressCopied;
+
+  /// No description provided for @createWalletDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get createWalletDone;
+
+  /// No description provided for @createWalletFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create wallet'**
+  String get createWalletFailed;
+
+  /// No description provided for @walletBadgeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'DEFAULT'**
+  String get walletBadgeDefault;
+
+  /// No description provided for @walletBadgeInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'INACTIVE'**
+  String get walletBadgeInactive;
+
+  /// No description provided for @depositMethodsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Deposit Methods'**
+  String get depositMethodsTitle;
+
+  /// No description provided for @depositMethodRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get depositMethodRecommended;
+
+  /// No description provided for @copyAddressTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get copyAddressTooltip;
 }
 
 class _AppLocalizationsDelegate

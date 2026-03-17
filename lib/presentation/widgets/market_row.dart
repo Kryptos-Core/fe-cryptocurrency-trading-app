@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart' as market_entity;
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Format price (lastPrice) – chuẩn crypto: bậc theo magnitude, bỏ 0 thừa.
 /// BTC/ETH: 1–2 số lẻ; coin nhỏ (ADA, DOGE): 4–6 số lẻ.
@@ -113,7 +114,7 @@ class MarketRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Vol: ${hasTicker ? _formatVolume(ticker!.volume24h) : _noData}',
+                      '${AppLocalizations.of(context).vol}: ${hasTicker ? _formatVolume(ticker!.volume24h) : _noData}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,

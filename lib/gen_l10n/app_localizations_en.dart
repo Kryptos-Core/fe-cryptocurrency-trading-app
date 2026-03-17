@@ -1221,4 +1221,488 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get broadcastFailedTryAgain =>
       'Failed to send notification. Please try again.';
+
+  @override
+  String get noPermissionMessage =>
+      'You do not have permission to perform this action.';
+
+  @override
+  String get menuTooltip => 'Menu';
+
+  @override
+  String get onchainTooltip => 'On-chain';
+
+  @override
+  String get notificationsTooltip => 'Notifications';
+
+  @override
+  String get drawerOnchainWallets => 'On-chain Wallets';
+
+  @override
+  String get drawerSettings => 'Settings';
+
+  @override
+  String get drawerUserManagement => 'User Management';
+
+  @override
+  String get drawerAdminArea => 'Admin area';
+
+  @override
+  String get drawerUserMgmtComingSoon => 'User management screen — coming soon';
+
+  @override
+  String get drawerBroadcastNotification => 'Broadcast Notification';
+
+  @override
+  String get drawerBroadcastSubtitle => 'Send to all users';
+
+  @override
+  String get drawerManualResync => 'Manual re-sync Binance';
+
+  @override
+  String get drawerManualResyncComingSoon =>
+      'Manual exchange re-sync — coming soon';
+
+  @override
+  String get drawerSecurityRequests => 'Security requests';
+
+  @override
+  String get drawerSecuritySubtitle =>
+      'Approve/reject email & password changes';
+
+  @override
+  String get authRequiredTitle => 'Sign in required';
+
+  @override
+  String get authRequiredSubtitle => 'Please sign in to access this feature.';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get welcomeGuest => 'Welcome, Guest';
+
+  @override
+  String get guestSignInDesc =>
+      'Sign in to access your wallet, place orders, and manage your account.';
+
+  @override
+  String get guestFeaturesTitle => 'Available without signing in';
+
+  @override
+  String get guestFeatureLiveMarkets => 'Live market data & charts';
+
+  @override
+  String get guestFeatureCurrencies => 'Supported currencies & networks';
+
+  @override
+  String get guestFeatureDeposit => 'Platform deposit methods';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsEmpty => 'No notifications yet';
+
+  @override
+  String get notificationsJustNow => 'Just now';
+
+  @override
+  String notificationsMinAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String notificationsHourAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String notificationsDayAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get notificationsDetails => 'Details';
+
+  @override
+  String get notificationsTypeAlert => 'Alert';
+
+  @override
+  String get notificationsTypePromo => 'Promo';
+
+  @override
+  String get notificationsTypeSystem => 'System';
+
+  @override
+  String get dashboardTopMarkets => 'Top Markets';
+
+  @override
+  String get dashboardMyWallets => 'My Wallets';
+
+  @override
+  String get dashboardTotalPortfolioValue => 'Total Portfolio Value';
+
+  @override
+  String get dashboardSeeAll => 'See All';
+
+  @override
+  String get dashboardNoMarketsAvailable => 'No markets available';
+
+  @override
+  String get dashboardNoFundedWallets =>
+      'No funded wallets yet.\nDeposit or trade to see balances here.';
+
+  @override
+  String get dashboardWallets => 'Wallets';
+
+  @override
+  String get dashboardActive => 'Active';
+
+  @override
+  String get securityRequestsTitle => 'Security change requests';
+
+  @override
+  String get securityRequestApproved => 'Request approved';
+
+  @override
+  String get securityRequestRejected => 'Request rejected';
+
+  @override
+  String get securityRejectDialogTitle => 'Reject request';
+
+  @override
+  String get securityRejectReasonHint => 'Optional reason';
+
+  @override
+  String get securityRequestNoPending => 'No pending requests';
+
+  @override
+  String securityRequestRequested(String date) {
+    return 'Requested: $date';
+  }
+
+  @override
+  String get securityRequestApprove => 'Approve';
+
+  @override
+  String get securityRequestReject => 'Reject';
+
+  @override
+  String get registerCreateAccount => 'Create Account';
+
+  @override
+  String get registerSignUpSubtitle => 'Sign up to get started';
+
+  @override
+  String get registerFirstNameLabel => 'First Name';
+
+  @override
+  String get registerFirstNameHelper => 'Only letters and spaces allowed';
+
+  @override
+  String get registerFirstNameRequired => 'First name is required';
+
+  @override
+  String get registerLastNameLabel => 'Last Name';
+
+  @override
+  String get registerLastNameRequired => 'Last name is required';
+
+  @override
+  String get registerEmailHint => 'user@example.com';
+
+  @override
+  String get registerPasswordLabel => 'Password';
+
+  @override
+  String get registerPasswordHint =>
+      'Min 8 characters with uppercase, lowercase, number';
+
+  @override
+  String get registerPasswordRequired => 'Password is required';
+
+  @override
+  String get registerPasswordMinLength =>
+      'Password must be at least 8 characters';
+
+  @override
+  String get registerPasswordNeedsUppercase =>
+      'Password must contain uppercase letter';
+
+  @override
+  String get registerPasswordNeedsLowercase =>
+      'Password must contain lowercase letter';
+
+  @override
+  String get registerPasswordNeedsNumber => 'Password must contain a number';
+
+  @override
+  String get registerPasswordNeedsSpecial =>
+      'Password must contain a special character';
+
+  @override
+  String get registerConfirmPasswordLabel => 'Confirm Password';
+
+  @override
+  String get registerConfirmPasswordHint => 'Re-enter your password';
+
+  @override
+  String get registerConfirmPasswordRequired => 'Confirm password is required';
+
+  @override
+  String get registerPasswordsNoMatch => 'Passwords do not match';
+
+  @override
+  String get registerWalletDivider => 'Register with wallet';
+
+  @override
+  String get registerWithMetaMask => 'Register with MetaMask';
+
+  @override
+  String get registerWithTronLink => 'Register with TronLink';
+
+  @override
+  String get registerSuccessLoggingIn =>
+      'Registration successful! Logging in...';
+
+  @override
+  String get registerLoginFailedManual =>
+      'Login failed. Please try logging in manually.';
+
+  @override
+  String get registerLoginSuccess => 'Login successful!';
+
+  @override
+  String get registerWalletSuccess => 'Wallet registration & login successful!';
+
+  @override
+  String get walletDetails => 'Wallet Details';
+
+  @override
+  String get walletNotFound => 'Wallet not found';
+
+  @override
+  String get walletAvailableBalance => 'Available Balance';
+
+  @override
+  String get walletFrozen => 'Frozen';
+
+  @override
+  String get walletTotal => 'Total';
+
+  @override
+  String get walletAvailable => 'Available';
+
+  @override
+  String get walletTransactionHistory => 'Transaction History';
+
+  @override
+  String get walletNoTransactions => 'No transactions found';
+
+  @override
+  String walletBalanceAfter(String amount) {
+    return 'Balance: $amount';
+  }
+
+  @override
+  String get walletUsdValue => 'USD Value';
+
+  @override
+  String get totalPortfolioValue => 'Total Portfolio Value';
+
+  @override
+  String get noWalletsFound => 'No wallets found';
+
+  @override
+  String get myWallets => 'My Wallets';
+
+  @override
+  String get treasuryTitle => 'Treasury Management';
+
+  @override
+  String get treasuryManageSubtitle =>
+      'Manage company wallets & deposit settings';
+
+  @override
+  String recommendedChainUpdated(String chain) {
+    return 'Recommended chain updated to $chain';
+  }
+
+  @override
+  String get managedWalletsSection => 'Wallets';
+
+  @override
+  String managedWalletsTotalCount(int count) {
+    return '$count total';
+  }
+
+  @override
+  String get managedWalletsNewWallet => 'New Wallet';
+
+  @override
+  String get managedWalletsActiveDefaults => 'Active Deposit Defaults';
+
+  @override
+  String get managedWalletsNotConfigured => 'Not configured';
+
+  @override
+  String get managedWalletsRecommendedChainTitle =>
+      'Recommended Chain for Users';
+
+  @override
+  String get managedWalletsRecommendedChainDesc =>
+      'Users will see this chain as the primary deposit option.';
+
+  @override
+  String get managedWalletsRecommendedChainLabel => 'Recommended Chain';
+
+  @override
+  String get managedWalletsSelectChain => 'Select chain';
+
+  @override
+  String get managedWalletsNoWallets => 'No wallets yet';
+
+  @override
+  String get managedWalletsNoWalletsDesc =>
+      'Generate your first treasury wallet to start accepting deposits.';
+
+  @override
+  String get managedWalletsCreateFirst => 'Create First Wallet';
+
+  @override
+  String get walletSetAsDefault => 'Wallet set as default deposit address';
+
+  @override
+  String get walletDeactivated => 'Wallet deactivated';
+
+  @override
+  String get deactivateWalletTitle => 'Deactivate Wallet';
+
+  @override
+  String get deactivateWalletContent =>
+      'This wallet will be deactivated and can no longer receive or send funds. This cannot be undone.';
+
+  @override
+  String get deactivateWalletAction => 'Deactivate';
+
+  @override
+  String get managedWalletOnchainBalance => 'On-chain Balance';
+
+  @override
+  String get managedWalletSetDefault => 'Set as Default';
+
+  @override
+  String get managedWalletDefaultDeposit => 'Default Deposit';
+
+  @override
+  String get managedWalletSendTrx => 'Send TRX';
+
+  @override
+  String get managedWalletTxHistory => 'Transaction History';
+
+  @override
+  String get managedWalletNoTx => 'No transactions yet';
+
+  @override
+  String get sendTrxTitle => 'Send TRX';
+
+  @override
+  String get sendTrxConfirmTitle => 'Confirm Send';
+
+  @override
+  String sendTrxConfirmContent(String amount, String address) {
+    return 'Send $amount TRX to\n$address?';
+  }
+
+  @override
+  String get sendTrxConfirm => 'Confirm';
+
+  @override
+  String get sendTrxRecipientLabel => 'Recipient Address';
+
+  @override
+  String get sendTrxRecipientHint => 'T...';
+
+  @override
+  String get sendTrxAddressRequired => 'Address is required';
+
+  @override
+  String get sendTrxInvalidAddress => 'Invalid address';
+
+  @override
+  String get sendTrxAmountLabel => 'Amount (TRX)';
+
+  @override
+  String get sendTrxAmountHint => '0.00';
+
+  @override
+  String get sendTrxAmountRequired => 'Amount is required';
+
+  @override
+  String get sendTrxAmountInvalid => 'Enter a valid amount';
+
+  @override
+  String get sendTrxSending => 'Sending...';
+
+  @override
+  String get sendTrxSend => 'Send';
+
+  @override
+  String get sendTrxSuccess => 'Transaction sent successfully';
+
+  @override
+  String get createWalletTitle => 'Create Treasury Wallet';
+
+  @override
+  String get createWalletBlockchainLabel => 'Blockchain';
+
+  @override
+  String get createWalletLabelField => 'Label (optional)';
+
+  @override
+  String get createWalletLabelHint => 'e.g. Main Fund, AML Reserve';
+
+  @override
+  String get createWalletGenerating => 'Generating...';
+
+  @override
+  String get createWalletGenerate => 'Generate Wallet';
+
+  @override
+  String get createWalletSecurityNote =>
+      'A new Tron wallet will be generated. The private key is encrypted and stored securely. You will never be shown the private key.';
+
+  @override
+  String get createWalletSuccess => 'Wallet Created!';
+
+  @override
+  String get createWalletAddressLabel => 'Wallet Address';
+
+  @override
+  String get createWalletAddressCopied => 'Address copied';
+
+  @override
+  String get createWalletDone => 'Done';
+
+  @override
+  String get createWalletFailed => 'Failed to create wallet';
+
+  @override
+  String get walletBadgeDefault => 'DEFAULT';
+
+  @override
+  String get walletBadgeInactive => 'INACTIVE';
+
+  @override
+  String get depositMethodsTitle => 'Platform Deposit Methods';
+
+  @override
+  String get depositMethodRecommended => 'Recommended';
+
+  @override
+  String get copyAddressTooltip => 'Copy address';
 }

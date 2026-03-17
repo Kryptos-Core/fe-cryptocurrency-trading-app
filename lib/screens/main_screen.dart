@@ -63,11 +63,11 @@ class _MainScreenState extends State<MainScreen> {
     final auth = context.read<AuthProvider>();
     if (auth.lastRequestForbidden && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⛔ You do not have permission to perform this action.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).noPermissionMessage),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -94,11 +94,11 @@ class _MainScreenState extends State<MainScreen> {
         isAuthenticated ? const ProfileScreen() : const _GuestProfileTab(),
       ];
 
-  static const List<String> _tabTitles = [
-    'Dashboard',
-    'Markets',
-    'Wallets',
-    'Profile',
+  List<String> _tabTitles(AppLocalizations l10n) => [
+    l10n.dashboard,
+    l10n.markets,
+    l10n.wallets,
+    l10n.profile,
   ];
 
   @override
@@ -106,15 +106,16 @@ class _MainScreenState extends State<MainScreen> {
     final l10n = AppLocalizations.of(context);
     final isAuthenticated = context.select<AuthProvider, bool>((a) => a.isAuthenticated);
     final screens = _buildScreens(isAuthenticated);
+    final titles = _tabTitles(l10n);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-          tooltip: 'Menu',
+          tooltip: l10n.menuTooltip,
         ),
-        title: Text(_tabTitles[_currentIndex]),
+        title: Text(titles[_currentIndex]),
         actions: [
           if (_currentIndex == 1)
             IconButton(
@@ -134,7 +135,7 @@ class _MainScreenState extends State<MainScreen> {
           if (_currentIndex == 2 && isAuthenticated)
             IconButton(
               icon: const Icon(Icons.account_tree_outlined),
-              tooltip: 'On-chain',
+              tooltip: l10n.onchainTooltip,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -148,7 +149,7 @@ class _MainScreenState extends State<MainScreen> {
           if (isAuthenticated)
             Consumer<NotificationProvider>(
               builder: (_, prov, __) => IconButton(
-                tooltip: 'Notifications',
+                tooltip: l10n.notificationsTooltip,
                 icon: Badge(
                   isLabelVisible: prov.unreadCount > 0,
                   label: Text(
@@ -289,7 +290,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.account_tree_outlined),
-              title: const Text('On-chain Wallets'),
+              title: Text(l10n.drawerOnchainWallets),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -302,7 +303,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: Text(l10n.drawerSettings),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -321,17 +322,14 @@ class _MainScreenState extends State<MainScreen> {
                 return Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.admin_panel_settings,
-                          color: Colors.deepOrange),
-                      title: const Text('User Management'),
-                      subtitle: const Text('Admin area',
-                          style: TextStyle(fontSize: 11)),
+                      leading: const Icon(Icons.admin_panel_settings, color: Colors.deepOrange),
+                      title: Text(l10n.drawerUserManagement),
+                      subtitle: Text(l10n.drawerAdminArea, style: const TextStyle(fontSize: 11)),
                       onTap: () {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('User management screen — coming soon'),
+                          SnackBar(
+                            content: Text(l10n.drawerUserMgmtComingSoon),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -339,11 +337,9 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     if (auth.canReviewSecurityRequests)
                       ListTile(
-                        leading: const Icon(Icons.security,
-                            color: Colors.deepOrange),
-                        title: const Text('Security requests'),
-                        subtitle: const Text('Approve/reject email & password changes',
-                            style: TextStyle(fontSize: 11)),
+                        leading: const Icon(Icons.security, color: Colors.deepOrange),
+                        title: Text(l10n.drawerSecurityRequests),
+                        subtitle: Text(l10n.drawerSecuritySubtitle, style: const TextStyle(fontSize: 11)),
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.push(
@@ -357,11 +353,9 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     if (auth.isAdmin) ...[
                       ListTile(
-                        leading: const Icon(Icons.campaign_outlined,
-                            color: Colors.deepOrange),
-                        title: const Text('Broadcast Notification'),
-                        subtitle: const Text('Send to all users',
-                            style: TextStyle(fontSize: 11)),
+                        leading: const Icon(Icons.campaign_outlined, color: Colors.deepOrange),
+                        title: Text(l10n.drawerBroadcastNotification),
+                        subtitle: Text(l10n.drawerBroadcastSubtitle, style: const TextStyle(fontSize: 11)),
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.push(
@@ -374,17 +368,14 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
                       ListTile(
-                        leading:
-                            const Icon(Icons.sync, color: Colors.deepOrange),
-                        title: const Text('Manual re-sync Binance'),
-                        subtitle: const Text('Admin area',
-                            style: TextStyle(fontSize: 11)),
+                        leading: const Icon(Icons.sync, color: Colors.deepOrange),
+                        title: Text(l10n.drawerManualResync),
+                        subtitle: Text(l10n.drawerAdminArea, style: const TextStyle(fontSize: 11)),
                         onTap: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Manual exchange re-sync — coming soon'),
+                            SnackBar(
+                              content: Text(l10n.drawerManualResyncComingSoon),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -412,8 +403,7 @@ class _MainScreenState extends State<MainScreen> {
             if (isAuthenticated)
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.redAccent),
-                title: const Text('Logout',
-                    style: TextStyle(color: Colors.redAccent)),
+                title: Text(l10n.logout, style: const TextStyle(color: Colors.redAccent)),
                 onTap: () {
                   Navigator.pop(context);
                   context.read<AuthProvider>().logout();
@@ -422,8 +412,7 @@ class _MainScreenState extends State<MainScreen> {
             else
               ListTile(
                 leading: const Icon(Icons.login, color: Colors.indigo),
-                title: const Text('Sign In',
-                    style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w600)),
+                title: Text(l10n.signIn, style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -458,51 +447,33 @@ class _AuthRequiredTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.lock_outline,
-              size: 64,
-              color: colorScheme.primary.withOpacity(0.5),
-            ),
+            Icon(Icons.lock_outline, size: 64, color: colorScheme.primary.withOpacity(0.5)),
             const SizedBox(height: 20),
             Text(
-              'Sign in required',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              AppLocalizations.of(context).authRequiredTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Please sign in to access this feature.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              AppLocalizations.of(context).authRequiredSubtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
                 icon: const Icon(Icons.login),
-                label: const Text('Sign In'),
+                label: Text(AppLocalizations.of(context).signIn),
               ),
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
-                },
-                child: const Text('Create Account'),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                child: Text(AppLocalizations.of(context).createAccount),
               ),
             ),
           ],
@@ -536,74 +507,46 @@ class _GuestProfileTab extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Welcome, Guest',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            AppLocalizations.of(context).welcomeGuest,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Sign in to access your wallet, place orders, and manage your account.',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: colorScheme.outline),
+            AppLocalizations.of(context).guestSignInDesc,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
               icon: const Icon(Icons.login),
-              label: const Text('Sign In'),
+              label: Text(AppLocalizations.of(context).signIn),
             ),
           ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                );
-              },
-              child: const Text('Create Account'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+              child: Text(AppLocalizations.of(context).createAccount),
             ),
           ),
           const SizedBox(height: 40),
           const Divider(),
           const SizedBox(height: 16),
-          // Public features available to guests
           Text(
-            'Available without signing in',
+            AppLocalizations.of(context).guestFeaturesTitle,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: colorScheme.outline,
                   fontWeight: FontWeight.w600,
                 ),
           ),
           const SizedBox(height: 12),
-          _FeatureRow(
-            icon: Icons.trending_up,
-            label: 'Live market data & charts',
-            colorScheme: colorScheme,
-          ),
-          _FeatureRow(
-            icon: Icons.currency_bitcoin,
-            label: 'Supported currencies & networks',
-            colorScheme: colorScheme,
-          ),
-          _FeatureRow(
-            icon: Icons.account_balance_wallet_outlined,
-            label: 'Platform deposit methods',
-            colorScheme: colorScheme,
-          ),
+          _FeatureRow(icon: Icons.trending_up, label: AppLocalizations.of(context).guestFeatureLiveMarkets, colorScheme: colorScheme),
+          _FeatureRow(icon: Icons.currency_bitcoin, label: AppLocalizations.of(context).guestFeatureCurrencies, colorScheme: colorScheme),
+          _FeatureRow(icon: Icons.account_balance_wallet_outlined, label: AppLocalizations.of(context).guestFeatureDeposit, colorScheme: colorScheme),
         ],
       ),
     );

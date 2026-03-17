@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Màn hình cho Admin/Risk Officer duyệt yêu cầu thay đổi bảo mật (email/password).
 class SecurityRequestsReviewScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _SecurityRequestsReviewScreenState
         if (mounted) {
           showAppSnackBar(
             context,
-            message: 'Request approved',
+            message: AppLocalizations.of(context).securityRequestApproved,
             type: SnackBarType.success,
           );
           _load();
@@ -78,27 +79,26 @@ class _SecurityRequestsReviewScreenState
     if (token == null) return;
     String? note;
     if (mounted) {
-      note = await showDialog<String>(
+        note = await showDialog<String>(
         context: context,
         builder: (ctx) {
+          final l10n = AppLocalizations.of(ctx);
           final c = TextEditingController();
           return AlertDialog(
-            title: const Text('Reject request'),
+            title: Text(l10n.securityRejectDialogTitle),
             content: TextField(
               controller: c,
-              decoration: const InputDecoration(
-                hintText: 'Optional reason (optional)',
-              ),
+              decoration: InputDecoration(hintText: l10n.securityRejectReasonHint),
               maxLines: 2,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
+                child: Text(l10n.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, c.text.trim()),
-                child: const Text('Reject'),
+                child: Text(l10n.securityRequestReject),
               ),
             ],
           );
@@ -121,7 +121,7 @@ class _SecurityRequestsReviewScreenState
         if (mounted) {
           showAppSnackBar(
             context,
-            message: 'Request rejected',
+            message: AppLocalizations.of(context).securityRequestRejected,
             type: SnackBarType.success,
           );
           _load();
@@ -134,12 +134,12 @@ class _SecurityRequestsReviewScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Security change requests'),
+        title: Text(AppLocalizations.of(context).securityRequestsTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loading ? null : _load,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context).refresh,
           ),
         ],
       ),
@@ -154,15 +154,13 @@ class _SecurityRequestsReviewScreenState
                       const SizedBox(height: 16),
                       FilledButton(
                         onPressed: _load,
-                        child: const Text('Retry'),
+                        child: Text(AppLocalizations.of(context).retry),
                       ),
                     ],
                   ),
                 )
               : _pending.isEmpty
-                  ? const Center(
-                      child: Text('No pending requests'),
-                    )
+                  ? Center(child: Text(AppLocalizations.of(context).securityRequestNoPending))
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: _pending.length,
@@ -187,7 +185,7 @@ class _SecurityRequestsReviewScreenState
                                         .trim(),
                                   ),
                                 Text(
-                                  'Requested: ${_formatDate(item.requestedAt)}',
+                                  AppLocalizations.of(context).securityRequestRequested(_formatDate(item.requestedAt)),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[600],
@@ -200,15 +198,13 @@ class _SecurityRequestsReviewScreenState
                               children: [
                                 TextButton(
                                   onPressed: () => _approve(item),
-                                  child: const Text('Approve'),
+                                  child: Text(AppLocalizations.of(context).securityRequestApprove),
                                 ),
                                 TextButton(
                                   onPressed: () => _reject(item),
                                   child: Text(
-                                    'Reject',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.error,
-                                    ),
+                                    AppLocalizations.of(context).securityRequestReject,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                                   ),
                                 ),
                               ],

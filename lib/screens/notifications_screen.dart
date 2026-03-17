@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:crypto_trading_app/domain/entities/notification_entity.dart';
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Notification history screen.
 /// Lists all user notifications; unread items have a tinted background.
@@ -26,16 +27,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
         actions: [
           Consumer<NotificationProvider>(
             builder: (_, prov, __) {
               if (prov.unreadCount == 0) return const SizedBox.shrink();
               return TextButton(
                 onPressed: prov.markAllRead,
-                child: const Text('Mark all read'),
+                child: Text(l10n.notificationsMarkAllRead),
               );
             },
           ),
@@ -48,13 +50,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           if (prov.notifications.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.notifications_off_outlined, size: 64, color: Colors.grey),
-                  SizedBox(height: 12),
-                  Text('No notifications yet', style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.notifications_off_outlined, size: 64, color: Colors.grey),
+                  const SizedBox(height: 12),
+                  Text(l10n.notificationsEmpty, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             );
@@ -112,6 +114,7 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -120,7 +123,7 @@ class _NotificationTile extends StatelessWidget {
         : colorScheme.primaryContainer.withOpacity(0.15);
 
     final leading = _typeIcon(notification.type, colorScheme);
-    final timeStr = _formatTime(notification.notificationCreatedAt);
+    final timeStr = _formatTime(notification.notificationCreatedAt, l10n);
 
     return ListTile(
       tileColor: bgColor,
@@ -175,13 +178,13 @@ class _NotificationTile extends StatelessWidget {
     }
   }
 
-  String _formatTime(DateTime dt) {
+  String _formatTime(DateTime dt, AppLocalizations l10n) {
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-    if (diff.inDays < 1) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.notificationsJustNow;
+    if (diff.inHours < 1) return l10n.notificationsMinAgo(diff.inMinutes);
+    if (diff.inDays < 1) return l10n.notificationsHourAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.notificationsDayAgo(diff.inDays);
     return DateFormat('MMM d').format(dt);
   }
 }
@@ -195,6 +198,7 @@ class _NotificationDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final dateStr = DateFormat('MMM d, yyyy – HH:mm').format(notification.notificationCreatedAt);
 
@@ -222,7 +226,7 @@ class _NotificationDetailSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                _typeBadge(notification.type, theme),
+                _typeBadge(notification.type, theme, l10n),
                 const Spacer(),
                 Text(dateStr, style: theme.textTheme.labelSmall),
               ],
@@ -235,7 +239,7 @@ class _NotificationDetailSheet extends StatelessWidget {
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 8),
-              Text('Details', style: theme.textTheme.labelMedium),
+              Text(l10n.notificationsDetails, style: theme.textTheme.labelMedium),
               const SizedBox(height: 4),
               ...notification.data!.entries.map(
                 (e) => Padding(
@@ -255,11 +259,11 @@ class _NotificationDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _typeBadge(NotificationType type, ThemeData theme) {
+  Widget _typeBadge(NotificationType type, ThemeData theme, AppLocalizations l10n) {
     final (label, color) = switch (type) {
-      NotificationType.alert => ('Alert', Colors.orange),
-      NotificationType.promo => ('Promo', Colors.green),
-      NotificationType.system => ('System', theme.colorScheme.primary),
+      NotificationType.alert => (l10n.notificationsTypeAlert, Colors.orange),
+      NotificationType.promo => (l10n.notificationsTypePromo, Colors.green),
+      NotificationType.system => (l10n.notificationsTypeSystem, theme.colorScheme.primary),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

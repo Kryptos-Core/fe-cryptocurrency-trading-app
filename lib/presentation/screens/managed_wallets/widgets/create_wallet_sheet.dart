@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
@@ -43,7 +44,7 @@ class _CreateWalletSheetState extends State<CreateWalletSheet> {
     if (wallet != null) {
       setState(() => _createdWallet = wallet);
     } else {
-      final errorMsg = provider.error ?? 'Failed to create wallet';
+      final errorMsg = provider.error ?? AppLocalizations.of(context).createWalletFailed;
       if (mounted) {
         showAppSnackBar(context, message: errorMsg, type: SnackBarType.error);
       }
@@ -94,6 +95,7 @@ class _FormView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<ManagedWalletsProvider>(
       builder: (context, provider, _) {
         return Column(
@@ -105,17 +107,15 @@ class _FormView extends StatelessWidget {
                 const Icon(Icons.add_card_outlined),
                 const SizedBox(width: 8),
                 Text(
-                  'Create Treasury Wallet',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  l10n.createWalletTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             AppDropdownField<String>(
               value: selectedChain,
-              labelText: 'Blockchain',
+              labelText: l10n.createWalletBlockchainLabel,
               items: chains
                   .map(
                     (chain) => DropdownMenuItem(
@@ -130,8 +130,8 @@ class _FormView extends StatelessWidget {
             TextField(
               controller: labelController,
               decoration: InputDecoration(
-                labelText: 'Label (optional)',
-                hintText: 'e.g. Main Fund, AML Reserve',
+                labelText: l10n.createWalletLabelField,
+                hintText: l10n.createWalletLabelHint,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 isDense: true,
               ),
@@ -148,15 +148,13 @@ class _FormView extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.generating_tokens),
-                label: Text(provider.isSubmitting ? 'Generating…' : 'Generate Wallet'),
+                label: Text(provider.isSubmitting ? l10n.createWalletGenerating : l10n.createWalletGenerate),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'A new Tron wallet will be generated. The private key is encrypted and stored securely. You will never be shown the private key.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              l10n.createWalletSecurityNote,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
             ),
           ],
         );
@@ -181,7 +179,7 @@ class _SuccessView extends StatelessWidget {
         Icon(Icons.check_circle_outline, size: 56, color: Colors.green.shade600),
         const SizedBox(height: 12),
         Text(
-          'Wallet Created!',
+          AppLocalizations.of(context).createWalletSuccess,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
@@ -200,10 +198,8 @@ class _SuccessView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Wallet Address',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.outline,
-                    ),
+                AppLocalizations.of(context).createWalletAddressLabel,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colorScheme.outline),
               ),
               const SizedBox(height: 4),
               Row(
@@ -211,9 +207,7 @@ class _SuccessView extends StatelessWidget {
                   Expanded(
                     child: SelectableText(
                       wallet.address,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontFamily: 'monospace',
-                          ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
                     ),
                   ),
                   IconButton(
@@ -222,7 +216,7 @@ class _SuccessView extends StatelessWidget {
                       Clipboard.setData(ClipboardData(text: wallet.address));
                       showAppSnackBar(
                         context,
-                        message: 'Address copied',
+                        message: AppLocalizations.of(context).createWalletAddressCopied,
                         type: SnackBarType.success,
                         duration: const Duration(seconds: 2),
                       );
@@ -236,7 +230,10 @@ class _SuccessView extends StatelessWidget {
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          child: FilledButton(onPressed: onDone, child: const Text('Done')),
+          child: FilledButton(
+            onPressed: onDone,
+            child: Text(AppLocalizations.of(context).createWalletDone),
+          ),
         ),
       ],
     );

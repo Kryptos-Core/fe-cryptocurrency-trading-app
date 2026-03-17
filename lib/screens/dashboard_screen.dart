@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
@@ -10,13 +11,6 @@ import 'package:crypto_trading_app/screens/wallets_overview_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
-/// Dashboard Screen — Home tab.
-///
-/// Data: DashboardProvider (REST initial load + WS live updates every 5s).
-/// Sections:
-///   1. Portfolio Summary card — total USDT value, wallet counts
-///   2. Top Markets — 10 pairs sorted by 24h volume, with live tickers
-///   3. My Wallets — top 3 wallets with balance, with estimated USD value
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -35,6 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () => context.read<DashboardProvider>().refresh(force: true),
@@ -44,10 +39,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPortfolioCard(),
+              _buildPortfolioCard(l10n),
               const SizedBox(height: 24),
               _buildSectionHeader(
-                title: 'Top Markets',
+                title: l10n.dashboardTopMarkets,
+                seeAllLabel: l10n.dashboardSeeAll,
                 onSeeAll: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -56,10 +52,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildTopMarkets(),
+              _buildTopMarkets(l10n),
               const SizedBox(height: 24),
               _buildSectionHeader(
-                title: 'My Wallets',
+                title: l10n.dashboardMyWallets,
+                seeAllLabel: l10n.dashboardSeeAll,
                 onSeeAll: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -68,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildWalletsSummary(),
+              _buildWalletsSummary(l10n),
               const SizedBox(height: 24),
             ],
           ),
@@ -77,9 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ── Portfolio Card ────────────────────────────────────────────────────────
-
-  Widget _buildPortfolioCard() {
+  Widget _buildPortfolioCard(AppLocalizations l10n) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, _) {
         final portfolioTotal = provider.portfolioTotal;
@@ -104,9 +99,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Total Portfolio Value',
-                  style: TextStyle(fontSize: 14, color: Colors.white70),
+                Text(
+                  l10n.dashboardTotalPortfolioValue,
+                  style: const TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 const SizedBox(height: 8),
                 provider.isLoading && !provider.hasData
@@ -136,8 +131,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildStatItem('Wallets', '${provider.walletCount}'),
-                    _buildStatItem('Active', '${provider.activeWalletCount}'),
+                    _buildStatItem(l10n.dashboardWallets, '${provider.walletCount}'),
+                    _buildStatItem(l10n.dashboardActive, '${provider.activeWalletCount}'),
                   ],
                 ),
               ],
@@ -152,42 +147,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.white70),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white70)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ],
     );
   }
 
-  // ── Section Header ────────────────────────────────────────────────────────
-
-  Widget _buildSectionHeader({required String title, VoidCallback? onSeeAll}) {
+  Widget _buildSectionHeader({
+    required String title,
+    required String seeAllLabel,
+    VoidCallback? onSeeAll,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         if (onSeeAll != null)
-          TextButton(onPressed: onSeeAll, child: const Text('See All')),
+          TextButton(onPressed: onSeeAll, child: Text(seeAllLabel)),
       ],
     );
   }
 
-  // ── Top Markets ───────────────────────────────────────────────────────────
-
-  Widget _buildTopMarkets() {
+  Widget _buildTopMarkets(AppLocalizations l10n) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading && !provider.hasData) {
@@ -196,10 +181,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final markets = provider.topMarkets;
         if (markets.isEmpty) {
-          return const _EmptyState(message: 'No markets available');
+          return _EmptyState(message: l10n.dashboardNoMarketsAvailable);
         }
 
-        // Show top 3 for dashboard overview
         final displayMarkets = markets.take(3).toList();
 
         return Column(
@@ -224,9 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ── My Wallets ────────────────────────────────────────────────────────────
-
-  Widget _buildWalletsSummary() {
+  Widget _buildWalletsSummary(AppLocalizations l10n) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading && !provider.hasData) {
@@ -239,9 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             .toList();
 
         if (walletItems.isEmpty) {
-          return const _EmptyState(
-            message: 'No funded wallets yet.\nDeposit or trade to see balances here.',
-          );
+          return _EmptyState(message: l10n.dashboardNoFundedWallets);
         }
 
         return Column(
@@ -257,8 +237,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-
-// ── Private Helpers ───────────────────────────────────────────────────────────
 
 class _LoadingPlaceholder extends StatelessWidget {
   const _LoadingPlaceholder();
@@ -283,10 +261,7 @@ class _EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Text(
-          message,
-          style: TextStyle(color: Colors.grey.shade500),
-        ),
+        child: Text(message, style: TextStyle(color: Colors.grey.shade500)),
       ),
     );
   }

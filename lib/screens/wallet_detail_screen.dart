@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:intl/intl.dart';
 
@@ -34,7 +35,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
       appBar: AppBar(
         title: Consumer<WalletsProvider>(
           builder: (context, provider, child) {
-            return Text(provider.selectedWallet?.currency.symbol ?? 'Wallet Details');
+            return Text(provider.selectedWallet?.currency.symbol ?? AppLocalizations.of(context).walletDetails);
           },
         ),
       ),
@@ -46,7 +47,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
 
           final wallet = provider.selectedWallet;
           if (wallet == null) {
-            return const Center(child: Text('Wallet not found'));
+            return Center(child: Text(AppLocalizations.of(context).walletNotFound));
           }
 
           return SingleChildScrollView(
@@ -61,12 +62,9 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Available Balance',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                        Text(
+                          AppLocalizations.of(context).walletAvailableBalance,
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -83,12 +81,9 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Frozen',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
+                                Text(
+                                  AppLocalizations.of(context).walletFrozen,
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                                 Text(
                                   '${wallet.frozen} ${wallet.currency.symbol}',
@@ -102,12 +97,9 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const Text(
-                                  'Total',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
+                                Text(
+                                  AppLocalizations.of(context).walletTotal,
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                                 Text(
                                   '${wallet.total} ${wallet.currency.symbol}',
@@ -126,19 +118,16 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                 ),
                 const SizedBox(height: 24),
                 // Transaction History
-                const Text(
-                  'Transaction History',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Text(
+                  AppLocalizations.of(context).walletTransactionHistory,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 if (provider.ledger.isEmpty)
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Text('No transactions found'),
+                      padding: const EdgeInsets.all(32),
+                      child: Text(AppLocalizations.of(context).walletNoTransactions),
                     ),
                   )
                 else
@@ -180,7 +169,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
               ),
             ),
             Text(
-              'Balance: ${ledger.balanceAfter}',
+              AppLocalizations.of(context).walletBalanceAfter(ledger.balanceAfter.toString()),
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,

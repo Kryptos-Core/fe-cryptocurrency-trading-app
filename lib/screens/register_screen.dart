@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -77,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (mounted) {
               showAppSnackBar(
                 context,
-                message: 'Registration failed: ${failure.message}',
+                message: '${AppLocalizations.of(context).registerFailed}: ${failure.message}',
                 type: SnackBarType.error,
                 duration: const Duration(seconds: 4),
               );
@@ -92,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) {
         showAppSnackBar(
           context,
-          message: 'Registration successful! Logging in...',
+          message: AppLocalizations.of(context).registerSuccessLoggingIn,
           type: SnackBarType.success,
           duration: const Duration(seconds: 2),
         );
@@ -109,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           showAppSnackBar(
             context,
-            message: 'Login failed. Please try logging in manually.',
+            message: AppLocalizations.of(context).registerLoginFailedManual,
             type: SnackBarType.warning,
             duration: const Duration(seconds: 3),
           );
@@ -124,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) {
         showAppSnackBar(
           context,
-          message: 'Login successful!',
+          message: AppLocalizations.of(context).registerLoginSuccess,
           type: SnackBarType.success,
           duration: const Duration(seconds: 1),
         );
@@ -174,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     showAppSnackBar(
       context,
-      message: 'Đăng ký & đăng nhập bằng ví thành công!',
+      message: AppLocalizations.of(context).registerWalletSuccess,
       type: SnackBarType.success,
       duration: const Duration(seconds: 1),
     );
@@ -192,7 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: Text(AppLocalizations.of(context).register),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -215,7 +216,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Title
                   Text(
-                    'Create Account',
+                    AppLocalizations.of(context).registerCreateAccount,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -224,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Sign up to get started',
+                    AppLocalizations.of(context).registerSignUpSubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -261,18 +262,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _firstNameController,
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
-                      hintText: 'Nguyễn Văn',
-                      prefixIcon: Icon(Icons.person_outlined),
-                      border: OutlineInputBorder(),
-                      helperText: 'Only letters and spaces allowed',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).registerFirstNameLabel,
+                      prefixIcon: const Icon(Icons.person_outlined),
+                      border: const OutlineInputBorder(),
+                      helperText: AppLocalizations.of(context).registerFirstNameHelper,
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'First name is required';
+                        return AppLocalizations.of(context).registerFirstNameRequired;
                       }
-                      return NameValidator.validateName(value, 'First name');
+                      return NameValidator.validateName(value, AppLocalizations.of(context).registerFirstNameLabel);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -282,18 +282,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _lastNameController,
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name',
-                      hintText: 'An',
-                      prefixIcon: Icon(Icons.person_outlined),
-                      border: OutlineInputBorder(),
-                      helperText: 'Only letters and spaces allowed',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).registerLastNameLabel,
+                      prefixIcon: const Icon(Icons.person_outlined),
+                      border: const OutlineInputBorder(),
+                      helperText: AppLocalizations.of(context).registerFirstNameHelper,
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Last name is required';
+                        return AppLocalizations.of(context).registerLastNameRequired;
                       }
-                      return NameValidator.validateName(value, 'Last name');
+                      return NameValidator.validateName(value, AppLocalizations.of(context).registerLastNameLabel);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -303,22 +302,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     enabled: !_isLoading,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'user@example.com',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).email,
+                      hintText: AppLocalizations.of(context).registerEmailHint,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Email is required';
+                        return AppLocalizations.of(context).emailRequired;
                       }
-                      // Simple email validation pattern
-                      final emailRegex = RegExp(
-                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                      );
+                      final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                       if (!emailRegex.hasMatch(value.trim())) {
-                        return 'Invalid email format';
+                        return AppLocalizations.of(context).invalidEmail;
                       }
                       return null;
                     },
@@ -332,42 +328,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Min 8 characters with uppercase, lowercase, number',
+                      labelText: AppLocalizations.of(context).registerPasswordLabel,
+                      hintText: AppLocalizations.of(context).registerPasswordHint,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                        icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password is required';
-                      }
-                      if (value.length < 8) {
-                        return 'Password must be at least 8 characters';
-                      }
-                      if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                        return 'Password must contain uppercase letter';
-                      }
-                      if (!RegExp(r'[a-z]').hasMatch(value)) {
-                        return 'Password must contain lowercase letter';
-                      }
-                      if (!RegExp(r'[0-9]').hasMatch(value)) {
-                        return 'Password must contain a number';
-                      }
-                      if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                        return 'Password must contain a special character';
-                      }
+                      final l10n = AppLocalizations.of(context);
+                      if (value == null || value.isEmpty) return l10n.registerPasswordRequired;
+                      if (value.length < 8) return l10n.registerPasswordMinLength;
+                      if (!RegExp(r'[A-Z]').hasMatch(value)) return l10n.registerPasswordNeedsUppercase;
+                      if (!RegExp(r'[a-z]').hasMatch(value)) return l10n.registerPasswordNeedsLowercase;
+                      if (!RegExp(r'[0-9]').hasMatch(value)) return l10n.registerPasswordNeedsNumber;
+                      if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) return l10n.registerPasswordNeedsSpecial;
                       return null;
                     },
                   ),
@@ -380,30 +357,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     enabled: !_isLoading,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      hintText: 'Re-enter your password',
+                      labelText: AppLocalizations.of(context).registerConfirmPasswordLabel,
+                      hintText: AppLocalizations.of(context).registerConfirmPasswordHint,
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
+                        icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                       ),
                       border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Confirm password is required';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
+                      final l10n = AppLocalizations.of(context);
+                      if (value == null || value.isEmpty) return l10n.registerConfirmPasswordRequired;
+                      if (value != _passwordController.text) return l10n.registerPasswordsNoMatch;
                       return null;
                     },
                   ),
@@ -424,9 +390,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : const Text(
-                            'Register',
-                            style: TextStyle(fontSize: 16),
+                        : Text(
+                            AppLocalizations.of(context).register,
+                            style: const TextStyle(fontSize: 16),
                           ),
                   ),
                   const SizedBox(height: 24),
@@ -438,7 +404,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
-                          'Đăng ký nhanh bằng ví',
+                          AppLocalizations.of(context).registerWalletDivider,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context)
                                     .colorScheme
@@ -464,7 +430,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                       icon: const Icon(Icons.account_balance_wallet_outlined,
                           color: Color(0xFFE2761B), size: 20),
-                      label: const Text('Đăng ký bằng MetaMask'),
+                      label: Text(AppLocalizations.of(context).registerWithMetaMask),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(color: Color(0xFFE2761B)),
@@ -487,7 +453,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                       icon: const Icon(Icons.link,
                           color: Color(0xFFEF0027), size: 20),
-                      label: const Text('Đăng ký bằng TronLink'),
+                      label: Text(AppLocalizations.of(context).registerWithTronLink),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(color: Color(0xFFEF0027)),
@@ -501,10 +467,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Already have an account? '),
+                      Text(AppLocalizations.of(context).hasAccount),
                       TextButton(
                         onPressed: _isLoading ? null : _navigateToLogin,
-                        child: const Text('Login'),
+                        child: Text(AppLocalizations.of(context).login),
                       ),
                     ],
                   ),

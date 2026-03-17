@@ -29,7 +29,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Wallets'),
+        title: Text(l10n.myWallets),
         automaticallyImplyLeading:
             false, // Remove back button when in bottom nav
         actions: [
@@ -61,7 +61,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                     onPressed: () {
                       provider.fetchWallets(refresh: true);
                     },
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -69,9 +69,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
           }
 
           if (provider.wallets.isEmpty) {
-            return const Center(
-              child: Text('No wallets found'),
-            );
+            return Center(child: Text(l10n.noWalletsFound));
           }
 
           return RefreshIndicator(
@@ -87,12 +85,9 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                   color: Colors.blue.shade50,
                   child: Column(
                     children: [
-                      const Text(
-                        'Total Portfolio Value',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                      Text(
+                        l10n.totalPortfolioValue,
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                       const SizedBox(height: 8),
                       Text(
