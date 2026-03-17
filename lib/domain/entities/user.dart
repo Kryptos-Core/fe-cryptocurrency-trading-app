@@ -9,6 +9,7 @@ class User {
   final bool isActive;
   final String role;
   final String? avatarUrl;
+  final bool twoFaEnabled;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,6 +21,7 @@ class User {
     required this.isActive,
     this.role = 'TRADER',
     this.avatarUrl,
+    this.twoFaEnabled = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -49,6 +51,7 @@ class User {
     bool? isActive,
     String? role,
     String? avatarUrl,
+    bool? twoFaEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -60,6 +63,7 @@ class User {
       isActive: isActive ?? this.isActive,
       role: role ?? this.role,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      twoFaEnabled: twoFaEnabled ?? this.twoFaEnabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -75,6 +79,6 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, email: $email, fullName: $fullName, role: $role, isActive: $isActive)';
+    return 'User(id: $id, email: $email, fullName: $fullName, role: $role, isActive: $isActive, twoFaEnabled: $twoFaEnabled)';
   }
 }

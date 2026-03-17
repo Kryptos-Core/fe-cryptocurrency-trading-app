@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_stat
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
   const OnchainWithdrawScreen({super.key});
@@ -249,15 +250,11 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 const SizedBox(height: 8),
                 Text(l10n.withdrawalDestinationDesc),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<BlockchainNetwork>(
-                  initialValue: _selectedNetwork,
-                  isExpanded: true,
+                AppDropdownField<BlockchainNetwork>(
+                  value: _selectedNetwork,
                   menuMaxHeight: 300,
-                  decoration: InputDecoration(
-                    labelText: l10n.networkLabel,
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  ),
+                  labelText: l10n.networkLabel,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   items: BlockchainNetwork.values
                       .map(
                         (network) => DropdownMenuItem(
@@ -279,15 +276,11 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedWalletId,
-                  isExpanded: true,
+                AppDropdownField<String>(
+                  value: _selectedWalletId,
                   menuMaxHeight: 300,
-                  decoration: InputDecoration(
-                    labelText: l10n.linkedWalletDropdownLabel,
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  ),
+                  labelText: l10n.linkedWalletDropdownLabel,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   items: wallets
                       .map(
                         (wallet) => DropdownMenuItem<String>(

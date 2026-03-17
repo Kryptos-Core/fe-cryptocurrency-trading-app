@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
@@ -13,6 +12,7 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
+import 'package:crypto_trading_app/screens/about_screen.dart';
 
 /// Profile Screen - User account information
 class ProfileScreen extends StatefulWidget {
@@ -180,7 +180,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() => _currentUser = user);
         context.read<AuthProvider>().updateCurrentUser(user);
         if (mounted) {
-          showAppSnackBar(context, message: 'Avatar updated', type: SnackBarType.success);
+          showAppSnackBar(
+            context,
+            message: AppLocalizations.of(context).profileAvatarUpdated,
+            type: SnackBarType.success,
+          );
         }
       },
     );
@@ -194,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit name'),
+        title: Text(AppLocalizations.of(ctx).profileEditName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -205,7 +209,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx).cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.of(ctx).save),
+          ),
         ],
       ),
     );
@@ -227,15 +234,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() => _currentUser = user);
         context.read<AuthProvider>().updateCurrentUser(user);
         if (mounted) {
-          showAppSnackBar(context, message: 'Profile updated', type: SnackBarType.success);
+          showAppSnackBar(
+            context,
+            message: AppLocalizations.of(context).profileUpdated,
+            type: SnackBarType.success,
+          );
         }
       },
     );
   }
 
   Future<void> _requestSecurityChange(String changeType, {String? label, String? hint, bool isPassword = false}) async {
+    if (_currentUser == null) return;
+    if (!_currentUser!.twoFaEnabled) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).otpRequiredEnable2faFirst,
+          type: SnackBarType.error,
+        );
+      }
+      return;
+    }
+
     final token = sl<TokenService>().getAccessToken();
     if (token == null) return;
+    final authRepo = sl<AuthRepository>();
+
+    final otpSent = await authRepo.send2faOtp(token);
+    final canContinue = otpSent.fold((f) {
+      if (mounted) {
+        showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      }
+      return false;
+    }, (_) => true);
+    if (!canContinue) return;
+
+    if (mounted) {
+      showAppSnackBar(
+        context,
+        message: AppLocalizations.of(context).otpSentToEmail,
+        type: SnackBarType.success,
+      );
+    }
+    if (!mounted) return;
+
+    final otpController = TextEditingController();
+    final otpOk = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(ctx).otpVerificationTitle),
+        content: TextField(
+          controller: otpController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(ctx).otpEnterCodeHint,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppLocalizations.of(ctx).cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.of(ctx).otpVerify),
+          ),
+        ],
+      ),
+    );
+    if (otpOk != true || otpController.text.trim().length != 6) {
+      return;
+    }
+
     final controller = TextEditingController();
     if (!mounted) return;
     final ok = await showDialog<bool>(
@@ -255,10 +326,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (ok != true || controller.text.trim().isEmpty) return;
     final payload = isPassword ? {'password': controller.text.trim()} : {'email': controller.text.trim()};
-    final result = await sl<AuthRepository>().requestSecurityChange(
+    final result = await authRepo.requestSecurityChange(
       token: token,
       changeType: changeType,
       payload: payload,
+      otpCode: otpController.text.trim(),
     );
     result.fold(
       (f) {
@@ -270,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           showAppSnackBar(
           context,
-          message: 'Request sent. Pending approval.',
+          message: AppLocalizations.of(context).requestSentPendingApproval,
           type: SnackBarType.success,
         );
         }
@@ -343,7 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Tap to change avatar',
+              l10n.profileTapToChangeAvatar,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 24),
@@ -374,7 +446,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             OutlinedButton.icon(
               onPressed: _editProfileBasic,
               icon: const Icon(Icons.edit, size: 18),
-              label: const Text('Edit name'),
+              label: Text(l10n.profileEditName),
             ),
             const SizedBox(height: 32),
 
@@ -419,61 +491,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Language (with flag emoji)
-            Text(
-              l10n.language,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Consumer<LocaleProvider>(
-              builder: (context, localeProvider, _) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => localeProvider.setLocale(const Locale('en')),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('🇬🇧', style: TextStyle(fontSize: 20)),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.english,
-                          style: TextStyle(
-                            fontWeight: localeProvider.locale.languageCode == 'en'
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () => localeProvider.setLocale(const Locale('vi')),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('🇻🇳', style: TextStyle(fontSize: 20)),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.vietnamese,
-                          style: TextStyle(
-                            fontWeight: localeProvider.locale.languageCode == 'vi'
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
             // Account Info
             const Divider(),
             ListTile(
@@ -493,36 +510,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Divider(),
             // Security (requires approval)
             Text(
-              'Security (requires approval)',
+              l10n.profileSecurityRequiresApproval,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
             ),
             const SizedBox(height: 8),
-            ListTile(
-              leading: const Icon(Icons.email_outlined),
-              title: const Text('Change email'),
-              subtitle: const Text('Request will be reviewed by admin'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _requestSecurityChange(
-                'EMAIL_CHANGE',
-                label: 'New email',
-                hint: 'Enter new email',
+            if (_currentUser!.twoFaEnabled) ...[
+              ListTile(
+                leading: const Icon(Icons.email_outlined),
+                title: Text(l10n.profileChangeEmail),
+                subtitle: Text(l10n.profileOtpAdminReviewRequired),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _requestSecurityChange(
+                  'EMAIL_CHANGE',
+                  label: 'New email',
+                  hint: 'Enter new email',
+                ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline),
-              title: const Text('Change password'),
-              subtitle: const Text('Request will be reviewed by admin'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _requestSecurityChange(
-                'PASSWORD_CHANGE',
-                label: 'New password',
-                hint: 'Min 8 characters',
-                isPassword: true,
+              ListTile(
+                leading: const Icon(Icons.lock_outline),
+                title: Text(l10n.profileChangePassword),
+                subtitle: Text(l10n.profileOtpAdminReviewRequired),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _requestSecurityChange(
+                  'PASSWORD_CHANGE',
+                  label: 'New password',
+                  hint: 'Min 8 characters',
+                  isPassword: true,
+                ),
               ),
-            ),
+            ] else
+              ListTile(
+                leading: const Icon(Icons.shield_outlined),
+                title: Text(l10n.profileEnable2faFirstTitle),
+                subtitle: Text(l10n.profileEnable2faFirstDesc),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
+              ),
             const Divider(),
             // Additional Options
             ListTile(
@@ -549,6 +582,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(l10n.aboutTitle),
+              subtitle: Text(l10n.aboutAppTileSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutScreen(),
                   ),
                 );
               },

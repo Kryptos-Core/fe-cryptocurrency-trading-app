@@ -1080,4 +1080,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currenciesNo => 'No';
+
+  @override
+  String get profileTapToChangeAvatar => 'Tap to change avatar';
+
+  @override
+  String get profileEditName => 'Edit name';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get profileAvatarUpdated => 'Avatar updated';
+
+  @override
+  String get profileSecurityRequiresApproval => 'Security (requires approval)';
+
+  @override
+  String get profileChangeEmail => 'Change email';
+
+  @override
+  String get profileChangePassword => 'Change password';
+
+  @override
+  String get profileOtpAdminReviewRequired => 'OTP + admin review required';
+
+  @override
+  String get profileEnable2faFirstTitle => 'Enable 2FA first';
+
+  @override
+  String get profileEnable2faFirstDesc =>
+      'Go to Settings to enable 2FA before changing email/password';
+
+  @override
+  String get settingsLanguageTitle => 'Language';
+
+  @override
+  String get settingsSecurityTitle => 'Security';
+
+  @override
+  String get settings2faDescription =>
+      'Enable 2FA to protect sensitive actions like changing email/password.';
+
+  @override
+  String get settings2faLabel => 'Two-factor authentication';
+
+  @override
+  String get settings2faEnabled => 'Enabled';
+
+  @override
+  String get settings2faDisabled => 'Disabled';
+
+  @override
+  String get otpSentToEmail => 'OTP sent to your verified email.';
+
+  @override
+  String get otpVerificationTitle => 'OTP verification';
+
+  @override
+  String get otpEnterCodeHint => 'Enter 6-digit OTP';
+
+  @override
+  String get otpVerify => 'Verify';
+
+  @override
+  String get otpRequiredEnable2faFirst =>
+      'Please enable 2FA in Settings before changing email or password.';
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get aboutOpenInBrowser => 'Open in browser';
+
+  @override
+  String get aboutPolicyGuideHint =>
+      'Policy, app information, and user guide are available in browser.';
+
+  @override
+  String get aboutAppTileTitle => 'About app';
+
+  @override
+  String get aboutAppTileSubtitle => 'Policy, app info, user guide';
+
+  @override
+  String get requestSentPendingApproval => 'Request sent. Pending approval.';
 }

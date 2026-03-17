@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/windows_extension_precheck_card.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/platform_notice_card.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wallet_challenge_section.dart';
@@ -261,16 +262,12 @@ class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownButtonFormField<BlockchainNetwork>(
-                      initialValue: _selectedNetwork,
-                      isExpanded: true,
+                    AppDropdownField<BlockchainNetwork>(
+                      value: _selectedNetwork,
                       menuMaxHeight: 300,
-                      decoration: InputDecoration(
-                        labelText: l10n.networkLabel,
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 15),
-                      ),
+                      labelText: l10n.networkLabel,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 15),
                       items: BlockchainNetwork.values
                           .map(
                             (network) => DropdownMenuItem(

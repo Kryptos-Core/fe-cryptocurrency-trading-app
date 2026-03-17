@@ -41,6 +41,7 @@ abstract class UserRemoteDataSource {
     required String token,
     required String changeType,
     required Map<String, dynamic> payload,
+    String? otpCode,
   });
 
   /// Upload avatar image (multipart)
@@ -479,11 +480,16 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     required String token,
     required String changeType,
     required Map<String, dynamic> payload,
+    String? otpCode,
   }) async {
     try {
       final response = await dio.post(
         ApiConstants.usersMeSecurityChangeRequests,
-        data: {'changeType': changeType, 'payload': payload},
+        data: {
+          'changeType': changeType,
+          'payload': payload,
+          if (otpCode != null) 'otpCode': otpCode,
+        },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
         ),

@@ -43,6 +43,21 @@ abstract class AuthRemoteDataSource {
     required String address,
     required String signature,
   });
+
+  /// Send OTP to current user's verified email for 2FA action.
+  Future<void> send2faOtp(String token);
+
+  /// Enable 2FA with OTP code.
+  Future<bool> enable2fa({
+    required String token,
+    required String otpCode,
+  });
+
+  /// Disable 2FA with OTP code.
+  Future<bool> disable2fa({
+    required String token,
+    required String otpCode,
+  });
 }
 
 /// Response from POST /auth/wallet-nonce
@@ -305,6 +320,103 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw NetworkException(
         message: 'Cannot reach server. Check connection.',
       );
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> send2faOtp(String token) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.auth2faSendOtp,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode != 200) {
+        throw ServerException(
+          message: response.data['message'] ?? 'Failed to send OTP',
+        );
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final message = e.response!.data['message'] ?? 'Failed to send OTP';
+        if (statusCode == 401) throw AuthenticationException(message: message);
+        throw ServerException(message: message);
+      }
+      throw NetworkException(message: 'Cannot reach server. Check connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> enable2fa({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.auth2faEnable,
+        data: {'otpCode': otpCode},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw is Map && raw['data'] != null ? raw['data'] : raw;
+        return data is Map ? data['enabled'] == true : true;
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to enable 2FA',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final message = e.response!.data['message'] ?? 'Failed to enable 2FA';
+        if (statusCode == 401) throw AuthenticationException(message: message);
+        if (statusCode == 400) throw ValidationException(message: message);
+        throw ServerException(message: message);
+      }
+      throw NetworkException(message: 'Cannot reach server. Check connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> disable2fa({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.auth2faDisable,
+        data: {'otpCode': otpCode},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw is Map && raw['data'] != null ? raw['data'] : raw;
+        return data is Map ? data['enabled'] == false : false;
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to disable 2FA',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final message = e.response!.data['message'] ?? 'Failed to disable 2FA';
+        if (statusCode == 401) throw AuthenticationException(message: message);
+        if (statusCode == 400) throw ValidationException(message: message);
+        throw ServerException(message: message);
+      }
+      throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {
       throw ServerException(message: e.toString());
     }

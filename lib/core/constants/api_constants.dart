@@ -44,6 +44,10 @@ class ApiConstants {
   /// Environment (development/production)
   static String get env => dotenv.env['ENV'] ?? 'development';
 
+  /// About/help page URL for app policy and guides.
+  static String get aboutUrl =>
+      dotenv.env['ABOUT_URL'] ?? 'https://github.com';
+
   // Các API Endpoints
   // NOTE: Base URL đã chứa /api/v1 prefix, nên endpoints không cần prefix nữa
   
@@ -55,6 +59,9 @@ class ApiConstants {
   static const String authLogin = '/auth/login';
   static const String authWalletNonce = '/auth/wallet-nonce';
   static const String authWalletVerify = '/auth/wallet-verify';
+  static const String auth2faSendOtp = '/auth/2fa/send-otp';
+  static const String auth2faEnable = '/auth/2fa/enable';
+  static const String auth2faDisable = '/auth/2fa/disable';
   // Note: getCurrentUser should use /users/me instead of /auth/me
   // Backend's /auth/me is not exposed - use users service instead
   

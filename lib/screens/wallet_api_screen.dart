@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 /// Format số tiền hiển thị: dấu phẩy nghìn, tối đa 2 chữ số thập phân (bỏ số 0 thừa).
@@ -87,7 +88,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
         _isLoadingCurrencies = false;
         _currenciesError = e.toString();
       });
-      print('[WalletApiScreen] Error loading currencies: $e');
+      debugPrint('[WalletApiScreen] Error loading currencies: $e');
     }
   }
 
@@ -97,7 +98,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
         (c) => c.currencyId == _selectedCurrencyId,
         orElse: () => _currencies.first,
       );
-      print(
+      debugPrint(
           '[WalletApiScreen] Fetching balance for ${selectedCurrency.symbol} (currencyId: $_selectedCurrencyId)');
 
       context.read<WalletsProvider>().fetchWalletBalance(
@@ -159,26 +160,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 _PortfolioOverview(wallets: provider.wallets),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: DropdownButtonFormField<String>(
-                  initialValue: _selectedCurrencyId,
+                child: AppDropdownField<String>(
+                  value: _selectedCurrencyId,
                   menuMaxHeight: MediaQuery.of(context).size.height * 0.4,
-                  decoration: InputDecoration(
-                    labelText: l10n.selectCurrency,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.currency_bitcoin,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+                  labelText: l10n.selectCurrency,
                   items: _currencies.map((currency) {
                     return DropdownMenuItem<String>(
                       value: currency.currencyId,

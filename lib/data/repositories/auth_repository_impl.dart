@@ -40,6 +40,7 @@ abstract class AuthRepository {
     required String token,
     required String changeType,
     required Map<String, dynamic> payload,
+    String? otpCode,
   });
 
   /// Upload avatar — trả về user đã cập nhật
@@ -67,6 +68,18 @@ abstract class AuthRepository {
     String requestId,
     String token, {
     String? reviewNote,
+  });
+
+  Future<Either<Failure, void>> send2faOtp(String token);
+
+  Future<Either<Failure, bool>> enable2fa({
+    required String token,
+    required String otpCode,
+  });
+
+  Future<Either<Failure, bool>> disable2fa({
+    required String token,
+    required String otpCode,
   });
 }
 
@@ -227,12 +240,14 @@ class AuthRepositoryImpl implements AuthRepository {
     required String token,
     required String changeType,
     required Map<String, dynamic> payload,
+    String? otpCode,
   }) async {
     try {
       final res = await userRemoteDataSource.requestSecurityChange(
         token: token,
         changeType: changeType,
         payload: payload,
+        otpCode: otpCode,
       );
       return Right(res);
     } on AuthenticationException catch (e) {
@@ -337,6 +352,70 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthenticationFailure(message: e.message));
     } on NotFoundException catch (e) {
       return Left(ServerFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> send2faOtp(String token) async {
+    try {
+      await remoteDataSource.send2faOtp(token);
+      return const Right(null);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> enable2fa({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      final enabled = await remoteDataSource.enable2fa(
+        token: token,
+        otpCode: otpCode,
+      );
+      return Right(enabled);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> disable2fa({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      final enabled = await remoteDataSource.disable2fa(
+        token: token,
+        otpCode: otpCode,
+      );
+      return Right(enabled);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {

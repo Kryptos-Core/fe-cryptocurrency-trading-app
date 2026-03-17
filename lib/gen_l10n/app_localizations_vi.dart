@@ -1081,4 +1081,90 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get currenciesNo => 'Không';
+
+  @override
+  String get profileTapToChangeAvatar => 'Chạm để đổi ảnh đại diện';
+
+  @override
+  String get profileEditName => 'Sửa tên';
+
+  @override
+  String get profileUpdated => 'Đã cập nhật hồ sơ';
+
+  @override
+  String get profileAvatarUpdated => 'Đã cập nhật ảnh đại diện';
+
+  @override
+  String get profileSecurityRequiresApproval => 'Bảo mật (cần xét duyệt)';
+
+  @override
+  String get profileChangeEmail => 'Đổi email';
+
+  @override
+  String get profileChangePassword => 'Đổi mật khẩu';
+
+  @override
+  String get profileOtpAdminReviewRequired => 'Cần OTP + xét duyệt từ quản trị';
+
+  @override
+  String get profileEnable2faFirstTitle => 'Hãy bật 2FA trước';
+
+  @override
+  String get profileEnable2faFirstDesc =>
+      'Vào Cài đặt để bật 2FA trước khi đổi email/mật khẩu';
+
+  @override
+  String get settingsLanguageTitle => 'Ngôn ngữ';
+
+  @override
+  String get settingsSecurityTitle => 'Bảo mật';
+
+  @override
+  String get settings2faDescription =>
+      'Bật 2FA để bảo vệ các thao tác nhạy cảm như đổi email/mật khẩu.';
+
+  @override
+  String get settings2faLabel => 'Xác thực hai bước';
+
+  @override
+  String get settings2faEnabled => 'Đang bật';
+
+  @override
+  String get settings2faDisabled => 'Đang tắt';
+
+  @override
+  String get otpSentToEmail => 'OTP đã được gửi tới email đã xác thực.';
+
+  @override
+  String get otpVerificationTitle => 'Xác minh OTP';
+
+  @override
+  String get otpEnterCodeHint => 'Nhập OTP 6 chữ số';
+
+  @override
+  String get otpVerify => 'Xác minh';
+
+  @override
+  String get otpRequiredEnable2faFirst =>
+      'Vui lòng bật 2FA trong Cài đặt trước khi đổi email hoặc mật khẩu.';
+
+  @override
+  String get aboutTitle => 'Giới thiệu';
+
+  @override
+  String get aboutOpenInBrowser => 'Mở trong trình duyệt';
+
+  @override
+  String get aboutPolicyGuideHint =>
+      'Chính sách, thông tin ứng dụng và hướng dẫn sử dụng có trong trang web.';
+
+  @override
+  String get aboutAppTileTitle => 'Về ứng dụng';
+
+  @override
+  String get aboutAppTileSubtitle => 'Chính sách, thông tin, hướng dẫn';
+
+  @override
+  String get requestSentPendingApproval =>
+      'Yêu cầu đã gửi. Đang chờ xét duyệt.';
 }

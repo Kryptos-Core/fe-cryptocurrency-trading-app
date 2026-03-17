@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 // --- Format số hiển thị (best practice: dấu phân cách hàng nghìn, bỏ số 0 thừa) ---
 
@@ -199,24 +200,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final colorScheme = theme.colorScheme;
     final markets = marketsProvider.markets;
 
-    final inputDecoration = InputDecoration(
-      labelText: l10n.tradingPair,
-      filled: true,
-      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_kInputRadius)),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_kInputRadius),
-        borderSide:
-            BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(_kInputRadius),
-        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    );
-
     return Card(
       elevation: _kCardElevation,
       shape: RoundedRectangleBorder(
@@ -234,10 +217,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<MarketPair>(
-              initialValue: _selectedMarket,
-              decoration: inputDecoration.copyWith(labelText: l10n.tradingPair),
-              hint: Text(markets.isEmpty ? l10n.loading : l10n.tradingPair),
+            AppDropdownField<MarketPair>(
+              value: _selectedMarket,
+              labelText: l10n.tradingPair,
+              hintText: markets.isEmpty ? l10n.loading : l10n.tradingPair,
               items: markets
                   .map((m) => DropdownMenuItem<MarketPair>(
                         value: m,

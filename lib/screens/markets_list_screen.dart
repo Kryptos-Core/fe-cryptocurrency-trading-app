@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
@@ -217,25 +218,29 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(
+              SizedBox(
+                width: 150,
                 child: _BaseFilterDropdown(
                   selectedBaseSymbol: provider.filterBaseSymbol,
                   onSelected: provider.setFilterBaseSymbol,
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
+              SizedBox(
+                width: 150,
                 child: _QuoteFilterDropdown(
                   selectedQuoteSymbol: provider.filterQuoteSymbol,
                   onSelected: provider.setFilterQuoteSymbol,
                 ),
               ),
+              const Spacer(),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(
+              SizedBox(
+                width: 180,
                 child: _SortDropdown(
                   selected: provider.sortOption,
                   onSelected: provider.setSortOption,
@@ -380,20 +385,13 @@ class _QuoteFilterDropdown extends StatelessWidget {
         final options = currenciesProvider.tradableCurrencies;
         final symbols = options.map((c) => c.symbol).toList();
         symbols.sort();
-        return DropdownButtonFormField<String>(
-          initialValue: selectedQuoteSymbol != null &&
-                  symbols.contains(selectedQuoteSymbol)
+        return AppDropdownField<String>(
+          value: selectedQuoteSymbol != null && symbols.contains(selectedQuoteSymbol)
               ? selectedQuoteSymbol
               : null,
           menuMaxHeight: MediaQuery.of(context).size.height * 0.45,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            isDense: true,
-            labelText: l10n.filterQuote,
-          ),
-          hint: Text(l10n.filterQuoteAll),
+          labelText: l10n.filterQuote,
+          hintText: l10n.filterQuoteAll,
           items: [
             DropdownMenuItem<String>(
               value: null,
@@ -428,20 +426,13 @@ class _BaseFilterDropdown extends StatelessWidget {
         final options = currenciesProvider.tradableCurrencies;
         final symbols = options.map((c) => c.symbol).toList();
         symbols.sort();
-        return DropdownButtonFormField<String>(
-          initialValue:
-              selectedBaseSymbol != null && symbols.contains(selectedBaseSymbol)
-                  ? selectedBaseSymbol
-                  : null,
+        return AppDropdownField<String>(
+          value: selectedBaseSymbol != null && symbols.contains(selectedBaseSymbol)
+              ? selectedBaseSymbol
+              : null,
           menuMaxHeight: MediaQuery.of(context).size.height * 0.45,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            isDense: true,
-            labelText: l10n.filterBase,
-          ),
-          hint: Text(l10n.filterBaseAll),
+          labelText: l10n.filterBase,
+          hintText: l10n.filterBaseAll,
           items: [
             DropdownMenuItem<String>(
               value: null,
@@ -481,14 +472,9 @@ class _SortDropdown extends StatelessWidget {
       (MarketSortOption.oldest, l10n.marketsSortOldest),
     ];
 
-    return DropdownButtonFormField<MarketSortOption>(
-      initialValue: selected,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        isDense: true,
-        labelText: l10n.marketsSortBy,
-      ),
+    return AppDropdownField<MarketSortOption>(
+      value: selected,
+      labelText: l10n.marketsSortBy,
       items: options
           .map(
             (item) => DropdownMenuItem<MarketSortOption>(

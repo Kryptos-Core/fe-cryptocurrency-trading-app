@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
 import 'package:crypto_trading_app/screens/orders_screen.dart';
 import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
+import 'package:crypto_trading_app/screens/about_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
@@ -316,9 +317,15 @@ class _MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.info),
-              title: const Text('About'),
+              title: Text(l10n.aboutTitle),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutScreen(),
+                  ),
+                );
               },
             ),
             ListTile(

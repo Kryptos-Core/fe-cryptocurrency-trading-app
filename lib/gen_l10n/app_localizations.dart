@@ -2065,6 +2065,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No'**
   String get currenciesNo;
+
+  /// No description provided for @profileTapToChangeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change avatar'**
+  String get profileTapToChangeAvatar;
+
+  /// No description provided for @profileEditName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get profileEditName;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get profileUpdated;
+
+  /// No description provided for @profileAvatarUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar updated'**
+  String get profileAvatarUpdated;
+
+  /// No description provided for @profileSecurityRequiresApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Security (requires approval)'**
+  String get profileSecurityRequiresApproval;
+
+  /// No description provided for @profileChangeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get profileChangeEmail;
+
+  /// No description provided for @profileChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get profileChangePassword;
+
+  /// No description provided for @profileOtpAdminReviewRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP + admin review required'**
+  String get profileOtpAdminReviewRequired;
+
+  /// No description provided for @profileEnable2faFirstTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable 2FA first'**
+  String get profileEnable2faFirstTitle;
+
+  /// No description provided for @profileEnable2faFirstDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings to enable 2FA before changing email/password'**
+  String get profileEnable2faFirstDesc;
+
+  /// No description provided for @settingsLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageTitle;
+
+  /// No description provided for @settingsSecurityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsSecurityTitle;
+
+  /// No description provided for @settings2faDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable 2FA to protect sensitive actions like changing email/password.'**
+  String get settings2faDescription;
+
+  /// No description provided for @settings2faLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication'**
+  String get settings2faLabel;
+
+  /// No description provided for @settings2faEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get settings2faEnabled;
+
+  /// No description provided for @settings2faDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get settings2faDisabled;
+
+  /// No description provided for @otpSentToEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sent to your verified email.'**
+  String get otpSentToEmail;
+
+  /// No description provided for @otpVerificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP verification'**
+  String get otpVerificationTitle;
+
+  /// No description provided for @otpEnterCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-digit OTP'**
+  String get otpEnterCodeHint;
+
+  /// No description provided for @otpVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get otpVerify;
+
+  /// No description provided for @otpRequiredEnable2faFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable 2FA in Settings before changing email or password.'**
+  String get otpRequiredEnable2faFirst;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get aboutOpenInBrowser;
+
+  /// No description provided for @aboutPolicyGuideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy, app information, and user guide are available in browser.'**
+  String get aboutPolicyGuideHint;
+
+  /// No description provided for @aboutAppTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About app'**
+  String get aboutAppTileTitle;
+
+  /// No description provided for @aboutAppTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy, app info, user guide'**
+  String get aboutAppTileSubtitle;
+
+  /// No description provided for @requestSentPendingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent. Pending approval.'**
+  String get requestSentPendingApproval;
 }
 
 class _AppLocalizationsDelegate
