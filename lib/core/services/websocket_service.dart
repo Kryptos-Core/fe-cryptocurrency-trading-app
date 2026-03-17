@@ -207,6 +207,10 @@ abstract class IWebSocketService {
       {String? interval});
   void unsubscribeFromPair(String pairId);
 
+  // Dashboard room
+  void joinDashboard();
+  void leaveDashboard();
+
   // Getters
   bool get isConnected;
   Stream<WebSocketMessage> get messageStream;
@@ -295,6 +299,19 @@ class WebSocketService implements IWebSocketService {
         _handleMessage(
           WebSocketMessage(
             type: 'ohlc',
+            data: payloadData,
+            timestamp: payloadTimestamp ?? DateTime.now(),
+          ),
+        );
+      });
+
+      // Dashboard room: batch ticker updates every 5 seconds from server
+      _socket!.on('dashboard_tickers', (data) {
+        final payloadData = _extractPayloadData(data);
+        final payloadTimestamp = _extractPayloadTimestamp(data);
+        _handleMessage(
+          WebSocketMessage(
+            type: 'dashboard_tickers',
             data: payloadData,
             timestamp: payloadTimestamp ?? DateTime.now(),
           ),
@@ -517,6 +534,27 @@ class WebSocketService implements IWebSocketService {
         connect(_currentUrl!, _currentToken!);
       }
     });
+  }
+
+  // =========================================================================
+  // Dashboard Room (Observer: server pushes batch tickers every 5s)
+  // =========================================================================
+
+  @override
+  void joinDashboard() {
+    if (!isConnected) {
+      _logger.w('⚠️ Not connected, cannot join dashboard room');
+      return;
+    }
+    _socket?.emit('join_dashboard', {'type': 'join_dashboard'});
+    _logger.i('📊 Joined dashboard room');
+  }
+
+  @override
+  void leaveDashboard() {
+    if (!isConnected) return;
+    _socket?.emit('leave_dashboard', {'type': 'leave_dashboard'});
+    _logger.i('📊 Left dashboard room');
   }
 
   // =========================================================================

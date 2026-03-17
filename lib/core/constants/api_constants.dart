@@ -54,6 +54,10 @@ class ApiConstants {
   /// Health check: GET returns { "ok": true, "timestamp": "..." }. Use to verify backend is running.
   static const String health = '/health';
 
+  // Dashboard Endpoint
+  /// Aggregated dashboard data: top markets + portfolio summary + wallet balances.
+  static const String dashboard = '/dashboard';
+
   // Auth Endpoints (Xác thực) - Không có prefix /api/v1
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';

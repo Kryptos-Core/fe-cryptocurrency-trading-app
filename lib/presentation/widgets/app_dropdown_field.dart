@@ -17,7 +17,7 @@ class AppDropdownField<T> extends StatelessWidget {
     this.labelText,
     this.hintText,
     this.menuMaxHeight = 300,
-    this.contentPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    this.contentPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
   });
 
   @override
@@ -30,7 +30,7 @@ class AppDropdownField<T> extends StatelessWidget {
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: contentPadding,
-        isDense: true,
+        isDense: false,
         labelText: labelText,
       ),
       hint: hintText != null ? Text(hintText!) : null,

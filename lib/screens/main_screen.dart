@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/screens/dashboard_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
@@ -135,6 +136,10 @@ class _MainScreenState extends State<MainScreen> {
           setState(() {
             _currentIndex = index;
           });
+          // Smart refresh: re-check dashboard data freshness on tab focus
+          if (index == 0) {
+            context.read<DashboardProvider>().refresh();
+          }
         },
         type: BottomNavigationBarType.fixed,
         items: [

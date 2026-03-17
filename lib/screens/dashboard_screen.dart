@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/screens/wallets_overview_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
-/// Dashboard Screen - Home tab
-/// Shows portfolio overview, top markets, and quick stats
+/// Dashboard Screen — Home tab.
+///
+/// Data: DashboardProvider (REST initial load + WS live updates every 5s).
+/// Sections:
+///   1. Portfolio Summary card — total USDT value, wallet counts
+///   2. Top Markets — 10 pairs sorted by 24h volume, with live tickers
+///   3. My Wallets — top 3 wallets with balance, with estimated USD value
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -22,9 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Load data for dashboard
-      context.read<WalletsProvider>().fetchWallets(refresh: true);
-      context.read<MarketsProvider>().fetchMarkets(refresh: true);
+      context.read<DashboardProvider>().init();
     });
   }
 
@@ -32,53 +37,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.wait([
-            context.read<WalletsProvider>().fetchWallets(refresh: true),
-            context.read<MarketsProvider>().fetchMarkets(refresh: true),
-          ]);
-        },
+        onRefresh: () => context.read<DashboardProvider>().refresh(force: true),
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Portfolio Summary Card
               _buildPortfolioCard(),
               const SizedBox(height: 24),
-              
-              // Top Markets Section
               _buildSectionHeader(
                 title: 'Top Markets',
-                onSeeAll: () {
-                  // Navigate to markets list
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MarketsListScreen(),
-                    ),
-                  );
-                },
+                onSeeAll: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MarketsListScreen(showAppBar: true),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               _buildTopMarkets(),
               const SizedBox(height: 24),
-              
-              // Wallets Summary Section
               _buildSectionHeader(
                 title: 'My Wallets',
-                onSeeAll: () {
-                  // Navigate to wallets overview
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WalletsOverviewScreen(),
-                    ),
-                  );
-                },
+                onSeeAll: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WalletsOverviewScreen(),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               _buildWalletsSummary(),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -86,11 +77,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── Portfolio Card ────────────────────────────────────────────────────────
+
   Widget _buildPortfolioCard() {
-    return Consumer<WalletsProvider>(
-      builder: (context, provider, child) {
-        final totalValue = provider.totalPortfolioValue;
-        
+    return Consumer<DashboardProvider>(
+      builder: (context, provider, _) {
+        final portfolioTotal = provider.portfolioTotal;
+        final formattedTotal = FormatUtils.formatPortfolioTotal(portfolioTotal);
+
         return Card(
           elevation: 4,
           child: Container(
@@ -112,34 +106,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Text(
                   'Total Portfolio Value',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '\$${totalValue.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                provider.isLoading && !provider.hasData
+                    ? const SizedBox(
+                        height: 44,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white54,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        formattedTotal,
+                        style: const TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                 const SizedBox(height: 4),
                 const Text(
                   'USDT',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildStatItem('Wallets', '${provider.wallets.length}'),
-                    _buildStatItem('Active', '${provider.wallets.where((w) => w.hasBalance).length}'),
+                    _buildStatItem('Wallets', '${provider.walletCount}'),
+                    _buildStatItem('Active', '${provider.activeWalletCount}'),
                   ],
                 ),
               ],
@@ -156,10 +154,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-          ),
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
         ),
         const SizedBox(height: 4),
         Text(
@@ -174,64 +169,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── Section Header ────────────────────────────────────────────────────────
+
   Widget _buildSectionHeader({required String title, VoidCallback? onSeeAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         if (onSeeAll != null)
-          TextButton(
-            onPressed: onSeeAll,
-            child: const Text('See All'),
-          ),
+          TextButton(onPressed: onSeeAll, child: const Text('See All')),
       ],
     );
   }
 
+  // ── Top Markets ───────────────────────────────────────────────────────────
+
   Widget _buildTopMarkets() {
-    return Consumer<MarketsProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoading && provider.markets.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
-            ),
-          );
+    return Consumer<DashboardProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading && !provider.hasData) {
+          return const _LoadingPlaceholder();
         }
 
-        if (provider.markets.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: Text('No markets available'),
-            ),
-          );
+        final markets = provider.topMarkets;
+        if (markets.isEmpty) {
+          return const _EmptyState(message: 'No markets available');
         }
 
-        // Show top 3 markets
-        final topMarkets = provider.markets.take(3).toList();
+        // Show top 3 for dashboard overview
+        final displayMarkets = markets.take(3).toList();
 
         return Column(
-          children: topMarkets.map((market) {
+          children: displayMarkets.map((market) {
+            final ticker = provider.tickerFor(market.symbol);
             return MarketRow(
               market: market,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MarketDetailScreen(
-                      pairId: market.pairId,
-                    ),
+              ticker: ticker,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (_) => sl<ChartProvider>(),
+                    child: MarketDetailScreen(pairId: market.pairId),
                   ),
-                );
-              },
+                ),
+              ),
             );
           }).toList(),
         );
@@ -239,51 +224,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── My Wallets ────────────────────────────────────────────────────────────
+
   Widget _buildWalletsSummary() {
-    return Consumer<WalletsProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoading && provider.wallets.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
-            ),
-          );
+    return Consumer<DashboardProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading && !provider.hasData) {
+          return const _LoadingPlaceholder();
         }
 
-        if (provider.wallets.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: Text('No wallets found'),
-            ),
-          );
-        }
-
-        // Show top 3 wallets with balance
-        final topWallets = provider.wallets
-            .where((w) => w.hasBalance)
+        final walletItems = provider.summary.wallets
+            .where((w) => (double.tryParse(w.total) ?? 0) > 0)
             .take(3)
             .toList();
 
-        if (topWallets.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: Text('No wallets with balance'),
-            ),
+        if (walletItems.isEmpty) {
+          return const _EmptyState(
+            message: 'No funded wallets yet.\nDeposit or trade to see balances here.',
           );
         }
 
         return Column(
-          children: topWallets.map((wallet) {
+          children: walletItems.map((item) {
+            final usdValue = provider.usdValueFor(item.currencySymbol);
             return WalletCard(
-              wallet: wallet,
-              usdValue: null,
+              wallet: item.toWallet(),
+              usdValue: usdValue > 0 ? usdValue : null,
             );
           }).toList(),
         );
       },
+    );
+  }
+}
+
+// ── Private Helpers ───────────────────────────────────────────────────────────
+
+class _LoadingPlaceholder extends StatelessWidget {
+  const _LoadingPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(32),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String message;
+  const _EmptyState({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Text(
+          message,
+          style: TextStyle(color: Colors.grey.shade500),
+        ),
+      ),
     );
   }
 }

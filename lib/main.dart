@@ -18,6 +18,7 @@ import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
 void main() async {
@@ -108,6 +109,13 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<ManagedWalletsProvider>.value(
           value: di.sl<ManagedWalletsProvider>(),
+        ),
+        ChangeNotifierProvider<DashboardProvider>(
+          create: (_) => DashboardProvider(
+            datasource: di.sl(),
+            wsService: di.sl(),
+            tokenService: di.sl(),
+          ),
         ),
       ],
       child: Consumer<LocaleProvider>(

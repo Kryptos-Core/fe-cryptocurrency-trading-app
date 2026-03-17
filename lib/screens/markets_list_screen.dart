@@ -12,9 +12,16 @@ import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
 /// Markets List Screen
-/// Displays list of all market pairs with search (as-you-type) and filters
+/// Displays list of all market pairs with search (as-you-type) and filters.
+///
+/// [showAppBar] — set to `true` when pushed as a standalone route (e.g. from
+/// the Dashboard "See All" button) so that the AppBar back-button is visible.
+/// Leave `false` (default) when embedded as a tab inside MainScreen, which
+/// provides its own AppBar.
 class MarketsListScreen extends StatefulWidget {
-  const MarketsListScreen({super.key});
+  final bool showAppBar;
+
+  const MarketsListScreen({super.key, this.showAppBar = false});
 
   @override
   State<MarketsListScreen> createState() => _MarketsListScreenState();
@@ -83,6 +90,9 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
+      appBar: widget.showAppBar
+          ? AppBar(title: Text(l10n.markets))
+          : null,
       body: Consumer<MarketsProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.markets.isEmpty) {

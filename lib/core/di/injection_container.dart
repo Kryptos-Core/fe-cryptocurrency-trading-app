@@ -14,6 +14,7 @@ import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart
 import 'package:crypto_trading_app/data/datasources/orders_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/deposit_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/dashboard_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/markets_repository_impl.dart';
@@ -142,6 +143,11 @@ Future<void> initializeDependencies() async {
   // Exchange Remote Data Source (sync Binance → DB)
   sl.registerLazySingleton<ExchangeRemoteDataSource>(
     () => ExchangeRemoteDataSourceImpl(dio: sl()),
+  );
+
+  // Dashboard Remote Data Source
+  sl.registerLazySingleton<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(dio: sl()),
   );
 
   // ===== Repositories =====

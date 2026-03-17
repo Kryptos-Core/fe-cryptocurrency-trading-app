@@ -59,6 +59,10 @@ class AuthProvider extends ChangeNotifier {
 
   /// Restore authentication state from a previously stored JWT.
   /// Call once during app startup (inside the Provider `create` callback).
+  ///
+  /// Role/permissions are decoded synchronously from the JWT claims so the UI
+  /// can render immediately. The full user profile is then fetched in the
+  /// background so the drawer header and avatar populate without blocking.
   void restoreSession() {
     final token = _tokenService.getAccessToken();
     if (token == null || token.isEmpty) return;
@@ -70,6 +74,22 @@ class AuthProvider extends ChangeNotifier {
     _permissions = _parsePermissions(claims['permissions']);
     _isAuthenticated = true;
     notifyListeners();
+
+    // Background-fetch the full user profile (drawer name, avatar, etc.)
+    _refreshCurrentUser(token);
+  }
+
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  Future<void> _refreshCurrentUser(String token) async {
+    final result = await _authRepository.getCurrentUser(token);
+    result.fold(
+      (_) {}, // silent: token is valid but profile fetch failed — not critical
+      (user) {
+        _currentUser = user;
+        notifyListeners();
+      },
+    );
   }
 
   /// Authenticate the user. Saves tokens, decodes JWT claims, updates providers.
