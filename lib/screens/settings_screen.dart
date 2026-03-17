@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/providers/theme_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 
@@ -183,6 +184,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // ── Theme section ───────────────────────────────────────
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) => Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Chủ đề',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Light / System / Dark toggle
+                          SegmentedButton<ThemeMode>(
+                            segments: const [
+                              ButtonSegment(
+                                value: ThemeMode.light,
+                                icon: Icon(Icons.light_mode_outlined),
+                                label: Text('Sáng'),
+                              ),
+                              ButtonSegment(
+                                value: ThemeMode.system,
+                                icon: Icon(Icons.auto_mode_outlined),
+                                label: Text('Hệ thống'),
+                              ),
+                              ButtonSegment(
+                                value: ThemeMode.dark,
+                                icon: Icon(Icons.dark_mode_outlined),
+                                label: Text('Tối'),
+                              ),
+                            ],
+                            selected: {themeProvider.themeMode},
+                            onSelectionChanged: (s) =>
+                                themeProvider.setThemeMode(s.first),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Màu chủ đề',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Seed color swatch grid
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: ThemeProvider.presetSeeds.map((preset) {
+                              final isSelected =
+                                  themeProvider.seedColor.value == preset.seed.value;
+                              return Tooltip(
+                                message: preset.name,
+                                child: InkWell(
+                                  onTap: () =>
+                                      themeProvider.setSeedColor(preset.seed),
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: preset.seed,
+                                      shape: BoxShape.circle,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                              width: 3,
+                                            )
+                                          : null,
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: preset.seed
+                                                    .withOpacity(0.5),
+                                                blurRadius: 6,
+                                                spreadRadius: 1,
+                                              )
+                                            ]
+                                          : null,
+                                    ),
+                                    child: isSelected
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 20,
+                                          )
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // ── Language section ─────────────────────────────────────
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(20),

@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
+import 'package:crypto_trading_app/core/providers/theme_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
@@ -62,6 +63,9 @@ class CryptoTradingApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<LocaleProvider>.value(
           value: di.sl<LocaleProvider>(),
+        ),
+        ChangeNotifierProvider<ThemeProvider>.value(
+          value: di.sl<ThemeProvider>(),
         ),
         ChangeNotifierProvider<AuthProvider>(
           create: (_) {
@@ -118,14 +122,13 @@ class CryptoTradingApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Consumer<LocaleProvider>(
-        builder: (context, localeProvider, _) => MaterialApp(
+      child: Consumer2<LocaleProvider, ThemeProvider>(
+        builder: (context, localeProvider, themeProvider, _) => MaterialApp(
           title: 'Kryptos Core',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed: Colors.indigo,
-          ),
+          theme: themeProvider.lightTheme,
+          darkTheme: themeProvider.darkTheme,
+          themeMode: themeProvider.themeMode,
           locale: localeProvider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
