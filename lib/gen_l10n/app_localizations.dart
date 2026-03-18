@@ -2108,6 +2108,18 @@ abstract class AppLocalizations {
   /// **'Change password'**
   String get profileChangePassword;
 
+  /// No description provided for @profileChangePasswordDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Change directly, no approval required'**
+  String get profileChangePasswordDirect;
+
+  /// No description provided for @profilePasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password has been changed'**
+  String get profilePasswordChanged;
+
   /// No description provided for @profileOtpAdminReviewRequired.
   ///
   /// In en, this message translates to:

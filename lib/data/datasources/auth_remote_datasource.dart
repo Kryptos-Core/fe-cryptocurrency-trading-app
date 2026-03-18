@@ -58,6 +58,13 @@ abstract class AuthRemoteDataSource {
     required String token,
     required String otpCode,
   });
+
+  /// Change password directly (no admin approval). Requires 2FA OTP.
+  Future<bool> changePassword({
+    required String token,
+    required String newPassword,
+    required String otpCode,
+  });
 }
 
 /// Response from POST /auth/wallet-nonce
@@ -415,6 +422,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         if (statusCode == 401) throw AuthenticationException(message: message);
         if (statusCode == 400) throw ValidationException(message: message);
         throw ServerException(message: message);
+      }
+      throw NetworkException(message: 'Cannot reach server. Check connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<bool> changePassword({
+    required String token,
+    required String newPassword,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authChangePassword,
+        data: {
+          'newPassword': newPassword,
+          'otpCode': otpCode,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw is Map && raw['data'] != null ? raw['data'] : raw;
+        return data is Map ? data['success'] == true : true;
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to change password',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final msg = e.response!.data['message'] ?? 'Failed to change password';
+        if (e.response!.statusCode == 401) throw AuthenticationException(message: msg);
+        if (e.response!.statusCode == 400) throw ValidationException(message: msg);
+        throw ServerException(message: msg);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {

@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
+import 'package:crypto_trading_app/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 import 'package:crypto_trading_app/core/enums/user_role.dart';
@@ -247,7 +248,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _requestSecurityChange(String changeType, {String? label, String? hint, bool isPassword = false}) async {
+  /// Đổi mật khẩu trực tiếp (không cần xét duyệt)
+  Future<void> _requestPasswordChange() async {
     if (_currentUser == null) return;
     if (!_currentUser!.twoFaEnabled) {
       if (mounted) {
@@ -266,9 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final otpSent = await authRepo.send2faOtp(token);
     final canContinue = otpSent.fold((f) {
-      if (mounted) {
-        showAppSnackBar(context, message: f.message, type: SnackBarType.error);
-      }
+      if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
       return false;
     }, (_) => true);
     if (!canContinue) return;
@@ -282,17 +282,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     if (!mounted) return;
 
-    final otpController = TextEditingController();
-    final otpOk = await showDialog<bool>(
+    final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+    if (otp == null || otp.length != 6) return;
+
+    final newPassword = await _showChangePasswordDialog();
+    if (newPassword == null || newPassword.isEmpty) return;
+
+    final result = await authRepo.changePassword(
+      token: token,
+      newPassword: newPassword,
+      otpCode: otp,
+    );
+    result.fold(
+      (f) {
+        if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      },
+      (_) {
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            message: AppLocalizations.of(context).profilePasswordChanged,
+            type: SnackBarType.success,
+          );
+        }
+      },
+    );
+  }
+
+  /// Gửi yêu cầu thay đổi email (cần xét duyệt)
+  Future<void> _requestEmailChange() async {
+    if (_currentUser == null) return;
+    if (!_currentUser!.twoFaEnabled) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).otpRequiredEnable2faFirst,
+          type: SnackBarType.error,
+        );
+      }
+      return;
+    }
+
+    final token = sl<TokenService>().getAccessToken();
+    if (token == null) return;
+    final authRepo = sl<AuthRepository>();
+
+    final otpSent = await authRepo.send2faOtp(token);
+    final canContinue = otpSent.fold((f) {
+      if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      return false;
+    }, (_) => true);
+    if (!canContinue) return;
+
+    if (mounted) {
+      showAppSnackBar(
+        context,
+        message: AppLocalizations.of(context).otpSentToEmail,
+        type: SnackBarType.success,
+      );
+    }
+    if (!mounted) return;
+
+    final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+    if (otp == null || otp.length != 6) return;
+
+    final newEmail = await _showChangeEmailDialog(label: 'New email', hint: 'Enter new email');
+    if (newEmail == null || newEmail.isEmpty) return;
+
+    final result = await authRepo.requestSecurityChange(
+      token: token,
+      changeType: 'EMAIL_CHANGE',
+      payload: {'email': newEmail},
+      otpCode: otp,
+    );
+    result.fold(
+      (f) {
+        if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      },
+      (_) {
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            message: AppLocalizations.of(context).requestSentPendingApproval,
+            type: SnackBarType.success,
+          );
+        }
+      },
+    );
+  }
+
+  Future<String?> _showChangeEmailDialog({String? label, String? hint}) async {
+    final controller = TextEditingController();
+    final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx).otpVerificationTitle),
+        title: Text(label ?? 'New email'),
         content: TextField(
-          controller: otpController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: AppLocalizations.of(ctx).otpEnterCodeHint,
-          ),
+          controller: controller,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(hintText: hint ?? 'Enter new email'),
         ),
         actions: [
           TextButton(
@@ -301,56 +389,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(AppLocalizations.of(ctx).otpVerify),
+            child: const Text('Submit request'),
           ),
         ],
       ),
     );
-    if (otpOk != true || otpController.text.trim().length != 6) {
-      return;
-    }
+    if (ok != true || controller.text.trim().isEmpty) return null;
+    return controller.text.trim();
+  }
 
-    final controller = TextEditingController();
-    if (!mounted) return;
+  Future<String?> _showChangePasswordDialog() async {
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
+    String? errorMsg;
+
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(label ?? changeType),
-        content: TextField(
-          controller: controller,
-          obscureText: isPassword,
-          decoration: InputDecoration(hintText: hint),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx).cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Submit request')),
-        ],
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          final l10n = AppLocalizations.of(ctx);
+          return AlertDialog(
+            title: Text(l10n.profileChangePassword),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: l10n.passwordMinLength,
+                    errorText: errorMsg,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: confirmController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: l10n.confirmPassword,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l10n.cancel),
+              ),
+              FilledButton(
+                onPressed: () {
+                  final pwd = passwordController.text;
+                  final confirm = confirmController.text;
+                  if (pwd.length < 8) {
+                    setState(() => errorMsg = l10n.passwordMinLength);
+                    return;
+                  }
+                  if (pwd != confirm) {
+                    setState(() => errorMsg = l10n.registerPasswordsNoMatch);
+                    return;
+                  }
+                  Navigator.pop(ctx, true);
+                },
+                child: const Text('Submit request'),
+              ),
+            ],
+          );
+        },
       ),
     );
-    if (ok != true || controller.text.trim().isEmpty) return;
-    final payload = isPassword ? {'password': controller.text.trim()} : {'email': controller.text.trim()};
-    final result = await authRepo.requestSecurityChange(
-      token: token,
-      changeType: changeType,
-      payload: payload,
-      otpCode: otpController.text.trim(),
-    );
-    result.fold(
-      (f) {
-        if (mounted) {
-          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
-        }
-      },
-      (_) {
-        if (mounted) {
-          showAppSnackBar(
-          context,
-          message: AppLocalizations.of(context).requestSentPendingApproval,
-          type: SnackBarType.success,
-        );
-        }
-      },
-    );
+    if (ok != true) return null;
+    return passwordController.text.trim();
   }
 
   @override
@@ -526,23 +635,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text(l10n.profileChangeEmail),
                 subtitle: Text(l10n.profileOtpAdminReviewRequired),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => _requestSecurityChange(
-                  'EMAIL_CHANGE',
-                  label: 'New email',
-                  hint: 'Enter new email',
-                ),
+                onTap: _requestEmailChange,
               ),
               ListTile(
                 leading: const Icon(Icons.lock_outline),
                 title: Text(l10n.profileChangePassword),
-                subtitle: Text(l10n.profileOtpAdminReviewRequired),
+                subtitle: Text(l10n.profileChangePasswordDirect),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => _requestSecurityChange(
-                  'PASSWORD_CHANGE',
-                  label: 'New password',
-                  hint: 'Min 8 characters',
-                  isPassword: true,
-                ),
+                onTap: _requestPasswordChange,
               ),
             ] else
               ListTile(

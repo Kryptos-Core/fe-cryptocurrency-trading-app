@@ -66,6 +66,7 @@ class ApiConstants {
   static const String auth2faSendOtp = '/auth/2fa/send-otp';
   static const String auth2faEnable = '/auth/2fa/enable';
   static const String auth2faDisable = '/auth/2fa/disable';
+  static const String authChangePassword = '/auth/change-password';
   // Note: getCurrentUser should use /users/me instead of /auth/me
   // Backend's /auth/me is not exposed - use users service instead
   

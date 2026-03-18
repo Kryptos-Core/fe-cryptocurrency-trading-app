@@ -415,6 +415,8 @@
   "profileSecurityRequiresApproval": "Security (requires approval)",
   "profileChangeEmail": "Change email",
   "profileChangePassword": "Change password",
+  "profileChangePasswordDirect": "Change directly, no approval required",
+  "profilePasswordChanged": "Password has been changed",
   "profileOtpAdminReviewRequired": "OTP + admin review required",
   "profileEnable2faFirstTitle": "Enable 2FA first",
   "profileEnable2faFirstDesc": "Go to Settings to enable 2FA before changing email/password",

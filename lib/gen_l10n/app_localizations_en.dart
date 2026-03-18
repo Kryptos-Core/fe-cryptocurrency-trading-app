@@ -1103,6 +1103,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileChangePassword => 'Change password';
 
   @override
+  String get profileChangePasswordDirect =>
+      'Change directly, no approval required';
+
+  @override
+  String get profilePasswordChanged => 'Password has been changed';
+
+  @override
   String get profileOtpAdminReviewRequired => 'OTP + admin review required';
 
   @override

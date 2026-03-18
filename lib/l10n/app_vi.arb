@@ -359,6 +359,8 @@
   "profileSecurityRequiresApproval": "Bảo mật (cần xét duyệt)",
   "profileChangeEmail": "Đổi email",
   "profileChangePassword": "Đổi mật khẩu",
+  "profileChangePasswordDirect": "Đổi trực tiếp, không cần xét duyệt",
+  "profilePasswordChanged": "Mật khẩu đã được thay đổi",
   "profileOtpAdminReviewRequired": "Cần OTP + xét duyệt từ quản trị",
   "profileEnable2faFirstTitle": "Hãy bật 2FA trước",
   "profileEnable2faFirstDesc": "Vào Cài đặt để bật 2FA trước khi đổi email/mật khẩu",

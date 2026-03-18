@@ -81,6 +81,13 @@ abstract class AuthRepository {
     required String token,
     required String otpCode,
   });
+
+  /// Đổi mật khẩu trực tiếp (không cần xét duyệt). Yêu cầu 2FA OTP.
+  Future<Either<Failure, bool>> changePassword({
+    required String token,
+    required String newPassword,
+    required String otpCode,
+  });
 }
 
 /// Auth Response entity
@@ -412,6 +419,32 @@ class AuthRepositoryImpl implements AuthRepository {
         otpCode: otpCode,
       );
       return Right(enabled);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> changePassword({
+    required String token,
+    required String newPassword,
+    required String otpCode,
+  }) async {
+    try {
+      final ok = await remoteDataSource.changePassword(
+        token: token,
+        newPassword: newPassword,
+        otpCode: otpCode,
+      );
+      return Right(ok);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
     } on ValidationException catch (e) {

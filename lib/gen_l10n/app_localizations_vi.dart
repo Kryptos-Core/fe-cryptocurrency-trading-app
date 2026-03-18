@@ -1104,6 +1104,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get profileChangePassword => 'Đổi mật khẩu';
 
   @override
+  String get profileChangePasswordDirect =>
+      'Đổi trực tiếp, không cần xét duyệt';
+
+  @override
+  String get profilePasswordChanged => 'Mật khẩu đã được thay đổi';
+
+  @override
   String get profileOtpAdminReviewRequired => 'Cần OTP + xét duyệt từ quản trị';
 
   @override
