@@ -567,8 +567,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icons.account_balance_wallet,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: const Text('Treasury Management'),
-                subtitle: const Text('Manage company wallets & deposit settings'),
+                title: Text(l10n.treasuryTitle),
+                subtitle: Text(l10n.treasuryManageSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.push(
