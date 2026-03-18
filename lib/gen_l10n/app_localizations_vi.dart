@@ -1525,6 +1525,23 @@ class AppLocalizationsVi extends AppLocalizations {
   String get myWallets => 'Ví của tôi';
 
   @override
+  String get cashWalletSectionTitle => 'Ví Tiền';
+
+  @override
+  String get cashWalletSectionSubtitle =>
+      'Nhận toàn bộ tiền nạp • Dùng để mua coin';
+
+  @override
+  String get coinAssetsSectionTitle => 'Tài sản';
+
+  @override
+  String get coinAssetsSectionSubtitle => 'Coin sở hữu từ giao dịch';
+
+  @override
+  String get depositOnchainHint =>
+      'Tiền sẽ được quy đổi sang USDT và cộng vào Ví Tiền';
+
+  @override
   String get treasuryTitle => 'Quản lý kho quỹ';
 
   @override

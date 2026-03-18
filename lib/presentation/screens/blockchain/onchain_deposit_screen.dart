@@ -322,7 +322,40 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 Text(l10n.onchainDepositDesc),
                 const SizedBox(height: 16),
                 const DepositMethodsCard(),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                // ── FX Conversion Hint ──
+                // Giải thích cho user: coin nạp sẽ được quy đổi → USDT vào Ví Tiền
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF2FD),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF90B8F5)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 18,
+                        color: Color(0xFF0A5DC2),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.depositOnchainHint,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF0A3A8A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
@@ -720,11 +753,29 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text(
-                                      '${tx.type.apiValue} · ${tx.amount}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${tx.type.apiValue} · ${tx.amount} ${tx.chain.nativeSymbol}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        // Hiển thị số USDT được credit nếu là deposit đã quy đổi
+                                        if (tx.hasFxConversion) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '→ ${tx.creditedAmount} USDT',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF0F8A49),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                   Container(

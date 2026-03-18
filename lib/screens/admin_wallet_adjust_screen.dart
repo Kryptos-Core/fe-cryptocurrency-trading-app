@@ -3,12 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'admin_user_list_screen.dart';
 
 /// Màn hình điều chỉnh số dư ví thủ công dành cho Admin / Risk Officer.
-/// Cho phép nạp (DEPOSIT) hoặc rút (WITHDRAW) số dư ảo vào tài khoản người dùng bất kỳ.
+/// Nên ưu tiên sử dụng flow: Quản lý người dùng → Chọn user → Nạp/Rút.
+/// Màn hình này giữ lại như fallback hoặc quick access.
 class AdminWalletAdjustScreen extends StatefulWidget {
   const AdminWalletAdjustScreen({super.key});
 
@@ -22,10 +25,11 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
   late final TabController _tabController;
   final _formKey = GlobalKey<FormState>();
 
-  final _userIdController = TextEditingController();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
+  // Người dùng được chọn từ user picker
+  User? _selectedUser;
   String _selectedType = 'DEPOSIT';
   String? _selectedCurrencyId;
 
@@ -37,21 +41,32 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
+      context.read<CurrenciesProvider>().fetchCurrencies(refresh: false);
     });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _userIdController.dispose();
     _amountController.dispose();
     _noteController.dispose();
     _historyUserIdController.dispose();
     super.dispose();
   }
 
+  Future<void> _pickUser() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AdminUserListScreen()),
+    );
+  }
+
   Future<void> _submit() async {
+    if (_selectedUser == null) {
+      showAppSnackBar(context,
+          message: 'Vui lòng chọn người dùng', type: SnackBarType.warning);
+      return;
+    }
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCurrencyId == null) {
       showAppSnackBar(context,
@@ -61,7 +76,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
 
     final provider = context.read<WalletsProvider>();
     final success = await provider.adminAdjustBalance(
-      userId: _userIdController.text.trim(),
+      userId: _selectedUser!.id,
       currencyId: _selectedCurrencyId!,
       amount: _amountController.text.trim(),
       type: _selectedType,
@@ -83,7 +98,10 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       _formKey.currentState!.reset();
       _amountController.clear();
       _noteController.clear();
-      setState(() => _selectedCurrencyId = null);
+      setState(() {
+        _selectedCurrencyId = null;
+        _selectedUser = null;
+      });
     } else {
       showAppSnackBar(
         context,
@@ -144,37 +162,92 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _sectionCard(
-                  theme,
-                  title: 'Loại thao tác',
-                  child: _buildTypeSegment(colorScheme),
+                // Gợi ý dùng flow mới
+                Card(
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.4),
+                  margin: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: Icon(Icons.info_outline,
+                        color: colorScheme.primary),
+                    title: const Text('Nên dùng: Quản lý người dùng'),
+                    subtitle: const Text(
+                        'Vào mục Quản lý người dùng → Chọn user → Nạp/Rút để có trải nghiệm tốt hơn.',
+                        style: TextStyle(fontSize: 12)),
+                    trailing: TextButton(
+                      child: const Text('Mở'),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminUserListScreen(),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 16),
+                _sectionCard(theme,
+                    title: 'Loại thao tác',
+                    child: _buildTypeSegment(colorScheme)),
                 const SizedBox(height: 12),
                 _sectionCard(
                   theme,
                   title: 'Thông tin điều chỉnh',
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: _userIdController,
-                        decoration: const InputDecoration(
-                          labelText: 'User ID (UUID)',
-                          hintText: 'Dán UUID của người dùng vào đây',
-                          prefixIcon: Icon(Icons.person_outline),
-                          border: OutlineInputBorder(),
+                      // User picker
+                      InkWell(
+                        onTap: _pickUser,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: colorScheme.outline),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_search,
+                                  color: colorScheme.primary),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _selectedUser == null
+                                    ? Text(
+                                        'Chọn người dùng...',
+                                        style: TextStyle(
+                                            color: colorScheme
+                                                .onSurfaceVariant),
+                                      )
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            _selectedUser!.fullName,
+                                            style: const TextStyle(
+                                                fontWeight:
+                                                    FontWeight.w600),
+                                          ),
+                                          Text(
+                                            _selectedUser!.email,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: colorScheme
+                                                    .onSurfaceVariant),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                              if (_selectedUser != null)
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () =>
+                                      setState(() => _selectedUser = null),
+                                  iconSize: 18,
+                                ),
+                            ],
+                          ),
                         ),
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'Vui lòng nhập User ID';
-                          }
-                          final uuidRegex = RegExp(
-                            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-                          );
-                          if (!uuidRegex.hasMatch(v.trim())) {
-                            return 'User ID phải là UUID hợp lệ';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 12),
                       _buildCurrencyDropdown(),
@@ -200,9 +273,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                           if (v == null || v.trim().isEmpty) {
                             return 'Vui lòng nhập số tiền';
                           }
-                          final decimalRegex =
-                              RegExp(r'^\d+(\.\d{1,18})?$');
-                          if (!decimalRegex.hasMatch(v.trim())) {
+                          if (!RegExp(r'^\d+(\.\d{1,18})?$')
+                              .hasMatch(v.trim())) {
                             return 'Số tiền không hợp lệ (tối đa 18 chữ số thập phân)';
                           }
                           final num = double.tryParse(v.trim());
@@ -252,7 +324,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
         ),
       ],
       selected: {_selectedType},
-      onSelectionChanged: (set) => setState(() => _selectedType = set.first),
+      onSelectionChanged: (set) =>
+          setState(() => _selectedType = set.first),
       style: ButtonStyle(
         iconColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -341,14 +414,28 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Tìm'),
                   ),
                 ],
               ),
             ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.people_alt_outlined, size: 16),
+                label: const Text('Tìm qua danh sách người dùng'),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminUserListScreen(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             Expanded(
               child: provider.isLoadingHistory
                   ? const Center(child: CircularProgressIndicator())
@@ -357,7 +444,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                           child: Text('Chưa có lịch sử điều chỉnh'),
                         )
                       : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12),
                           itemCount: provider.adjustmentHistory.length,
                           separatorBuilder: (_, __) =>
                               const Divider(height: 1),
@@ -404,7 +492,8 @@ class _AdjustmentTile extends StatelessWidget {
     final isDeposit = item.isDeposit;
     final color = isDeposit ? Colors.green : Colors.red;
     final sign = isDeposit ? '+' : '-';
-    final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.createdAt.toLocal());
+    final dateStr =
+        DateFormat('dd/MM/yyyy HH:mm').format(item.createdAt.toLocal());
 
     return ListTile(
       leading: CircleAvatar(

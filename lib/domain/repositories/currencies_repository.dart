@@ -9,12 +9,19 @@ import 'package:crypto_trading_app/data/models/update_currency_dto.dart';
 /// Domain layer defines the contract, data layer implements it
 /// Following Interface Segregation Principle (ISP) - clean, focused interface
 abstract class CurrenciesRepository {
-  /// Get all currencies with pagination and filtering
-  /// Returns paginated result with total, page, limit
+  /// Get all currencies with pagination, optional text search and filters.
+  ///
+  /// [search]          — partial match on symbol or name (case-insensitive).
+  /// [isTradable]      — filter by tradable status; omit = no filter.
+  /// [isActive]        — filter by active status; omit = governed by [includeInactive].
+  /// [includeInactive] — when true, inactive currencies are included unless [isActive] overrides.
   Future<Either<Failure, PaginatedCurrenciesResult>> getCurrencies({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    String? search,
+    bool? isTradable,
+    bool? isActive,
   });
 
   /// Get all active currencies (cached endpoint - faster)

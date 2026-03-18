@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
+import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
@@ -153,6 +154,26 @@ class FakeWalletRepository implements WalletRepository {
 
   @override
   Future<void> clearAllCachedBalances() async {}
+
+  @override
+  Future<Either<Failure, AdminWalletAdjustment>> adminAdjustBalance({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  }) async {
+    return const Left(ServerFailure(message: 'Not implemented in tests'));
+  }
+
+  @override
+  Future<Either<Failure, List<AdminWalletAdjustment>>> getAdminAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    return const Right([]);
+  }
 }
 
 class FakeMarketsRepository implements MarketsRepository {

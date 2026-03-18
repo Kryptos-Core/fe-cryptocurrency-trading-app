@@ -2888,6 +2888,36 @@ abstract class AppLocalizations {
   /// **'My Wallets'**
   String get myWallets;
 
+  /// No description provided for @cashWalletSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Wallet'**
+  String get cashWalletSectionTitle;
+
+  /// No description provided for @cashWalletSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receives all deposits • Use to buy coins'**
+  String get cashWalletSectionSubtitle;
+
+  /// No description provided for @coinAssetsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get coinAssetsSectionTitle;
+
+  /// No description provided for @coinAssetsSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins from trading'**
+  String get coinAssetsSectionSubtitle;
+
+  /// No description provided for @depositOnchainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Funds will be converted to USDT and credited to your Cash Wallet'**
+  String get depositOnchainHint;
+
   /// No description provided for @treasuryTitle.
   ///
   /// In en, this message translates to:

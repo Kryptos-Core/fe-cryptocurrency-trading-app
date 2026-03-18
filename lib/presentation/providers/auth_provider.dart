@@ -46,6 +46,10 @@ class AuthProvider extends ChangeNotifier {
   bool get isRiskOfficer => _role == UserRole.riskOfficer;
   bool get canSyncExchange => isAdmin && hasPermission('exchange:sync');
 
+  /// True for roles that can create/edit/delete currencies (ADMIN or currencies:manage permission).
+  bool get canManageCurrencies =>
+      isAdmin || hasPermission('currencies:manage');
+
   /// True for roles that can view the user list (admin, support, risk officer).
   bool get canViewUserList => isAdmin || isSupportAgent || isRiskOfficer;
 

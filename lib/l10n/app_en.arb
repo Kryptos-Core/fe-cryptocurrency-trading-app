@@ -556,6 +556,11 @@
   "totalPortfolioValue": "Total Portfolio Value",
   "noWalletsFound": "No wallets found",
   "myWallets": "My Wallets",
+  "cashWalletSectionTitle": "Cash Wallet",
+  "cashWalletSectionSubtitle": "Receives all deposits • Use to buy coins",
+  "coinAssetsSectionTitle": "Assets",
+  "coinAssetsSectionSubtitle": "Coins from trading",
+  "depositOnchainHint": "Funds will be converted to USDT and credited to your Cash Wallet",
 
   "treasuryTitle": "Treasury Management",
   "treasuryManageSubtitle": "Manage company wallets & deposit settings",

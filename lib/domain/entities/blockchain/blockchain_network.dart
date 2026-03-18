@@ -32,6 +32,19 @@ extension BlockchainNetworkX on BlockchainNetwork {
     }
   }
 
+  /// Ký hiệu native coin của chain này (dùng để hiển thị UI)
+  String get nativeSymbol {
+    switch (this) {
+      case BlockchainNetwork.tronNile:
+      case BlockchainNetwork.tronShasta:
+        return 'TRX';
+      case BlockchainNetwork.solanaDevnet:
+        return 'SOL';
+      case BlockchainNetwork.ethSepolia:
+        return 'ETH';
+    }
+  }
+
   static BlockchainNetwork fromApiValue(String value) {
     switch (value.toUpperCase()) {
       case 'TRON_NILE':

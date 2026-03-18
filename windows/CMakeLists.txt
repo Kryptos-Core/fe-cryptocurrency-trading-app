@@ -61,6 +61,11 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
 endfunction()
 
+# Inject minimal ATL stub so flutter_local_notifications_windows compiles without
+# the Visual Studio ATL component (C++ ATL for latest v143 build tools).
+# This stub only defines CW2A, the single ATL symbol used by that plugin.
+include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/atl_stub")
+
 # Flutter library and tool build rules.
 set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
 add_subdirectory(${FLUTTER_MANAGED_DIR})

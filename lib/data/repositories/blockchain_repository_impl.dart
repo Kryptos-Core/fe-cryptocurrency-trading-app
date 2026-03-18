@@ -287,6 +287,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       createdAt:
           _tryParseDateTime(json['createdAt']) ?? DateTime.now().toUtc(),
       confirmedAt: _tryParseDateTime(json['confirmedAt']),
+      creditedAmount: json['creditedAmount']?.toString(),
+      creditedCurrencyId: json['creditedCurrencyId']?.toString(),
+      conversionRate: json['conversionRate']?.toString(),
     );
   }
 

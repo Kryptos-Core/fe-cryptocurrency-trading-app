@@ -38,12 +38,18 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    String? search,
+    bool? isTradable,
+    bool? isActive,
   }) async {
     try {
       final result = await remoteDataSource.getCurrencies(
         page: page,
         limit: limit,
         includeInactive: includeInactive,
+        search: search,
+        isTradable: isTradable,
+        isActive: isActive,
       );
 
       final currencies = result.currencies.map((model) => model.toEntity()).toList();

@@ -1521,6 +1521,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myWallets => 'My Wallets';
 
   @override
+  String get cashWalletSectionTitle => 'Cash Wallet';
+
+  @override
+  String get cashWalletSectionSubtitle =>
+      'Receives all deposits • Use to buy coins';
+
+  @override
+  String get coinAssetsSectionTitle => 'Assets';
+
+  @override
+  String get coinAssetsSectionSubtitle => 'Coins from trading';
+
+  @override
+  String get depositOnchainHint =>
+      'Funds will be converted to USDT and credited to your Cash Wallet';
+
+  @override
   String get treasuryTitle => 'Treasury Management';
 
   @override

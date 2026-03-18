@@ -12,11 +12,14 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 /// Following Repository Pattern and Strategy Pattern (e.g. real API implementation)
 /// Following Interface Segregation Principle (ISP) - clean interface
 abstract class CurrenciesRemoteDataSource {
-  /// Get all currencies with pagination and filtering
+  /// Get all currencies with pagination, optional text search and filters.
   Future<PaginatedCurrenciesData> getCurrencies({
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    String? search,
+    bool? isTradable,
+    bool? isActive,
   });
 
   /// Get all active currencies (cached endpoint)
@@ -99,16 +102,23 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
     int page = 1,
     int limit = 10,
     bool includeInactive = false,
+    String? search,
+    bool? isTradable,
+    bool? isActive,
   }) async {
     try {
+      final queryParameters = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+        'includeInactive': includeInactive,
+        'includeMarketData': true,
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+        if (isTradable != null) 'isTradable': isTradable,
+        if (isActive != null) 'isActive': isActive,
+      };
       final response = await dio.get(
         ApiConstants.currencies,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-          'includeInactive': includeInactive,
-          'includeMarketData': true,
-        },
+        queryParameters: queryParameters,
       );
 
       if (response.statusCode == 200) {

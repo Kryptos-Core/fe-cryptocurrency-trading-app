@@ -46,6 +46,8 @@ import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/providers/theme_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -263,6 +265,16 @@ Future<void> initializeDependencies() async {
       indicatorService: sl<IndicatorService>(),
       chartCacheService: sl<ChartCacheService>(),
     ),
+  );
+
+  // ===== Admin Users =====
+  sl.registerLazySingleton<AdminUsersProvider>(
+    () => AdminUsersProvider(dioClient: sl<DioClient>()),
+  );
+
+  // ===== Admin Transactions =====
+  sl.registerLazySingleton<AdminTransactionsProvider>(
+    () => AdminTransactionsProvider(dioClient: sl<DioClient>()),
   );
 
   // ===== Notifications =====

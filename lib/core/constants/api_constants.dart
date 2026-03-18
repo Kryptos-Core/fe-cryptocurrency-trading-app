@@ -82,6 +82,18 @@ class ApiConstants {
       '/users/security-change-requests/$id/approve';
   static String usersSecurityChangeRequestReject(String id) =>
       '/users/security-change-requests/$id/reject';
+
+  // Admin User Management Endpoints
+  static String userById(String id) => '/users/$id';
+  static String userWallets(String id) => '/users/$id/wallets';
+  static String userOnchainTxs(String id) => '/users/$id/onchain-transactions';
+  static String userSecurityChanges(String id) => '/users/$id/security-changes';
+  static String userOrders(String id) => '/users/$id/orders';
+
+  // Admin Transaction Monitor Endpoints
+  static const String ordersAdminAll = '/orders/admin/all';
+  static const String depositsAdminAll = '/deposits/admin/all';
+  static const String blockchainAdminWithdrawals = '/blockchain/admin/withdrawals';
   
   // Currencies Endpoints (Tiền ảo)
   static const String currencies = '/currencies';

@@ -8,6 +8,7 @@ class UserModel {
   final String firstName;
   final String lastName;
   final bool isActive;
+  final String status;
   final String role;
   final String? avatarUrl;
   final bool twoFaEnabled;
@@ -20,6 +21,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     required this.isActive,
+    this.status = 'ACTIVE',
     this.role = 'TRADER',
     this.avatarUrl,
     this.twoFaEnabled = false,
@@ -35,6 +37,7 @@ class UserModel {
       firstName: firstName,
       lastName: lastName,
       isActive: isActive,
+      status: status,
       role: role,
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
@@ -51,8 +54,12 @@ class UserModel {
     final email = json['email'] as String? ?? '';
     final firstName = (json['firstName'] ?? json['first_name'] ?? '') as String;
     final lastName = (json['lastName'] ?? json['last_name'] ?? '') as String;
-    final isActive = json['isActive'] as bool? ?? 
-                     (json['status'] == 'ACTIVE' ? true : false);
+    final statusStr = json['status'] as String? ?? '';
+    final isActive = json['isActive'] as bool? ??
+                     (statusStr == 'ACTIVE' ? true : false);
+    final status = statusStr.isNotEmpty
+        ? statusStr
+        : (isActive ? 'ACTIVE' : 'BANNED');
     final role = json['role'] as String? ?? 'TRADER';
     final avatarUrl = json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
     final twoFaEnabledRaw = json['two_fa_enabled'] ?? json['twoFaEnabled'] ?? 0;
@@ -76,6 +83,7 @@ class UserModel {
       firstName: firstName,
       lastName: lastName,
       isActive: isActive,
+      status: status,
       role: role,
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
@@ -92,6 +100,7 @@ class UserModel {
       'firstName': firstName,
       'lastName': lastName,
       'isActive': isActive,
+      'status': status,
       'role': role,
       if (avatarUrl != null) 'avatarUrl': avatarUrl,
       'twoFaEnabled': twoFaEnabled,

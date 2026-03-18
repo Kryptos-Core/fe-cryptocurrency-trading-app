@@ -21,6 +21,8 @@ import 'package:crypto_trading_app/presentation/providers/blockchain_provider.da
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/core/services/fcm_service.dart';
 import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
@@ -136,6 +138,12 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         Provider<NotificationRemoteDataSource>.value(
           value: di.sl<NotificationRemoteDataSource>(),
+        ),
+        ChangeNotifierProvider<AdminUsersProvider>.value(
+          value: di.sl<AdminUsersProvider>(),
+        ),
+        ChangeNotifierProvider<AdminTransactionsProvider>.value(
+          value: di.sl<AdminTransactionsProvider>(),
         ),
       ],
       child: Consumer2<LocaleProvider, ThemeProvider>(

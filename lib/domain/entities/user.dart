@@ -7,6 +7,9 @@ class User {
   final String firstName;
   final String lastName;
   final bool isActive;
+
+  /// Raw status string from backend: 'ACTIVE' | 'BANNED' | 'PENDING'
+  final String status;
   final String role;
   final String? avatarUrl;
   final bool twoFaEnabled;
@@ -19,12 +22,13 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.isActive,
+    String? status,
     this.role = 'TRADER',
     this.avatarUrl,
     this.twoFaEnabled = false,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) : status = status ?? (isActive ? 'ACTIVE' : 'BANNED');
 
   /// Full name của user
   /// Returns email if both first and last names are empty
@@ -49,6 +53,7 @@ class User {
     String? firstName,
     String? lastName,
     bool? isActive,
+    String? status,
     String? role,
     String? avatarUrl,
     bool? twoFaEnabled,
@@ -61,6 +66,7 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       isActive: isActive ?? this.isActive,
+      status: status ?? this.status,
       role: role ?? this.role,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       twoFaEnabled: twoFaEnabled ?? this.twoFaEnabled,

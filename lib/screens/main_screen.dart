@@ -20,7 +20,9 @@ import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
-import 'package:crypto_trading_app/screens/admin_wallet_adjust_screen.dart';
+import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
+import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
+import 'package:crypto_trading_app/screens/admin_currencies_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -331,10 +333,10 @@ class _MainScreenState extends State<MainScreen> {
                       subtitle: Text(l10n.drawerAdminArea, style: const TextStyle(fontSize: 11)),
                       onTap: () {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.drawerUserMgmtComingSoon),
-                            behavior: SnackBarBehavior.floating,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminUserListScreen(),
                           ),
                         );
                       },
@@ -355,28 +357,45 @@ class _MainScreenState extends State<MainScreen> {
                           );
                         },
                       ),
-                    if (auth.canManageWallets)
+                    // Giám sát giao dịch (ADMIN / RISK_OFFICER / SUPPORT_AGENT)
+                    if (auth.canViewUserList)
                       ListTile(
-                        leading: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.deepOrange,
-                        ),
-                        title: const Text('Điều chỉnh ví'),
-                        subtitle: const Text(
-                          'Nạp / Rút số dư thủ công',
-                          style: TextStyle(fontSize: 11),
+                        leading: const Icon(Icons.receipt_long_outlined, color: Colors.deepOrange),
+                        title: const Text('Giám sát Giao dịch'),
+                        subtitle: const Text('Lệnh · Nạp · Rút', style: TextStyle(fontSize: 11)),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AdminTransactionsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    // Coin management — full CRUD for admin, read-only view for
+                    // risk officer and support agent (role guard inside screen).
+                    if (auth.canViewUserList)
+                      ListTile(
+                        leading: const Icon(Icons.currency_bitcoin, color: Colors.deepOrange),
+                        title: const Text('Quản lý Coin'),
+                        subtitle: Text(
+                          auth.canManageCurrencies
+                              ? 'CRUD · Toggle trạng thái'
+                              : 'Xem danh sách coin',
+                          style: const TextStyle(fontSize: 11),
                         ),
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  const AdminWalletAdjustScreen(),
+                              builder: (_) => const AdminCurrenciesScreen(),
                             ),
                           );
                         },
                       ),
+                    // Broadcast & manual resync remain admin-only
                     if (auth.isAdmin) ...[
                       ListTile(
                         leading: const Icon(Icons.campaign_outlined, color: Colors.deepOrange),
@@ -473,7 +492,7 @@ class _AuthRequiredTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.lock_outline, size: 64, color: colorScheme.primary.withOpacity(0.5)),
+            Icon(Icons.lock_outline, size: 64, color: colorScheme.primary.withValues(alpha: 0.5)),
             const SizedBox(height: 20),
             Text(
               AppLocalizations.of(context).authRequiredTitle,

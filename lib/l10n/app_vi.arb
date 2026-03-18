@@ -495,6 +495,11 @@
   "totalPortfolioValue": "Tổng giá trị danh mục",
   "noWalletsFound": "Không tìm thấy ví nào",
   "myWallets": "Ví của tôi",
+  "cashWalletSectionTitle": "Ví Tiền",
+  "cashWalletSectionSubtitle": "Nhận toàn bộ tiền nạp • Dùng để mua coin",
+  "coinAssetsSectionTitle": "Tài sản",
+  "coinAssetsSectionSubtitle": "Coin sở hữu từ giao dịch",
+  "depositOnchainHint": "Tiền sẽ được quy đổi sang USDT và cộng vào Ví Tiền",
 
   "treasuryTitle": "Quản lý kho quỹ",
   "treasuryManageSubtitle": "Quản lý ví công ty & cài đặt nạp tiền",
