@@ -200,6 +200,11 @@ class ApiConstants {
   // Deposit Methods — public endpoint (no auth required)
   static const String depositMethods = '/deposit/methods';
 
+  // Payment Config Endpoints (ADMIN / FINANCE_MANAGER only)
+  static const String paymentConfigs = '/payment-configs';
+  static String paymentConfigById(String id) => '/payment-configs/$id';
+  static String paymentConfigActivate(String id) => '/payment-configs/$id/activate';
+
   // Notifications Endpoints
   static const String notifications = '/notifications';
   static const String notificationsUnreadCount = '/notifications/unread-count';

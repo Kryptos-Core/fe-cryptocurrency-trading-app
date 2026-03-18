@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
+import 'package:crypto_trading_app/core/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
 import 'package:crypto_trading_app/domain/entities/notification_entity.dart';
 import 'package:crypto_trading_app/domain/repositories/notification_repository.dart';
@@ -17,6 +18,14 @@ class NotificationProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   StreamSubscription<WebSocketMessage>? _socketSubscription;
+
+  /// Subscription to the /notifications namespace socket for notification:new events
+  StreamSubscription<NotificationsSocketMessage>? _notifSocketSubscription;
+  /// Subscription to the /notifications namespace socket for payment_config:event events
+  StreamSubscription<NotificationsSocketMessage>? _paymentConfigSubscription;
+
+  /// External callback invoked when a payment_config:event arrives.
+  void Function(Map<String, dynamic>)? _paymentConfigCallback;
 
   NotificationProvider({
     required NotificationRepository repository,
@@ -77,6 +86,35 @@ class NotificationProvider extends ChangeNotifier {
   void stopListening() {
     _socketSubscription?.cancel();
     _socketSubscription = null;
+  }
+
+  /// Listen to the /notifications Socket.IO namespace.
+  /// Handles both notification:new and payment_config:event messages.
+  void listenNotificationsSocket(NotificationsSocketService notifSocket) {
+    _notifSocketSubscription?.cancel();
+    _paymentConfigSubscription?.cancel();
+
+    _notifSocketSubscription = notifSocket.messageStream
+        .where((msg) => msg.type == 'notification:new')
+        .listen((msg) {
+      final notif = _buildFromSocketPayload(msg.data);
+      if (notif == null) return;
+      _notifications = [notif, ..._notifications];
+      _unreadCount += 1;
+      notifyListeners();
+    });
+
+    _paymentConfigSubscription = notifSocket.messageStream
+        .where((msg) => msg.type == 'payment_config:event')
+        .listen((msg) {
+      _paymentConfigCallback?.call(msg.data);
+    });
+  }
+
+  /// Register a callback to be invoked when a payment_config:event arrives.
+  /// Called by MainScreen to forward events to PaymentConfigProvider.
+  void addPaymentConfigEventListener(void Function(Map<String, dynamic>) callback) {
+    _paymentConfigCallback = callback;
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -191,6 +229,8 @@ class NotificationProvider extends ChangeNotifier {
   @override
   void dispose() {
     stopListening();
+    _notifSocketSubscription?.cancel();
+    _paymentConfigSubscription?.cancel();
     super.dispose();
   }
 }

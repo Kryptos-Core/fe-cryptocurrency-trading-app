@@ -23,8 +23,10 @@ import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dar
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/core/services/fcm_service.dart';
 import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/payment_config_remote_datasource.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
 void main() async {
@@ -144,6 +146,11 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AdminTransactionsProvider>.value(
           value: di.sl<AdminTransactionsProvider>(),
+        ),
+        ChangeNotifierProvider<PaymentConfigProvider>(
+          create: (_) => PaymentConfigProvider(
+            dataSource: PaymentConfigRemoteDataSourceImpl(dioClient: di.sl()),
+          ),
         ),
       ],
       child: Consumer2<LocaleProvider, ThemeProvider>(

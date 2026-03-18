@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/deposit_method.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 
 /// Public widget — shows platform deposit methods (no auth required).
 /// Embeds in OnchainDepositScreen above the submission form.
@@ -17,12 +18,30 @@ class DepositMethodsCard extends StatefulWidget {
 }
 
 class _DepositMethodsCardState extends State<DepositMethodsCard> {
+  PaymentConfigProvider? _paymentConfigProvider;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ManagedWalletsProvider>().fetchDepositMethods();
+      _paymentConfigProvider = context.read<PaymentConfigProvider>();
+      _paymentConfigProvider!.addListener(_onPaymentConfigChanged);
     });
+  }
+
+  @override
+  void dispose() {
+    _paymentConfigProvider?.removeListener(_onPaymentConfigChanged);
+    super.dispose();
+  }
+
+  void _onPaymentConfigChanged() {
+    final event = _paymentConfigProvider?.latestEvent;
+    if (event?.event == 'ACTIVATED' && mounted) {
+      // Auto-refresh deposit addresses/QR codes when new config is active
+      context.read<ManagedWalletsProvider>().fetchDepositMethods();
+    }
   }
 
   @override

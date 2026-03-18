@@ -44,6 +44,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isAdmin => _role == UserRole.admin;
   bool get isSupportAgent => _role == UserRole.supportAgent;
   bool get isRiskOfficer => _role == UserRole.riskOfficer;
+  bool get isFinanceManager => _role == UserRole.financeManager;
   bool get canSyncExchange => isAdmin && hasPermission('exchange:sync');
 
   /// True for roles that can create/edit/delete currencies (ADMIN or currencies:manage permission).
@@ -60,6 +61,10 @@ class AuthProvider extends ChangeNotifier {
   /// True for roles that can manually adjust user wallet balances (admin, risk officer).
   bool get canManageWallets =>
       hasPermission('wallets:manage') || isAdmin || isRiskOfficer;
+
+  /// True for roles that can manage payment gateway configurations (admin, finance manager).
+  bool get canManagePaymentConfigs =>
+      hasPermission('payment_configs:manage') || isAdmin || isFinanceManager;
 
   bool hasPermission(String permission) => _permissions.contains(permission);
 

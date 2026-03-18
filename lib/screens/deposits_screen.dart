@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/core/utils/checkout_tab_preopen.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 
 class _AmountThousandsSeparatorFormatter extends TextInputFormatter {
   final NumberFormat _numberFormat = NumberFormat('#,###');
@@ -301,13 +302,38 @@ class _DepositsScreenState extends State<DepositsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final provider = context.watch<DepositsProvider>();
+    final paymentConfig = context.watch<PaymentConfigProvider>();
+
+    final isPayosTransitioning = paymentConfig.isAnyTransitioning &&
+        (paymentConfig.transitioningType == 'PAYOS' ||
+            paymentConfig.transitioningType == null);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.payosDepositTitle),
         centerTitle: true,
       ),
-      body: Padding(
+      body: Column(
+        children: [
+          if (isPayosTransitioning)
+            MaterialBanner(
+              backgroundColor: Colors.orange.shade100,
+              leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              content: Text(
+                'Phương thức thanh toán đang được cập nhật'
+                '${paymentConfig.transitioningGraceMinsRemaining != null ? " (~${paymentConfig.transitioningGraceMinsRemaining} phút)" : ""}. '
+                'Vui lòng chờ trước khi tạo giao dịch mới.',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => paymentConfig.clearLatestEvent(),
+                  child: const Text('Bỏ qua'),
+                ),
+              ],
+            ),
+          Expanded(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -410,10 +436,13 @@ class _DepositsScreenState extends State<DepositsScreen> {
                             );
                           },
                         ),
-            ),
-          ],
-        ),
-      ),
+            ),           // close inner Expanded (the list)
+          ],             // close inner Column children
+        ),               // close inner Column
+      ),                 // close Padding
+    ),                   // close outer Expanded
+        ],               // close outer Column children
+      ),                 // close outer Column
     );
   }
 

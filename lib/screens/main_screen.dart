@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart' show sl;
+import 'package:crypto_trading_app/core/services/notifications_socket_service.dart';
+import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -20,6 +24,8 @@ import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
+import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/screens/admin_currencies_screen.dart';
@@ -42,6 +48,10 @@ class _MainScreenState extends State<MainScreen> {
   AuthProvider? _authProvider;
   bool _notificationsInitialized = false;
 
+  /// Dedicated socket for the /notifications namespace — handles notification:new
+  /// and payment_config:event messages from NotificationsGateway.
+  final NotificationsSocketService _notifSocket = NotificationsSocketService();
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +69,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _authProvider?.removeListener(_onAuthChanged);
     _authProvider = null;
+    _notifSocket.dispose();
     super.dispose();
   }
 
@@ -82,10 +93,34 @@ class _MainScreenState extends State<MainScreen> {
     final auth = context.read<AuthProvider>();
     if (auth.isAuthenticated && !_notificationsInitialized) {
       _notificationsInitialized = true;
-      context.read<NotificationProvider>().initialize();
+      final notifProvider = context.read<NotificationProvider>();
+      notifProvider.initialize();
+
+      // Register payment_config event callback before connecting
+      notifProvider.addPaymentConfigEventListener(_onPaymentConfigEvent);
+
+      // Connect to the /notifications Socket.IO namespace and wire socket to providers
+      _connectNotificationsSocket(notifProvider);
     } else if (!auth.isAuthenticated) {
       _notificationsInitialized = false;
+      _notifSocket.disconnect();
     }
+  }
+
+  Future<void> _connectNotificationsSocket(NotificationProvider notifProvider) async {
+    // Get access token from TokenService via GetIt — avoids context in async gap
+    final tokenService = sl<TokenService>();
+    final accessToken = tokenService.getAccessToken();
+    if (accessToken == null || accessToken.isEmpty) return;
+
+    await _notifSocket.connect(ApiConstants.notificationsSocketUrl, accessToken);
+    notifProvider.listenNotificationsSocket(_notifSocket);
+  }
+
+  /// Called when a `payment_config:event` WebSocket message arrives.
+  void _onPaymentConfigEvent(Map<String, dynamic> data) {
+    if (!mounted) return;
+    context.read<PaymentConfigProvider>().handleWebSocketEvent(data);
   }
 
   // Public tabs always rendered — no auth required.
@@ -428,6 +463,34 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ],
                     const Divider(),
+                  ],
+                );
+              },
+            ),
+            // ── Payment config (ADMIN + FINANCE_MANAGER) ─────────────
+            Consumer<AuthProvider>(
+              builder: (_, auth, __) {
+                if (!auth.canManagePaymentConfigs) return const SizedBox.shrink();
+                return Column(
+                  children: [
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.payment_outlined, color: Colors.deepOrange),
+                      title: const Text('Cấu hình Thanh toán'),
+                      subtitle: const Text('PayOS · Blockchain · Hot Wallet', style: TextStyle(fontSize: 11)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeNotifierProvider.value(
+                              value: context.read<PaymentConfigProvider>(),
+                              child: const PaymentConfigScreen(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 );
               },

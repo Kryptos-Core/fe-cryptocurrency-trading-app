@@ -7,7 +7,8 @@ enum UserRole {
   admin,
   riskOfficer,
   supportAgent,
-  marketMaker;
+  marketMaker,
+  financeManager;
 
   /// Parse from backend string representation (e.g. "ADMIN", "RISK_OFFICER").
   factory UserRole.fromString(String? value) {
@@ -24,6 +25,8 @@ enum UserRole {
         return UserRole.supportAgent;
       case 'MARKET_MAKER':
         return UserRole.marketMaker;
+      case 'FINANCE_MANAGER':
+        return UserRole.financeManager;
       case 'TRADER':
       default:
         return UserRole.trader;
@@ -47,6 +50,8 @@ enum UserRole {
         return 'Support Agent';
       case UserRole.marketMaker:
         return 'Market Maker';
+      case UserRole.financeManager:
+        return 'Finance Manager';
     }
   }
 }

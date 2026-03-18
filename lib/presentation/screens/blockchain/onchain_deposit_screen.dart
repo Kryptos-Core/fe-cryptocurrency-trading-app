@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/deposit_methods_card.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
@@ -36,13 +37,25 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   bool _amountTouchedByUser = false;
   Timer? _txPreviewDebounce;
 
+  PaymentConfigProvider? _paymentConfigProvider;
+
   @override
   void initState() {
     super.initState();
     _txHashController.addListener(_onTxHashChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDepositAddress();
+      _paymentConfigProvider = context.read<PaymentConfigProvider>();
+      _paymentConfigProvider!.addListener(_onPaymentConfigChanged);
     });
+  }
+
+  void _onPaymentConfigChanged() {
+    final event = _paymentConfigProvider?.latestEvent;
+    if (event?.event == 'ACTIVATED' && mounted) {
+      // Auto-refresh deposit address and QR code when new config activates
+      _loadDepositAddress();
+    }
   }
 
   void _onTxHashChanged() {
@@ -222,6 +235,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     _txHashController.removeListener(_onTxHashChanged);
     _txHashController.dispose();
     _amountController.dispose();
+    _paymentConfigProvider?.removeListener(_onPaymentConfigChanged);
     super.dispose();
   }
 
@@ -301,6 +315,13 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final paymentConfig = context.watch<PaymentConfigProvider>();
+    final isBlockchainTransitioning = paymentConfig.isAnyTransitioning &&
+        (paymentConfig.transitioningType == 'TRON' ||
+            paymentConfig.transitioningType == 'ETH' ||
+            paymentConfig.transitioningType == 'SOL' ||
+            paymentConfig.transitioningType == null);
+
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
         final filteredTransactions =
@@ -313,6 +334,32 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (isBlockchainTransitioning)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Material(
+                      color: Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Địa chỉ ví đang được cập nhật'
+                                '${paymentConfig.transitioningGraceMinsRemaining != null ? " (~${paymentConfig.transitioningGraceMinsRemaining} phút)" : ""}. '
+                                'QR code sẽ tự động làm mới khi hoàn tất.',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 Text(
                   l10n.submitOnchainDeposit,
                   style: const TextStyle(
