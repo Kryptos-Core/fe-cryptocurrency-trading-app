@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
@@ -36,6 +37,12 @@ class WalletsProvider extends ChangeNotifier {
   static const int _maxRecentTransactions = 50;
   final List<WalletTransactionResponse> _recentTransactions = [];
 
+  // Admin adjustment state
+  bool _isAdjusting = false;
+  String? _adjustError;
+  List<AdminWalletAdjustment> _adjustmentHistory = [];
+  bool _isLoadingHistory = false;
+
   // Getters
   List<Wallet> get wallets => _wallets;
   Wallet? get selectedWallet => _selectedWallet;
@@ -47,6 +54,13 @@ class WalletsProvider extends ChangeNotifier {
   WalletTransactionResponse? get lastTransaction => _lastTransaction;
   List<WalletTransactionResponse> get recentTransactions =>
       List.unmodifiable(_recentTransactions);
+
+  // Admin adjustment getters
+  bool get isAdjusting => _isAdjusting;
+  String? get adjustError => _adjustError;
+  List<AdminWalletAdjustment> get adjustmentHistory =>
+      List.unmodifiable(_adjustmentHistory);
+  bool get isLoadingHistory => _isLoadingHistory;
 
   /// Total portfolio value in USDT. Returns 0 when no price source is available;
   /// integrate with Markets/ticker API for real conversion (e.g. BTC/USDT, ETH/USDT).
@@ -358,6 +372,99 @@ class WalletsProvider extends ChangeNotifier {
       refId: refId,
     );
     return await executeTransaction(request);
+  }
+
+  // ===== ADMIN WALLET ADJUSTMENT METHODS =====
+
+  /// Điều chỉnh số dư ví thủ công. Trả về true nếu thành công.
+  Future<bool> adminAdjustBalance({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  }) async {
+    if (_walletRepository == null) {
+      _adjustError = 'Wallet API not configured';
+      notifyListeners();
+      return false;
+    }
+
+    _isAdjusting = true;
+    _adjustError = null;
+    notifyListeners();
+
+    final result = await _walletRepository!.adminAdjustBalance(
+      userId: userId,
+      currencyId: currencyId,
+      amount: amount,
+      type: type,
+      note: note,
+    );
+
+    bool success = false;
+    result.fold(
+      (failure) {
+        _adjustError = _mapFailureToMessage(failure);
+        _isAdjusting = false;
+        notifyListeners();
+      },
+      (adjustment) {
+        _logger.i(
+          '[WalletsProvider] AdminAdjust SUCCESS: id=${adjustment.adjustmentId} type=${adjustment.type} amount=${adjustment.amount}',
+        );
+        _adjustmentHistory.insert(0, adjustment);
+        _isAdjusting = false;
+        _adjustError = null;
+        success = true;
+        notifyListeners();
+      },
+    );
+
+    return success;
+  }
+
+  /// Tải lịch sử điều chỉnh thủ công cho một người dùng.
+  Future<void> loadAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+    bool refresh = false,
+  }) async {
+    if (_walletRepository == null) return;
+
+    if (refresh) _adjustmentHistory = [];
+
+    _isLoadingHistory = true;
+    notifyListeners();
+
+    final result = await _walletRepository!.getAdminAdjustmentHistory(
+      userId,
+      limit: limit,
+      offset: offset,
+    );
+
+    result.fold(
+      (failure) {
+        _adjustError = _mapFailureToMessage(failure);
+        _isLoadingHistory = false;
+        notifyListeners();
+      },
+      (list) {
+        if (refresh) {
+          _adjustmentHistory = list;
+        } else {
+          _adjustmentHistory.addAll(list);
+        }
+        _isLoadingHistory = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  void clearAdjustError() {
+    _adjustError = null;
+    notifyListeners();
   }
 
   String _mapFailureToMessage(Failure failure) {

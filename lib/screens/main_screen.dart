@@ -20,6 +20,7 @@ import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
+import 'package:crypto_trading_app/screens/admin_wallet_adjust_screen.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -148,20 +149,23 @@ class _MainScreenState extends State<MainScreen> {
           // Notification bell — visible for all authenticated users
           if (isAuthenticated)
             Consumer<NotificationProvider>(
-              builder: (_, prov, __) => IconButton(
-                tooltip: l10n.notificationsTooltip,
-                icon: Badge(
-                  isLabelVisible: prov.unreadCount > 0,
-                  label: Text(
-                    prov.unreadCount > 99 ? '99+' : '${prov.unreadCount}',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  child: const Icon(Icons.notifications_outlined),
+              builder: (_, prov, __) => Badge(
+                isLabelVisible: prov.unreadCount > 0,
+                label: Text(
+                  prov.unreadCount > 99 ? '99+' : '${prov.unreadCount}',
+                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
                 ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                offset: const Offset(-4, 4),
+                child: IconButton(
+                  tooltip: l10n.notificationsTooltip,
+                  icon: const Icon(Icons.notifications_outlined),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    ),
                   ),
                 ),
               ),
@@ -347,6 +351,28 @@ class _MainScreenState extends State<MainScreen> {
                             MaterialPageRoute(
                               builder: (context) =>
                                   const SecurityRequestsReviewScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    if (auth.canManageWallets)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.deepOrange,
+                        ),
+                        title: const Text('Điều chỉnh ví'),
+                        subtitle: const Text(
+                          'Nạp / Rút số dư thủ công',
+                          style: TextStyle(fontSize: 11),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const AdminWalletAdjustScreen(),
                             ),
                           );
                         },

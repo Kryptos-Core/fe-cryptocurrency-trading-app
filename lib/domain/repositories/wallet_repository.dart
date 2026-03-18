@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 
@@ -120,4 +121,21 @@ abstract class WalletRepository {
 
   /// Clear all cached balances
   Future<void> clearAllCachedBalances();
+
+  /// Điều chỉnh số dư ví thủ công (admin/risk officer).
+  /// Trả về bản ghi điều chỉnh đã tạo.
+  Future<Either<Failure, AdminWalletAdjustment>> adminAdjustBalance({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  });
+
+  /// Lấy lịch sử điều chỉnh thủ công theo người dùng (phân trang).
+  Future<Either<Failure, List<AdminWalletAdjustment>>> getAdminAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  });
 }

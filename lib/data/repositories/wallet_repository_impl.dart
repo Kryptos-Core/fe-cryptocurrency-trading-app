@@ -3,6 +3,7 @@ import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
+import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
@@ -157,6 +158,60 @@ class WalletRepositoryImpl implements WalletRepository {
   @override
   Future<void> clearAllCachedBalances() async {
     await localDataSource.clearAllCachedBalances();
+  }
+
+  @override
+  Future<Either<Failure, AdminWalletAdjustment>> adminAdjustBalance({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  }) async {
+    try {
+      final model = await remoteDataSource.adminAdjustWallet(
+        userId: userId,
+        currencyId: currencyId,
+        amount: amount,
+        type: type,
+        note: note,
+      );
+      return Right(model.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AdminWalletAdjustment>>> getAdminAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final models = await remoteDataSource.getAdminAdjustmentHistory(
+        userId,
+        limit: limit,
+        offset: offset,
+      );
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
   }
 
   /// Validate transaction request

@@ -53,6 +53,10 @@ class AuthProvider extends ChangeNotifier {
   bool get canReviewSecurityRequests =>
       hasPermission('users:security_review') || isAdmin || isRiskOfficer;
 
+  /// True for roles that can manually adjust user wallet balances (admin, risk officer).
+  bool get canManageWallets =>
+      hasPermission('wallets:manage') || isAdmin || isRiskOfficer;
+
   bool hasPermission(String permission) => _permissions.contains(permission);
 
   // ── Public API ─────────────────────────────────────────────────────────────

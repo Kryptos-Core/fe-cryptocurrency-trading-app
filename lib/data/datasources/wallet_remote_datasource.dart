@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
+import 'package:crypto_trading_app/data/models/admin_wallet_adjustment_model.dart';
 import 'package:crypto_trading_app/data/models/wallet_balance_model.dart';
 import 'package:crypto_trading_app/data/models/wallet_transaction_model.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
@@ -41,6 +43,26 @@ abstract class WalletRemoteDataSource {
   Future<WalletTransactionResponseModel> executeTransaction(
     WalletTransactionRequest request,
   );
+
+  /// Điều chỉnh số dư ví thủ công (admin/risk officer)
+  ///
+  /// Throws: ServerException, NetworkException, AuthenticationException, ValidationException
+  Future<AdminWalletAdjustmentModel> adminAdjustWallet({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  });
+
+  /// Lấy lịch sử điều chỉnh thủ công theo người dùng
+  ///
+  /// Throws: ServerException, NetworkException, AuthenticationException
+  Future<List<AdminWalletAdjustmentModel>> getAdminAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  });
 }
 
 /// Implementation of WalletRemoteDataSource
@@ -215,5 +237,88 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         message: e.toString().replaceAll('Exception: ', ''),
       );
     }
+  }
+
+  @override
+  Future<AdminWalletAdjustmentModel> adminAdjustWallet({
+    required String userId,
+    required String currencyId,
+    required String amount,
+    required String type,
+    String? note,
+  }) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.walletsAdminAdjust,
+        data: {
+          'userId': userId,
+          'currencyId': currencyId,
+          'amount': amount,
+          'type': type,
+          if (note != null && note.isNotEmpty) 'note': note,
+        },
+      );
+      final data = response.data;
+      final payload = (data is Map<String, dynamic> && data['data'] != null)
+          ? data['data'] as Map<String, dynamic>
+          : data as Map<String, dynamic>;
+      return AdminWalletAdjustmentModel.fromJson(payload);
+    } on DioException catch (e) {
+      _handleDioError(e);
+    } on ServerException {
+      rethrow;
+    } on ValidationException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString().replaceAll('Exception: ', ''));
+    }
+    // unreachable — _handleDioError always throws
+    throw ServerException(message: 'Unknown error');
+  }
+
+  @override
+  Future<List<AdminWalletAdjustmentModel>> getAdminAdjustmentHistory(
+    String userId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await dioClient.dio.get(
+        ApiConstants.walletsAdminAdjustmentHistory(userId),
+        queryParameters: {'limit': limit, 'offset': offset},
+      );
+      final data = response.data;
+      final list = (data is Map<String, dynamic> && data['data'] is List)
+          ? data['data'] as List
+          : (data is List ? data : []);
+      return list
+          .map((e) => AdminWalletAdjustmentModel.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ))
+          .toList();
+    } on ServerException {
+      rethrow;
+    } on AuthenticationException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  void _handleDioError(DioException e) {
+    final data = e.response?.data;
+    final statusCode = e.response?.statusCode;
+    if (e.response != null && data is Map<String, dynamic>) {
+      final message = (data['message'] ?? data['error'])?.toString();
+      if (message != null && message.isNotEmpty) {
+        if (statusCode != null && statusCode >= 400 && statusCode < 500) {
+          throw ValidationException(message: message);
+        }
+        if (statusCode != null && statusCode >= 500) {
+          throw ServerException(message: message, statusCode: statusCode);
+        }
+      }
+    }
+    throw ServerException(message: e.message ?? 'Network error');
   }
 }

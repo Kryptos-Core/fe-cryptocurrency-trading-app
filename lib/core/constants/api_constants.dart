@@ -157,6 +157,11 @@ class ApiConstants {
   static String walletBalance(String walletId) => '$wallets/$walletId/balance';
   static String walletLedger(String walletId) => '$wallets/$walletId/ledger';
 
+  // Admin Wallet Adjustment Endpoints (Điều chỉnh số dư thủ công)
+  static const String walletsAdminAdjust = '/wallets/admin/adjust';
+  static String walletsAdminAdjustmentHistory(String userId) =>
+      '/wallets/admin/adjustments/$userId';
+
   // Blockchain Endpoints (Liên kết ví + Nạp/Rút on-chain)
   static const String blockchain = '/blockchain';
   static const String blockchainWallets = '$blockchain/wallets';
