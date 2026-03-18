@@ -134,6 +134,32 @@ class _DepositsScreenState extends State<DepositsScreen> {
     }
   }
 
+  /// Tap PENDING deposit: sync first, then open checkout if still PENDING (e.g. paid on PayOS but app not synced yet).
+  Future<void> _onTapPendingDeposit(int orderCode, String checkoutUrl) async {
+    final provider = context.read<DepositsProvider>();
+    final l10n = AppLocalizations.of(context);
+
+    await provider.syncDepositStatus(orderCode);
+    await provider.fetchMyDeposits();
+
+    if (!mounted) return;
+
+    final updated = provider.deposits
+        .where((d) => d.orderCode == orderCode)
+        .firstOrNull;
+    final isPaid = updated?.status.toUpperCase() == 'PAID';
+
+    if (isPaid) {
+      context.read<WalletsProvider>().fetchWallets();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.payosPaymentUpdated)),
+      );
+      return;
+    }
+
+    await _openCheckoutUrl(checkoutUrl);
+  }
+
   Future<bool> _tryLaunchCheckoutUrl(Uri uri) async {
     try {
       if (kIsWeb) {
@@ -422,8 +448,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
                               child: ListTile(
                                 onTap: isPending &&
                                         deposit.checkoutUrl.isNotEmpty
-                                    ? () =>
-                                        _openCheckoutUrl(deposit.checkoutUrl)
+                                    ? () => _onTapPendingDeposit(
+                                        deposit.orderCode,
+                                        deposit.checkoutUrl,
+                                      )
                                     : null,
                                 title: Text('${deposit.amount} VND'),
                                 subtitle: Text(

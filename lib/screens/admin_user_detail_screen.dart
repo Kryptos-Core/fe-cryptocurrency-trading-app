@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
@@ -10,8 +11,10 @@ import 'package:crypto_trading_app/domain/entities/user_security_change.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'admin_user_list_screen.dart' show UserRoleChip, UserStatusBadge;
+
+/// Platform cash currency symbol — must match PLATFORM_CASH_CURRENCY_SYMBOL on BE
+const _kPlatformCashSymbol = 'USDT';
 
 class AdminUserDetailScreen extends StatefulWidget {
   final User user;
@@ -831,12 +834,14 @@ class _AdjustBalanceBottomSheetState
   final _noteController = TextEditingController();
 
   late String _selectedType;
-  String? _selectedCurrencyId;
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CurrenciesProvider>().fetchCurrencies(refresh: false);
+    });
   }
 
   @override
@@ -848,9 +853,14 @@ class _AdjustBalanceBottomSheetState
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCurrencyId == null) {
+
+    final currProvider = context.read<CurrenciesProvider>();
+    final usdt = currProvider.currencies
+        .where((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol)
+        .firstOrNull;
+    if (usdt == null) {
       showAppSnackBar(context,
-          message: 'Vui lòng chọn loại tiền tệ',
+          message: 'Không tìm thấy ví USDT. Vui lòng thử lại sau.',
           type: SnackBarType.warning);
       return;
     }
@@ -858,8 +868,8 @@ class _AdjustBalanceBottomSheetState
     final provider = context.read<AdminUsersProvider>();
     final success = await provider.adjustBalance(
       userId: widget.user.id,
-      currencyId: _selectedCurrencyId!,
-      amount: _amountController.text.trim(),
+      currencyId: usdt.currencyId,
+      amount: parseAmountInput(_amountController.text),
       type: _selectedType,
       note: _noteController.text.trim().isEmpty
           ? null
@@ -958,22 +968,25 @@ class _AdjustBalanceBottomSheetState
               const SizedBox(height: 16),
               Consumer<CurrenciesProvider>(
                 builder: (_, currProvider, __) {
-                  final currencies = currProvider.currencies;
-                  if (currProvider.isLoading && currencies.isEmpty) {
+                  if (currProvider.isLoading && currProvider.currencies.isEmpty) {
                     return const LinearProgressIndicator();
                   }
-                  return AppDropdownField<String>(
-                    value: _selectedCurrencyId,
-                    labelText: 'Loại tiền tệ',
-                    hintText: 'Chọn currency...',
-                    items: currencies
-                        .map((c) => DropdownMenuItem(
-                              value: c.currencyId,
-                              child: Text('${c.symbol} — ${c.name}'),
-                            ))
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => _selectedCurrencyId = v),
+                  final hasUsdt = currProvider.currencies
+                      .any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+                  return ListTile(
+                    leading: const Icon(Icons.account_balance_wallet),
+                    title: const Text('Ví tiền (Platform Cash)'),
+                    subtitle: Text(
+                      hasUsdt
+                          ? 'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định'
+                          : 'Đang tải...',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    tileColor: colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   );
                 },
               ),
@@ -982,6 +995,7 @@ class _AdjustBalanceBottomSheetState
                 controller: _amountController,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [AmountInputFormatter()],
                 decoration: InputDecoration(
                   labelText: 'Số tiền',
                   hintText: '0.00',
@@ -994,13 +1008,14 @@ class _AdjustBalanceBottomSheetState
                   border: const OutlineInputBorder(),
                 ),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
+                  final raw = parseAmountInput(v ?? '');
+                  if (raw.isEmpty) {
                     return 'Vui lòng nhập số tiền';
                   }
-                  if (!RegExp(r'^\d+(\.\d{1,18})?$').hasMatch(v.trim())) {
+                  if (!RegExp(r'^\d+(\.\d{1,18})?$').hasMatch(raw)) {
                     return 'Số tiền không hợp lệ';
                   }
-                  final num = double.tryParse(v.trim());
+                  final num = double.tryParse(raw);
                   if (num == null || num <= 0) {
                     return 'Số tiền phải lớn hơn 0';
                   }

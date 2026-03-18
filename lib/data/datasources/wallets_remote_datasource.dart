@@ -26,6 +26,27 @@ abstract class WalletsRemoteDataSource {
   });
 }
 
+/// Backend GET /wallets returns flat items: walletId, currencyId, symbol, name, available, frozen, total.
+/// Normalize to the shape WalletModel expects (snake_case, nested currency, updated_at).
+Map<String, dynamic> _normalizeWalletListItem(Map<String, dynamic> item) {
+  return {
+    'wallet_id': item['walletId'] ?? item['wallet_id'] ?? '',
+    'user_id': item['userId'] ?? item['user_id'] ?? '',
+    'currency': {
+      'currency_id': item['currencyId'] ?? item['currency_id'] ?? '',
+      'symbol': item['symbol'] ?? '',
+      'name': item['name'] ?? '',
+    },
+    'available': item['available']?.toString() ?? '0',
+    'frozen': item['frozen']?.toString() ?? '0',
+    'total': item['total']?.toString() ?? '0',
+    'updated_at':
+        item['updatedAt']?.toString() ??
+        item['updated_at']?.toString() ??
+        DateTime.now().toUtc().toIso8601String(),
+  };
+}
+
 class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
   final Dio dio;
 
@@ -48,7 +69,10 @@ class WalletsRemoteDataSourceImpl implements WalletsRemoteDataSource {
       if (response.statusCode == 200) {
         final apiResponse = ApiResponse<List<WalletModel>>.fromJson(
           response.data,
-          (json) => (json as List).map((item) => WalletModel.fromJson(item as Map<String, dynamic>)).toList(),
+          (json) => (json as List)
+              .map((item) => WalletModel.fromJson(
+                  _normalizeWalletListItem(item as Map<String, dynamic>)))
+              .toList(),
         );
         
         if (apiResponse.success && apiResponse.data != null) {

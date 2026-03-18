@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'admin_user_list_screen.dart';
+
+/// Platform cash currency symbol — must match PLATFORM_CASH_CURRENCY_SYMBOL on BE
+const _kPlatformCashSymbol = 'USDT';
 
 /// Màn hình điều chỉnh số dư ví thủ công dành cho Admin / Risk Officer.
 /// Nên ưu tiên sử dụng flow: Quản lý người dùng → Chọn user → Nạp/Rút.
@@ -31,7 +34,6 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
   // Người dùng được chọn từ user picker
   User? _selectedUser;
   String _selectedType = 'DEPOSIT';
-  String? _selectedCurrencyId;
 
   // For history tab
   final _historyUserIdController = TextEditingController();
@@ -68,17 +70,23 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       return;
     }
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCurrencyId == null) {
+
+    final currProvider = context.read<CurrenciesProvider>();
+    final usdt = currProvider.currencies
+        .where((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol)
+        .firstOrNull;
+    if (usdt == null) {
       showAppSnackBar(context,
-          message: 'Vui lòng chọn loại tiền tệ', type: SnackBarType.warning);
+          message: 'Không tìm thấy ví USDT. Vui lòng thử lại sau.',
+          type: SnackBarType.warning);
       return;
     }
 
     final provider = context.read<WalletsProvider>();
     final success = await provider.adminAdjustBalance(
       userId: _selectedUser!.id,
-      currencyId: _selectedCurrencyId!,
-      amount: _amountController.text.trim(),
+      currencyId: usdt.currencyId,
+      amount: parseAmountInput(_amountController.text),
       type: _selectedType,
       note: _noteController.text.trim().isEmpty
           ? null
@@ -98,10 +106,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       _formKey.currentState!.reset();
       _amountController.clear();
       _noteController.clear();
-      setState(() {
-        _selectedCurrencyId = null;
-        _selectedUser = null;
-      });
+      setState(() => _selectedUser = null);
     } else {
       showAppSnackBar(
         context,
@@ -194,6 +199,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   title: 'Thông tin điều chỉnh',
                   child: Column(
                     children: [
+                      _buildPlatformCashInfo(theme, colorScheme),
+                      const SizedBox(height: 12),
                       // User picker
                       InkWell(
                         onTap: _pickUser,
@@ -250,12 +257,11 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildCurrencyDropdown(),
-                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _amountController,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
+                        inputFormatters: [AmountInputFormatter()],
                         decoration: InputDecoration(
                           labelText: 'Số tiền',
                           hintText: '0.00',
@@ -270,14 +276,14 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                           border: const OutlineInputBorder(),
                         ),
                         validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
+                          final raw = parseAmountInput(v ?? '');
+                          if (raw.isEmpty) {
                             return 'Vui lòng nhập số tiền';
                           }
-                          if (!RegExp(r'^\d+(\.\d{1,18})?$')
-                              .hasMatch(v.trim())) {
+                          if (!RegExp(r'^\d+(\.\d{1,18})?$').hasMatch(raw)) {
                             return 'Số tiền không hợp lệ (tối đa 18 chữ số thập phân)';
                           }
-                          final num = double.tryParse(v.trim());
+                          final num = double.tryParse(raw);
                           if (num == null || num <= 0) {
                             return 'Số tiền phải lớn hơn 0';
                           }
@@ -337,24 +343,27 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     );
   }
 
-  Widget _buildCurrencyDropdown() {
+  Widget _buildPlatformCashInfo(ThemeData theme, ColorScheme colorScheme) {
     return Consumer<CurrenciesProvider>(
       builder: (context, currProvider, _) {
-        final currencies = currProvider.currencies;
-        if (currProvider.isLoading && currencies.isEmpty) {
+        if (currProvider.isLoading && currProvider.currencies.isEmpty) {
           return const LinearProgressIndicator();
         }
-        return AppDropdownField<String>(
-          value: _selectedCurrencyId,
-          labelText: 'Loại tiền tệ',
-          hintText: 'Chọn currency...',
-          items: currencies
-              .map((c) => DropdownMenuItem(
-                    value: c.currencyId,
-                    child: Text('${c.symbol} — ${c.name}'),
-                  ))
-              .toList(),
-          onChanged: (v) => setState(() => _selectedCurrencyId = v),
+        final hasUsdt = currProvider.currencies
+            .any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+        return ListTile(
+          leading: const Icon(Icons.account_balance_wallet),
+          title: const Text('Ví tiền (Platform Cash)'),
+          subtitle: Text(
+            hasUsdt
+                ? 'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định'
+                : 'Đang tải...',
+            style: theme.textTheme.bodySmall,
+          ),
+          tileColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         );
       },
     );
