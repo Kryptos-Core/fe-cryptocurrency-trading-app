@@ -28,10 +28,15 @@ class ChartProvider extends ChangeNotifier {
 
   // Realtime state
   bool _isWebSocketConnected = false;
-  StreamSubscription? _webSocketSubscription;
   bool _isDisposed = false;
   /// Last time we received a ticker or ohlc message (for "receiving data" vs "connected only").
   DateTime? _lastTickerOrOhlcAt;
+
+  // Typed stream subscriptions (Observer pipelines)
+  StreamSubscription<Map<String, dynamic>>? _authResponseSubscription;
+  StreamSubscription<TickerData>? _tickerSubscription;
+  StreamSubscription<OHLCData>? _ohlcSubscription;
+  StreamSubscription<WorkspaceState>? _workspaceRestoredSubscription;
 
   // Getters
   List<OHLCData> get candles => List.unmodifiable(_candles);
@@ -66,28 +71,54 @@ class ChartProvider extends ChangeNotifier {
     required this.chartCacheService,
   });
 
-  /// Initialize WebSocket connection and authenticate
-  /// Called with: initializeWebSocket(url, jwtToken)
+  /// Initialize WebSocket connection and authenticate.
+  /// Uses typed stream pipelines (Observer pattern) instead of a single message switch.
   Future<void> initializeWebSocket(String url, String token) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      // Connect to WebSocket with token
       await webSocketService.connect(url, token);
 
-      // Listen to WebSocket messages
-      _webSocketSubscription = webSocketService.messageStream.listen(
-        _handleWebSocketMessage,
-        onError: (error) {
-          _logger.e('WebSocket error: $error');
-          _error = error.toString();
-          notifyListeners();
-        },
+      // ── auth_response ────────────────────────────────────────────────────
+      _authResponseSubscription?.cancel();
+      _authResponseSubscription = webSocketService.messageStream
+          .where((m) => m.type == 'auth_response')
+          .map((m) => m.data)
+          .listen(
+            _handleAuthResponse,
+            onError: (e) => _logger.e('auth_response error: $e'),
+          );
+
+      // ── ticker stream ────────────────────────────────────────────────────
+      _tickerSubscription?.cancel();
+      _tickerSubscription = webSocketService.tickerStream.listen(
+        _handleTickerUpdate,
+        onError: (e) => _logger.e('tickerStream error: $e'),
       );
 
-      _logger.i('✅ WebSocket initialized');
+      // ── ohlc stream ──────────────────────────────────────────────────────
+      _ohlcSubscription?.cancel();
+      _ohlcSubscription = webSocketService.ohlcStream.listen(
+        _handleCandleUpdate,
+        onError: (e) => _logger.e('ohlcStream error: $e'),
+      );
+
+      // ── workspace_restored stream ────────────────────────────────────────
+      _workspaceRestoredSubscription?.cancel();
+      _workspaceRestoredSubscription =
+          webSocketService.workspaceRestoredStream.listen(
+        _handleWorkspaceRestored,
+        onError: (e) => _logger.e('workspaceRestoredStream error: $e'),
+      );
+
+      // error messages from socket
+      webSocketService.messageStream
+          .where((m) => m.type == 'error')
+          .listen((m) => _handleWebSocketError(m.data));
+
+      _logger.i('✅ WebSocket initialized with typed stream pipelines');
     } catch (e) {
       _logger.e('Failed to initialize WebSocket: $e');
       _error = e.toString();
@@ -97,52 +128,35 @@ class ChartProvider extends ChangeNotifier {
     }
   }
 
-  /// Handle incoming WebSocket messages (per BE spec)
-  void _handleWebSocketMessage(WebSocketMessage message) {
-    switch (message.type) {
-      case 'auth_response':
-        _handleAuthResponse(message.data);
-        break;
-
-      case 'ticker':
-        _handleTickerUpdate(message.data);
-        break;
-
-      case 'ohlc':
-        _handleCandleUpdate(message.data);
-        break;
-
-      case 'subscribed':
-        _logger.i('✅ Subscribed: ${message.data}');
-        break;
-
-      case 'unsubscribed':
-        _logger.i('✅ Unsubscribed: ${message.data}');
-        break;
-
-      case 'error':
-        _handleWebSocketError(message.data);
-        break;
-
-      default:
-        _logger.d('📥 Message type: ${message.type}');
-    }
-  }
-
-  /// Handle authentication response. Re-subscribe to current pair when reconnecting.
+  /// Handle authentication response.
+  /// WebSocketService handles the workspace restore grace period / fallback internally.
+  /// ChartProvider only needs to mark itself as connected here.
   void _handleAuthResponse(Map<String, dynamic> data) {
     _isWebSocketConnected = true;
-    final userId = data['user_id'];
-    _logger.i('✅ Authenticated as user: $userId');
-    // After connect/reconnect: re-subscribe so we receive ticker/ohlc again (BE requires auth before subscribe).
-    if (_selectedPairId != null) {
+    _logger.i('✅ Authenticated as user: ${data['user_id']}');
+    notifyListeners();
+  }
+
+  /// Handle workspace restore event from server.
+  /// Server confirmed the subscription is active — no need to re-subscribe.
+  /// If the restored workspace contains our current pair, we're already in the room.
+  void _handleWorkspaceRestored(WorkspaceState workspace) {
+    _logger.i('📦 Workspace restored by server: ${workspace.pairs.length} pair(s)');
+    _isWebSocketConnected = true;
+
+    // Check if our selected pair is in the restored workspace
+    final restoredPair = workspace.pairs.where((p) => p.pairId == _selectedPairId).firstOrNull;
+    if (restoredPair != null) {
+      _logger.i('✅ Current pair $_selectedPairId is in restored workspace — no re-subscribe needed');
+    } else if (_selectedPairId != null) {
+      // Current pair not in workspace (e.g., user changed pair while offline) — subscribe it now
       webSocketService.subscribeToPair(
         _selectedPairId!,
         ['ticker', 'ohlc'],
         interval: _selectedInterval,
       );
-      _logger.i('📤 Re-subscribed to pair $_selectedPairId interval $_selectedInterval');
     }
+
     notifyListeners();
   }
 
@@ -163,10 +177,10 @@ class ChartProvider extends ChangeNotifier {
   }
 
   /// Handle ticker (price) updates - Every 1 second
-  void _handleTickerUpdate(Map<String, dynamic> data) {
+  void _handleTickerUpdate(TickerData ticker) {
     try {
       _lastTickerOrOhlcAt = DateTime.now();
-      _latestTicker = TickerData.fromJson(data);
+      _latestTicker = ticker;
       notifyListeners();
     } catch (e) {
       _logger.e('Error processing ticker: $e');
@@ -174,10 +188,9 @@ class ChartProvider extends ChangeNotifier {
   }
 
   /// Handle OHLC candle updates
-  void _handleCandleUpdate(Map<String, dynamic> data) {
+  void _handleCandleUpdate(OHLCData newCandle) {
     try {
       _lastTickerOrOhlcAt = DateTime.now();
-      final newCandle = OHLCData.fromJson(data);
 
       // Check if this is an update to existing candle or new candle
       if (_candles.isNotEmpty && _candles.last.openTime == newCandle.openTime) {
@@ -347,11 +360,14 @@ class ChartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Cleanup resources
+  /// Cleanup resources — cancel all typed stream subscriptions
   @override
   void dispose() {
     _isDisposed = true;
-    _webSocketSubscription?.cancel();
+    _authResponseSubscription?.cancel();
+    _tickerSubscription?.cancel();
+    _ohlcSubscription?.cancel();
+    _workspaceRestoredSubscription?.cancel();
     webSocketService.disconnect();
     super.dispose();
   }

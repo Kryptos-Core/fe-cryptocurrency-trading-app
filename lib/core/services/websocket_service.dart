@@ -192,6 +192,59 @@ class WebSocketMessage {
   }
 }
 
+/// Workspace subscription model — mirrors BE WorkspaceSubscription
+class WorkspaceSubscription {
+  final String pairId;
+  final List<String> channels;
+  final String? interval;
+
+  const WorkspaceSubscription({
+    required this.pairId,
+    required this.channels,
+    this.interval,
+  });
+
+  factory WorkspaceSubscription.fromJson(Map<String, dynamic> json) {
+    return WorkspaceSubscription(
+      pairId: json['pair_id']?.toString() ?? '',
+      channels: List<String>.from(json['channels'] as List? ?? []),
+      interval: json['interval'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'pair_id': pairId,
+        'channels': channels,
+        if (interval != null) 'interval': interval,
+      };
+}
+
+/// Workspace state model — mirrors BE WorkspaceState
+class WorkspaceState {
+  final String userId;
+  final List<WorkspaceSubscription> pairs;
+  final DateTime updatedAt;
+
+  const WorkspaceState({
+    required this.userId,
+    required this.pairs,
+    required this.updatedAt,
+  });
+
+  factory WorkspaceState.fromJson(Map<String, dynamic> json) {
+    final pairsList = json['pairs'] as List? ?? [];
+    return WorkspaceState(
+      userId: json['user_id']?.toString() ?? '',
+      pairs: pairsList
+          .map((p) => WorkspaceSubscription.fromJson(p as Map<String, dynamic>))
+          .toList(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['updated_at'] as int)
+          : DateTime.now(),
+    );
+  }
+}
+
 // ============================================================================
 // WebSocket Service Interface & Implementation
 // ============================================================================
@@ -213,7 +266,22 @@ abstract class IWebSocketService {
 
   // Getters
   bool get isConnected;
+
+  /// Raw message stream — all events from socket
   Stream<WebSocketMessage> get messageStream;
+
+  // ── Typed sub-streams (Observer/stream pipeline pattern) ──────────────────
+  /// Stream of real-time ticker updates for subscribed pairs
+  Stream<TickerData> get tickerStream;
+
+  /// Stream of real-time OHLC candle updates for subscribed pairs
+  Stream<OHLCData> get ohlcStream;
+
+  /// Stream of batched dashboard ticker snapshots (throttled every 5s)
+  Stream<List<TickerData>> get dashboardStream;
+
+  /// Stream of workspace restore events from server after reconnect
+  Stream<WorkspaceState> get workspaceRestoredStream;
 }
 
 /// WebSocket Service Implementation (Socket.IO)
@@ -225,6 +293,8 @@ class WebSocketService implements IWebSocketService {
 
   // Configuration
   static const Duration _maxReconnectDelay = Duration(seconds: 60);
+  /// Grace period to wait for workspace_restored before falling back to manual re-subscribe.
+  static const Duration _workspaceRestoreGrace = Duration(seconds: 3);
 
   // State
   String? _currentUrl;
@@ -232,12 +302,49 @@ class WebSocketService implements IWebSocketService {
   bool _isManuallyDisconnected = false;
   int _reconnectAttempts = 0;
 
+  /// Last subscription issued by this client — used for fallback re-subscribe on reconnect.
+  _PendingSubscription? _lastSubscription;
+
+  /// Whether we already received workspace_restored for this connection (prevents duplicate subscribe).
+  bool _workspaceRestored = false;
+
   @override
   bool get isConnected => _socket?.connected ?? false;
 
   @override
   Stream<WebSocketMessage> get messageStream =>
       _messageController?.stream ?? const Stream.empty();
+
+  // ── Typed sub-streams ─────────────────────────────────────────────────────
+
+  @override
+  Stream<TickerData> get tickerStream => messageStream
+      .where((m) => m.type == 'ticker')
+      .map((m) => TickerData.fromJson(m.data));
+
+  @override
+  Stream<OHLCData> get ohlcStream => messageStream
+      .where((m) => m.type == 'ohlc')
+      .map((m) => OHLCData.fromJson(m.data));
+
+  @override
+  Stream<List<TickerData>> get dashboardStream => messageStream
+      .where((m) => m.type == 'dashboard_tickers')
+      .map((m) {
+        final raw = m.data['data'];
+        if (raw is List) {
+          return raw
+              .whereType<Map<String, dynamic>>()
+              .map(TickerData.fromJson)
+              .toList();
+        }
+        return <TickerData>[];
+      });
+
+  @override
+  Stream<WorkspaceState> get workspaceRestoredStream => messageStream
+      .where((m) => m.type == 'workspace_restored')
+      .map((m) => WorkspaceState.fromJson(m.data));
 
   @override
   Future<void> connect(String url, String token) async {
@@ -335,6 +442,19 @@ class WebSocketService implements IWebSocketService {
             'data': data is Map ? data : {},
             'timestamp': DateTime.now().toIso8601String(),
           }),
+        );
+      });
+
+      _socket!.on('workspace_restored', (data) {
+        _workspaceRestored = true; // Suppress fallback re-subscribe
+        final payloadData = _extractPayloadData(data);
+        final payloadTimestamp = _extractPayloadTimestamp(data);
+        _handleMessage(
+          WebSocketMessage(
+            type: 'workspace_restored',
+            data: payloadData,
+            timestamp: payloadTimestamp ?? DateTime.now(),
+          ),
         );
       });
 
@@ -438,6 +558,8 @@ class WebSocketService implements IWebSocketService {
       return;
     }
 
+    _workspaceRestored = false;
+
     final authMessage = {
       'type': 'auth',
       'data': {
@@ -447,6 +569,30 @@ class WebSocketService implements IWebSocketService {
 
     _logger.d('📤 Emitting auth message...');
     _socket?.emit('auth', authMessage);
+
+    // After auth: listen for workspace_restored with a grace period.
+    // If server sends it, no manual re-subscribe needed.
+    // Otherwise, fall back to re-subscribing the last pair.
+    _scheduleWorkspaceFallback();
+  }
+
+  /// Waits [_workspaceRestoreGrace] for a workspace_restored event from the server.
+  /// If it doesn't arrive, re-subscribes the last known pair manually.
+  void _scheduleWorkspaceFallback() {
+    Future.delayed(_workspaceRestoreGrace, () {
+      if (_workspaceRestored) return; // Server handled restore — nothing to do
+      final sub = _lastSubscription;
+      if (sub == null || !isConnected) return;
+      _logger.i('📤 No workspace_restored received — fallback re-subscribe: ${sub.pairId}');
+      _socket?.emit('subscribe', {
+        'type': 'subscribe',
+        'data': {
+          'pair_id': sub.pairId,
+          'channels': sub.channels,
+          if (sub.interval != null) 'interval': sub.interval,
+        },
+      });
+    });
   }
 
   // =========================================================================
@@ -456,6 +602,13 @@ class WebSocketService implements IWebSocketService {
   @override
   void subscribeToPair(String pairId, List<String> channels,
       {String? interval}) {
+    // Track last subscription for fallback restore after reconnect
+    _lastSubscription = _PendingSubscription(
+      pairId: pairId,
+      channels: channels,
+      interval: interval,
+    );
+
     if (!isConnected) {
       _logger.w('⚠️ Not connected, cannot subscribe to pair $pairId');
       return;
@@ -564,4 +717,17 @@ class WebSocketService implements IWebSocketService {
   void dispose() {
     disconnect();
   }
+}
+
+/// Internal value object — last subscription issued by this client.
+class _PendingSubscription {
+  final String pairId;
+  final List<String> channels;
+  final String? interval;
+
+  const _PendingSubscription({
+    required this.pairId,
+    required this.channels,
+    this.interval,
+  });
 }

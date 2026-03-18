@@ -40,7 +40,8 @@ class DashboardProvider extends ChangeNotifier {
   String? _error;
   DateTime? _lastUpdated;
 
-  StreamSubscription<WebSocketMessage>? _wsSubscription;
+  StreamSubscription<WebSocketMessage>? _wsAuthSubscription;
+  StreamSubscription<List<TickerData>>? _wsDashboardSubscription;
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
@@ -126,8 +127,8 @@ class DashboardProvider extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
-    _wsSubscription?.cancel();
-    _wsSubscription = null;
+    _wsAuthSubscription?.cancel();
+    _wsDashboardSubscription?.cancel();
     if (_wsService.isConnected) {
       _wsService.leaveDashboard();
     }
@@ -161,15 +162,34 @@ class DashboardProvider extends ChangeNotifier {
     }
   }
 
-  /// Subscribe to the shared broadcast WS stream (Observer Pattern).
+  /// Subscribe to the shared broadcast WS stream using typed pipelines (Observer Pattern).
   void _subscribeToWsStream() {
-    _wsSubscription?.cancel();
-    _wsSubscription = _wsService.messageStream.listen(
-      _handleWsMessage,
-      onError: (error) {
-        _logger.w('[DashboardProvider] WS stream error: $error');
-      },
+    // auth_response → join dashboard room
+    _wsAuthSubscription?.cancel();
+    _wsAuthSubscription = _wsService.messageStream
+        .where((m) => m.type == 'auth_response' && m.data['success'] == true)
+        .listen(
+          (_) {
+            _wsService.joinDashboard();
+            _logger.d('[DashboardProvider] WS authenticated, joined dashboard room');
+          },
+          onError: (e) => _logger.w('[DashboardProvider] auth stream error: $e'),
+        );
+
+    // dashboardStream → batch ticker updates every 5s
+    _wsDashboardSubscription?.cancel();
+    _wsDashboardSubscription = _wsService.dashboardStream.listen(
+      _handleDashboardTickers,
+      onError: (e) => _logger.w('[DashboardProvider] dashboardStream error: $e'),
     );
+  }
+
+  void _handleDashboardTickers(List<TickerData> tickers) {
+    if (_isDisposed) return;
+    for (final ticker in tickers) {
+      _applyTickerUpdate(ticker);
+    }
+    _notify();
   }
 
   /// Ensure WS is connected (or connect it) then join dashboard room.
@@ -191,51 +211,22 @@ class DashboardProvider extends ChangeNotifier {
     }
   }
 
-  void _handleWsMessage(WebSocketMessage message) {
-    if (_isDisposed) return;
+  void _applyTickerUpdate(TickerData ticker) {
+    if (ticker.symbol.isEmpty) return;
 
-    switch (message.type) {
-      case 'auth_response':
-        final success = message.data['success'] == true;
-        if (success) {
-          _wsService.joinDashboard();
-          _logger.d('[DashboardProvider] WS authenticated, joined dashboard room');
-        }
-
-      case 'dashboard_tickers':
-        // Payload: { type, data: [TickerMessage, ...], timestamp }
-        final rawData = message.data['data'] ?? message.data;
-        if (rawData is List) {
-          for (final item in rawData) {
-            if (item is! Map) continue;
-            _applyTickerUpdate(Map<String, dynamic>.from(item));
-          }
-          _notify();
-        }
-
-      default:
-        break;
-    }
-  }
-
-  void _applyTickerUpdate(Map<String, dynamic> json) {
-    // BE sends TickerMessage shape: symbol, last_price, change_24h, etc.
-    final symbol = json['symbol']?.toString() ?? '';
-    if (symbol.isEmpty) return;
-
-    _liveTickerMap[symbol] = MarketTicker(
-      pairId: json['pair_id']?.toString() ?? '',
-      symbol: symbol,
-      lastPrice: json['last_price']?.toString() ?? '0',
-      open24h: json['open_24h']?.toString() ?? '0',
-      high24h: json['high_24h']?.toString() ?? '0',
-      low24h: json['low_24h']?.toString() ?? '0',
-      volume24h: json['volume_24h']?.toString() ?? '0',
-      quoteVolume24h: json['volume_24h_usd']?.toString() ?? '0',
-      change24h: json['change_percent_24h']?.toString() ?? '0',
-      changeAmount24h: json['change_24h']?.toString() ?? '0',
-      bestBid: json['bid']?.toString() ?? '0',
-      bestAsk: json['ask']?.toString() ?? '0',
+    _liveTickerMap[ticker.symbol] = MarketTicker(
+      pairId: ticker.pairId,
+      symbol: ticker.symbol,
+      lastPrice: ticker.lastPrice.toString(),
+      open24h: ticker.open24h.toString(),
+      high24h: ticker.high24h.toString(),
+      low24h: ticker.low24h.toString(),
+      volume24h: ticker.volume24h.toString(),
+      quoteVolume24h: ticker.volume24hUsd.toString(),
+      change24h: ticker.changePercent24h.toString(),
+      changeAmount24h: ticker.change24h.toString(),
+      bestBid: ticker.bid.toString(),
+      bestAsk: ticker.ask.toString(),
       timestamp: DateTime.now(),
     );
   }
