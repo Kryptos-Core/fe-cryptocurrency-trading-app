@@ -25,6 +25,7 @@ import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
+import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_management_screen.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
@@ -487,6 +488,20 @@ class _MainScreenState extends State<MainScreen> {
                               value: context.read<PaymentConfigProvider>(),
                               child: const PaymentConfigScreen(),
                             ),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.account_balance_wallet_outlined, color: Colors.deepOrange),
+                      title: const Text('Quản lý Rút tiền'),
+                      subtitle: const Text('Duyệt · Từ chối · Lịch sử', style: TextStyle(fontSize: 11)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const WithdrawalManagementScreen(),
                           ),
                         );
                       },

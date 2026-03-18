@@ -94,6 +94,15 @@ class ApiConstants {
   static const String ordersAdminAll = '/orders/admin/all';
   static const String depositsAdminAll = '/deposits/admin/all';
   static const String blockchainAdminWithdrawals = '/blockchain/admin/withdrawals';
+  static const String blockchainAdminWithdrawalStats = '/blockchain/admin/withdrawals/stats';
+  static String blockchainAdminWithdrawalDetail(String txId) =>
+      '/blockchain/admin/withdrawals/$txId';
+  static String blockchainWithdrawManualApprove(String txId) =>
+      '/blockchain/withdraw/manual/$txId/approve';
+  static String blockchainWithdrawManualReject(String txId) =>
+      '/blockchain/withdraw/manual/$txId/reject';
+  static const String blockchainWithdrawProcessPending =
+      '/blockchain/withdraw/manual/process-pending';
   
   // Currencies Endpoints (Tiền ảo)
   static const String currencies = '/currencies';
