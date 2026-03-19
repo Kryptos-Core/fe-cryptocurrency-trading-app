@@ -56,9 +56,11 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   void initState() {
     super.initState();
     _loadCurrencies();
-    // Load tất cả ví cho portfolio overview
+    // Portfolio + quy đổi USDT cần GET /dashboard; ví list dùng include_zero=true
+    // để mọi role (admin/support/…) vẫn có dòng tổng hợp dù trước đó chỉ gọi /wallets?include_zero=false.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<WalletsProvider>().fetchWallets(includeZero: false);
+      context.read<DashboardProvider>().refresh(force: true);
+      context.read<WalletsProvider>().fetchWallets(includeZero: true);
     });
   }
 
@@ -113,7 +115,8 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   /// Được gọi khi quay lại từ DepositsScreen hoặc BlockchainHubScreen.
   void _refreshAll() {
     final provider = context.read<WalletsProvider>();
-    provider.fetchWallets(includeZero: false);
+    context.read<DashboardProvider>().refresh(force: true);
+    provider.fetchWallets(includeZero: true);
     _fetchBalance();
   }
 
@@ -156,9 +159,13 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
           return Column(
             children: [
-              // Portfolio overview — tất cả coin đang có số dư
-              if (provider.wallets.isNotEmpty)
-                _PortfolioOverview(wallets: provider.wallets),
+              // Tổng danh mục: mọi role đã đăng nhập (fallback dashboard nếu /wallets rỗng)
+              Consumer<DashboardProvider>(
+                builder: (context, dash, _) => _PortfolioOverview(
+                  walletsProvider: provider,
+                  dashboardProvider: dash,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: AppDropdownField<String>(
@@ -610,65 +617,90 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
 // ── Portfolio Overview ───────────────────────────────────────────────────────
 
-/// Hiển thị tổng quan danh mục: tất cả đồng coin đang có số dư + tổng quy USDT.
-/// Hiển thị cho mọi role đã đăng nhập (trader, admin, support, risk, finance, market maker).
-/// Tổng USDT lấy từ DashboardProvider (quy đổi theo giá thị trường), fallback cộng raw nếu chưa có data.
-class _PortfolioOverview extends StatelessWidget {
-  final List<Wallet> wallets;
+bool _walletHasNonZeroBalance(Wallet w) {
+  final a = double.tryParse(w.available) ?? 0;
+  final f = double.tryParse(w.frozen) ?? 0;
+  final t = double.tryParse(w.total) ?? 0;
+  return a != 0 || f != 0 || t != 0;
+}
 
-  const _PortfolioOverview({required this.wallets});
+/// Tổng quan danh mục + tổng quy USDT — **luôn** hiển thị cho mọi role đã đăng nhập.
+///
+/// Nguồn dòng coin: ưu tiên [WalletsProvider] (GET /wallets, `include_zero=true`);
+/// nếu rỗng (lỗi mạng / user chưa có ví) thì fallback [DashboardSummary.wallets].
+/// Ưu tiên các dòng có số dư; nếu toàn 0 vẫn hiện tối đa 12 dòng để thấy USDT/0G…
+class _PortfolioOverview extends StatelessWidget {
+  final WalletsProvider walletsProvider;
+  final DashboardProvider dashboardProvider;
+
+  const _PortfolioOverview({
+    required this.walletsProvider,
+    required this.dashboardProvider,
+  });
+
+  List<Wallet> _rowsForDisplay() {
+    Iterable<Wallet> src;
+    if (walletsProvider.wallets.isNotEmpty) {
+      src = walletsProvider.wallets;
+    } else {
+      src = dashboardProvider.summary.wallets.map((e) => e.toWallet());
+    }
+    final list = src.toList();
+    final nonZero = list.where(_walletHasNonZeroBalance).toList();
+    if (nonZero.isNotEmpty) return nonZero;
+    if (list.isNotEmpty) return list.take(12).toList();
+    return [];
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final fmt = NumberFormat('#,##0.########');
+    final rows = _rowsForDisplay();
 
-    return Consumer<DashboardProvider>(
-      builder: (context, dashboardProvider, _) {
-        final totalUsdt = dashboardProvider.hasData
-            ? dashboardProvider.portfolioTotal
-            : wallets.fold<double>(
-                0,
-                (sum, w) => sum + (double.tryParse(w.total) ?? 0),
-              );
+    final totalUsdt = dashboardProvider.portfolioTotal;
 
-        return Card(
-          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                // Header
-                Row(
-                  children: [
-                    Icon(Icons.pie_chart_outline,
-                        color: theme.colorScheme.primary, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Tổng danh mục',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                Icon(Icons.pie_chart_outline,
+                    color: theme.colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Tổng danh mục',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            // Coin rows
-            ...wallets.map((w) => _CoinBalanceRow(wallet: w, fmt: fmt)),
+            if (rows.isEmpty)
+              Text(
+                'Chưa có dữ liệu ví. Kéo để làm mới hoặc kiểm tra kết nối.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              )
+            else
+              ...rows.map((w) => _CoinBalanceRow(wallet: w, fmt: fmt)),
           ],
         ),
       ),
-        );
-      },
     );
   }
 }

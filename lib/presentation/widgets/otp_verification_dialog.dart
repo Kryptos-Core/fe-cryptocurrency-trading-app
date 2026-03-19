@@ -93,9 +93,12 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
     if (!mounted) return;
     result.fold(
       (f) {
+        final msg = f.message.trim().isEmpty
+            ? 'OTP không hợp lệ hoặc đã hết hạn'
+            : f.message;
         setState(() {
           _isVerifying = false;
-          _verifyError = f.message;
+          _verifyError = msg;
         });
       },
       (_) {
@@ -134,6 +137,10 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
             keyboardType: TextInputType.number,
             maxLength: 6,
             autofocus: true,
+            enabled: !_isVerifying,
+            onSubmitted: (_) {
+              if (_controller.text.trim().length == 6) _verifyAndContinue();
+            },
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(6),
@@ -141,6 +148,8 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
             decoration: InputDecoration(
               hintText: l10n.otpEnterCodeHint,
               counterText: '',
+              errorMaxLines: 3,
+              errorText: _verifyError,
             ),
           ),
           const SizedBox(height: 12),

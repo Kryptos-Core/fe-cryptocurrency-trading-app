@@ -236,7 +236,7 @@ class _MainScreenState extends State<MainScreen> {
           }
           if (index == 2) {
             context.read<DashboardProvider>().refresh();
-            context.read<WalletsProvider>().fetchWallets(includeZero: false);
+            context.read<WalletsProvider>().fetchWallets(includeZero: true);
           }
         },
         type: BottomNavigationBarType.fixed,

@@ -54,4 +54,42 @@ class FormatUtils {
     }
     return formatUsdValue(value);
   }
+
+  static final NumberFormat _thousandsInt = NumberFormat('#,###');
+
+  /// Fiat whole amounts (e.g. PayOS VND): strip fractional noise, thousands separator.
+  /// Matches deposits input style (`#,###`).
+  /// Uses the substring before `.` when present so long Decimal strings from the API
+  /// never flow through [double] precision limits.
+  static String formatFiatIntegerDisplay(String amountStr) {
+    var s = amountStr.replaceAll(',', '').trim();
+    if (s.isEmpty) return amountStr;
+    final dot = s.indexOf('.');
+    if (dot >= 0) {
+      s = s.substring(0, dot);
+    }
+    if (s.isEmpty) return amountStr;
+    final asInt = int.tryParse(s);
+    if (asInt != null) {
+      return _thousandsInt.format(asInt);
+    }
+    final n = double.tryParse(amountStr.replaceAll(',', '').trim());
+    if (n == null) return amountStr;
+    return _thousandsInt.format(n.round());
+  }
+
+  static final NumberFormat _decimalUpTo8 = NumberFormat('#,##0.########', 'en_US');
+
+  /// Crypto / on-chain / order sizes: thousands separator, up to 8 decimals, trim trailing zeros.
+  /// Aligns with [orders_screen] `_formatAmountDisplay` and wallet-style readability.
+  static String formatDecimalAmountDisplay(String amountStr) {
+    final v = double.tryParse(amountStr.replaceAll(',', '').trim());
+    if (v == null) return amountStr;
+    if (v == 0) return '0';
+    var s = _decimalUpTo8.format(v);
+    if (s.contains('.')) {
+      s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    }
+    return s;
+  }
 }

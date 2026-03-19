@@ -4,6 +4,15 @@ import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/data/models/auth_response_model.dart';
 import 'package:crypto_trading_app/data/models/user_model.dart';
 
+String _messageFromDioResponse(dynamic data, String fallback) {
+  if (data is Map) {
+    final m = data['message'];
+    if (m is String && m.isNotEmpty) return m;
+    if (m != null && m.toString().trim().isNotEmpty) return m.toString().trim();
+  }
+  return fallback;
+}
+
 /// Auth Remote Datasource
 /// Handles authentication API calls
 /// Throws custom exceptions on errors
@@ -353,12 +362,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       if (response.statusCode == 200) return;
       throw ServerException(
-        message: response.data['message'] ?? 'OTP validation failed',
+        message: _messageFromDioResponse(
+          response.data,
+          'OTP validation failed',
+        ),
       );
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'OTP không hợp lệ hoặc đã hết hạn';
+        final message = _messageFromDioResponse(
+          e.response!.data,
+          'OTP không hợp lệ hoặc đã hết hạn',
+        );
         if (statusCode == 401) throw AuthenticationException(message: message);
         if (statusCode == 400) throw ValidationException(message: message);
         throw ServerException(message: message);

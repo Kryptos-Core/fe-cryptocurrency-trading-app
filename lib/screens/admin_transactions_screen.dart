@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 
 class AdminTransactionsScreen extends StatefulWidget {
@@ -584,7 +585,9 @@ class _OrderTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SL: $amount${price != null ? ' · Giá: $price' : ''}',
+          Text(
+              'SL: ${FormatUtils.formatDecimalAmountDisplay(amount)}'
+              '${price != null ? ' · Giá: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''}',
               style: const TextStyle(fontSize: 12)),
           if (userId.isNotEmpty)
             Text('User: ${_truncate(userId, 16)}',
@@ -640,7 +643,8 @@ class _DepositTile extends StatelessWidget {
       ),
       title: Row(
         children: [
-          Text('$amount VND',
+          Text(
+              '${FormatUtils.formatFiatIntegerDisplay(amount)} VND',
               style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(width: 8),
           _StatusBadge(label: statusLabel, color: statusColor),
@@ -709,7 +713,8 @@ class _WithdrawalTile extends StatelessWidget {
       ),
       title: Row(
         children: [
-          Text('-$amount',
+          Text(
+              '-${FormatUtils.formatDecimalAmountDisplay(amount)}',
               style: const TextStyle(
                   fontWeight: FontWeight.w600, color: Colors.red)),
           const SizedBox(width: 8),
