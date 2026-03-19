@@ -72,6 +72,12 @@ abstract class AuthRepository {
 
   Future<Either<Failure, void>> send2faOtp(String token);
 
+  /// Kiểm tra OTP với server (không tiêu thụ mã). Dùng trước khi mở bước tiếp theo (đổi MK, v.v.).
+  Future<Either<Failure, void>> validate2faOtp({
+    required String token,
+    required String otpCode,
+  });
+
   Future<Either<Failure, bool>> enable2fa({
     required String token,
     required String otpCode,
@@ -375,6 +381,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(null);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> validate2faOtp({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      await remoteDataSource.validate2faOtp(token: token, otpCode: otpCode);
+      return const Right(null);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));
     } on NetworkException catch (e) {

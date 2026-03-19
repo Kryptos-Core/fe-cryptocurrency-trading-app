@@ -64,6 +64,7 @@ class ApiConstants {
   static const String authWalletNonce = '/auth/wallet-nonce';
   static const String authWalletVerify = '/auth/wallet-verify';
   static const String auth2faSendOtp = '/auth/2fa/send-otp';
+  static const String auth2faValidateOtp = '/auth/2fa/validate-otp';
   static const String auth2faEnable = '/auth/2fa/enable';
   static const String auth2faDisable = '/auth/2fa/disable';
   static const String authChangePassword = '/auth/change-password';

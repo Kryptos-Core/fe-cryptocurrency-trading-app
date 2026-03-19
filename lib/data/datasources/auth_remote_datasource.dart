@@ -47,6 +47,12 @@ abstract class AuthRemoteDataSource {
   /// Send OTP to current user's verified email for 2FA action.
   Future<void> send2faOtp(String token);
 
+  /// Server-side check that OTP matches (does not consume). Throws on invalid.
+  Future<void> validate2faOtp({
+    required String token,
+    required String otpCode,
+  });
+
   /// Enable 2FA with OTP code.
   Future<bool> enable2fa({
     required String token,
@@ -328,6 +334,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         message: 'Cannot reach server. Check connection.',
       );
     } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> validate2faOtp({
+    required String token,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.auth2faValidateOtp,
+        data: {'otpCode': otpCode},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      if (response.statusCode == 200) return;
+      throw ServerException(
+        message: response.data['message'] ?? 'OTP validation failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final message = e.response!.data['message'] ?? 'OTP không hợp lệ hoặc đã hết hạn';
+        if (statusCode == 401) throw AuthenticationException(message: message);
+        if (statusCode == 400) throw ValidationException(message: message);
+        throw ServerException(message: message);
+      }
+      throw NetworkException(message: 'Cannot reach server. Check connection.');
+    } catch (e) {
+      if (e is AuthenticationException ||
+          e is ValidationException ||
+          e is ServerException ||
+          e is NetworkException) {
+        rethrow;
+      }
       throw ServerException(message: e.toString());
     }
   }

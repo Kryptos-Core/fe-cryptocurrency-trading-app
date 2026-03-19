@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
@@ -525,6 +526,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   Widget _buildBalanceRow(BuildContext context, String label, String amount,
       Color color, IconData icon) {
     final theme = Theme.of(context);
+    final displayAmount = _formatAmountForDisplay(amount);
     return Row(
       children: [
         Icon(icon, color: color, size: 32),
@@ -541,7 +543,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                amount,
+                displayAmount,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -609,6 +611,8 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 // ── Portfolio Overview ───────────────────────────────────────────────────────
 
 /// Hiển thị tổng quan danh mục: tất cả đồng coin đang có số dư + tổng quy USDT.
+/// Hiển thị cho mọi role đã đăng nhập (trader, admin, support, risk, finance, market maker).
+/// Tổng USDT lấy từ DashboardProvider (quy đổi theo giá thị trường), fallback cộng raw nếu chưa có data.
 class _PortfolioOverview extends StatelessWidget {
   final List<Wallet> wallets;
 
@@ -617,39 +621,44 @@ class _PortfolioOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalUsdt = wallets.fold<double>(
-      0,
-      (sum, w) => sum + (double.tryParse(w.total) ?? 0),
-    );
     final fmt = NumberFormat('#,##0.########');
 
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
+    return Consumer<DashboardProvider>(
+      builder: (context, dashboardProvider, _) {
+        final totalUsdt = dashboardProvider.hasData
+            ? dashboardProvider.portfolioTotal
+            : wallets.fold<double>(
+                0,
+                (sum, w) => sum + (double.tryParse(w.total) ?? 0),
+              );
+
+        return Card(
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.pie_chart_outline,
-                    color: theme.colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Tổng danh mục',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                // Header
+                Row(
+                  children: [
+                    Icon(Icons.pie_chart_outline,
+                        color: theme.colorScheme.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Tổng danh mục',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
               ],
             ),
             const SizedBox(height: 12),
@@ -658,6 +667,8 @@ class _PortfolioOverview extends StatelessWidget {
           ],
         ),
       ),
+        );
+      },
     );
   }
 }

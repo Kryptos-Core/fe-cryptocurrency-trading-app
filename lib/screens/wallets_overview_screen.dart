@@ -15,6 +15,8 @@ const _kCashCurrencySymbol = 'USDT';
 /// Phân tách rõ ràng 2 nhóm ví:
 ///  1. Ví Tiền (USDT) — nhận toàn bộ tiền nạp (PayOS, TronLink, MetaMask)
 ///  2. Tài sản — coin sở hữu từ giao dịch (BTC, ETH, TRX...)
+///
+/// Tổng danh mục (_PortfolioHeader): hiển thị cho mọi role đã đăng nhập.
 class WalletsOverviewScreen extends StatefulWidget {
   const WalletsOverviewScreen({super.key});
 

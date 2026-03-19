@@ -40,12 +40,18 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
   int _countdown = _cooldownSeconds;
   Timer? _timer;
   bool _isSending = false;
+  bool _isVerifying = false;
+  String? _verifyError;
 
   @override
   void initState() {
     super.initState();
     _startCountdown();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(() {
+      setState(() {
+        if (_verifyError != null) _verifyError = null;
+      });
+    });
   }
 
   @override
@@ -71,6 +77,31 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
         }
       });
     });
+  }
+
+  Future<void> _verifyAndContinue() async {
+    final code = _controller.text.trim();
+    if (code.length != 6 || _isVerifying) return;
+    setState(() {
+      _isVerifying = true;
+      _verifyError = null;
+    });
+    final result = await widget.repo.validate2faOtp(
+      token: widget.token,
+      otpCode: code,
+    );
+    if (!mounted) return;
+    result.fold(
+      (f) {
+        setState(() {
+          _isVerifying = false;
+          _verifyError = f.message;
+        });
+      },
+      (_) {
+        Navigator.pop(context, code);
+      },
+    );
   }
 
   Future<void> _resend() async {
@@ -134,10 +165,19 @@ class _OtpVerificationDialogState extends State<OtpVerificationDialog> {
           child: Text(l10n.cancel),
         ),
         FilledButton(
-          onPressed: _controller.text.trim().length == 6
-              ? () => Navigator.pop(context, _controller.text.trim())
+          onPressed: !_isVerifying && _controller.text.trim().length == 6
+              ? _verifyAndContinue
               : null,
-          child: Text(l10n.otpVerify),
+          child: _isVerifying
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                )
+              : Text(l10n.otpVerify),
         ),
       ],
     );
