@@ -152,6 +152,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
 
   Future<void> _confirmActivate(BuildContext context, PaymentMethodConfigModel config) async {
     final provider = context.read<PaymentConfigProvider>();
+    final l10n = AppLocalizations.of(context);
     final graceMinsController = TextEditingController(
       text: config.gracePeriodMinutes.toString(),
     );
@@ -159,24 +160,24 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Kích hoạt cấu hình'),
+        title: Text(l10n.paymentConfigActivateDialogTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Kích hoạt: ${config.displayName}'),
+            Text(l10n.paymentConfigActivateTarget(config.displayName)),
             const SizedBox(height: 4),
-            const Text(
-              'Hệ thống sẽ vào trạng thái TRANSITIONING. Trader sẽ nhận banner cảnh báo trong grace period.',
+            Text(
+              l10n.paymentConfigActivateWarning,
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: graceMinsController,
-              decoration: const InputDecoration(
-                labelText: 'Grace period (phút)',
-                border: OutlineInputBorder(),
-                helperText: 'Thời gian chờ trước khi config mới có hiệu lực',
+              decoration: InputDecoration(
+                labelText: l10n.paymentConfigGracePeriodLabel,
+                border: const OutlineInputBorder(),
+                helperText: l10n.paymentConfigGracePeriodHelper,
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -184,10 +185,10 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Kích hoạt'),
+            child: Text(l10n.paymentConfigActivateAction),
           ),
         ],
       ),
@@ -201,11 +202,13 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
     if (!context.mounted) return;
     if (result != null) {
       final activatesAt = result['activatesAt'] as String?;
+      final activationInfo = activatesAt != null
+          ? '. ${l10n.paymentConfigActivationAt(activatesAt.substring(0, 16).replaceAll('T', ' '))}'
+          : '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Đã bắt đầu grace period $graceMins phút'
-            '${activatesAt != null ? ". Kích hoạt lúc: ${activatesAt.substring(0, 16).replaceAll('T', ' ')}" : ""}',
+            '${l10n.paymentConfigActivationStartedMinutes(graceMins)}$activationInfo',
           ),
           backgroundColor: Colors.orange,
         ),
@@ -213,7 +216,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Lỗi kích hoạt cấu hình'),
+          content: Text(provider.error ?? l10n.paymentConfigActivateFailed),
           backgroundColor: Colors.red,
         ),
       );
@@ -222,19 +225,20 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
 
   Future<void> _confirmDeactivate(BuildContext context, PaymentMethodConfigModel config) async {
     final provider = context.read<PaymentConfigProvider>();
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Vô hiệu hóa cấu hình'),
+        title: Text(l10n.paymentConfigDeactivateDialogTitle),
         content: Text(
-          'Bạn có chắc muốn vô hiệu hóa "${config.displayName}"?\nThao tác này có hiệu lực ngay lập tức.',
+          l10n.paymentConfigDeactivateDialogContent(config.displayName),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Vô hiệu hóa'),
+            child: Text(l10n.paymentConfigDeactivateAction),
           ),
         ],
       ),
@@ -247,7 +251,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? 'Đã vô hiệu hóa' : (provider.error ?? 'Lỗi')),
+        content: Text(success ? l10n.paymentConfigDeactivatedSuccess : (provider.error ?? l10n.error)),
         backgroundColor: success ? Colors.green : Colors.red,
       ),
     );
@@ -259,6 +263,7 @@ class _PaymentConfigTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<PaymentConfigProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading && provider.configs.isEmpty) {
@@ -278,7 +283,7 @@ class _PaymentConfigTabView extends StatelessWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: provider.loadConfigs,
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -287,13 +292,13 @@ class _PaymentConfigTabView extends StatelessWidget {
         }
 
         if (provider.configs.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(32),
+              padding: const EdgeInsets.all(32),
               child: Text(
-                'Chưa có cấu hình nào.\nNhấn "Thêm phương thức" để tạo mới.',
+                l10n.paymentConfigEmptyMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ),
           );
@@ -340,6 +345,7 @@ class _PaymentConfigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final statusColor = config.isActive
         ? Colors.green
         : config.isTransitioning
@@ -381,7 +387,7 @@ class _PaymentConfigCard extends StatelessWidget {
                   const Icon(Icons.hourglass_top, size: 16, color: Colors.orange),
                   const SizedBox(width: 4),
                   Text(
-                    'Còn ~${config.graceMinsRemaining} phút trước khi kích hoạt',
+                    l10n.paymentConfigTransitioningRemaining(config.graceMinsRemaining ?? 0),
                     style: const TextStyle(color: Colors.orange, fontSize: 13),
                   ),
                 ],
@@ -389,12 +395,12 @@ class _PaymentConfigCard extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             Text(
-              'Phiên bản: v${config.configVersion} · Sắp xếp: ${config.sortOrder}',
+              l10n.paymentConfigVersionAndSort(config.configVersion, config.sortOrder),
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             if (config.activatedAt != null)
               Text(
-                'Kích hoạt: ${_formatDate(config.activatedAt!)}',
+                l10n.paymentConfigActivatedAt(_formatDate(config.activatedAt!)),
                 style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
               ),
             const Divider(height: 20),
@@ -404,21 +410,21 @@ class _PaymentConfigCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit, size: 16),
-                  label: const Text('Chỉnh sửa'),
+                  label: Text(l10n.paymentConfigEditAction),
                 ),
                 const SizedBox(width: 8),
                 if (!config.isActive && !config.isTransitioning)
                   FilledButton.icon(
                     onPressed: onActivate,
                     icon: const Icon(Icons.play_arrow, size: 16),
-                    label: const Text('Kích hoạt'),
+                    label: Text(l10n.paymentConfigActivateAction),
                   )
                 else if (config.isActive)
                   OutlinedButton.icon(
                     onPressed: onDeactivate,
                     style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                     icon: const Icon(Icons.stop, size: 16),
-                    label: const Text('Vô hiệu hóa'),
+                    label: Text(l10n.paymentConfigDeactivateAction),
                   ),
               ],
             ),
@@ -442,10 +448,11 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final label = switch (status) {
-      'ACTIVE' => 'ĐANG HOẠT ĐỘNG',
-      'TRANSITIONING' => 'ĐANG CHUYỂN ĐỔI',
-      _ => 'KHÔNG HOẠT ĐỘNG',
+      'ACTIVE' => l10n.paymentConfigStatusActiveUpper,
+      'TRANSITIONING' => l10n.paymentConfigStatusTransitioningUpper,
+      _ => l10n.paymentConfigStatusInactiveUpper,
     };
 
     return Container(
@@ -556,6 +563,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -573,7 +581,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               Row(
                 children: [
                   Text(
-                    widget.configId == null ? 'Thêm phương thức' : 'Chỉnh sửa cấu hình',
+                    widget.configId == null
+                        ? l10n.paymentConfigAddMethod
+                        : l10n.paymentConfigEditConfigTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const Spacer(),
@@ -587,9 +597,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               // Type selector
               DropdownButtonFormField<String>(
                 initialValue: _type,
-                decoration: const InputDecoration(
-                  labelText: 'Loại phương thức',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.paymentConfigMethodTypeLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                 onChanged: (v) {
@@ -611,9 +621,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               // Network selector
               DropdownButtonFormField<String>(
                 initialValue: _network,
-                decoration: const InputDecoration(
-                  labelText: 'Mạng',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.paymentConfigNetworkLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 items: (_networks[_type] ?? [])
                     .map((n) => DropdownMenuItem(value: n, child: Text(n)))
@@ -630,20 +640,20 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _displayNameCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Tên hiển thị',
-                  border: OutlineInputBorder(),
-                  hintText: 'VD: PayOS Ngân hàng MB',
+                decoration: InputDecoration(
+                  labelText: l10n.paymentConfigDisplayNameLabel,
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.paymentConfigDisplayNameHint,
                 ),
-                validator: (v) => (v?.isEmpty ?? true) ? 'Bắt buộc' : null,
+                validator: (v) => (v?.isEmpty ?? true) ? l10n.paymentConfigRequired : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _graceMinsCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Grace period (phút)',
-                  border: OutlineInputBorder(),
-                  helperText: 'Thời gian chờ khi kích hoạt trước khi có hiệu lực',
+                decoration: InputDecoration(
+                  labelText: l10n.paymentConfigGracePeriodLabel,
+                  border: const OutlineInputBorder(),
+                  helperText: l10n.paymentConfigGracePeriodEffectHelper,
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -652,7 +662,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               Row(
                 children: [
                   Text(
-                    'Thông tin xác thực',
+                    l10n.paymentConfigCredentialsSectionTitle,
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall
@@ -666,7 +676,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                       _showSensitiveFields ? Icons.visibility_off : Icons.visibility,
                       size: 16,
                     ),
-                    label: Text(_showSensitiveFields ? 'Ẩn' : 'Hiện'),
+                    label: Text(_showSensitiveFields ? l10n.paymentConfigHideAction : l10n.paymentConfigShowAction),
                   ),
                 ],
               ),
@@ -688,7 +698,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'MAINNET — cấu hình này ảnh hưởng đến tiền thực. Kiểm tra kỹ trước khi kích hoạt.',
+                          l10n.paymentConfigMainnetWarning,
                           style: TextStyle(color: Colors.red.shade700, fontSize: 13),
                         ),
                       ),
@@ -704,7 +714,11 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : Text(widget.configId == null ? 'Tạo cấu hình' : 'Lưu thay đổi'),
+                    : Text(
+                        widget.configId == null
+                            ? l10n.paymentConfigCreateConfigAction
+                            : l10n.paymentConfigSaveChangesAction,
+                      ),
               ),
             ],
           ),
@@ -713,7 +727,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     );
   }
 
-  List<Widget> _buildPayOSFields() => [
+  List<Widget> _buildPayOSFields() {
+    final l10n = AppLocalizations.of(context);
+    return [
         _MaskedTextField(
           controller: _payosClientIdCtrl,
           label: 'Client ID',
@@ -768,7 +784,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosRateCtrl,
-              decoration: const InputDecoration(labelText: 'Tỉ giá (1 VND → X USDT)', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.paymentConfigRateLabel, border: const OutlineInputBorder()),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
           ),
@@ -782,8 +798,11 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           ),
         ]),
       ];
+  }
 
-  List<Widget> _buildBlockchainFields() => [
+  List<Widget> _buildBlockchainFields() {
+    final l10n = AppLocalizations.of(context);
+    return [
         TextFormField(
           controller: _rpcUrlCtrl,
           decoration: const InputDecoration(
@@ -827,12 +846,13 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
         const SizedBox(height: 10),
         SwitchListTile(
           title: const Text('Mainnet'),
-          subtitle: const Text('Bật nếu là mạng mainnet (tiền thực)'),
+          subtitle: Text(l10n.paymentConfigMainnetSubtitle),
           value: _isMainnet,
           onChanged: (v) => setState(() => _isMainnet = v),
           contentPadding: EdgeInsets.zero,
         ),
       ];
+  }
 
   Map<String, dynamic> _buildConfigPayload() {
     if (_type == 'PAYOS') {
@@ -859,6 +879,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isSubmitting = true);
@@ -890,14 +911,18 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.configId == null ? 'Đã tạo cấu hình' : 'Đã cập nhật cấu hình'),
+          content: Text(
+            widget.configId == null
+                ? l10n.paymentConfigCreatedSuccess
+                : l10n.paymentConfigUpdatedSuccess,
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Có lỗi xảy ra'),
+          content: Text(provider.error ?? l10n.paymentConfigUnknownError),
           backgroundColor: Colors.red,
         ),
       );
@@ -918,13 +943,14 @@ class _MaskedTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return TextFormField(
       controller: controller,
       obscureText: !show,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
-        helperText: show ? null : 'Ẩn — nhấn "Hiện" để xem',
+        helperText: show ? null : l10n.paymentConfigMaskedHelper,
       ),
     );
   }

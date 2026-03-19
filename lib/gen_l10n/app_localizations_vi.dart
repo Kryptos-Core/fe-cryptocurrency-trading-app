@@ -1570,6 +1570,146 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigAddMethod => 'Thêm phương thức';
 
   @override
+  String get paymentConfigEditConfigTitle => 'Chỉnh sửa cấu hình';
+
+  @override
+  String get paymentConfigEmptyMessage =>
+      'Chưa có cấu hình nào.\nNhấn \"Thêm phương thức\" để tạo mới.';
+
+  @override
+  String get paymentConfigActivateDialogTitle => 'Kích hoạt cấu hình';
+
+  @override
+  String paymentConfigActivateTarget(String name) {
+    return 'Kích hoạt: $name';
+  }
+
+  @override
+  String get paymentConfigActivateWarning =>
+      'Hệ thống sẽ vào trạng thái TRANSITIONING. Trader sẽ nhận banner cảnh báo trong grace period.';
+
+  @override
+  String get paymentConfigGracePeriodLabel => 'Grace period (phút)';
+
+  @override
+  String get paymentConfigGracePeriodHelper =>
+      'Thời gian chờ trước khi config mới có hiệu lực';
+
+  @override
+  String get paymentConfigActivateAction => 'Kích hoạt';
+
+  @override
+  String paymentConfigActivationStartedMinutes(int minutes) {
+    return 'Đã bắt đầu grace period $minutes phút';
+  }
+
+  @override
+  String paymentConfigActivationAt(String time) {
+    return 'Kích hoạt lúc: $time';
+  }
+
+  @override
+  String get paymentConfigActivateFailed => 'Lỗi kích hoạt cấu hình';
+
+  @override
+  String get paymentConfigDeactivateDialogTitle => 'Vô hiệu hóa cấu hình';
+
+  @override
+  String paymentConfigDeactivateDialogContent(String name) {
+    return 'Bạn có chắc muốn vô hiệu hóa \"$name\"?\nThao tác này có hiệu lực ngay lập tức.';
+  }
+
+  @override
+  String get paymentConfigDeactivateAction => 'Vô hiệu hóa';
+
+  @override
+  String get paymentConfigDeactivatedSuccess => 'Đã vô hiệu hóa';
+
+  @override
+  String paymentConfigTransitioningRemaining(int minutes) {
+    return 'Còn ~$minutes phút trước khi kích hoạt';
+  }
+
+  @override
+  String paymentConfigVersionAndSort(int version, int sortOrder) {
+    return 'Phiên bản: v$version · Sắp xếp: $sortOrder';
+  }
+
+  @override
+  String paymentConfigActivatedAt(String datetime) {
+    return 'Kích hoạt: $datetime';
+  }
+
+  @override
+  String get paymentConfigEditAction => 'Chỉnh sửa';
+
+  @override
+  String get paymentConfigStatusActiveUpper => 'ĐANG HOẠT ĐỘNG';
+
+  @override
+  String get paymentConfigStatusTransitioningUpper => 'ĐANG CHUYỂN ĐỔI';
+
+  @override
+  String get paymentConfigStatusInactiveUpper => 'KHÔNG HOẠT ĐỘNG';
+
+  @override
+  String get paymentConfigMethodTypeLabel => 'Loại phương thức';
+
+  @override
+  String get paymentConfigNetworkLabel => 'Mạng';
+
+  @override
+  String get paymentConfigDisplayNameLabel => 'Tên hiển thị';
+
+  @override
+  String get paymentConfigDisplayNameHint => 'VD: PayOS Ngân hàng MB';
+
+  @override
+  String get paymentConfigRequired => 'Bắt buộc';
+
+  @override
+  String get paymentConfigGracePeriodEffectHelper =>
+      'Thời gian chờ khi kích hoạt trước khi có hiệu lực';
+
+  @override
+  String get paymentConfigCredentialsSectionTitle => 'Thông tin xác thực';
+
+  @override
+  String get paymentConfigHideAction => 'Ẩn';
+
+  @override
+  String get paymentConfigShowAction => 'Hiện';
+
+  @override
+  String get paymentConfigMainnetWarning =>
+      'MAINNET — cấu hình này ảnh hưởng đến tiền thực. Kiểm tra kỹ trước khi kích hoạt.';
+
+  @override
+  String get paymentConfigMainnetSubtitle =>
+      'Bật nếu là mạng mainnet (tiền thực)';
+
+  @override
+  String get paymentConfigRateLabel => 'Tỉ giá (1 VND → X USDT)';
+
+  @override
+  String get paymentConfigCreateConfigAction => 'Tạo cấu hình';
+
+  @override
+  String get paymentConfigSaveChangesAction => 'Lưu thay đổi';
+
+  @override
+  String get paymentConfigCreatedSuccess => 'Đã tạo cấu hình';
+
+  @override
+  String get paymentConfigUpdatedSuccess => 'Đã cập nhật cấu hình';
+
+  @override
+  String get paymentConfigUnknownError => 'Có lỗi xảy ra';
+
+  @override
+  String get paymentConfigMaskedHelper => 'Ẩn — nhấn \"Hiện\" để xem';
+
+  @override
   String get treasuryCreateWalletFab => 'Tạo ví giao dịch';
 
   @override
@@ -1598,6 +1738,21 @@ class AppLocalizationsVi extends AppLocalizations {
       'Chưa có ví giao dịch. Nhấn \"Tạo ví giao dịch\" để bắt đầu.';
 
   @override
+  String get treasuryOpsGuideTitle => 'Sweep và Fund là gì?';
+
+  @override
+  String get treasurySweepMeaning =>
+      'Sweep: gom tài sản từ ví đang chọn về ví trung tâm (main wallet) để tập trung thanh khoản.';
+
+  @override
+  String get treasuryFundMeaning =>
+      'Fund: cấp vốn từ ví trung tâm sang ví đang chọn để ví đó có tiền xử lý giao dịch.';
+
+  @override
+  String get treasuryOpsHowTo =>
+      'Cách dùng: ví thiếu tiền thì bấm Fund và nhập số lượng; ví dư tiền thì bấm Sweep để chuyển ngược về ví trung tâm.';
+
+  @override
   String get treasuryStatusActive => 'ACTIVE';
 
   @override
@@ -1607,10 +1762,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryBalanceLabel => 'Số dư';
 
   @override
-  String get treasurySweepAction => 'Sweep';
+  String get treasurySweepAction => 'Gom về';
 
   @override
-  String get treasuryFundAction => 'Fund';
+  String get treasurySweepTooltip => 'Gom tiền từ ví này về ví chính';
+
+  @override
+  String get treasurySweepDialogTitle => 'Sweep về ví chính';
+
+  @override
+  String get treasurySweepTargetLabel => 'Sweep về';
+
+  @override
+  String get treasuryFundAction => 'Cấp vốn';
+
+  @override
+  String get treasuryFundTooltip => 'Nạp tiền từ ví chính vào ví này';
 
   @override
   String get treasurySweepQueued => 'Đã enqueue sweep';

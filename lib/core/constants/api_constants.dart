@@ -218,6 +218,7 @@ class ApiConstants {
   // Treasury Endpoints (ADMIN / FINANCE_MANAGER only)
   static const String treasury = '/treasury';
   static const String treasuryWallets = '$treasury/wallets';
+  static const String treasuryMainWallets = '$treasury/main-wallets';
   static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';
   static String treasuryWalletSweep(String walletId) => '$treasury/wallets/$walletId/sweep';
   static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';

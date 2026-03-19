@@ -13,7 +13,7 @@ class TreasuryCreateWalletSheet extends StatefulWidget {
 
 class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
   final _formKey = GlobalKey<FormState>();
-  String _chain = 'TRON_NILE';
+  String _chain = 'TRON_NILE'; // Default to testnet
   String _purpose = 'BOTH';
   final TextEditingController _labelCtrl = TextEditingController();
 
@@ -49,7 +49,9 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
               items: const [
                 DropdownMenuItem(value: 'TRON_NILE', child: Text('TRON_NILE')),
                 DropdownMenuItem(value: 'TRON_SHASTA', child: Text('TRON_SHASTA')),
+                DropdownMenuItem(value: 'TRON_MAINNET', child: Text('TRON_MAINNET')),
                 DropdownMenuItem(value: 'ETH_SEPOLIA', child: Text('ETH_SEPOLIA')),
+                DropdownMenuItem(value: 'ETH_MAINNET', child: Text('ETH_MAINNET')),
               ],
               onChanged: (v) {
                 if (v == null) return;

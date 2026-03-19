@@ -123,6 +123,35 @@ class TreasuryTransactionModel {
   }
 }
 
+class TreasuryMainWalletModel {
+  final String mainWalletId;
+  final String address;
+  final String? label;
+  final String balance;
+  final String symbol;
+  final bool isDefault;
+
+  const TreasuryMainWalletModel({
+    required this.mainWalletId,
+    required this.address,
+    this.label,
+    required this.balance,
+    required this.symbol,
+    required this.isDefault,
+  });
+
+  factory TreasuryMainWalletModel.fromJson(Map<String, dynamic> json) {
+    return TreasuryMainWalletModel(
+      mainWalletId: (json['mainWalletId'] ?? json['main_wallet_id'] ?? '').toString(),
+      address: (json['address'] ?? '').toString(),
+      label: json['label']?.toString(),
+      balance: (json['balance'] ?? '0').toString(),
+      symbol: (json['symbol'] ?? '').toString(),
+      isDefault: json['isDefault'] == true || json['is_default'] == true,
+    );
+  }
+}
+
 class TreasuryPageResult<T> {
   final List<T> items;
   final int total;

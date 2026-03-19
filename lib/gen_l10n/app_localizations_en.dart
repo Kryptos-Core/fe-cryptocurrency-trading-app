@@ -1567,6 +1567,146 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigAddMethod => 'Add method';
 
   @override
+  String get paymentConfigEditConfigTitle => 'Edit configuration';
+
+  @override
+  String get paymentConfigEmptyMessage =>
+      'No configurations yet.\nTap \"Add method\" to create one.';
+
+  @override
+  String get paymentConfigActivateDialogTitle => 'Activate configuration';
+
+  @override
+  String paymentConfigActivateTarget(String name) {
+    return 'Activate: $name';
+  }
+
+  @override
+  String get paymentConfigActivateWarning =>
+      'The system will move to TRANSITIONING. Traders will see a warning banner during the grace period.';
+
+  @override
+  String get paymentConfigGracePeriodLabel => 'Grace period (minutes)';
+
+  @override
+  String get paymentConfigGracePeriodHelper =>
+      'Wait time before the new config becomes effective';
+
+  @override
+  String get paymentConfigActivateAction => 'Activate';
+
+  @override
+  String paymentConfigActivationStartedMinutes(int minutes) {
+    return 'Grace period of $minutes minutes started';
+  }
+
+  @override
+  String paymentConfigActivationAt(String time) {
+    return 'Activates at: $time';
+  }
+
+  @override
+  String get paymentConfigActivateFailed => 'Failed to activate configuration';
+
+  @override
+  String get paymentConfigDeactivateDialogTitle => 'Deactivate configuration';
+
+  @override
+  String paymentConfigDeactivateDialogContent(String name) {
+    return 'Are you sure you want to deactivate \"$name\"?\nThis action takes effect immediately.';
+  }
+
+  @override
+  String get paymentConfigDeactivateAction => 'Deactivate';
+
+  @override
+  String get paymentConfigDeactivatedSuccess => 'Deactivated';
+
+  @override
+  String paymentConfigTransitioningRemaining(int minutes) {
+    return '~$minutes minutes remaining before activation';
+  }
+
+  @override
+  String paymentConfigVersionAndSort(int version, int sortOrder) {
+    return 'Version: v$version · Order: $sortOrder';
+  }
+
+  @override
+  String paymentConfigActivatedAt(String datetime) {
+    return 'Activated: $datetime';
+  }
+
+  @override
+  String get paymentConfigEditAction => 'Edit';
+
+  @override
+  String get paymentConfigStatusActiveUpper => 'ACTIVE';
+
+  @override
+  String get paymentConfigStatusTransitioningUpper => 'TRANSITIONING';
+
+  @override
+  String get paymentConfigStatusInactiveUpper => 'INACTIVE';
+
+  @override
+  String get paymentConfigMethodTypeLabel => 'Method type';
+
+  @override
+  String get paymentConfigNetworkLabel => 'Network';
+
+  @override
+  String get paymentConfigDisplayNameLabel => 'Display name';
+
+  @override
+  String get paymentConfigDisplayNameHint => 'Example: PayOS MB Bank';
+
+  @override
+  String get paymentConfigRequired => 'Required';
+
+  @override
+  String get paymentConfigGracePeriodEffectHelper =>
+      'Wait time after activation before taking effect';
+
+  @override
+  String get paymentConfigCredentialsSectionTitle => 'Credentials';
+
+  @override
+  String get paymentConfigHideAction => 'Hide';
+
+  @override
+  String get paymentConfigShowAction => 'Show';
+
+  @override
+  String get paymentConfigMainnetWarning =>
+      'MAINNET - this configuration affects real funds. Review carefully before activation.';
+
+  @override
+  String get paymentConfigMainnetSubtitle =>
+      'Enable if this is a mainnet network (real funds)';
+
+  @override
+  String get paymentConfigRateLabel => 'Rate (1 VND -> X USDT)';
+
+  @override
+  String get paymentConfigCreateConfigAction => 'Create configuration';
+
+  @override
+  String get paymentConfigSaveChangesAction => 'Save changes';
+
+  @override
+  String get paymentConfigCreatedSuccess => 'Configuration created';
+
+  @override
+  String get paymentConfigUpdatedSuccess => 'Configuration updated';
+
+  @override
+  String get paymentConfigUnknownError => 'An error occurred';
+
+  @override
+  String get paymentConfigMaskedHelper => 'Hidden - tap \"Show\" to reveal';
+
+  @override
   String get treasuryCreateWalletFab => 'Create wallet';
 
   @override
@@ -1595,6 +1735,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'No transaction wallets yet. Tap \"Create wallet\" to start.';
 
   @override
+  String get treasuryOpsGuideTitle => 'What are Sweep and Fund?';
+
+  @override
+  String get treasurySweepMeaning =>
+      'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity.';
+
+  @override
+  String get treasuryFundMeaning =>
+      'Fund: send assets from the main wallet to the selected wallet so it can process transactions.';
+
+  @override
+  String get treasuryOpsHowTo =>
+      'How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.';
+
+  @override
   String get treasuryStatusActive => 'ACTIVE';
 
   @override
@@ -1604,10 +1759,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryBalanceLabel => 'Balance';
 
   @override
-  String get treasurySweepAction => 'Sweep';
+  String get treasurySweepAction => 'Sweep to main';
 
   @override
-  String get treasuryFundAction => 'Fund';
+  String get treasurySweepTooltip =>
+      'Sweep funds from this wallet to the main wallet';
+
+  @override
+  String get treasurySweepDialogTitle => 'Sweep to main wallet';
+
+  @override
+  String get treasurySweepTargetLabel => 'Sweep to';
+
+  @override
+  String get treasuryFundAction => 'Fund wallet';
+
+  @override
+  String get treasuryFundTooltip => 'Fund this wallet from the main wallet';
 
   @override
   String get treasurySweepQueued => 'Sweep enqueued';

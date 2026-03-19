@@ -2972,6 +2972,246 @@ abstract class AppLocalizations {
   /// **'Add method'**
   String get paymentConfigAddMethod;
 
+  /// No description provided for @paymentConfigEditConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit configuration'**
+  String get paymentConfigEditConfigTitle;
+
+  /// No description provided for @paymentConfigEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No configurations yet.\nTap \"Add method\" to create one.'**
+  String get paymentConfigEmptyMessage;
+
+  /// No description provided for @paymentConfigActivateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate configuration'**
+  String get paymentConfigActivateDialogTitle;
+
+  /// No description provided for @paymentConfigActivateTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate: {name}'**
+  String paymentConfigActivateTarget(String name);
+
+  /// No description provided for @paymentConfigActivateWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The system will move to TRANSITIONING. Traders will see a warning banner during the grace period.'**
+  String get paymentConfigActivateWarning;
+
+  /// No description provided for @paymentConfigGracePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace period (minutes)'**
+  String get paymentConfigGracePeriodLabel;
+
+  /// No description provided for @paymentConfigGracePeriodHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait time before the new config becomes effective'**
+  String get paymentConfigGracePeriodHelper;
+
+  /// No description provided for @paymentConfigActivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get paymentConfigActivateAction;
+
+  /// No description provided for @paymentConfigActivationStartedMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace period of {minutes} minutes started'**
+  String paymentConfigActivationStartedMinutes(int minutes);
+
+  /// No description provided for @paymentConfigActivationAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Activates at: {time}'**
+  String paymentConfigActivationAt(String time);
+
+  /// No description provided for @paymentConfigActivateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to activate configuration'**
+  String get paymentConfigActivateFailed;
+
+  /// No description provided for @paymentConfigDeactivateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate configuration'**
+  String get paymentConfigDeactivateDialogTitle;
+
+  /// No description provided for @paymentConfigDeactivateDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to deactivate \"{name}\"?\nThis action takes effect immediately.'**
+  String paymentConfigDeactivateDialogContent(String name);
+
+  /// No description provided for @paymentConfigDeactivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get paymentConfigDeactivateAction;
+
+  /// No description provided for @paymentConfigDeactivatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get paymentConfigDeactivatedSuccess;
+
+  /// No description provided for @paymentConfigTransitioningRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'~{minutes} minutes remaining before activation'**
+  String paymentConfigTransitioningRemaining(int minutes);
+
+  /// No description provided for @paymentConfigVersionAndSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: v{version} · Order: {sortOrder}'**
+  String paymentConfigVersionAndSort(int version, int sortOrder);
+
+  /// No description provided for @paymentConfigActivatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Activated: {datetime}'**
+  String paymentConfigActivatedAt(String datetime);
+
+  /// No description provided for @paymentConfigEditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get paymentConfigEditAction;
+
+  /// No description provided for @paymentConfigStatusActiveUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get paymentConfigStatusActiveUpper;
+
+  /// No description provided for @paymentConfigStatusTransitioningUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'TRANSITIONING'**
+  String get paymentConfigStatusTransitioningUpper;
+
+  /// No description provided for @paymentConfigStatusInactiveUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'INACTIVE'**
+  String get paymentConfigStatusInactiveUpper;
+
+  /// No description provided for @paymentConfigMethodTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Method type'**
+  String get paymentConfigMethodTypeLabel;
+
+  /// No description provided for @paymentConfigNetworkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get paymentConfigNetworkLabel;
+
+  /// No description provided for @paymentConfigDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get paymentConfigDisplayNameLabel;
+
+  /// No description provided for @paymentConfigDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: PayOS MB Bank'**
+  String get paymentConfigDisplayNameHint;
+
+  /// No description provided for @paymentConfigRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get paymentConfigRequired;
+
+  /// No description provided for @paymentConfigGracePeriodEffectHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait time after activation before taking effect'**
+  String get paymentConfigGracePeriodEffectHelper;
+
+  /// No description provided for @paymentConfigCredentialsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials'**
+  String get paymentConfigCredentialsSectionTitle;
+
+  /// No description provided for @paymentConfigHideAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get paymentConfigHideAction;
+
+  /// No description provided for @paymentConfigShowAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get paymentConfigShowAction;
+
+  /// No description provided for @paymentConfigMainnetWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'MAINNET - this configuration affects real funds. Review carefully before activation.'**
+  String get paymentConfigMainnetWarning;
+
+  /// No description provided for @paymentConfigMainnetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable if this is a mainnet network (real funds)'**
+  String get paymentConfigMainnetSubtitle;
+
+  /// No description provided for @paymentConfigRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate (1 VND -> X USDT)'**
+  String get paymentConfigRateLabel;
+
+  /// No description provided for @paymentConfigCreateConfigAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create configuration'**
+  String get paymentConfigCreateConfigAction;
+
+  /// No description provided for @paymentConfigSaveChangesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get paymentConfigSaveChangesAction;
+
+  /// No description provided for @paymentConfigCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration created'**
+  String get paymentConfigCreatedSuccess;
+
+  /// No description provided for @paymentConfigUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration updated'**
+  String get paymentConfigUpdatedSuccess;
+
+  /// No description provided for @paymentConfigUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get paymentConfigUnknownError;
+
+  /// No description provided for @paymentConfigMaskedHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden - tap \"Show\" to reveal'**
+  String get paymentConfigMaskedHelper;
+
   /// No description provided for @treasuryCreateWalletFab.
   ///
   /// In en, this message translates to:
@@ -3026,6 +3266,30 @@ abstract class AppLocalizations {
   /// **'No transaction wallets yet. Tap \"Create wallet\" to start.'**
   String get treasuryNoWalletsYet;
 
+  /// No description provided for @treasuryOpsGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are Sweep and Fund?'**
+  String get treasuryOpsGuideTitle;
+
+  /// No description provided for @treasurySweepMeaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity.'**
+  String get treasurySweepMeaning;
+
+  /// No description provided for @treasuryFundMeaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund: send assets from the main wallet to the selected wallet so it can process transactions.'**
+  String get treasuryFundMeaning;
+
+  /// No description provided for @treasuryOpsHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.'**
+  String get treasuryOpsHowTo;
+
   /// No description provided for @treasuryStatusActive.
   ///
   /// In en, this message translates to:
@@ -3047,14 +3311,38 @@ abstract class AppLocalizations {
   /// No description provided for @treasurySweepAction.
   ///
   /// In en, this message translates to:
-  /// **'Sweep'**
+  /// **'Sweep to main'**
   String get treasurySweepAction;
+
+  /// No description provided for @treasurySweepTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep funds from this wallet to the main wallet'**
+  String get treasurySweepTooltip;
+
+  /// No description provided for @treasurySweepDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep to main wallet'**
+  String get treasurySweepDialogTitle;
+
+  /// No description provided for @treasurySweepTargetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep to'**
+  String get treasurySweepTargetLabel;
 
   /// No description provided for @treasuryFundAction.
   ///
   /// In en, this message translates to:
-  /// **'Fund'**
+  /// **'Fund wallet'**
   String get treasuryFundAction;
+
+  /// No description provided for @treasuryFundTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund this wallet from the main wallet'**
+  String get treasuryFundTooltip;
 
   /// No description provided for @treasurySweepQueued.
   ///

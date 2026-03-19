@@ -11,6 +11,7 @@ class TreasuryProvider extends ChangeNotifier {
       : _dataSource = dataSource;
 
   List<TreasuryWalletModel> _wallets = [];
+  List<TreasuryMainWalletModel> _mainWallets = [];
   List<TreasuryOperationModel> _operations = [];
   List<TreasuryTransactionModel> _transactions = [];
 
@@ -29,6 +30,7 @@ class TreasuryProvider extends ChangeNotifier {
   Timer? _realtimeRefreshDebounce;
 
   List<TreasuryWalletModel> get wallets => _wallets;
+  List<TreasuryMainWalletModel> get mainWallets => _mainWallets;
   List<TreasuryOperationModel> get operations => _operations;
   List<TreasuryTransactionModel> get transactions => _transactions;
 
@@ -61,6 +63,18 @@ class TreasuryProvider extends ChangeNotifier {
     _historyStatus = status;
     _historyQuery = query;
     notifyListeners();
+  }
+
+  Future<void> loadMainWallets(String chain) async {
+    try {
+      final list = await _dataSource.listMainWallets(chain);
+      _mainWallets = list;
+      notifyListeners();
+    } catch (e) {
+      _mainWallets = [];
+      _error = e.toString();
+      notifyListeners();
+    }
   }
 
   Future<void> loadWallets() async {
@@ -133,13 +147,13 @@ class TreasuryProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> sweepWallet(String walletId) async {
+  Future<bool> sweepWallet(String walletId, {String? mainWalletId}) async {
     _isSubmitting = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _dataSource.sweepWallet(walletId);
+      await _dataSource.sweepWallet(walletId, mainWalletId: mainWalletId);
       await loadHistory();
       return true;
     } catch (e) {

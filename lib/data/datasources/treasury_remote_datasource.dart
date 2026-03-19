@@ -18,7 +18,9 @@ abstract class TreasuryRemoteDataSource {
 
   Future<TreasuryWalletModel> getWalletDetail(String walletId);
 
-  Future<Map<String, dynamic>> sweepWallet(String walletId);
+  Future<List<TreasuryMainWalletModel>> listMainWallets(String chain);
+
+  Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId});
 
   Future<Map<String, dynamic>> fundWallet({
     required String walletId,
@@ -115,9 +117,31 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> sweepWallet(String walletId) async {
+  Future<List<TreasuryMainWalletModel>> listMainWallets(String chain) async {
     try {
-      final response = await dioClient.dio.post(ApiConstants.treasuryWalletSweep(walletId));
+      final response = await dioClient.dio.get(
+        ApiConstants.treasuryMainWallets,
+        queryParameters: {'chain': chain},
+      );
+      final raw = _unwrap<List<dynamic>>(response.data);
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map(TreasuryMainWalletModel.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message'] ?? 'Failed to load main wallets',
+      );
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId}) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryWalletSweep(walletId),
+        data: mainWalletId != null ? {'mainWalletId': mainWalletId} : null,
+      );
       return _unwrap<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
       throw ServerException(

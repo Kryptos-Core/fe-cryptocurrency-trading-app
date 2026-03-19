@@ -571,6 +571,82 @@
   "paymentConfigTreasuryWalletsTab": "Treasury Wallets",
   "paymentConfigHistoryTab": "History",
   "paymentConfigAddMethod": "Add method",
+  "paymentConfigEditConfigTitle": "Edit configuration",
+  "paymentConfigEmptyMessage": "No configurations yet.\nTap \"Add method\" to create one.",
+  "paymentConfigActivateDialogTitle": "Activate configuration",
+  "paymentConfigActivateTarget": "Activate: {name}",
+  "@paymentConfigActivateTarget": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "paymentConfigActivateWarning": "The system will move to TRANSITIONING. Traders will see a warning banner during the grace period.",
+  "paymentConfigGracePeriodLabel": "Grace period (minutes)",
+  "paymentConfigGracePeriodHelper": "Wait time before the new config becomes effective",
+  "paymentConfigActivateAction": "Activate",
+  "paymentConfigActivationStartedMinutes": "Grace period of {minutes} minutes started",
+  "@paymentConfigActivationStartedMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "paymentConfigActivationAt": "Activates at: {time}",
+  "@paymentConfigActivationAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "paymentConfigActivateFailed": "Failed to activate configuration",
+  "paymentConfigDeactivateDialogTitle": "Deactivate configuration",
+  "paymentConfigDeactivateDialogContent": "Are you sure you want to deactivate \"{name}\"?\nThis action takes effect immediately.",
+  "@paymentConfigDeactivateDialogContent": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "paymentConfigDeactivateAction": "Deactivate",
+  "paymentConfigDeactivatedSuccess": "Deactivated",
+  "paymentConfigTransitioningRemaining": "~{minutes} minutes remaining before activation",
+  "@paymentConfigTransitioningRemaining": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "paymentConfigVersionAndSort": "Version: v{version} · Order: {sortOrder}",
+  "@paymentConfigVersionAndSort": {
+    "placeholders": {
+      "version": { "type": "int" },
+      "sortOrder": { "type": "int" }
+    }
+  },
+  "paymentConfigActivatedAt": "Activated: {datetime}",
+  "@paymentConfigActivatedAt": {
+    "placeholders": {
+      "datetime": { "type": "String" }
+    }
+  },
+  "paymentConfigEditAction": "Edit",
+  "paymentConfigStatusActiveUpper": "ACTIVE",
+  "paymentConfigStatusTransitioningUpper": "TRANSITIONING",
+  "paymentConfigStatusInactiveUpper": "INACTIVE",
+  "paymentConfigMethodTypeLabel": "Method type",
+  "paymentConfigNetworkLabel": "Network",
+  "paymentConfigDisplayNameLabel": "Display name",
+  "paymentConfigDisplayNameHint": "Example: PayOS MB Bank",
+  "paymentConfigRequired": "Required",
+  "paymentConfigGracePeriodEffectHelper": "Wait time after activation before taking effect",
+  "paymentConfigCredentialsSectionTitle": "Credentials",
+  "paymentConfigHideAction": "Hide",
+  "paymentConfigShowAction": "Show",
+  "paymentConfigMainnetWarning": "MAINNET - this configuration affects real funds. Review carefully before activation.",
+  "paymentConfigMainnetSubtitle": "Enable if this is a mainnet network (real funds)",
+  "paymentConfigRateLabel": "Rate (1 VND -> X USDT)",
+  "paymentConfigCreateConfigAction": "Create configuration",
+  "paymentConfigSaveChangesAction": "Save changes",
+  "paymentConfigCreatedSuccess": "Configuration created",
+  "paymentConfigUpdatedSuccess": "Configuration updated",
+  "paymentConfigUnknownError": "An error occurred",
+  "paymentConfigMaskedHelper": "Hidden - tap \"Show\" to reveal",
   "treasuryCreateWalletFab": "Create wallet",
   "treasuryCreateWalletDialogTitle": "Create transaction wallet",
   "treasuryCreateWalletCta": "Create wallet",
@@ -580,11 +656,19 @@
   "treasuryLabelOptional": "Label (optional)",
   "treasuryFilterAll": "All",
   "treasuryNoWalletsYet": "No transaction wallets yet. Tap \"Create wallet\" to start.",
+  "treasuryOpsGuideTitle": "What are Sweep and Fund?",
+  "treasurySweepMeaning": "Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity.",
+  "treasuryFundMeaning": "Fund: send assets from the main wallet to the selected wallet so it can process transactions.",
+  "treasuryOpsHowTo": "How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.",
   "treasuryStatusActive": "ACTIVE",
   "treasuryStatusInactive": "INACTIVE",
   "treasuryBalanceLabel": "Balance",
-  "treasurySweepAction": "Sweep",
-  "treasuryFundAction": "Fund",
+  "treasurySweepAction": "Sweep to main",
+  "treasurySweepTooltip": "Sweep funds from this wallet to the main wallet",
+  "treasurySweepDialogTitle": "Sweep to main wallet",
+  "treasurySweepTargetLabel": "Sweep to",
+  "treasuryFundAction": "Fund wallet",
+  "treasuryFundTooltip": "Fund this wallet from the main wallet",
   "treasurySweepQueued": "Sweep enqueued",
   "treasurySweepFailed": "Sweep failed",
   "treasuryFundDialogTitle": "Fund from main wallet",

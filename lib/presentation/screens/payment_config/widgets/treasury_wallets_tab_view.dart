@@ -1,9 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+
+String _formatBalance(String? balance) {
+  if (balance == null || balance.isEmpty) return '—';
+  final parsed = double.tryParse(balance);
+  if (parsed == null) return balance;
+  return NumberFormat('#,###.##').format(parsed);
+}
+
+Future<String?> _showSweepDialog(
+  BuildContext context,
+  TreasuryWalletModel wallet,
+  TreasuryProvider provider,
+) async {
+  final l10n = AppLocalizations.of(context);
+  await provider.loadMainWallets(wallet.chain);
+  if (!context.mounted) return null;
+  final mainWallets = provider.mainWallets;
+  String? selectedId = mainWallets.isEmpty
+      ? null
+      : (mainWallets.firstWhere(
+          (m) => m.isDefault,
+          orElse: () => mainWallets.first,
+        ).mainWalletId);
+
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(l10n.treasurySweepDialogTitle),
+            content: mainWallets.isEmpty
+                ? Text(
+                    'No main wallets configured for ${wallet.chain}. Sweep will use default.',
+                    style: const TextStyle(fontSize: 12),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.treasurySweepTargetLabel),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: selectedId,
+                        decoration: const InputDecoration(border: OutlineInputBorder()),
+                        items: mainWallets
+                            .map(
+                              (m) => DropdownMenuItem(
+                                value: m.mainWalletId,
+                                child: Text(
+                                  m.label ?? '${m.address.substring(0, 10)}... (${m.balance} ${m.symbol})',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() => selectedId = v),
+                      ),
+                    ],
+                  ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(l10n.treasuryCancelAction),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, selectedId ?? ''),
+                child: Text(l10n.treasuryConfirmAction),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
 class TreasuryWalletsTabView extends StatefulWidget {
   const TreasuryWalletsTabView({super.key});
@@ -32,6 +112,8 @@ class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
+              _TreasuryOpsGuideCard(),
+              const SizedBox(height: 12),
               _TreasuryWalletFilterRow(provider: provider),
               const SizedBox(height: 12),
               if (provider.isLoadingWallets && wallets.isEmpty)
@@ -76,7 +158,9 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
             items: const [
               DropdownMenuItem(value: 'TRON_NILE', child: Text('TRON_NILE')),
               DropdownMenuItem(value: 'TRON_SHASTA', child: Text('TRON_SHASTA')),
+              DropdownMenuItem(value: 'TRON_MAINNET', child: Text('TRON_MAINNET')),
               DropdownMenuItem(value: 'ETH_SEPOLIA', child: Text('ETH_SEPOLIA')),
+              DropdownMenuItem(value: 'ETH_MAINNET', child: Text('ETH_MAINNET')),
             ],
             onChanged: (value) async {
               provider.setWalletFilters(chain: value, purpose: provider.walletPurpose);
@@ -102,6 +186,48 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TreasuryOpsGuideCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.treasuryOpsGuideTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(l10n.treasurySweepMeaning),
+          const SizedBox(height: 6),
+          Text(l10n.treasuryFundMeaning),
+          const SizedBox(height: 6),
+          Text(
+            l10n.treasuryOpsHowTo,
+            style: const TextStyle(fontSize: 12, color: Colors.black87),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -148,47 +274,100 @@ class _TreasuryWalletCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text('${wallet.chain} · ${wallet.purpose}', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 2),
-            Text(wallet.address, style: const TextStyle(fontSize: 12, fontFamily: 'monospace')),
-            if (wallet.balance != null) ...[
-              const SizedBox(height: 4),
-              Text('${l10n.treasuryBalanceLabel}: ${wallet.balance} ${wallet.symbol ?? ''}'),
-            ],
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    wallet.address,
+                    style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                  ),
+                ),
+                InkWell(
+                  onTap: () => _copyAddress(context),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final ok = await provider.sweepWallet(wallet.walletId);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(ok ? l10n.treasurySweepQueued : (provider.error ?? l10n.treasurySweepFailed)),
-                          backgroundColor: ok ? Colors.green : Colors.red,
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.call_made, size: 16),
-                    label: Text(l10n.treasurySweepAction),
+                  child: Tooltip(
+                    message: l10n.treasurySweepTooltip,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final mainWalletId = await _showSweepDialog(context, wallet, provider);
+                        if (mainWalletId == null) return;
+                        final ok = await provider.sweepWallet(
+                          wallet.walletId,
+                          mainWalletId: mainWalletId.isEmpty ? null : mainWalletId,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok ? l10n.treasurySweepQueued : (provider.error ?? l10n.treasurySweepFailed)),
+                            backgroundColor: ok ? Colors.green : Colors.red,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.call_made, size: 16),
+                      label: Text(l10n.treasurySweepAction),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: FilledButton.icon(
+                  child: Tooltip(
+                    message: l10n.treasuryFundTooltip,
+                    child: FilledButton.icon(
                     onPressed: () async {
+                      await provider.loadMainWallets(wallet.chain);
+                      if (!context.mounted) return;
+                      final mainWallet = provider.mainWallets.isNotEmpty
+                          ? provider.mainWallets.firstWhere(
+                              (m) => m.isDefault,
+                              orElse: () => provider.mainWallets.first,
+                            )
+                          : null;
                       final amountCtrl = TextEditingController();
                       final amount = await showDialog<String>(
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: Text(l10n.treasuryFundDialogTitle),
-                          content: TextField(
-                            controller: amountCtrl,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            decoration: InputDecoration(
-                              labelText: l10n.treasuryAmountLabel,
-                              hintText: l10n.treasuryAmountHint,
-                              border: const OutlineInputBorder(),
-                            ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (mainWallet != null) ...[
+                                Text(
+                                  '${l10n.treasuryBalanceLabel}: ${_formatBalance(mainWallet.balance)} ${mainWallet.symbol}',
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                              TextField(
+                                controller: amountCtrl,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [AmountInputFormatter()],
+                                decoration: InputDecoration(
+                                  labelText: l10n.treasuryAmountLabel,
+                                  hintText: l10n.treasuryAmountHint,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              ),
+                            ],
                           ),
                           actions: [
                             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.treasuryCancelAction)),
@@ -201,7 +380,9 @@ class _TreasuryWalletCard extends StatelessWidget {
                       );
 
                       if (amount == null || amount.isEmpty) return;
-                      final ok = await provider.fundWallet(walletId: wallet.walletId, amount: amount);
+                      final parsedAmount = parseAmountInput(amount);
+                      if (parsedAmount.isEmpty) return;
+                      final ok = await provider.fundWallet(walletId: wallet.walletId, amount: parsedAmount);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -214,11 +395,22 @@ class _TreasuryWalletCard extends StatelessWidget {
                     label: Text(l10n.treasuryFundAction),
                   ),
                 ),
+                ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _copyAddress(BuildContext context) {
+    Clipboard.setData(ClipboardData(text: wallet.address));
+    showAppSnackBar(
+      context,
+      message: AppLocalizations.of(context).createWalletAddressCopied,
+      type: SnackBarType.success,
+      duration: const Duration(seconds: 2),
     );
   }
 }
