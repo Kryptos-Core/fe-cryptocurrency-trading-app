@@ -23,6 +23,7 @@ import 'package:crypto_trading_app/screens/about_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
+import 'package:crypto_trading_app/screens/market_maker/market_maker_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_management_screen.dart';
@@ -340,6 +341,30 @@ class _MainScreenState extends State<MainScreen> {
                   MaterialPageRoute(
                     builder: (context) => const BlockchainHubScreen(),
                   ),
+                );
+              },
+            ),
+            Consumer<AuthProvider>(
+              builder: (_, auth, __) {
+                if (!auth.canAccessMarketMakerHub) {
+                  return const SizedBox.shrink();
+                }
+                return ListTile(
+                  leading: const Icon(Icons.trending_up),
+                  title: const Text('Khu vuc Market Maker'),
+                  subtitle: const Text(
+                    'Dashboard · Cau hinh · Lenh Maker',
+                    style: TextStyle(fontSize: 11),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MarketMakerHubScreen(),
+                      ),
+                    );
+                  },
                 );
               },
             ),

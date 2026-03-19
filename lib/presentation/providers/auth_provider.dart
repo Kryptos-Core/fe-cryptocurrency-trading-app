@@ -44,7 +44,10 @@ class AuthProvider extends ChangeNotifier {
   bool get isAdmin => _role == UserRole.admin;
   bool get isSupportAgent => _role == UserRole.supportAgent;
   bool get isRiskOfficer => _role == UserRole.riskOfficer;
+  bool get isMarketMaker => _role == UserRole.marketMaker;
   bool get isFinanceManager => _role == UserRole.financeManager;
+  bool get canAccessMarketMakerHub =>
+      isMarketMaker || hasPermission('market_maker:dashboard');
   bool get canSyncExchange => isAdmin && hasPermission('exchange:sync');
 
   /// True for roles that can create/edit/delete currencies (ADMIN or currencies:manage permission).
