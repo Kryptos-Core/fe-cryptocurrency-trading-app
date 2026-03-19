@@ -169,7 +169,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
             const SizedBox(height: 4),
             Text(
               l10n.paymentConfigActivateWarning,
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             TextField(

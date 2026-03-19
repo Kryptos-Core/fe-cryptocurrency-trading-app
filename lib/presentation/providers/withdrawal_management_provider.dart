@@ -169,7 +169,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
         limit: _limit,
       );
       await loadStats();
-      return result is Map<String, dynamic> ? result : {};
+      return result;
     } catch (e) {
       _error = e.toString();
       return {};

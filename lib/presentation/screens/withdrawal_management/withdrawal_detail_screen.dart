@@ -247,7 +247,7 @@ class _TransactionCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _Row(label: 'Mạng', value: withdrawal.chain),
-            _Row(label: 'Số lượng', value: '${withdrawal.amount}'),
+            _Row(label: 'Số lượng', value: withdrawal.amount),
             _Row(label: 'Địa chỉ đích', value: withdrawal.toAddress),
             _Row(label: 'Thời gian', value: DateFormat('dd/MM/yyyy HH:mm').format(withdrawal.createdAt.toLocal())),
             if (withdrawal.txHash != null && withdrawal.txHash!.isNotEmpty)
