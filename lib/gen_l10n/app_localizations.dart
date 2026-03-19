@@ -3277,6 +3277,217 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy address'**
   String get copyAddressTooltip;
+
+  /// No description provided for @marketMakerHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Maker'**
+  String get marketMakerHubTitle;
+
+  /// No description provided for @marketMakerHubDrawerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard · Config · Maker orders'**
+  String get marketMakerHubDrawerSubtitle;
+
+  /// No description provided for @marketMakerConfigCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Maker configuration'**
+  String get marketMakerConfigCardTitle;
+
+  /// No description provided for @marketMakerConfigCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage spread, stop-loss, and position limits per trading pair.'**
+  String get marketMakerConfigCardSubtitle;
+
+  /// No description provided for @marketMakerPlaceOrdersCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place maker orders'**
+  String get marketMakerPlaceOrdersCardTitle;
+
+  /// No description provided for @marketMakerPlaceOrdersCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place BUY/SELL order pairs around market price using batch orders.'**
+  String get marketMakerPlaceOrdersCardSubtitle;
+
+  /// No description provided for @marketMakerPositionDashboardCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Position dashboard'**
+  String get marketMakerPositionDashboardCardTitle;
+
+  /// No description provided for @marketMakerPositionDashboardCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor open orders, positions, and unrealized P/L in real time.'**
+  String get marketMakerPositionDashboardCardSubtitle;
+
+  /// No description provided for @marketMakerDashboardComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Position dashboard — coming soon'**
+  String get marketMakerDashboardComingSoon;
+
+  /// No description provided for @marketMakerFieldPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get marketMakerFieldPair;
+
+  /// No description provided for @marketMakerFieldSpreadBps.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread (bps)'**
+  String get marketMakerFieldSpreadBps;
+
+  /// No description provided for @marketMakerFieldSpreadAlertBps.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread alert threshold (bps)'**
+  String get marketMakerFieldSpreadAlertBps;
+
+  /// No description provided for @marketMakerFieldOrderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Order amount'**
+  String get marketMakerFieldOrderAmount;
+
+  /// No description provided for @marketMakerFieldStopLossOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop-loss % (optional)'**
+  String get marketMakerFieldStopLossOptional;
+
+  /// No description provided for @marketMakerFieldMaxPositionBaseOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Max position base (optional)'**
+  String get marketMakerFieldMaxPositionBaseOptional;
+
+  /// No description provided for @marketMakerFieldActiveConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Active config'**
+  String get marketMakerFieldActiveConfig;
+
+  /// No description provided for @marketMakerFieldOrderAmountOverrideOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order amount override (optional)'**
+  String get marketMakerFieldOrderAmountOverrideOptional;
+
+  /// No description provided for @marketMakerFieldRefreshCycleKeyOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh cycle key (optional idempotency)'**
+  String get marketMakerFieldRefreshCycleKeyOptional;
+
+  /// No description provided for @marketMakerButtonSaveConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Save config'**
+  String get marketMakerButtonSaveConfig;
+
+  /// No description provided for @marketMakerButtonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get marketMakerButtonDelete;
+
+  /// No description provided for @marketMakerButtonPlaceTwoSidedOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Place two-sided maker orders'**
+  String get marketMakerButtonPlaceTwoSidedOrders;
+
+  /// No description provided for @marketMakerValidationSpreadBps.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid spread (bps)'**
+  String get marketMakerValidationSpreadBps;
+
+  /// No description provided for @marketMakerValidationAlertThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid alert threshold'**
+  String get marketMakerValidationAlertThreshold;
+
+  /// No description provided for @marketMakerValidationOrderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid order amount'**
+  String get marketMakerValidationOrderAmount;
+
+  /// No description provided for @marketMakerNoActivePairs.
+  ///
+  /// In en, this message translates to:
+  /// **'No active trading pairs found'**
+  String get marketMakerNoActivePairs;
+
+  /// No description provided for @marketMakerLastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: {when}'**
+  String marketMakerLastUpdated(String when);
+
+  /// No description provided for @marketMakerSnackSavedConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved market maker configuration'**
+  String get marketMakerSnackSavedConfig;
+
+  /// No description provided for @marketMakerSnackSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed'**
+  String get marketMakerSnackSaveFailed;
+
+  /// No description provided for @marketMakerSnackDeletedConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted market maker configuration'**
+  String get marketMakerSnackDeletedConfig;
+
+  /// No description provided for @marketMakerSnackDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete failed'**
+  String get marketMakerSnackDeleteFailed;
+
+  /// No description provided for @marketMakerSnackPlaceOrdersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Place maker orders failed'**
+  String get marketMakerSnackPlaceOrdersFailed;
+
+  /// No description provided for @marketMakerOrdersResultReplayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Replayed'**
+  String get marketMakerOrdersResultReplayed;
+
+  /// No description provided for @marketMakerOrdersResultRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshed'**
+  String get marketMakerOrdersResultRefreshed;
+
+  /// No description provided for @marketMakerOrdersPlacedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{action}: cancelled {cancelled}, placed {placed} (BUY: {buyPrice}, SELL: {sellPrice})'**
+  String marketMakerOrdersPlacedSummary(String action, String cancelled,
+      String placed, String buyPrice, String sellPrice);
+
+  /// No description provided for @marketMakerPlaceOrdersFormHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.'**
+  String get marketMakerPlaceOrdersFormHint;
 }
 
 class _AppLocalizationsDelegate

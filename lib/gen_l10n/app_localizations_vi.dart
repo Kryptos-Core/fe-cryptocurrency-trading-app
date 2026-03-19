@@ -1732,4 +1732,124 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get copyAddressTooltip => 'Sao chép địa chỉ';
+
+  @override
+  String get marketMakerHubTitle => 'Khu vực Market Maker';
+
+  @override
+  String get marketMakerHubDrawerSubtitle =>
+      'Dashboard · Cấu hình · Lệnh Maker';
+
+  @override
+  String get marketMakerConfigCardTitle => 'Cấu hình Market Maker';
+
+  @override
+  String get marketMakerConfigCardSubtitle =>
+      'Quản lý spread, stop-loss và giới hạn vị thế theo cặp giao dịch.';
+
+  @override
+  String get marketMakerPlaceOrdersCardTitle => 'Đặt lệnh Maker';
+
+  @override
+  String get marketMakerPlaceOrdersCardSubtitle =>
+      'Đặt cặp lệnh BUY/SELL quanh giá thị trường bằng batch orders.';
+
+  @override
+  String get marketMakerPositionDashboardCardTitle => 'Dashboard vị thế';
+
+  @override
+  String get marketMakerPositionDashboardCardSubtitle =>
+      'Theo dõi lệnh mở, vị thế và P/L chưa thực hiện theo thời gian thực.';
+
+  @override
+  String get marketMakerDashboardComingSoon => 'Dashboard vị thế — sắp ra mắt';
+
+  @override
+  String get marketMakerFieldPair => 'Cặp giao dịch';
+
+  @override
+  String get marketMakerFieldSpreadBps => 'Spread (bps)';
+
+  @override
+  String get marketMakerFieldSpreadAlertBps => 'Ngưỡng cảnh báo spread (bps)';
+
+  @override
+  String get marketMakerFieldOrderAmount => 'Khối lượng lệnh';
+
+  @override
+  String get marketMakerFieldStopLossOptional => 'Stop-loss % (tùy chọn)';
+
+  @override
+  String get marketMakerFieldMaxPositionBaseOptional =>
+      'Vị thế tối đa – base (tùy chọn)';
+
+  @override
+  String get marketMakerFieldActiveConfig => 'Kích hoạt cấu hình';
+
+  @override
+  String get marketMakerFieldOrderAmountOverrideOptional =>
+      'Ghi đè khối lượng lệnh (tùy chọn)';
+
+  @override
+  String get marketMakerFieldRefreshCycleKeyOptional =>
+      'Khóa chu kỳ làm mới (idempotency, tùy chọn)';
+
+  @override
+  String get marketMakerButtonSaveConfig => 'Lưu cấu hình';
+
+  @override
+  String get marketMakerButtonDelete => 'Xóa';
+
+  @override
+  String get marketMakerButtonPlaceTwoSidedOrders => 'Đặt lệnh maker hai chiều';
+
+  @override
+  String get marketMakerValidationSpreadBps => 'Spread (bps) không hợp lệ';
+
+  @override
+  String get marketMakerValidationAlertThreshold =>
+      'Ngưỡng cảnh báo không hợp lệ';
+
+  @override
+  String get marketMakerValidationOrderAmount => 'Khối lượng lệnh không hợp lệ';
+
+  @override
+  String get marketMakerNoActivePairs =>
+      'Không có cặp giao dịch đang hoạt động';
+
+  @override
+  String marketMakerLastUpdated(String when) {
+    return 'Cập nhật lần cuối: $when';
+  }
+
+  @override
+  String get marketMakerSnackSavedConfig => 'Đã lưu cấu hình market maker';
+
+  @override
+  String get marketMakerSnackSaveFailed => 'Lưu thất bại';
+
+  @override
+  String get marketMakerSnackDeletedConfig => 'Đã xóa cấu hình market maker';
+
+  @override
+  String get marketMakerSnackDeleteFailed => 'Xóa thất bại';
+
+  @override
+  String get marketMakerSnackPlaceOrdersFailed => 'Đặt lệnh maker thất bại';
+
+  @override
+  String get marketMakerOrdersResultReplayed => 'Đã phát lại';
+
+  @override
+  String get marketMakerOrdersResultRefreshed => 'Đã làm mới';
+
+  @override
+  String marketMakerOrdersPlacedSummary(String action, String cancelled,
+      String placed, String buyPrice, String sellPrice) {
+    return '$action: đã hủy $cancelled, đặt $placed (MUA: $buyPrice, BÁN: $sellPrice)';
+  }
+
+  @override
+  String get marketMakerPlaceOrdersFormHint =>
+      'Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.';
 }

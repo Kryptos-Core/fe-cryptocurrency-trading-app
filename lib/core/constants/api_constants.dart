@@ -215,6 +215,12 @@ class ApiConstants {
   static String paymentConfigById(String id) => '/payment-configs/$id';
   static String paymentConfigActivate(String id) => '/payment-configs/$id/activate';
 
+  // Market Maker Endpoints
+  static const String marketMakerConfig = '/market-maker/config';
+  static String marketMakerConfigByPair(String pairId) => '/market-maker/config/$pairId';
+  static String marketMakerPlace(String pairId) => '/market-maker/place/$pairId';
+  static String marketMakerRefresh(String pairId) => '/market-maker/refresh/$pairId';
+
   // Notifications Endpoints
   static const String notifications = '/notifications';
   static const String notificationsUnreadCount = '/notifications/unread-count';

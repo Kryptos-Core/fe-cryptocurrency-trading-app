@@ -628,5 +628,56 @@
   "walletBadgeInactive": "INACTIVE",
   "depositMethodsTitle": "Platform Deposit Methods",
   "depositMethodRecommended": "Recommended",
-  "copyAddressTooltip": "Copy address"
+  "copyAddressTooltip": "Copy address",
+
+  "marketMakerHubTitle": "Market Maker",
+  "marketMakerHubDrawerSubtitle": "Dashboard · Config · Maker orders",
+  "marketMakerConfigCardTitle": "Market Maker configuration",
+  "marketMakerConfigCardSubtitle": "Manage spread, stop-loss, and position limits per trading pair.",
+  "marketMakerPlaceOrdersCardTitle": "Place maker orders",
+  "marketMakerPlaceOrdersCardSubtitle": "Place BUY/SELL order pairs around market price using batch orders.",
+  "marketMakerPositionDashboardCardTitle": "Position dashboard",
+  "marketMakerPositionDashboardCardSubtitle": "Monitor open orders, positions, and unrealized P/L in real time.",
+  "marketMakerDashboardComingSoon": "Position dashboard — coming soon",
+
+  "marketMakerFieldPair": "Pair",
+  "marketMakerFieldSpreadBps": "Spread (bps)",
+  "marketMakerFieldSpreadAlertBps": "Spread alert threshold (bps)",
+  "marketMakerFieldOrderAmount": "Order amount",
+  "marketMakerFieldStopLossOptional": "Stop-loss % (optional)",
+  "marketMakerFieldMaxPositionBaseOptional": "Max position base (optional)",
+  "marketMakerFieldActiveConfig": "Active config",
+  "marketMakerFieldOrderAmountOverrideOptional": "Place order amount override (optional)",
+  "marketMakerFieldRefreshCycleKeyOptional": "Refresh cycle key (optional idempotency)",
+  "marketMakerButtonSaveConfig": "Save config",
+  "marketMakerButtonDelete": "Delete",
+  "marketMakerButtonPlaceTwoSidedOrders": "Place two-sided maker orders",
+  "marketMakerValidationSpreadBps": "Invalid spread (bps)",
+  "marketMakerValidationAlertThreshold": "Invalid alert threshold",
+  "marketMakerValidationOrderAmount": "Invalid order amount",
+  "marketMakerNoActivePairs": "No active trading pairs found",
+  "marketMakerLastUpdated": "Last updated: {when}",
+  "@marketMakerLastUpdated": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "marketMakerSnackSavedConfig": "Saved market maker configuration",
+  "marketMakerSnackSaveFailed": "Save failed",
+  "marketMakerSnackDeletedConfig": "Deleted market maker configuration",
+  "marketMakerSnackDeleteFailed": "Delete failed",
+  "marketMakerSnackPlaceOrdersFailed": "Place maker orders failed",
+  "marketMakerOrdersResultReplayed": "Replayed",
+  "marketMakerOrdersResultRefreshed": "Refreshed",
+  "marketMakerOrdersPlacedSummary": "{action}: cancelled {cancelled}, placed {placed} (BUY: {buyPrice}, SELL: {sellPrice})",
+  "@marketMakerOrdersPlacedSummary": {
+    "placeholders": {
+      "action": { "type": "String" },
+      "cancelled": { "type": "String" },
+      "placed": { "type": "String" },
+      "buyPrice": { "type": "String" },
+      "sellPrice": { "type": "String" }
+    }
+  },
+  "marketMakerPlaceOrdersFormHint": "Uses the saved configuration for the selected pair. Override amount or idempotency key if needed."
 }

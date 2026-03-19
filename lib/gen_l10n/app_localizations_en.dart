@@ -1729,4 +1729,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copyAddressTooltip => 'Copy address';
+
+  @override
+  String get marketMakerHubTitle => 'Market Maker';
+
+  @override
+  String get marketMakerHubDrawerSubtitle =>
+      'Dashboard · Config · Maker orders';
+
+  @override
+  String get marketMakerConfigCardTitle => 'Market Maker configuration';
+
+  @override
+  String get marketMakerConfigCardSubtitle =>
+      'Manage spread, stop-loss, and position limits per trading pair.';
+
+  @override
+  String get marketMakerPlaceOrdersCardTitle => 'Place maker orders';
+
+  @override
+  String get marketMakerPlaceOrdersCardSubtitle =>
+      'Place BUY/SELL order pairs around market price using batch orders.';
+
+  @override
+  String get marketMakerPositionDashboardCardTitle => 'Position dashboard';
+
+  @override
+  String get marketMakerPositionDashboardCardSubtitle =>
+      'Monitor open orders, positions, and unrealized P/L in real time.';
+
+  @override
+  String get marketMakerDashboardComingSoon =>
+      'Position dashboard — coming soon';
+
+  @override
+  String get marketMakerFieldPair => 'Pair';
+
+  @override
+  String get marketMakerFieldSpreadBps => 'Spread (bps)';
+
+  @override
+  String get marketMakerFieldSpreadAlertBps => 'Spread alert threshold (bps)';
+
+  @override
+  String get marketMakerFieldOrderAmount => 'Order amount';
+
+  @override
+  String get marketMakerFieldStopLossOptional => 'Stop-loss % (optional)';
+
+  @override
+  String get marketMakerFieldMaxPositionBaseOptional =>
+      'Max position base (optional)';
+
+  @override
+  String get marketMakerFieldActiveConfig => 'Active config';
+
+  @override
+  String get marketMakerFieldOrderAmountOverrideOptional =>
+      'Place order amount override (optional)';
+
+  @override
+  String get marketMakerFieldRefreshCycleKeyOptional =>
+      'Refresh cycle key (optional idempotency)';
+
+  @override
+  String get marketMakerButtonSaveConfig => 'Save config';
+
+  @override
+  String get marketMakerButtonDelete => 'Delete';
+
+  @override
+  String get marketMakerButtonPlaceTwoSidedOrders =>
+      'Place two-sided maker orders';
+
+  @override
+  String get marketMakerValidationSpreadBps => 'Invalid spread (bps)';
+
+  @override
+  String get marketMakerValidationAlertThreshold => 'Invalid alert threshold';
+
+  @override
+  String get marketMakerValidationOrderAmount => 'Invalid order amount';
+
+  @override
+  String get marketMakerNoActivePairs => 'No active trading pairs found';
+
+  @override
+  String marketMakerLastUpdated(String when) {
+    return 'Last updated: $when';
+  }
+
+  @override
+  String get marketMakerSnackSavedConfig => 'Saved market maker configuration';
+
+  @override
+  String get marketMakerSnackSaveFailed => 'Save failed';
+
+  @override
+  String get marketMakerSnackDeletedConfig =>
+      'Deleted market maker configuration';
+
+  @override
+  String get marketMakerSnackDeleteFailed => 'Delete failed';
+
+  @override
+  String get marketMakerSnackPlaceOrdersFailed => 'Place maker orders failed';
+
+  @override
+  String get marketMakerOrdersResultReplayed => 'Replayed';
+
+  @override
+  String get marketMakerOrdersResultRefreshed => 'Refreshed';
+
+  @override
+  String marketMakerOrdersPlacedSummary(String action, String cancelled,
+      String placed, String buyPrice, String sellPrice) {
+    return '$action: cancelled $cancelled, placed $placed (BUY: $buyPrice, SELL: $sellPrice)';
+  }
+
+  @override
+  String get marketMakerPlaceOrdersFormHint =>
+      'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.';
 }

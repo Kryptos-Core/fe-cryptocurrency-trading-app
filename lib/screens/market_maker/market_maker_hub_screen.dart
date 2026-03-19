@@ -1,67 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/screens/market_maker/market_maker_config_screen.dart';
 
 /// Market Maker Hub entry screen.
 ///
 /// This is a lightweight navigation hub for MM workflows while feature
 /// screens are being implemented incrementally.
+///
+/// Styling matches operational drawer entries (deepOrange icons, plain [ListTile]).
 class MarketMakerHubScreen extends StatelessWidget {
   const MarketMakerHubScreen({super.key});
 
+  static const _opsIconColor = Colors.deepOrange;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Khu vuc Market Maker'),
+        title: Text(l10n.marketMakerHubTitle),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          _FeatureCard(
-            icon: Icons.tune,
-            title: 'Cau hinh Market Maker',
-            description: 'Quan ly spread, stop-loss, va gioi han vi the theo cap giao dich.',
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.tune, color: _opsIconColor),
+            title: Text(
+              l10n.marketMakerConfigCardTitle,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              l10n.marketMakerConfigCardSubtitle,
+              style: const TextStyle(fontSize: 11),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MarketMakerConfigScreen(
+                    mode: MarketMakerScreenMode.configuration,
+                  ),
+                ),
+              );
+            },
           ),
-          SizedBox(height: 12),
-          _FeatureCard(
-            icon: Icons.auto_graph,
-            title: 'Dat lenh Maker',
-            description: 'Dat cap lenh BUY/SELL quanh gia thi truong bang batch orders.',
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.auto_graph, color: _opsIconColor),
+            title: Text(
+              l10n.marketMakerPlaceOrdersCardTitle,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              l10n.marketMakerPlaceOrdersCardSubtitle,
+              style: const TextStyle(fontSize: 11),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MarketMakerConfigScreen(
+                    mode: MarketMakerScreenMode.placeOrders,
+                  ),
+                ),
+              );
+            },
           ),
-          SizedBox(height: 12),
-          _FeatureCard(
-            icon: Icons.dashboard_customize,
-            title: 'Dashboard vi the',
-            description: 'Theo doi lenh mo, vi the va P/L unrealized theo thoi gian thuc.',
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.dashboard_customize, color: _opsIconColor),
+            title: Text(
+              l10n.marketMakerPositionDashboardCardTitle,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              l10n.marketMakerPositionDashboardCardSubtitle,
+              style: const TextStyle(fontSize: 11),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.marketMakerDashboardComingSoon),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  const _FeatureCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: colorScheme.primaryContainer,
-          child: Icon(icon, color: colorScheme.onPrimaryContainer),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(description),
       ),
     );
   }

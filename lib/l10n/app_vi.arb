@@ -564,5 +564,56 @@
   "walletBadgeInactive": "KHÔNG HOẠT ĐỘNG",
   "depositMethodsTitle": "Phương thức nạp tiền của sàn",
   "depositMethodRecommended": "Khuyến nghị",
-  "copyAddressTooltip": "Sao chép địa chỉ"
+  "copyAddressTooltip": "Sao chép địa chỉ",
+
+  "marketMakerHubTitle": "Khu vực Market Maker",
+  "marketMakerHubDrawerSubtitle": "Dashboard · Cấu hình · Lệnh Maker",
+  "marketMakerConfigCardTitle": "Cấu hình Market Maker",
+  "marketMakerConfigCardSubtitle": "Quản lý spread, stop-loss và giới hạn vị thế theo cặp giao dịch.",
+  "marketMakerPlaceOrdersCardTitle": "Đặt lệnh Maker",
+  "marketMakerPlaceOrdersCardSubtitle": "Đặt cặp lệnh BUY/SELL quanh giá thị trường bằng batch orders.",
+  "marketMakerPositionDashboardCardTitle": "Dashboard vị thế",
+  "marketMakerPositionDashboardCardSubtitle": "Theo dõi lệnh mở, vị thế và P/L chưa thực hiện theo thời gian thực.",
+  "marketMakerDashboardComingSoon": "Dashboard vị thế — sắp ra mắt",
+
+  "marketMakerFieldPair": "Cặp giao dịch",
+  "marketMakerFieldSpreadBps": "Spread (bps)",
+  "marketMakerFieldSpreadAlertBps": "Ngưỡng cảnh báo spread (bps)",
+  "marketMakerFieldOrderAmount": "Khối lượng lệnh",
+  "marketMakerFieldStopLossOptional": "Stop-loss % (tùy chọn)",
+  "marketMakerFieldMaxPositionBaseOptional": "Vị thế tối đa – base (tùy chọn)",
+  "marketMakerFieldActiveConfig": "Kích hoạt cấu hình",
+  "marketMakerFieldOrderAmountOverrideOptional": "Ghi đè khối lượng lệnh (tùy chọn)",
+  "marketMakerFieldRefreshCycleKeyOptional": "Khóa chu kỳ làm mới (idempotency, tùy chọn)",
+  "marketMakerButtonSaveConfig": "Lưu cấu hình",
+  "marketMakerButtonDelete": "Xóa",
+  "marketMakerButtonPlaceTwoSidedOrders": "Đặt lệnh maker hai chiều",
+  "marketMakerValidationSpreadBps": "Spread (bps) không hợp lệ",
+  "marketMakerValidationAlertThreshold": "Ngưỡng cảnh báo không hợp lệ",
+  "marketMakerValidationOrderAmount": "Khối lượng lệnh không hợp lệ",
+  "marketMakerNoActivePairs": "Không có cặp giao dịch đang hoạt động",
+  "marketMakerLastUpdated": "Cập nhật lần cuối: {when}",
+  "@marketMakerLastUpdated": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "marketMakerSnackSavedConfig": "Đã lưu cấu hình market maker",
+  "marketMakerSnackSaveFailed": "Lưu thất bại",
+  "marketMakerSnackDeletedConfig": "Đã xóa cấu hình market maker",
+  "marketMakerSnackDeleteFailed": "Xóa thất bại",
+  "marketMakerSnackPlaceOrdersFailed": "Đặt lệnh maker thất bại",
+  "marketMakerOrdersResultReplayed": "Đã phát lại",
+  "marketMakerOrdersResultRefreshed": "Đã làm mới",
+  "marketMakerOrdersPlacedSummary": "{action}: đã hủy {cancelled}, đặt {placed} (MUA: {buyPrice}, BÁN: {sellPrice})",
+  "@marketMakerOrdersPlacedSummary": {
+    "placeholders": {
+      "action": { "type": "String" },
+      "cancelled": { "type": "String" },
+      "placed": { "type": "String" },
+      "buyPrice": { "type": "String" },
+      "sellPrice": { "type": "String" }
+    }
+  },
+  "marketMakerPlaceOrdersFormHint": "Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency."
 }

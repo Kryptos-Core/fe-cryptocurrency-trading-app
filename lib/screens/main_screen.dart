@@ -350,11 +350,11 @@ class _MainScreenState extends State<MainScreen> {
                   return const SizedBox.shrink();
                 }
                 return ListTile(
-                  leading: const Icon(Icons.trending_up),
-                  title: const Text('Khu vuc Market Maker'),
-                  subtitle: const Text(
-                    'Dashboard · Cau hinh · Lenh Maker',
-                    style: TextStyle(fontSize: 11),
+                  leading: const Icon(Icons.trending_up, color: Colors.deepOrange),
+                  title: Text(l10n.marketMakerHubTitle),
+                  subtitle: Text(
+                    l10n.marketMakerHubDrawerSubtitle,
+                    style: const TextStyle(fontSize: 11),
                   ),
                   onTap: () {
                     Navigator.pop(context);
