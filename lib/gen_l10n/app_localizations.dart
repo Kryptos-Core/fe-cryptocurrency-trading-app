@@ -2942,6 +2942,210 @@ abstract class AppLocalizations {
   /// **'Manage company wallets & deposit settings'**
   String get treasuryManageSubtitle;
 
+  /// No description provided for @paymentConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Configuration'**
+  String get paymentConfigTitle;
+
+  /// No description provided for @paymentConfigMethodsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Methods'**
+  String get paymentConfigMethodsTab;
+
+  /// No description provided for @paymentConfigTreasuryWalletsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury Wallets'**
+  String get paymentConfigTreasuryWalletsTab;
+
+  /// No description provided for @paymentConfigHistoryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get paymentConfigHistoryTab;
+
+  /// No description provided for @paymentConfigAddMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Add method'**
+  String get paymentConfigAddMethod;
+
+  /// No description provided for @treasuryCreateWalletFab.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get treasuryCreateWalletFab;
+
+  /// No description provided for @treasuryCreateWalletDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create transaction wallet'**
+  String get treasuryCreateWalletDialogTitle;
+
+  /// No description provided for @treasuryCreateWalletCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get treasuryCreateWalletCta;
+
+  /// No description provided for @treasuryChainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain'**
+  String get treasuryChainLabel;
+
+  /// No description provided for @treasuryPurposeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get treasuryPurposeLabel;
+
+  /// No description provided for @treasuryTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get treasuryTypeLabel;
+
+  /// No description provided for @treasuryLabelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (optional)'**
+  String get treasuryLabelOptional;
+
+  /// No description provided for @treasuryFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get treasuryFilterAll;
+
+  /// No description provided for @treasuryNoWalletsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No transaction wallets yet. Tap \"Create wallet\" to start.'**
+  String get treasuryNoWalletsYet;
+
+  /// No description provided for @treasuryStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get treasuryStatusActive;
+
+  /// No description provided for @treasuryStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'INACTIVE'**
+  String get treasuryStatusInactive;
+
+  /// No description provided for @treasuryBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get treasuryBalanceLabel;
+
+  /// No description provided for @treasurySweepAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep'**
+  String get treasurySweepAction;
+
+  /// No description provided for @treasuryFundAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund'**
+  String get treasuryFundAction;
+
+  /// No description provided for @treasurySweepQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep enqueued'**
+  String get treasurySweepQueued;
+
+  /// No description provided for @treasurySweepFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep failed'**
+  String get treasurySweepFailed;
+
+  /// No description provided for @treasuryFundDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund from main wallet'**
+  String get treasuryFundDialogTitle;
+
+  /// No description provided for @treasuryAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get treasuryAmountLabel;
+
+  /// No description provided for @treasuryAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 0.5'**
+  String get treasuryAmountHint;
+
+  /// No description provided for @treasuryCancelAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get treasuryCancelAction;
+
+  /// No description provided for @treasuryConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get treasuryConfirmAction;
+
+  /// No description provided for @treasuryFundQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund enqueued'**
+  String get treasuryFundQueued;
+
+  /// No description provided for @treasuryFundFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund failed'**
+  String get treasuryFundFailed;
+
+  /// No description provided for @treasuryOperationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get treasuryOperationsTitle;
+
+  /// No description provided for @treasuryNoOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations'**
+  String get treasuryNoOperations;
+
+  /// No description provided for @treasuryTransactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get treasuryTransactionsTitle;
+
+  /// No description provided for @treasuryNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions'**
+  String get treasuryNoTransactions;
+
+  /// No description provided for @treasurySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tx hash / id / address'**
+  String get treasurySearchHint;
+
+  /// No description provided for @treasuryWalletCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction wallet created'**
+  String get treasuryWalletCreatedSuccess;
+
   /// No description provided for @recommendedChainUpdated.
   ///
   /// In en, this message translates to:

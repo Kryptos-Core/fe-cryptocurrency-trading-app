@@ -23,9 +23,13 @@ class NotificationProvider extends ChangeNotifier {
   StreamSubscription<NotificationsSocketMessage>? _notifSocketSubscription;
   /// Subscription to the /notifications namespace socket for payment_config:event events
   StreamSubscription<NotificationsSocketMessage>? _paymentConfigSubscription;
+  /// Subscription to the /notifications namespace socket for treasury:event events
+  StreamSubscription<NotificationsSocketMessage>? _treasurySubscription;
 
   /// External callback invoked when a payment_config:event arrives.
   void Function(Map<String, dynamic>)? _paymentConfigCallback;
+  /// External callback invoked when a treasury:event arrives.
+  void Function(Map<String, dynamic>)? _treasuryCallback;
 
   NotificationProvider({
     required NotificationRepository repository,
@@ -93,6 +97,7 @@ class NotificationProvider extends ChangeNotifier {
   void listenNotificationsSocket(NotificationsSocketService notifSocket) {
     _notifSocketSubscription?.cancel();
     _paymentConfigSubscription?.cancel();
+    _treasurySubscription?.cancel();
 
     _notifSocketSubscription = notifSocket.messageStream
         .where((msg) => msg.type == 'notification:new')
@@ -109,12 +114,23 @@ class NotificationProvider extends ChangeNotifier {
         .listen((msg) {
       _paymentConfigCallback?.call(msg.data);
     });
+
+    _treasurySubscription = notifSocket.messageStream
+        .where((msg) => msg.type == 'treasury:event')
+        .listen((msg) {
+      _treasuryCallback?.call(msg.data);
+    });
   }
 
   /// Register a callback to be invoked when a payment_config:event arrives.
   /// Called by MainScreen to forward events to PaymentConfigProvider.
   void addPaymentConfigEventListener(void Function(Map<String, dynamic>) callback) {
     _paymentConfigCallback = callback;
+  }
+
+  /// Register a callback to be invoked when a treasury:event arrives.
+  void addTreasuryEventListener(void Function(Map<String, dynamic>) callback) {
+    _treasuryCallback = callback;
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -231,6 +247,7 @@ class NotificationProvider extends ChangeNotifier {
     stopListening();
     _notifSocketSubscription?.cancel();
     _paymentConfigSubscription?.cancel();
+    _treasurySubscription?.cancel();
     super.dispose();
   }
 }

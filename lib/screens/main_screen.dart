@@ -28,6 +28,7 @@ import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hu
 import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_management_screen.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/screens/admin_currencies_screen.dart';
@@ -100,6 +101,7 @@ class _MainScreenState extends State<MainScreen> {
 
       // Register payment_config event callback before connecting
       notifProvider.addPaymentConfigEventListener(_onPaymentConfigEvent);
+      notifProvider.addTreasuryEventListener(_onTreasuryEvent);
 
       // Connect to the /notifications Socket.IO namespace and wire socket to providers
       _connectNotificationsSocket(notifProvider);
@@ -123,6 +125,12 @@ class _MainScreenState extends State<MainScreen> {
   void _onPaymentConfigEvent(Map<String, dynamic> data) {
     if (!mounted) return;
     context.read<PaymentConfigProvider>().handleWebSocketEvent(data);
+  }
+
+  /// Called when a `treasury:event` WebSocket message arrives.
+  void _onTreasuryEvent(Map<String, dynamic> data) {
+    if (!mounted) return;
+    context.read<TreasuryProvider>().handleRealtimeEvent(data);
   }
 
   // Public tabs always rendered — no auth required.

@@ -1,0 +1,138 @@
+class TreasuryWalletModel {
+  final String walletId;
+  final String chain;
+  final String address;
+  final String purpose;
+  final String? label;
+  final bool isActive;
+  final String? balance;
+  final String? symbol;
+  final DateTime? createdAt;
+
+  const TreasuryWalletModel({
+    required this.walletId,
+    required this.chain,
+    required this.address,
+    required this.purpose,
+    required this.label,
+    required this.isActive,
+    this.balance,
+    this.symbol,
+    this.createdAt,
+  });
+
+  factory TreasuryWalletModel.fromJson(Map<String, dynamic> json) {
+    return TreasuryWalletModel(
+      walletId: (json['wallet_id'] ?? json['walletId'] ?? '').toString(),
+      chain: (json['chain'] ?? '').toString(),
+      address: (json['address'] ?? '').toString(),
+      purpose: (json['purpose'] ?? 'BOTH').toString(),
+      label: json['label']?.toString(),
+      isActive: json['is_active'] != false && json['is_active'] != 0,
+      balance: json['balance']?.toString(),
+      symbol: json['symbol']?.toString(),
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
+    );
+  }
+
+  String get shortAddress {
+    if (address.length <= 14) return address;
+    return '${address.substring(0, 7)}...${address.substring(address.length - 7)}';
+  }
+}
+
+class TreasuryOperationModel {
+  final String operationId;
+  final String type;
+  final String chain;
+  final String status;
+  final String amount;
+  final String? txHash;
+  final String? fromWalletId;
+  final String? toWalletId;
+  final DateTime? createdAt;
+  final DateTime? completedAt;
+  final String? failureReason;
+
+  const TreasuryOperationModel({
+    required this.operationId,
+    required this.type,
+    required this.chain,
+    required this.status,
+    required this.amount,
+    this.txHash,
+    this.fromWalletId,
+    this.toWalletId,
+    this.createdAt,
+    this.completedAt,
+    this.failureReason,
+  });
+
+  factory TreasuryOperationModel.fromJson(Map<String, dynamic> json) {
+    return TreasuryOperationModel(
+      operationId: (json['operation_id'] ?? json['operationId'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      chain: (json['chain'] ?? '').toString(),
+      status: (json['status'] ?? '').toString(),
+      amount: (json['amount'] ?? '0').toString(),
+      txHash: json['tx_hash']?.toString(),
+      fromWalletId: json['from_wallet_id']?.toString(),
+      toWalletId: json['to_wallet_id']?.toString(),
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
+      completedAt: DateTime.tryParse((json['completed_at'] ?? '').toString()),
+      failureReason: json['failure_reason']?.toString(),
+    );
+  }
+}
+
+class TreasuryTransactionModel {
+  final String txId;
+  final String type;
+  final String chain;
+  final String status;
+  final String amount;
+  final String? txHash;
+  final String fromAddress;
+  final String toAddress;
+  final DateTime? createdAt;
+
+  const TreasuryTransactionModel({
+    required this.txId,
+    required this.type,
+    required this.chain,
+    required this.status,
+    required this.amount,
+    this.txHash,
+    required this.fromAddress,
+    required this.toAddress,
+    this.createdAt,
+  });
+
+  factory TreasuryTransactionModel.fromJson(Map<String, dynamic> json) {
+    return TreasuryTransactionModel(
+      txId: (json['tx_id'] ?? json['txId'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      chain: (json['chain'] ?? '').toString(),
+      status: (json['status'] ?? '').toString(),
+      amount: (json['amount'] ?? '0').toString(),
+      txHash: json['tx_hash']?.toString(),
+      fromAddress: (json['from_address'] ?? '').toString(),
+      toAddress: (json['to_address'] ?? '').toString(),
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
+    );
+  }
+}
+
+class TreasuryPageResult<T> {
+  final List<T> items;
+  final int total;
+  final int page;
+  final int limit;
+
+  const TreasuryPageResult({
+    required this.items,
+    required this.total,
+    required this.page,
+    required this.limit,
+  });
+}

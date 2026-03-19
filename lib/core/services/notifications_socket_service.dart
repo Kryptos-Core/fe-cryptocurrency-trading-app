@@ -4,7 +4,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// Typed message from the /notifications WebSocket namespace.
 class NotificationsSocketMessage {
-  final String type; // 'notification:new' | 'payment_config:event' | etc.
+  final String type; // 'notification:new' | 'payment_config:event' | 'treasury:event' | etc.
   final Map<String, dynamic> data;
   final int timestamp;
 
@@ -63,6 +63,10 @@ class NotificationsSocketService {
 
     _socket!.on('payment_config:event', (raw) {
       _emit('payment_config:event', raw);
+    });
+
+    _socket!.on('treasury:event', (raw) {
+      _emit('treasury:event', raw);
     });
 
     _socket!.on('auth_response', (raw) {

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/data/models/payment_method_config_model.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_create_wallet_sheet.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_history_tab_view.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_wallets_tab_view.dart';
 
 /// Payment Method Config Screen — accessible only to ADMIN and FINANCE_MANAGER.
 /// Allows dynamic management of PayOS credentials, blockchain hot wallet keys,
@@ -15,92 +20,87 @@ class PaymentConfigScreen extends StatefulWidget {
 }
 
 class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
+  int _tabIndex = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PaymentConfigProvider>().loadConfigs();
+      context.read<TreasuryProvider>().refreshAll();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cấu hình Thanh toán'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<PaymentConfigProvider>().loadConfigs(),
-            tooltip: 'Làm mới',
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateConfigSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Thêm phương thức'),
-      ),
-      body: Consumer<PaymentConfigProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading && provider.configs.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (provider.error != null && provider.configs.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                    const SizedBox(height: 12),
-                    Text(provider.error!, textAlign: TextAlign.center),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: provider.loadConfigs,
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (provider.configs.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'Chưa có cấu hình nào.\nNhấn "Thêm phương thức" để tạo mới.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: provider.loadConfigs,
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              itemCount: provider.configs.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final config = provider.configs[index];
-                return _PaymentConfigCard(
-                  config: config,
-                  onEdit: () => _showEditConfigSheet(context, config),
-                  onActivate: () => _confirmActivate(context, config),
-                  onDeactivate: () => _confirmDeactivate(context, config),
-                );
-              },
+    final l10n = AppLocalizations.of(context);
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.paymentConfigTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshCurrentTab,
+              tooltip: l10n.refresh,
             ),
-          );
-        },
+          ],
+          bottom: TabBar(
+            onTap: (idx) => setState(() => _tabIndex = idx),
+            tabs: [
+              Tab(text: l10n.paymentConfigMethodsTab),
+              Tab(text: l10n.paymentConfigTreasuryWalletsTab),
+              Tab(text: l10n.paymentConfigHistoryTab),
+            ],
+          ),
+        ),
+        floatingActionButton: _buildFloatingActionButton(context),
+        body: const TabBarView(
+          children: [
+            _PaymentConfigTabView(),
+            TreasuryWalletsTabView(),
+            TreasuryHistoryTabView(),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget? _buildFloatingActionButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (_tabIndex == 0) {
+      return FloatingActionButton.extended(
+        onPressed: () => _showCreateConfigSheet(context),
+        icon: const Icon(Icons.add),
+        label: Text(l10n.paymentConfigAddMethod),
+      );
+    }
+
+    if (_tabIndex == 1) {
+      return FloatingActionButton.extended(
+        onPressed: () => _showCreateTreasuryWalletSheet(context),
+        icon: const Icon(Icons.account_balance_wallet_outlined),
+        label: Text(l10n.treasuryCreateWalletFab),
+      );
+    }
+
+    return null;
+  }
+
+  Future<void> _refreshCurrentTab() async {
+    if (_tabIndex == 0) {
+      await context.read<PaymentConfigProvider>().loadConfigs();
+      return;
+    }
+
+    final treasuryProvider = context.read<TreasuryProvider>();
+    if (_tabIndex == 1) {
+      await treasuryProvider.loadWallets();
+      return;
+    }
+
+    await treasuryProvider.loadHistory();
   }
 
   void _showCreateConfigSheet(BuildContext context) {
@@ -125,6 +125,29 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
         child: _ConfigFormSheet(configId: config.configId, existing: config),
       ),
     );
+  }
+
+  Future<void> _showCreateTreasuryWalletSheet(BuildContext context) async {
+    final provider = context.read<TreasuryProvider>();
+    final l10n = AppLocalizations.of(context);
+
+    final created = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => const TreasuryCreateWalletSheet(),
+    );
+
+    if (!context.mounted) return;
+    if (created == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.treasuryWalletCreatedSuccess)),
+      );
+    } else if (provider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.error!), backgroundColor: Colors.red),
+      );
+    }
   }
 
   Future<void> _confirmActivate(BuildContext context, PaymentMethodConfigModel config) async {
@@ -181,7 +204,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Đã bắt đầu grace period ${graceMins} phút'
+            'Đã bắt đầu grace period $graceMins phút'
             '${activatesAt != null ? ". Kích hoạt lúc: ${activatesAt.substring(0, 16).replaceAll('T', ' ')}" : ""}',
           ),
           backgroundColor: Colors.orange,
@@ -227,6 +250,74 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
         content: Text(success ? 'Đã vô hiệu hóa' : (provider.error ?? 'Lỗi')),
         backgroundColor: success ? Colors.green : Colors.red,
       ),
+    );
+  }
+}
+
+class _PaymentConfigTabView extends StatelessWidget {
+  const _PaymentConfigTabView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PaymentConfigProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading && provider.configs.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.error != null && provider.configs.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 12),
+                  Text(provider.error!, textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: provider.loadConfigs,
+                    child: const Text('Thử lại'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (provider.configs.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: Text(
+                'Chưa có cấu hình nào.\nNhấn "Thêm phương thức" để tạo mới.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: provider.loadConfigs,
+          child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            itemCount: provider.configs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final screenState = context.findAncestorStateOfType<_PaymentConfigScreenState>();
+              final config = provider.configs[index];
+              return _PaymentConfigCard(
+                config: config,
+                onEdit: () => screenState?._showEditConfigSheet(context, config),
+                onActivate: () => screenState?._confirmActivate(context, config),
+                onDeactivate: () => screenState?._confirmDeactivate(context, config),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -360,9 +451,9 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         label,
@@ -495,29 +586,31 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               const SizedBox(height: 16),
               // Type selector
               DropdownButtonFormField<String>(
-                value: _type,
+                initialValue: _type,
                 decoration: const InputDecoration(
                   labelText: 'Loại phương thức',
                   border: OutlineInputBorder(),
                 ),
                 items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                 onChanged: (v) {
-                  if (v != null) setState(() {
-                    _type = v;
-                    _network = _networks[v]!.first;
-                    _nativeCurrencyCtrl.text = switch (v) {
-                      'ETH' => 'ETH',
-                      'TRON' => 'TRX',
-                      'SOL' => 'SOL',
-                      _ => '',
-                    };
-                  });
+                  if (v != null) {
+                    setState(() {
+                      _type = v;
+                      _network = _networks[v]!.first;
+                      _nativeCurrencyCtrl.text = switch (v) {
+                        'ETH' => 'ETH',
+                        'TRON' => 'TRX',
+                        'SOL' => 'SOL',
+                        _ => '',
+                      };
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 12),
               // Network selector
               DropdownButtonFormField<String>(
-                value: _network,
+                initialValue: _network,
                 decoration: const InputDecoration(
                   labelText: 'Mạng',
                   border: OutlineInputBorder(),
@@ -526,10 +619,12 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                     .map((n) => DropdownMenuItem(value: n, child: Text(n)))
                     .toList(),
                 onChanged: (v) {
-                  if (v != null) setState(() {
-                    _network = v;
-                    _isMainnet = v == 'MAINNET';
-                  });
+                  if (v != null) {
+                    setState(() {
+                      _network = v;
+                      _isMainnet = v == 'MAINNET';
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 12),

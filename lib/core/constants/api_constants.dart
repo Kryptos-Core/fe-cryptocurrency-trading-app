@@ -215,6 +215,15 @@ class ApiConstants {
   static String paymentConfigById(String id) => '/payment-configs/$id';
   static String paymentConfigActivate(String id) => '/payment-configs/$id/activate';
 
+  // Treasury Endpoints (ADMIN / FINANCE_MANAGER only)
+  static const String treasury = '/treasury';
+  static const String treasuryWallets = '$treasury/wallets';
+  static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';
+  static String treasuryWalletSweep(String walletId) => '$treasury/wallets/$walletId/sweep';
+  static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';
+  static const String treasuryOperations = '$treasury/operations';
+  static const String treasuryTransactions = '$treasury/transactions';
+
   // Market Maker Endpoints
   static const String marketMakerConfig = '/market-maker/config';
   static String marketMakerConfigByPair(String pairId) => '/market-maker/config/$pairId';

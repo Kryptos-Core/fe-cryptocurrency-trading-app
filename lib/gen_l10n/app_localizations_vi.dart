@@ -1555,6 +1555,109 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryManageSubtitle => 'Quản lý ví công ty & cài đặt nạp tiền';
 
   @override
+  String get paymentConfigTitle => 'Cấu hình thanh toán';
+
+  @override
+  String get paymentConfigMethodsTab => 'Phương thức';
+
+  @override
+  String get paymentConfigTreasuryWalletsTab => 'Ví Treasury';
+
+  @override
+  String get paymentConfigHistoryTab => 'Lịch sử';
+
+  @override
+  String get paymentConfigAddMethod => 'Thêm phương thức';
+
+  @override
+  String get treasuryCreateWalletFab => 'Tạo ví giao dịch';
+
+  @override
+  String get treasuryCreateWalletDialogTitle => 'Tạo ví giao dịch';
+
+  @override
+  String get treasuryCreateWalletCta => 'Tạo ví';
+
+  @override
+  String get treasuryChainLabel => 'Chain';
+
+  @override
+  String get treasuryPurposeLabel => 'Mục đích';
+
+  @override
+  String get treasuryTypeLabel => 'Loại';
+
+  @override
+  String get treasuryLabelOptional => 'Nhãn (tuỳ chọn)';
+
+  @override
+  String get treasuryFilterAll => 'Tất cả';
+
+  @override
+  String get treasuryNoWalletsYet =>
+      'Chưa có ví giao dịch. Nhấn \"Tạo ví giao dịch\" để bắt đầu.';
+
+  @override
+  String get treasuryStatusActive => 'ACTIVE';
+
+  @override
+  String get treasuryStatusInactive => 'INACTIVE';
+
+  @override
+  String get treasuryBalanceLabel => 'Số dư';
+
+  @override
+  String get treasurySweepAction => 'Sweep';
+
+  @override
+  String get treasuryFundAction => 'Fund';
+
+  @override
+  String get treasurySweepQueued => 'Đã enqueue sweep';
+
+  @override
+  String get treasurySweepFailed => 'Sweep thất bại';
+
+  @override
+  String get treasuryFundDialogTitle => 'Fund từ ví chính';
+
+  @override
+  String get treasuryAmountLabel => 'Số lượng';
+
+  @override
+  String get treasuryAmountHint => 'Ví dụ: 0.5';
+
+  @override
+  String get treasuryCancelAction => 'Hủy';
+
+  @override
+  String get treasuryConfirmAction => 'Xác nhận';
+
+  @override
+  String get treasuryFundQueued => 'Đã enqueue fund';
+
+  @override
+  String get treasuryFundFailed => 'Fund thất bại';
+
+  @override
+  String get treasuryOperationsTitle => 'Operations';
+
+  @override
+  String get treasuryNoOperations => 'Không có operation';
+
+  @override
+  String get treasuryTransactionsTitle => 'Transactions';
+
+  @override
+  String get treasuryNoTransactions => 'Không có transaction';
+
+  @override
+  String get treasurySearchHint => 'Tìm tx hash / id / address';
+
+  @override
+  String get treasuryWalletCreatedSuccess => 'Đã tạo ví giao dịch';
+
+  @override
   String recommendedChainUpdated(String chain) {
     return 'Đã cập nhật chain ưu tiên thành $chain';
   }

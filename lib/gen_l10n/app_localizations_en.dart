@@ -1552,6 +1552,109 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage company wallets & deposit settings';
 
   @override
+  String get paymentConfigTitle => 'Payment Configuration';
+
+  @override
+  String get paymentConfigMethodsTab => 'Methods';
+
+  @override
+  String get paymentConfigTreasuryWalletsTab => 'Treasury Wallets';
+
+  @override
+  String get paymentConfigHistoryTab => 'History';
+
+  @override
+  String get paymentConfigAddMethod => 'Add method';
+
+  @override
+  String get treasuryCreateWalletFab => 'Create wallet';
+
+  @override
+  String get treasuryCreateWalletDialogTitle => 'Create transaction wallet';
+
+  @override
+  String get treasuryCreateWalletCta => 'Create wallet';
+
+  @override
+  String get treasuryChainLabel => 'Chain';
+
+  @override
+  String get treasuryPurposeLabel => 'Purpose';
+
+  @override
+  String get treasuryTypeLabel => 'Type';
+
+  @override
+  String get treasuryLabelOptional => 'Label (optional)';
+
+  @override
+  String get treasuryFilterAll => 'All';
+
+  @override
+  String get treasuryNoWalletsYet =>
+      'No transaction wallets yet. Tap \"Create wallet\" to start.';
+
+  @override
+  String get treasuryStatusActive => 'ACTIVE';
+
+  @override
+  String get treasuryStatusInactive => 'INACTIVE';
+
+  @override
+  String get treasuryBalanceLabel => 'Balance';
+
+  @override
+  String get treasurySweepAction => 'Sweep';
+
+  @override
+  String get treasuryFundAction => 'Fund';
+
+  @override
+  String get treasurySweepQueued => 'Sweep enqueued';
+
+  @override
+  String get treasurySweepFailed => 'Sweep failed';
+
+  @override
+  String get treasuryFundDialogTitle => 'Fund from main wallet';
+
+  @override
+  String get treasuryAmountLabel => 'Amount';
+
+  @override
+  String get treasuryAmountHint => 'Example: 0.5';
+
+  @override
+  String get treasuryCancelAction => 'Cancel';
+
+  @override
+  String get treasuryConfirmAction => 'Confirm';
+
+  @override
+  String get treasuryFundQueued => 'Fund enqueued';
+
+  @override
+  String get treasuryFundFailed => 'Fund failed';
+
+  @override
+  String get treasuryOperationsTitle => 'Operations';
+
+  @override
+  String get treasuryNoOperations => 'No operations';
+
+  @override
+  String get treasuryTransactionsTitle => 'Transactions';
+
+  @override
+  String get treasuryNoTransactions => 'No transactions';
+
+  @override
+  String get treasurySearchHint => 'Search tx hash / id / address';
+
+  @override
+  String get treasuryWalletCreatedSuccess => 'Transaction wallet created';
+
+  @override
   String recommendedChainUpdated(String chain) {
     return 'Recommended chain updated to $chain';
   }

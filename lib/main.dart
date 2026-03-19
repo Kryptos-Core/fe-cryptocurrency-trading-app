@@ -24,11 +24,13 @@ import 'package:crypto_trading_app/presentation/providers/notification_provider.
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/core/services/fcm_service.dart';
 import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/payment_config_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/withdrawal_admin_remote_datasource.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
@@ -154,6 +156,11 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<PaymentConfigProvider>(
           create: (_) => PaymentConfigProvider(
             dataSource: PaymentConfigRemoteDataSourceImpl(dioClient: di.sl()),
+          ),
+        ),
+        ChangeNotifierProvider<TreasuryProvider>(
+          create: (_) => TreasuryProvider(
+            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
           ),
         ),
         ChangeNotifierProvider<MarketMakerProvider>(
