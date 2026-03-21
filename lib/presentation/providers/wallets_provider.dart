@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/core/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
@@ -14,12 +16,18 @@ class WalletsProvider extends ChangeNotifier {
   final Logger _logger = Logger();
   final WalletsRepository _walletsRepository;
   final WalletRepository? _walletRepository;
+  final NotificationsSocketService? _notificationsSocketService;
+  StreamSubscription<WalletBalanceEvent>? _walletBalanceSubscription;
 
   WalletsProvider({
     required WalletsRepository walletsRepository,
     WalletRepository? walletRepository,
+    NotificationsSocketService? notificationsSocketService,
   })  : _walletsRepository = walletsRepository,
-        _walletRepository = walletRepository;
+        _walletRepository = walletRepository,
+        _notificationsSocketService = notificationsSocketService {
+    _subscribeToWalletBalanceStream();
+  }
 
   // State
   List<Wallet> _wallets = [];
@@ -482,5 +490,47 @@ class WalletsProvider extends ChangeNotifier {
       default:
         return failure.message;
     }
+  }
+
+  /// Subscribe to real-time wallet balance updates from Socket.IO.
+  void _subscribeToWalletBalanceStream() {
+    if (_notificationsSocketService == null) return;
+
+    _walletBalanceSubscription?.cancel();
+    _walletBalanceSubscription =
+        _notificationsSocketService!.walletBalanceStream.listen(
+      _handleWalletBalanceEvent,
+      onError: (error) {
+        _logger.e('[WalletsProvider] WalletBalance stream error: $error');
+      },
+    );
+    _logger.d('[WalletsProvider] Subscribed to walletBalanceStream');
+  }
+
+  /// Handle incoming wallet balance event from Socket.IO.
+  void _handleWalletBalanceEvent(WalletBalanceEvent event) {
+    if (_walletBalance == null) return;
+
+    if (event.currencyId == _walletBalance!.currencyId) {
+      _logger.i(
+        '[WalletsProvider] Real-time balance update: ${event.symbol} '
+        'available=${event.available} frozen=${event.frozen} total=${event.total}',
+      );
+      _walletBalance = WalletBalance(
+        userId: _walletBalance!.userId,
+        currencyId: event.currencyId,
+        available: event.available,
+        frozen: event.frozen,
+        total: event.total,
+      );
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _walletBalanceSubscription?.cancel();
+    _walletBalanceSubscription = null;
+    super.dispose();
   }
 }

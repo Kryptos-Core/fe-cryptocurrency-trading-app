@@ -53,7 +53,8 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Dedicated socket for the /notifications namespace — handles notification:new
   /// and payment_config:event messages from NotificationsGateway.
-  final NotificationsSocketService _notifSocket = NotificationsSocketService();
+  /// Using singleton from DI to share with WalletsProvider for real-time balance updates.
+  final NotificationsSocketService _notifSocket = sl<NotificationsSocketService>();
 
   @override
   void initState() {
@@ -72,7 +73,6 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _authProvider?.removeListener(_onAuthChanged);
     _authProvider = null;
-    _notifSocket.dispose();
     super.dispose();
   }
 
@@ -172,13 +172,6 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: () {
                 context.read<MarketsProvider>().refreshKeepingPosition();
               },
-              tooltip: l10n.refresh,
-            ),
-          if (_currentIndex == 2 && isAuthenticated)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () =>
-                  context.read<WalletsProvider>().fetchWallets(refresh: true),
               tooltip: l10n.refresh,
             ),
           if (_currentIndex == 2 && isAuthenticated)

@@ -35,6 +35,7 @@ import 'package:crypto_trading_app/domain/repositories/managed_wallets_repositor
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/services/fcm_service.dart';
+import 'package:crypto_trading_app/core/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/notification_repository_impl.dart';
 import 'package:crypto_trading_app/domain/repositories/notification_repository.dart';
@@ -279,6 +280,9 @@ Future<void> initializeDependencies() async {
 
   // ===== Notifications =====
   sl.registerLazySingleton<FcmService>(() => FcmService());
+  sl.registerLazySingleton<NotificationsSocketService>(
+    () => NotificationsSocketService(),
+  );
 
   sl.registerLazySingleton<NotificationRemoteDataSource>(
     () => NotificationRemoteDataSourceImpl(dioClient: sl<DioClient>()),

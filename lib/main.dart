@@ -113,6 +113,7 @@ class CryptoTradingApp extends StatelessWidget {
           create: (_) => WalletsProvider(
             walletsRepository: di.sl(),
             walletRepository: di.sl(),
+            notificationsSocketService: di.sl(),
           ),
         ),
         ChangeNotifierProvider(
