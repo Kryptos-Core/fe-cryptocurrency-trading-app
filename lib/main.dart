@@ -176,7 +176,9 @@ class CryptoTradingApp extends StatelessWidget {
       ],
       child: Consumer2<LocaleProvider, ThemeProvider>(
         builder: (context, localeProvider, themeProvider, _) => MaterialApp(
-          title: 'Kryptos Core',
+          title: localeProvider.locale.languageCode == 'vi'
+              ? 'Ứng dụng Giao dịch Crypto'
+              : 'Crypto Trading App',
           debugShowCheckedModeBanner: false,
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,

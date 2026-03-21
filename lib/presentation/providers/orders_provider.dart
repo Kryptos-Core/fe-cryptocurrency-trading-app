@@ -208,7 +208,7 @@ class OrdersProvider extends ChangeNotifier {
         } else {
           _myOrders = res.data;
         }
-        _myOrdersTotal = res.total;
+        _myOrdersTotal = res.total > 0 ? res.total : res.data.length;
         _myOrdersPage = res.page;
         _myOrdersLimit = res.limit;
         _isLoading = false;

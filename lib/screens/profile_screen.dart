@@ -31,6 +31,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  /// Merge local profile with [AuthProvider.currentUser] so toggling 2FA in
+  /// Settings updates this screen without a full refetch.
+  User _mergeProfileWithAuth(User local, User? auth) {
+    if (auth == null || auth.id != local.id) return local;
+    return local.copyWith(twoFaEnabled: auth.twoFaEnabled);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,6 +84,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _currentUser = user;
             _isLoading = false;
           });
+          if (mounted) {
+            context.read<AuthProvider>().updateCurrentUser(user);
+          }
         },
       );
     } catch (e) {
@@ -206,9 +216,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: first, decoration: const InputDecoration(labelText: 'First name')),
+            TextField(controller: first, decoration: InputDecoration(labelText: AppLocalizations.of(ctx).profileFirstName)),
             const SizedBox(height: 12),
-            TextField(controller: last, decoration: const InputDecoration(labelText: 'Last name')),
+            TextField(controller: last, decoration: InputDecoration(labelText: AppLocalizations.of(ctx).profileLastName)),
           ],
         ),
         actions: [
@@ -251,7 +261,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Đổi mật khẩu trực tiếp (không cần xét duyệt)
   Future<void> _requestPasswordChange() async {
     if (_currentUser == null) return;
-    if (!_currentUser!.twoFaEnabled) {
+    final effective = _mergeProfileWithAuth(
+        _currentUser!, context.read<AuthProvider>().currentUser);
+    if (!effective.twoFaEnabled) {
       if (mounted) {
         showAppSnackBar(
           context,
@@ -312,7 +324,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Gửi yêu cầu thay đổi email (cần xét duyệt)
   Future<void> _requestEmailChange() async {
     if (_currentUser == null) return;
-    if (!_currentUser!.twoFaEnabled) {
+    final effective = _mergeProfileWithAuth(
+        _currentUser!, context.read<AuthProvider>().currentUser);
+    if (!effective.twoFaEnabled) {
       if (mounted) {
         showAppSnackBar(
           context,
@@ -497,6 +511,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
+    final authUser = context.watch<AuthProvider>().currentUser;
+    final user = _mergeProfileWithAuth(_currentUser!, authUser);
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -508,14 +525,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                backgroundImage: _currentUser!.avatarUrl != null && _currentUser!.avatarUrl!.isNotEmpty
-                    ? (_currentUser!.avatarUrl!.startsWith('http')
-                        ? NetworkImage(_currentUser!.avatarUrl!)
+                backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                    ? (user.avatarUrl!.startsWith('http')
+                        ? NetworkImage(user.avatarUrl!)
                         : null)
                     : null,
-                child: _currentUser!.avatarUrl == null || _currentUser!.avatarUrl!.isEmpty
+                child: user.avatarUrl == null || user.avatarUrl!.isEmpty
                     ? Text(
-                        _getInitials(_currentUser!),
+                        _getInitials(user),
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -541,7 +558,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _currentUser!.fullName,
+              user.fullName,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -549,7 +566,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _currentUser!.email,
+              user.email,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -566,12 +583,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: _currentUser!.isActive
+                color: user.isActive
                     ? Colors.green[50]
                     : Colors.red[50],
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _currentUser!.isActive
+                  color: user.isActive
                       ? Colors.green[300]!
                       : Colors.red[300]!,
                 ),
@@ -580,19 +597,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    _currentUser!.isActive
+                    user.isActive
                         ? Icons.check_circle
                         : Icons.cancel,
                     size: 16,
-                    color: _currentUser!.isActive
+                    color: user.isActive
                         ? Colors.green[700]
                         : Colors.red[700],
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    _currentUser!.isActive ? l10n.active : l10n.inactive,
+                    user.isActive ? l10n.active : l10n.inactive,
                     style: TextStyle(
-                      color: _currentUser!.isActive
+                      color: user.isActive
                           ? Colors.green[700]
                           : Colors.red[700],
                       fontWeight: FontWeight.bold,
@@ -609,14 +626,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: const Icon(Icons.calendar_today),
               title: Text(l10n.memberSince),
               subtitle: Text(
-                '${_currentUser!.createdAt.day}/${_currentUser!.createdAt.month}/${_currentUser!.createdAt.year}',
+                '${user.createdAt.day}/${user.createdAt.month}/${user.createdAt.year}',
               ),
             ),
             ListTile(
               leading: const Icon(Icons.update),
               title: Text(l10n.lastUpdated),
               subtitle: Text(
-                '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
+                '${user.updatedAt.day}/${user.updatedAt.month}/${user.updatedAt.year}',
               ),
             ),
             const Divider(),
@@ -629,7 +646,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
             ),
             const SizedBox(height: 8),
-            if (_currentUser!.twoFaEnabled) ...[
+            if (user.twoFaEnabled) ...[
               ListTile(
                 leading: const Icon(Icons.email_outlined),
                 title: Text(l10n.profileChangeEmail),
@@ -661,7 +678,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             const Divider(),
             // Additional Options
-            if (UserRole.fromString(_currentUser!.role) == UserRole.riskOfficer)
+            if (UserRole.fromString(user.role) == UserRole.riskOfficer)
               ListTile(
                 leading: Icon(
                   Icons.account_balance_wallet,

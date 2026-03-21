@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
 import 'package:crypto_trading_app/data/models/update_currency_dto.dart';
 import 'package:crypto_trading_app/domain/entities/currency.dart';
@@ -114,6 +115,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final auth = context.read<AuthProvider>();
     final canManage = auth.canManageCurrencies;
     final colorScheme = Theme.of(context).colorScheme;
@@ -121,7 +123,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý Coin'),
+        title: Text(l10n.adminCurrenciesTitle),
         actions: [
           Consumer<CurrenciesProvider>(
             builder: (_, p, __) => Padding(
@@ -145,7 +147,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
               controller: _searchCtrl,
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
-                hintText: 'Tìm theo symbol hoặc tên...',
+                hintText: l10n.adminCurrenciesSearchHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchCtrl.text.isEmpty
                     ? null
@@ -179,30 +181,30 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
                 // Status row
                 Row(
                   children: [
-                    Text('Trạng thái:',
+                    Text('${l10n.adminCurrenciesStatusLabel}:',
                         style: theme.textTheme.labelSmall
                             ?.copyWith(color: colorScheme.onSurfaceVariant)),
                     const SizedBox(width: 6),
-                    _buildStatusChip(_StatusFilter.all, 'Tất cả'),
+                    _buildStatusChip(context, _StatusFilter.all, l10n.adminCurrenciesFilterAll),
                     const SizedBox(width: 4),
-                    _buildStatusChip(_StatusFilter.active, 'Hoạt động'),
+                    _buildStatusChip(context, _StatusFilter.active, l10n.adminCurrenciesFilterActive),
                     const SizedBox(width: 4),
-                    _buildStatusChip(_StatusFilter.inactive, 'Không HĐ'),
+                    _buildStatusChip(context, _StatusFilter.inactive, l10n.adminCurrenciesFilterInactive),
                   ],
                 ),
                 const SizedBox(height: 4),
                 // Tradable row
                 Row(
                   children: [
-                    Text('Giao dịch:',
+                    Text('${l10n.adminCurrenciesTradingLabel}:',
                         style: theme.textTheme.labelSmall
                             ?.copyWith(color: colorScheme.onSurfaceVariant)),
                     const SizedBox(width: 6),
-                    _buildTradableChip(_TradableFilter.all, 'Tất cả'),
+                    _buildTradableChip(context, _TradableFilter.all, l10n.adminCurrenciesFilterAll),
                     const SizedBox(width: 4),
-                    _buildTradableChip(_TradableFilter.tradable, 'Đang GD'),
+                    _buildTradableChip(context, _TradableFilter.tradable, l10n.adminCurrenciesFilterTradable),
                     const SizedBox(width: 4),
-                    _buildTradableChip(_TradableFilter.paused, 'Tạm dừng'),
+                    _buildTradableChip(context, _TradableFilter.paused, l10n.adminCurrenciesFilterPaused),
                   ],
                 ),
               ],
@@ -234,7 +236,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
                             size: 48,
                             color: colorScheme.onSurfaceVariant),
                         const SizedBox(height: 8),
-                        Text('Không tìm thấy coin nào',
+                        Text(l10n.adminCurrenciesNoCoinsFound,
                             style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.onSurfaceVariant)),
                       ],
@@ -291,7 +293,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
           ? FloatingActionButton.extended(
               onPressed: () => _showCreateDialog(context),
               icon: const Icon(Icons.add),
-              label: const Text('Tạo coin'),
+              label: Text(l10n.adminCurrenciesCreateCoin),
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
             )
@@ -301,7 +303,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
 
   // ── Chip helpers ─────────────────────────────────────────────────────────
 
-  Widget _buildStatusChip(_StatusFilter value, String label) {
+  Widget _buildStatusChip(BuildContext context, _StatusFilter value, String label) {
     final selected = _statusFilter == value;
     return ChoiceChip(
       label: Text(label),
@@ -311,7 +313,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
     );
   }
 
-  Widget _buildTradableChip(_TradableFilter value, String label) {
+  Widget _buildTradableChip(BuildContext context, _TradableFilter value, String label) {
     final selected = _tradableFilter == value;
     return ChoiceChip(
       label: Text(label),

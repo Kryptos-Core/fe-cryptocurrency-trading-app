@@ -112,6 +112,21 @@ int _countDecimals(String raw) {
   return sanitized.split('.')[1].length;
 }
 
+String _orderStatusLocalized(AppLocalizations l10n, OrderStatus s) {
+  switch (s) {
+    case OrderStatus.open:
+      return l10n.orderStatusOpen;
+    case OrderStatus.partial:
+      return l10n.orderStatusPartial;
+    case OrderStatus.filled:
+      return l10n.orderStatusFilled;
+    case OrderStatus.cancelled:
+      return l10n.orderStatusCancelled;
+    case OrderStatus.rejected:
+      return l10n.orderStatusRejected;
+  }
+}
+
 /// Màn hình Orders: Danh sách lệnh của user + Order book (theo pair).
 ///
 /// Sử dụng OrdersProvider (CreateOrder, CancelOrder, GetOrderBook, GetMyOrders).
@@ -244,6 +259,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       }
                     },
             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                l10n.ordersPayosUsdtHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.35,
+                ),
+              ),
+            ),
             if (_selectedMarket != null) ...[
               const SizedBox(height: 14),
               _buildTickerBlock(context),
@@ -367,7 +392,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                         hintText: marketsProvider.ticker != null
                             ? marketsProvider.ticker!.lastPrice
-                            : 'e.g. 50000.00',
+                            : l10n.priceHintExample,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 14),
                       ),
@@ -413,7 +438,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   borderSide:
                       BorderSide(color: colorScheme.primary, width: 1.5),
                 ),
-                hintText: 'e.g. 0.01',
+                hintText: l10n.amountHintExample,
                 suffixIcon: (_side == 'SELL' && _selectedMarket != null)
                     ? TextButton(
                         onPressed: () {
@@ -431,7 +456,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             offset: _amountController.text.length,
                           );
                         },
-                        child: const Text('MAX'),
+                        child: Text(l10n.maxAmountButton),
                       )
                     : null,
                 contentPadding:
@@ -506,24 +531,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final amountRaw = _amountController.text.trim();
     final amount = _parseDecimalInput(amountRaw);
     if (amount == null || amount <= 0) {
-      return '${l10n.amount} must be a positive number';
+      return l10n.amountMustBePositive;
     }
 
     final amountScale = _selectedMarket!.amountScale;
     if (_countDecimals(amountRaw) > amountScale) {
-      return 'Amount supports up to $amountScale decimal places';
+      return l10n.amountMaxDecimals(amountScale);
     }
 
     if (_orderType == 'LIMIT') {
       final priceRaw = _priceController.text.trim();
       final price = _parseDecimalInput(priceRaw);
       if (price == null || price <= 0) {
-        return '${l10n.price} must be a positive number';
+        return l10n.priceMustBePositive;
       }
 
       final priceScale = _selectedMarket!.priceScale;
       if (_countDecimals(priceRaw) > priceScale) {
-        return 'Price supports up to $priceScale decimal places';
+        return l10n.priceMaxDecimals(priceScale);
       }
     }
 
@@ -604,13 +629,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
             spacing: 14,
             runSpacing: 6,
             children: [
-              _tickerChip(context, 'Bid', _formatPriceDisplay(ticker.bestBid)),
-              _tickerChip(context, 'Ask', _formatPriceDisplay(ticker.bestAsk)),
               _tickerChip(
-                  context, '24h H', _formatPriceDisplay(ticker.high24h)),
-              _tickerChip(context, '24h L', _formatPriceDisplay(ticker.low24h)),
+                  context, l10n.tickerBid, _formatPriceDisplay(ticker.bestBid)),
               _tickerChip(
-                  context, 'Vol', _formatVolumeDisplay(ticker.volume24h)),
+                  context, l10n.tickerAsk, _formatPriceDisplay(ticker.bestAsk)),
+              _tickerChip(context, l10n.ticker24hHigh,
+                  _formatPriceDisplay(ticker.high24h)),
+              _tickerChip(context, l10n.ticker24hLow,
+                  _formatPriceDisplay(ticker.low24h)),
+              _tickerChip(context, l10n.tickerVolume,
+                  _formatVolumeDisplay(ticker.volume24h)),
             ],
           ),
         ],
@@ -881,7 +909,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           horizontal: 10,
                         ),
                         child: Text(
-                          'Side',
+                          l10n.orderColumnSide,
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -893,7 +921,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           horizontal: 10,
                         ),
                         child: Text(
-                          'Time',
+                          l10n.orderColumnTime,
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -950,7 +978,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             horizontal: 10,
                           ),
                           child: Text(
-                            _formatTradeTime(t.createdAt),
+                            _formatTradeTime(context, t.createdAt),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -968,12 +996,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  static String _formatTradeTime(DateTime t) {
+  String _formatTradeTime(BuildContext context, DateTime t) {
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
     final diff = now.difference(t);
-    if (diff.inMinutes < 1) return '${diff.inSeconds}s';
-    if (diff.inHours < 1) return '${diff.inMinutes}m';
-    if (diff.inDays < 1) return '${diff.inHours}h';
+    if (diff.inMinutes < 1) return l10n.timeSecondsShort(diff.inSeconds);
+    if (diff.inHours < 1) return l10n.timeMinutesShort(diff.inMinutes);
+    if (diff.inDays < 1) return l10n.timeHoursShort(diff.inHours);
     return '${t.day}/${t.month}';
   }
 
@@ -1041,7 +1070,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final provider = context.read<OrdersProvider>();
     if (_selectedMarket == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.tradingPair} ${l10n.retry}')));
+          SnackBar(content: Text(l10n.ordersSelectPairFirst)));
       return;
     }
 
@@ -1244,9 +1273,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
             borderRadius: BorderRadius.circular(_kCardRadius)),
         child: Padding(
           padding: const EdgeInsets.all(_kSectionPadding),
-          child: Center(
+            child: Center(
             child: Text(
-              l10n.orderBookEmpty,
+              l10n.myOrdersEmpty,
               style: theme.textTheme.bodyLarge
                   ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
@@ -1267,7 +1296,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'My Orders (${provider.myOrdersTotal})',
+                  l10n.ordersMyOrdersWithCount(provider.myOrdersTotal),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -1321,6 +1350,7 @@ class _OrderBookTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Column(
@@ -1350,15 +1380,17 @@ class _OrderBookTable extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 8),
-                      child: _cell(context, 'Price', isHeader: true)),
+                      child: _cell(context, l10n.price, isHeader: true)),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 8),
-                      child: _cell(context, 'Size', isHeader: true)),
+                      child: _cell(context, l10n.orderBookColumnSize,
+                          isHeader: true)),
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 8),
-                      child: _cell(context, 'Count', isHeader: true)),
+                      child: _cell(context, l10n.orderBookColumnCount,
+                          isHeader: true)),
                 ],
               ),
               ...levels.take(10).map((l) {
@@ -1421,12 +1453,18 @@ class _OrderListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final sideLabel =
+        order.side == OrderSide.buy ? l10n.buy : l10n.sell;
+    final typeLabel = order.type == OrderType.limit
+        ? l10n.limitOrder
+        : l10n.marketOrder;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
       title: Text(
-        '${order.side.value} ${order.type.value}',
+        '$sideLabel · $typeLabel',
         style: theme.textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w600,
           color: order.side == OrderSide.buy
@@ -1437,7 +1475,10 @@ class _OrderListTile extends StatelessWidget {
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Text(
-          'Price: ${order.price ?? "MKT"} | Amount: ${order.amount} | Filled: ${order.filledAmount} | ${order.status.value}',
+          '${l10n.price}: ${order.price != null ? _formatPriceDisplay(order.price!) : l10n.marketPriceAbbrev} | '
+          '${l10n.amount}: ${_formatAmountDisplay(order.amount)} | '
+          '${l10n.orderFilledQuantity}: ${_formatAmountDisplay(order.filledAmount)} | '
+          '${_orderStatusLocalized(l10n, order.status)}',
           style: theme.textTheme.bodySmall
               ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),

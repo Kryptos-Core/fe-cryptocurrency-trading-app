@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/core/utils/checkout_tab_preopen.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
@@ -346,15 +347,19 @@ class _DepositsScreenState extends State<DepositsScreen> {
               backgroundColor: Colors.orange.shade100,
               leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
               content: Text(
-                'Phương thức thanh toán đang được cập nhật'
-                '${paymentConfig.transitioningGraceMinsRemaining != null ? " (~${paymentConfig.transitioningGraceMinsRemaining} phút)" : ""}. '
-                'Vui lòng chờ trước khi tạo giao dịch mới.',
+                l10n.payosTransitioningBanner(
+                  paymentConfig.transitioningGraceMinsRemaining != null
+                      ? l10n.payosTransitioningGraceMinutes(
+                          paymentConfig.transitioningGraceMinsRemaining!,
+                        )
+                      : '',
+                ),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               actions: [
                 TextButton(
                   onPressed: () => paymentConfig.clearLatestEvent(),
-                  child: const Text('Bỏ qua'),
+                  child: Text(l10n.dismiss),
                 ),
               ],
             ),
@@ -453,7 +458,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                         deposit.checkoutUrl,
                                       )
                                     : null,
-                                title: Text('${deposit.amount} VND'),
+                                title: Text(
+                                  '${FormatUtils.formatFiatIntegerDisplay(deposit.amount)} VND',
+                                ),
                                 subtitle: Text(
                                   isPending
                                       ? '${l10n.payosOrderCode}: ${deposit.orderCode} • ${l10n.payosTapToOpenCheckout}'

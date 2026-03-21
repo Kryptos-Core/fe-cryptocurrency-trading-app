@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 class AdminTransactionsScreen extends StatefulWidget {
   const AdminTransactionsScreen({super.key});
@@ -37,15 +38,16 @@ class _AdminTransactionsScreenState extends State<AdminTransactionsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Giám sát Giao dịch'),
+        title: Text(l10n.drawerTransactionMonitoring),
         bottom: TabBar(
           controller: _tabs,
-          tabs: const [
-            Tab(icon: Icon(Icons.list_alt_outlined), text: 'Lệnh'),
-            Tab(icon: Icon(Icons.arrow_downward), text: 'Nạp tiền'),
-            Tab(icon: Icon(Icons.arrow_upward), text: 'Rút tiền'),
+          tabs: [
+            Tab(icon: const Icon(Icons.list_alt_outlined), text: l10n.adminTabOrders),
+            Tab(icon: const Icon(Icons.arrow_downward), text: l10n.adminTabDeposits),
+            Tab(icon: const Icon(Icons.arrow_upward), text: l10n.adminTabWithdrawals),
           ],
         ),
       ),
@@ -79,13 +81,13 @@ class _OrdersTabState extends State<_OrdersTab>
 
   String? _selectedStatus;
 
-  static const _statuses = [
-    ('Tất cả', null),
-    ('Mở', 'OPEN'),
-    ('Khớp phần', 'PARTIAL'),
-    ('Đã khớp', 'FILLED'),
-    ('Huỷ', 'CANCELLED'),
-    ('Từ chối', 'REJECTED'),
+  static List<(String, String?)> _orderStatuses(AppLocalizations l10n) => [
+    (l10n.adminFilterAll, null),
+    (l10n.orderStatusOpen, 'OPEN'),
+    (l10n.orderStatusPartial, 'PARTIAL'),
+    (l10n.orderStatusFilled, 'FILLED'),
+    (l10n.orderStatusCancelled, 'CANCELLED'),
+    (l10n.orderStatusRejected, 'REJECTED'),
   ];
 
   @override
@@ -137,7 +139,7 @@ class _OrdersTabState extends State<_OrdersTab>
             controller: _userController,
             onChanged: _onUserSearch,
             decoration: InputDecoration(
-              hintText: 'Lọc theo User ID...',
+              hintText: AppLocalizations.of(context).filterByUserId,
               prefixIcon: const Icon(Icons.person_search_outlined),
               isDense: true,
               contentPadding:
@@ -161,7 +163,7 @@ class _OrdersTabState extends State<_OrdersTab>
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: _statuses.map((s) {
+              children: _orderStatuses(AppLocalizations.of(context)).map((s) {
                 final sel = _selectedStatus == s.$2;
                 return Padding(
                   padding: const EdgeInsets.only(right: 6),
@@ -200,13 +202,18 @@ class _OrdersTabState extends State<_OrdersTab>
           );
         }
         if (p.orders.isEmpty) {
-          return const _EmptyPanel(message: 'Không có lệnh nào');
+          return _EmptyPanel(
+              message: AppLocalizations.of(context).adminOrdersEmpty);
         }
 
+        final l10n = AppLocalizations.of(context);
         return Column(
           children: [
             _CountBanner(
-                total: p.ordersTotal, shown: p.orders.length, label: 'lệnh'),
+                l10n: l10n,
+                total: p.ordersTotal,
+                shown: p.orders.length,
+                label: l10n.adminOrdersCountLabel),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => p.fetchOrders(refresh: true),
@@ -218,7 +225,9 @@ class _OrdersTabState extends State<_OrdersTab>
                     if (i >= p.orders.length) {
                       return const _LoadMoreIndicator();
                     }
-                    return _OrderTile(order: p.orders[i]);
+                    return _OrderTile(
+                        order: p.orders[i],
+                        l10n: AppLocalizations.of(context));
                   },
                 ),
               ),
@@ -247,11 +256,11 @@ class _DepositsTabState extends State<_DepositsTab>
   Timer? _debounce;
   String? _selectedStatus;
 
-  static const _statuses = [
-    ('Tất cả', null),
-    ('Chờ xử lý', 'PENDING'),
-    ('Đã thanh toán', 'PAID'),
-    ('Huỷ', 'CANCELLED'),
+  static List<(String, String?)> _depositStatuses(AppLocalizations l10n) => [
+    (l10n.adminFilterAll, null),
+    (l10n.depositStatusPending, 'PENDING'),
+    (l10n.depositStatusPaid, 'PAID'),
+    (l10n.depositStatusCancelled, 'CANCELLED'),
   ];
 
   @override
@@ -295,7 +304,7 @@ class _DepositsTabState extends State<_DepositsTab>
                 controller: _userController,
                 onChanged: _onUserSearch,
                 decoration: InputDecoration(
-                  hintText: 'Lọc theo User ID...',
+                  hintText: AppLocalizations.of(context).filterByUserId,
                   prefixIcon: const Icon(Icons.person_search_outlined),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -308,7 +317,7 @@ class _DepositsTabState extends State<_DepositsTab>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _statuses.map((s) {
+                  children: _depositStatuses(AppLocalizations.of(context)).map((s) {
                     final sel = _selectedStatus == s.$2;
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
@@ -347,14 +356,17 @@ class _DepositsTabState extends State<_DepositsTab>
                 );
               }
               if (p.deposits.isEmpty) {
-                return const _EmptyPanel(message: 'Không có giao dịch nạp tiền nào');
+                return _EmptyPanel(
+                    message: AppLocalizations.of(context).adminDepositsEmpty);
               }
+              final l10n = AppLocalizations.of(context);
               return Column(
                 children: [
                   _CountBanner(
+                      l10n: l10n,
                       total: p.depositsTotal,
                       shown: p.deposits.length,
-                      label: 'giao dịch'),
+                      label: l10n.adminDepositsCountLabel),
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => p.fetchDeposits(refresh: true),
@@ -368,7 +380,9 @@ class _DepositsTabState extends State<_DepositsTab>
                           if (i >= p.deposits.length) {
                             return const _LoadMoreIndicator();
                           }
-                          return _DepositTile(deposit: p.deposits[i]);
+                          return _DepositTile(
+                              deposit: p.deposits[i],
+                              l10n: AppLocalizations.of(context));
                         },
                       ),
                     ),
@@ -400,12 +414,12 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
   Timer? _debounce;
   String? _selectedStatus;
 
-  static const _statuses = [
-    ('Tất cả', null),
-    ('Đang chờ', 'PENDING'),
-    ('Đang xác nhận', 'CONFIRMING'),
-    ('Hoàn thành', 'COMPLETED'),
-    ('Thất bại', 'FAILED'),
+  static List<(String, String?)> _withdrawalStatuses(AppLocalizations l10n) => [
+    (l10n.adminFilterAll, null),
+    (l10n.withdrawalStatusPending, 'PENDING'),
+    (l10n.withdrawalStatusConfirming, 'CONFIRMING'),
+    (l10n.withdrawalStatusCompleted, 'COMPLETED'),
+    (l10n.withdrawalStatusFailed, 'FAILED'),
   ];
 
   @override
@@ -449,7 +463,7 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
                 controller: _userController,
                 onChanged: _onUserSearch,
                 decoration: InputDecoration(
-                  hintText: 'Lọc theo User ID...',
+                  hintText: AppLocalizations.of(context).filterByUserId,
                   prefixIcon: const Icon(Icons.person_search_outlined),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -462,7 +476,7 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _statuses.map((s) {
+                  children: _withdrawalStatuses(AppLocalizations.of(context)).map((s) {
                     final sel = _selectedStatus == s.$2;
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
@@ -501,15 +515,17 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
                 );
               }
               if (p.withdrawals.isEmpty) {
-                return const _EmptyPanel(
-                    message: 'Không có giao dịch rút tiền nào');
+                return _EmptyPanel(
+                    message: AppLocalizations.of(context).adminWithdrawalsEmpty);
               }
+              final l10n = AppLocalizations.of(context);
               return Column(
                 children: [
                   _CountBanner(
+                      l10n: l10n,
                       total: p.withdrawalsTotal,
                       shown: p.withdrawals.length,
-                      label: 'giao dịch'),
+                      label: l10n.adminWithdrawalsCountLabel),
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => p.fetchWithdrawals(refresh: true),
@@ -524,7 +540,8 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
                             return const _LoadMoreIndicator();
                           }
                           return _WithdrawalTile(
-                              tx: p.withdrawals[i]);
+                              tx: p.withdrawals[i],
+                              l10n: AppLocalizations.of(context));
                         },
                       ),
                     ),
@@ -543,7 +560,8 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
 
 class _OrderTile extends StatelessWidget {
   final Map<String, dynamic> order;
-  const _OrderTile({required this.order});
+  final AppLocalizations l10n;
+  const _OrderTile({required this.order, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -558,7 +576,7 @@ class _OrderTile extends StatelessWidget {
         order['market_symbol']?.toString() ?? '';
     final userId = order['user_id']?.toString() ?? order['userId']?.toString() ?? '';
     final createdAt = _parseDate(order['created_at'] ?? order['createdAt']);
-    final (statusColor, statusLabel) = _statusInfo(status);
+    final (statusColor, statusLabel) = _statusInfo(l10n, status);
 
     return ListTile(
       contentPadding:
@@ -574,7 +592,7 @@ class _OrderTile extends StatelessWidget {
       title: Row(
         children: [
           Text(
-            '${isBuy ? 'MUA' : 'BÁN'} $pairSymbol',
+            '${isBuy ? l10n.buy : l10n.sell} $pairSymbol',
             style:
                 TextStyle(fontWeight: FontWeight.w600, color: sideColor),
           ),
@@ -586,11 +604,11 @@ class _OrderTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-              'SL: ${FormatUtils.formatDecimalAmountDisplay(amount)}'
-              '${price != null ? ' · Giá: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''}',
+              '${l10n.amount}: ${FormatUtils.formatDecimalAmountDisplay(amount)}'
+              '${price != null ? ' · ${l10n.adminOrderPriceLabel}: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''}',
               style: const TextStyle(fontSize: 12)),
           if (userId.isNotEmpty)
-            Text('User: ${_truncate(userId, 16)}',
+            Text('${l10n.adminUserLabel}: ${_truncate(userId, 16)}',
                 style: const TextStyle(fontSize: 11)),
           if (createdAt != null)
             Text(DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal()),
@@ -601,16 +619,16 @@ class _OrderTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _statusInfo(String s) {
+  (Color, String) _statusInfo(AppLocalizations l10n, String s) {
     switch (s) {
       case 'FILLED':
-        return (Colors.green, 'Khớp xong');
+        return (Colors.green, l10n.orderStatusFilled);
       case 'PARTIAL':
-        return (Colors.blue, 'Khớp phần');
+        return (Colors.blue, l10n.orderStatusPartial);
       case 'OPEN':
-        return (Colors.orange, 'Đang mở');
+        return (Colors.orange, l10n.orderStatusOpen);
       case 'CANCELLED':
-        return (Colors.grey, 'Huỷ');
+        return (Colors.grey, l10n.orderStatusCancelled);
       default:
         return (Colors.red, s);
     }
@@ -619,7 +637,8 @@ class _OrderTile extends StatelessWidget {
 
 class _DepositTile extends StatelessWidget {
   final Map<String, dynamic> deposit;
-  const _DepositTile({required this.deposit});
+  final AppLocalizations l10n;
+  const _DepositTile({required this.deposit, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -628,7 +647,7 @@ class _DepositTile extends StatelessWidget {
     final userId = deposit['user_id']?.toString() ?? deposit['userId']?.toString() ?? '';
     final orderCode = deposit['order_code']?.toString() ?? deposit['orderCode']?.toString() ?? '';
     final createdAt = _parseDate(deposit['created_at'] ?? deposit['createdAt']);
-    final (statusColor, statusLabel) = _depositStatusInfo(status);
+    final (statusColor, statusLabel) = _depositStatusInfo(l10n, status);
 
     return ListTile(
       contentPadding:
@@ -654,10 +673,10 @@ class _DepositTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (userId.isNotEmpty)
-            Text('User: ${_truncate(userId, 16)}',
+            Text('${l10n.adminUserLabel}: ${_truncate(userId, 16)}',
                 style: const TextStyle(fontSize: 11)),
           if (orderCode.isNotEmpty)
-            Text('Order Code: $orderCode',
+            Text('${l10n.adminOrderCodeLabel}: $orderCode',
                 style: const TextStyle(fontSize: 11)),
           if (createdAt != null)
             Text(DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal()),
@@ -668,14 +687,14 @@ class _DepositTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _depositStatusInfo(String s) {
+  (Color, String) _depositStatusInfo(AppLocalizations l10n, String s) {
     switch (s) {
       case 'PAID':
-        return (Colors.green, 'Đã thanh toán');
+        return (Colors.green, l10n.depositStatusPaid);
       case 'PENDING':
-        return (Colors.orange, 'Chờ xử lý');
+        return (Colors.orange, l10n.depositStatusPending);
       case 'CANCELLED':
-        return (Colors.grey, 'Huỷ');
+        return (Colors.grey, l10n.depositStatusCancelled);
       default:
         return (Colors.grey, s);
     }
@@ -684,7 +703,8 @@ class _DepositTile extends StatelessWidget {
 
 class _WithdrawalTile extends StatelessWidget {
   final Map<String, dynamic> tx;
-  const _WithdrawalTile({required this.tx});
+  final AppLocalizations l10n;
+  const _WithdrawalTile({required this.tx, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +714,7 @@ class _WithdrawalTile extends StatelessWidget {
     final userId = tx['user_id']?.toString() ?? tx['userId']?.toString() ?? '';
     final txHash = tx['tx_hash']?.toString() ?? tx['txHash']?.toString();
     final createdAt = _parseDate(tx['created_at'] ?? tx['createdAt']);
-    final (statusColor, statusLabel) = _statusInfo(status);
+    final (statusColor, statusLabel) = _statusInfo(l10n, status);
 
     return ListTile(
       contentPadding:
@@ -724,10 +744,10 @@ class _WithdrawalTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$chain${userId.isNotEmpty ? ' · User: ${_truncate(userId, 10)}' : ''}',
+          Text('$chain${userId.isNotEmpty ? ' · ${l10n.adminUserLabel}: ${_truncate(userId, 10)}' : ''}',
               style: const TextStyle(fontSize: 12)),
           if (txHash != null && txHash.isNotEmpty)
-            Text('TX: ${_truncate(txHash, 20)}',
+            Text('${l10n.adminTxHashLabel}: ${_truncate(txHash, 20)}',
                 style: const TextStyle(
                     fontSize: 11, fontFamily: 'monospace')),
           if (createdAt != null)
@@ -739,16 +759,16 @@ class _WithdrawalTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _statusInfo(String s) {
+  (Color, String) _statusInfo(AppLocalizations l10n, String s) {
     switch (s) {
       case 'COMPLETED':
-        return (Colors.green, 'Hoàn thành');
+        return (Colors.green, l10n.withdrawalStatusCompleted);
       case 'CONFIRMING':
-        return (Colors.blue, 'Đang xác nhận');
+        return (Colors.blue, l10n.withdrawalStatusConfirming);
       case 'PENDING':
-        return (Colors.orange, 'Đang chờ');
+        return (Colors.orange, l10n.withdrawalStatusPending);
       case 'FAILED':
-        return (Colors.red, 'Thất bại');
+        return (Colors.red, l10n.withdrawalStatusFailed);
       default:
         return (Colors.grey, s);
     }
@@ -791,11 +811,12 @@ class _StatusBadge extends StatelessWidget {
 }
 
 class _CountBanner extends StatelessWidget {
+  final AppLocalizations l10n;
   final int total;
   final int shown;
   final String label;
   const _CountBanner(
-      {required this.total, required this.shown, required this.label});
+      {required this.l10n, required this.total, required this.shown, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -808,7 +829,7 @@ class _CountBanner extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(width: 4),
           Text(
-            'Đang hiển thị $shown / $total $label',
+            l10n.adminShowingCount(shown, total, label),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
@@ -853,7 +874,9 @@ class _ErrorPanel extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Thử lại')),
+          FilledButton(
+              onPressed: onRetry,
+              child: Text(AppLocalizations.of(context).adminRetryButton)),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 
 /// Home Screen - Main application screen for authenticated users
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (mounted) {
             showAppSnackBar(
               context,
-              message: 'Failed to load profile: ${failure.message}',
+              message: '${AppLocalizations.of(context).failedToLoadProfile}: ${failure.message}',
               type: SnackBarType.error,
               duration: const Duration(seconds: 3),
             );
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         showAppSnackBar(
           context,
-          message: 'Error: ${e.toString()}',
+          message: '${AppLocalizations.of(context).error}: ${e.toString()}',
           type: SnackBarType.error,
           duration: const Duration(seconds: 3),
         );
@@ -93,19 +94,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.homeLogoutConfirmTitle),
+        content: Text(l10n.homeLogoutConfirmContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.homeLogoutCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Logout'),
+            child: Text(l10n.homeLogoutConfirm),
           ),
         ],
       ),
@@ -118,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         showAppSnackBar(
           context,
-          message: 'Logged out successfully',
+          message: l10n.loggedOutSuccess,
           type: SnackBarType.success,
           duration: const Duration(seconds: 1),
         );
@@ -159,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (_currentUser == null) {
+      final l10n = AppLocalizations.of(context);
       return Scaffold(
         body: Center(
           child: Column(
@@ -170,11 +173,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.red,
               ),
               const SizedBox(height: 16),
-              Text(_errorMessage ?? 'Failed to load user'),
+              Text(_errorMessage ?? l10n.homeFailedToLoadUser),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _navigateToLogin,
-                child: const Text('Go to Login'),
+                child: Text(l10n.homeGoToLogin),
               ),
             ],
           ),
@@ -182,16 +185,17 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crypto Trading App'),
+        title: Text(l10n.homeAppTitle),
         centerTitle: true,
         automaticallyImplyLeading: false, // Remove back button when used in MainScreen
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _handleLogout,
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
           ),
         ],
       ),
@@ -218,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Welcome Message
               Text(
-                'Welcome back,',
+                l10n.homeWelcomeBack,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -268,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _currentUser!.isActive ? 'Active' : 'Inactive',
+                      _currentUser!.isActive ? l10n.active : l10n.inactive,
                       style: TextStyle(
                         color: _currentUser!.isActive
                             ? Colors.green[700]
@@ -293,16 +297,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Crypto Trading Platform',
+                      Text(
+                        l10n.homeCryptoPlatform,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Authentication system is ready!\n\nMarket, Trading, and Wallet modules coming soon.',
+                      Text(
+                        l10n.homeAuthReady,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
@@ -326,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.update),
-                title: const Text('Last updated'),
+                title: Text(l10n.homeLastUpdated),
                 subtitle: Text(
                   '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
                 ),

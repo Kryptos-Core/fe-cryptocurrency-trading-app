@@ -435,8 +435,8 @@ class _MainScreenState extends State<MainScreen> {
                     if (auth.canViewUserList)
                       ListTile(
                         leading: const Icon(Icons.receipt_long_outlined, color: Colors.deepOrange),
-                        title: const Text('Giám sát Giao dịch'),
-                        subtitle: const Text('Lệnh · Nạp · Rút', style: TextStyle(fontSize: 11)),
+                        title: Text(l10n.drawerTransactionMonitoring),
+                        subtitle: Text(l10n.drawerTransactionMonitoringSubtitle, style: const TextStyle(fontSize: 11)),
                         onTap: () {
                           Navigator.pop(context);
                           Navigator.push(
@@ -452,11 +452,11 @@ class _MainScreenState extends State<MainScreen> {
                     if (auth.canViewUserList)
                       ListTile(
                         leading: const Icon(Icons.currency_bitcoin, color: Colors.deepOrange),
-                        title: const Text('Quản lý Coin'),
+                        title: Text(l10n.drawerCoinManagement),
                         subtitle: Text(
                           auth.canManageCurrencies
-                              ? 'CRUD · Toggle trạng thái'
-                              : 'Xem danh sách coin',
+                              ? l10n.drawerCoinManagementSubtitleCrud
+                              : l10n.drawerCoinManagementSubtitleView,
                           style: const TextStyle(fontSize: 11),
                         ),
                         onTap: () {
@@ -515,8 +515,8 @@ class _MainScreenState extends State<MainScreen> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.payment_outlined, color: Colors.deepOrange),
-                      title: const Text('Cấu hình Thanh toán'),
-                      subtitle: const Text('PayOS · Blockchain · Hot Wallet', style: TextStyle(fontSize: 11)),
+                      title: Text(l10n.drawerPaymentConfig),
+                      subtitle: Text(l10n.drawerPaymentConfigSubtitle, style: const TextStyle(fontSize: 11)),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -532,8 +532,8 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.account_balance_wallet_outlined, color: Colors.deepOrange),
-                      title: const Text('Quản lý Rút tiền'),
-                      subtitle: const Text('Duyệt · Từ chối · Lịch sử', style: TextStyle(fontSize: 11)),
+                      title: Text(l10n.drawerWithdrawalManagement),
+                      subtitle: Text(l10n.drawerWithdrawalManagementSubtitle, style: const TextStyle(fontSize: 11)),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(

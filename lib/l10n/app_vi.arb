@@ -28,6 +28,7 @@
   "submit": "Gửi",
   "back": "Quay lại",
   "close": "Đóng",
+  "dismiss": "Bỏ qua",
   "search": "Tìm kiếm",
   "noMarkets": "Không có thị trường",
   "noWallets": "Không có ví",
@@ -122,6 +123,7 @@
   "orderPlacedSuccess": "Đặt lệnh thành công",
   "insufficientBalance": "Không đủ số dư",
   "tradingPair": "Cặp giao dịch",
+  "ordersPayosUsdtHint": "Nạp PayOS được cộng USDT vào ví spot (không giữ VND để khớp lệnh). Để mua, chọn cặp có đồng định giá USDT (vd. BTC/USDT). Cặp …/USDC cần số dư USDC.",
   "recentTrades": "Giao dịch gần đây",
   "youWillReceive": "Sẽ nhận",
   "estimatedFee": "Phí ước tính",
@@ -130,6 +132,77 @@
   "orderFundsTo": "Ví đích",
   "orderInsufficientBase": "Không đủ số dư tài sản cơ sở. Khả dụng",
   "orderInsufficientQuote": "Không đủ số dư tài sản định giá. Khả dụng",
+  "ordersSelectPairFirst": "Vui lòng chọn cặp giao dịch trước.",
+  "ordersMyOrdersWithCount": "Lệnh của tôi ({count})",
+  "@ordersMyOrdersWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myOrdersEmpty": "Bạn chưa có lệnh nào",
+  "amountMustBePositive": "Số lượng phải là số dương",
+  "priceMustBePositive": "Giá phải là số dương",
+  "amountMaxDecimals": "Số lượng tối đa {n} chữ số thập phân",
+  "@amountMaxDecimals": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "priceMaxDecimals": "Giá tối đa {n} chữ số thập phân",
+  "@priceMaxDecimals": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "orderColumnSide": "Chiều",
+  "orderColumnTime": "Thời gian",
+  "orderBookColumnSize": "Khối lượng",
+  "orderBookColumnCount": "Số lệnh",
+  "tickerBid": "Mua",
+  "tickerAsk": "Bán",
+  "ticker24hHigh": "24h cao",
+  "ticker24hLow": "24h thấp",
+  "tickerVolume": "KL 24h",
+  "marketPriceAbbrev": "MKT",
+  "orderFilledQuantity": "Đã khớp",
+  "maxAmountButton": "TỐI ĐA",
+  "priceHintExample": "vd. 50000.00",
+  "amountHintExample": "vd. 0.01",
+  "orderStatusOpen": "Đang mở",
+  "orderStatusPartial": "Khớp phần",
+  "orderStatusFilled": "Đã khớp",
+  "orderStatusCancelled": "Đã hủy",
+  "orderStatusRejected": "Từ chối",
+  "timeSecondsShort": "{count}s",
+  "@timeSecondsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeMinutesShort": "{count}m",
+  "@timeMinutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursShort": "{count}h",
+  "@timeHoursShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "syncBinance": "Đồng bộ Binance",
   "syncBinanceDescription": "Đồng bộ tiền tệ và cặp thị trường từ Binance vào cơ sở dữ liệu",
   "manualResyncBinance": "Đồng bộ lại thủ công từ Binance",
@@ -170,6 +243,22 @@
   "payosPaymentUpdated": "Thanh toán thành công. Số dư và lịch sử đã được cập nhật.",
   "payosOrderProcessing": "Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.",
   "payosNeedFiatTitle": "Muốn nạp tiền pháp định thay thế?",
+  "payosTransitioningBanner": "Phương thức thanh toán đang được cập nhật{grace}. Vui lòng chờ trước khi tạo giao dịch mới.",
+  "@payosTransitioningBanner": {
+    "placeholders": {
+      "grace": {
+        "type": "String"
+      }
+    }
+  },
+  "payosTransitioningGraceMinutes": " (~{minutes} phút)",
+  "@payosTransitioningGraceMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "payosNeedFiatDesc": "Dùng PayOS để nạp VND, sau đó quay lại giao dịch hoặc chuyển tiền.",
   "openOnchainWalletFlow": "Mở luồng ví On-chain",
 
@@ -415,6 +504,18 @@
   "drawerManualResyncComingSoon": "Đồng bộ sàn giao dịch thủ công — sắp ra mắt",
   "drawerSecurityRequests": "Yêu cầu bảo mật",
   "drawerSecuritySubtitle": "Duyệt/từ chối yêu cầu đổi email & mật khẩu",
+  "drawerTransactionMonitoring": "Giám sát giao dịch",
+  "drawerTransactionMonitoringSubtitle": "Lệnh · Nạp · Rút",
+  "drawerCoinManagement": "Quản lý coin",
+  "drawerCoinManagementSubtitleCrud": "CRUD · Bật/tắt trạng thái",
+  "drawerCoinManagementSubtitleView": "Xem danh sách coin",
+  "drawerPaymentConfig": "Cấu hình thanh toán",
+  "drawerPaymentConfigSubtitle": "PayOS · Blockchain · Hot wallet",
+  "drawerWithdrawalManagement": "Quản lý rút tiền",
+  "drawerWithdrawalManagementSubtitle": "Duyệt · Từ chối · Lịch sử",
+  "adminTabOrders": "Lệnh",
+  "adminTabDeposits": "Nạp tiền",
+  "adminTabWithdrawals": "Rút tiền",
   "authRequiredTitle": "Yêu cầu đăng nhập",
   "authRequiredSubtitle": "Vui lòng đăng nhập để truy cập tính năng này.",
   "createAccount": "Tạo tài khoản",
@@ -697,5 +798,222 @@
       "sellPrice": { "type": "String" }
     }
   },
-  "marketMakerPlaceOrdersFormHint": "Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency."
+  "marketMakerPlaceOrdersFormHint": "Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.",
+
+  "filterByUserId": "Lọc theo User ID...",
+  "adminFilterAll": "Tất cả",
+  "adminUserLabel": "User",
+  "adminOrderCodeLabel": "Mã đơn",
+  "adminTxHashLabel": "TX",
+  "adminRetryButton": "Thử lại",
+  "adminOrdersCountLabel": "lệnh",
+  "adminDepositsCountLabel": "giao dịch",
+  "adminWithdrawalsCountLabel": "giao dịch",
+  "adminShowingCount": "Đang hiển thị {shown} / {total} {label}",
+  "@adminShowingCount": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" },
+      "label": { "type": "String" }
+    }
+  },
+  "adminOrdersEmpty": "Không có lệnh nào",
+  "adminDepositsEmpty": "Không có giao dịch nạp tiền nào",
+  "adminWithdrawalsEmpty": "Không có giao dịch rút tiền nào",
+  "adminOrderPriceLabel": "Giá",
+  "depositStatusPaid": "Đã thanh toán",
+  "depositStatusPending": "Chờ xử lý",
+  "depositStatusCancelled": "Đã hủy",
+  "withdrawalStatusCompleted": "Hoàn thành",
+  "withdrawalStatusConfirming": "Đang xác nhận",
+  "withdrawalStatusPending": "Đang chờ",
+  "withdrawalStatusFailed": "Thất bại",
+
+  "withdrawalDetailTitle": "Chi tiết rút tiền",
+  "withdrawalNotFound": "Không tìm thấy",
+  "withdrawalApprovedSnack": "Đã duyệt",
+  "withdrawalRejectedSnack": "Đã từ chối",
+  "withdrawalApproveButton": "Duyệt",
+  "withdrawalRejectButton": "Từ chối",
+  "withdrawalRejectDialogTitle": "Từ chối yêu cầu rút tiền",
+  "withdrawalRejectReasonHint": "Lý do từ chối (tùy chọn)",
+  "withdrawalNetworkLabel": "Mạng",
+  "withdrawalAmountLabel": "Số lượng",
+  "withdrawalDestinationLabel": "Địa chỉ đích",
+  "withdrawalTimeLabel": "Thời gian",
+  "withdrawalTxHashLabel": "TX Hash",
+  "withdrawalUserInfoTitle": "Thông tin người dùng",
+  "withdrawalTransactionTitle": "Giao dịch",
+  "withdrawalBalanceLabel": "Số dư",
+  "withdrawalStatusLabel": "Trạng thái",
+  "withdrawalStatusRequested": "Yêu cầu",
+  "withdrawalStatusApproved": "Duyệt",
+  "withdrawalStatusSent": "Gửi on-chain",
+  "withdrawalStatusCompleted": "Hoàn thành",
+  "withdrawalStatusRejected": "Từ chối",
+  "withdrawalManagementTabPending": "Chờ duyệt",
+  "withdrawalManagementTabAll": "Tất cả",
+  "withdrawalStatsPendingCount": "{count} yêu cầu chờ duyệt",
+  "@withdrawalStatsPendingCount": { "placeholders": { "count": { "type": "int" } } },
+  "withdrawalApproveAllProcess": "Xử lý",
+
+  "withdrawalManagementTitle": "Quản lý rút tiền",
+  "withdrawalApproveAllSmallTitle": "Duyệt tất cả nhỏ",
+  "withdrawalApproveAllSmallContent": "Duyệt tất cả yêu cầu rút tiền đang chờ dưới ngưỡng cấu hình.",
+  "withdrawalProcessedSnack": "Đã xử lý xong",
+  "withdrawalSearchHint": "Tìm theo email, địa chỉ, txId...",
+  "withdrawalNoRequests": "Không có yêu cầu rút tiền",
+
+  "adminWalletAdjustTitle": "Điều chỉnh ví",
+  "adminWalletAdjustDepositWithdrawTab": "Nạp / Rút",
+  "adminWalletAdjustHistoryTab": "Lịch sử",
+  "adminWalletAdjustUseUserMgmt": "Nên dùng: Quản lý người dùng",
+  "adminWalletAdjustUseUserMgmtSubtitle": "Vào mục Quản lý người dùng → Chọn user → Nạp/Rút để có trải nghiệm tốt hơn.",
+  "adminWalletAdjustOpen": "Mở",
+  "adminWalletAdjustSelectUserHint": "Chọn người dùng...",
+  "adminWalletAdjustAmountLabel": "Số tiền",
+  "adminWalletAdjustNoteLabel": "Ghi chú (tuỳ chọn)",
+  "adminWalletAdjustAmountRequired": "Vui lòng nhập số tiền",
+  "adminWalletAdjustAmountInvalid": "Số tiền không hợp lệ (tối đa 18 chữ số thập phân)",
+  "adminWalletAdjustAmountMustBePositive": "Số tiền phải lớn hơn 0",
+  "adminWalletAdjustSuccessDeposit": "Nạp số dư thành công!",
+  "adminWalletAdjustSuccessWithdraw": "Rút số dư thành công!",
+  "adminWalletAdjustSelectUserRequired": "Vui lòng chọn người dùng",
+  "adminWalletAdjustUsdtNotFound": "Không tìm thấy ví USDT. Vui lòng thử lại sau.",
+  "adminWalletAdjustError": "Có lỗi xảy ra. Vui lòng thử lại.",
+  "adminWalletAdjustUserIdRequired": "Vui lòng nhập User ID",
+  "adminWalletAdjustOperationType": "Loại thao tác",
+  "adminWalletAdjustInfo": "Thông tin điều chỉnh",
+  "adminWalletAdjustAmountHint": "0.00",
+  "adminWalletAdjustReasonHint": "Lý do điều chỉnh...",
+  "adminWalletAdjustDepositTab": "Nạp tiền",
+  "adminWalletAdjustWithdrawTab": "Rút tiền",
+  "adminWalletPlatformCash": "Ví tiền (Platform Cash)",
+  "adminWalletSearchUserIdHint": "Nhập UUID người dùng",
+  "adminWalletSearchButton": "Tìm",
+  "adminWalletSearchByUserList": "Tìm qua danh sách người dùng",
+  "adminWalletNoAdjustmentHistory": "Chưa có lịch sử điều chỉnh",
+  "adminWalletTargetLabel": "Người nhận",
+  "adminWalletActorLabel": "Thực hiện bởi",
+  "adminWalletPlatformCashInfo": "USDT — Số dư sẽ được nạp/rút vào ví ảo cố định",
+  "adminWalletLoading": "Đang tải...",
+  "adminWalletAdjustProcessing": "Đang xử lý...",
+  "adminWalletAdjustDepositBalance": "Nạp số dư",
+  "adminWalletAdjustWithdrawBalance": "Rút số dư",
+  "adminWalletHistoryUserIdLabel": "User ID",
+
+  "adminUserDetailCreatedAt": "Ngày tạo",
+  "adminUserDetailNoWallets": "Người dùng chưa có ví nào",
+  "adminUserDetailNoAdjustmentHistory": "Chưa có lịch sử điều chỉnh nào",
+  "adminUserDetailNoOrders": "Người dùng chưa có lệnh nào",
+  "adminUserDetailNoOnchainTx": "Không có giao dịch onchain nào",
+  "adminUserDetailNoChangeHistory": "Không có lịch sử thay đổi nào",
+  "adminUserDetailByLabel": "Bởi",
+  "adminUserDetailNoteLabel": "Ghi chú",
+  "adminUserDetailReviewNoteLabel": "Ghi chú duyệt",
+  "adminUserDetailWalletsTitle": "Ví tiền (Platform Cash)",
+
+  "adminCurrenciesTitle": "Quản lý coin",
+  "adminCurrenciesSearchHint": "Tìm theo symbol hoặc tên...",
+  "adminCurrenciesStatusLabel": "Trạng thái",
+  "adminCurrenciesTradingLabel": "Giao dịch",
+  "adminCurrenciesFilterAll": "Tất cả",
+  "adminCurrenciesFilterActive": "Hoạt động",
+  "adminCurrenciesFilterInactive": "Không HĐ",
+  "adminCurrenciesFilterTradable": "Đang GD",
+  "adminCurrenciesFilterPaused": "Tạm dừng",
+  "adminCurrenciesNoCoinsFound": "Không tìm thấy coin nào",
+  "adminCurrenciesCreateCoin": "Tạo coin",
+  "adminCurrenciesDeleteCoinTitle": "Xoá coin",
+  "adminCurrenciesDeleteButton": "Xoá",
+  "adminCurrenciesHideButton": "Ẩn",
+  "adminCurrenciesEditButton": "Chỉnh sửa",
+  "adminCurrenciesTradingTab": "Giao dịch",
+  "adminCurrenciesActiveTab": "Hoạt động",
+  "adminCurrenciesCreateButton": "Tạo",
+  "adminCurrenciesSaveButton": "Lưu",
+  "adminCurrenciesEditTitle": "Chỉnh sửa {symbol}",
+  "@adminCurrenciesEditTitle": { "placeholders": { "symbol": { "type": "String" } } },
+  "adminCurrenciesSymbolHint": "BTC",
+  "adminCurrenciesNameHint": "Bitcoin",
+  "adminCurrenciesScaleHint": "8",
+  "adminCurrenciesMinAmountHint": "0.001",
+
+  "adminUserListTitle": "Quản lý người dùng",
+  "adminUserListSearchHint": "Tìm theo email hoặc tên...",
+  "adminUserListRoleLabel": "Role",
+  "adminUserListStatusLabel": "Trạng thái",
+  "adminUserListNoUsersFound": "Không tìm thấy người dùng",
+  "adminUserListRoleAll": "Tất cả",
+  "adminUserListRoleTrader": "Trader",
+  "adminUserListRoleVerified": "Verified",
+  "adminUserListRoleMarketMaker": "Market Maker",
+  "adminUserListRoleSupport": "Support",
+  "adminUserListRoleRiskOfficer": "Risk Officer",
+  "adminUserListRoleAdmin": "Admin",
+  "adminUserListStatusActive": "Hoạt động",
+  "adminUserListStatusBanned": "Bị khoá",
+  "adminUserListStatusPending": "Chờ duyệt",
+  "adminUserListTotalUsers": "Tổng: {count} người dùng",
+  "@adminUserListTotalUsers": { "placeholders": { "count": { "type": "int" } } },
+  "adminUserListSelectUserPlaceholder": "Chọn một người dùng để xem chi tiết",
+
+  "profileSubmitRequest": "Gửi yêu cầu",
+  "profileNewEmailLabel": "Email mới",
+  "profileNewEmailHint": "Nhập email mới",
+
+  "settingsTheme": "Chủ đề",
+  "settingsThemeLight": "Sáng",
+  "settingsThemeSystem": "Hệ thống",
+  "settingsThemeDark": "Tối",
+  "settingsSeedColor": "Màu chủ đề",
+
+  "loginEmailHint": "user@example.com",
+  "loginPasswordHint": "Nhập mật khẩu",
+  "loginCheckHealth": "Kiểm tra kết nối (health)",
+  "loginConnectMetaMask": "Kết nối MetaMask",
+  "loginConnectTronLink": "Kết nối TronLink",
+
+  "homeLogoutConfirmTitle": "Đăng xuất",
+  "homeLogoutConfirmContent": "Bạn có chắc muốn đăng xuất?",
+  "homeLogoutCancel": "Hủy",
+  "homeLogoutConfirm": "Đăng xuất",
+  "homeGoToLogin": "Đến trang đăng nhập",
+  "homeAppTitle": "Crypto Trading App",
+  "homeWelcomeBack": "Chào mừng trở lại,",
+  "homeFailedToLoadUser": "Không tải được thông tin người dùng",
+  "profileFirstName": "Tên",
+  "profileLastName": "Họ",
+  "treasuryNoMainWallets": "Chưa cấu hình ví chính cho {chain}. Sweep sẽ dùng mặc định.",
+  "@treasuryNoMainWallets": { "placeholders": { "chain": { "type": "String" } } },
+  "homeCryptoPlatform": "Nền tảng Crypto Trading",
+  "homeAuthReady": "Hệ thống xác thực đã sẵn sàng!\n\nMô-đun Thị trường, Giao dịch và Ví sẽ sớm ra mắt.",
+  "homeMemberSince": "Thành viên từ",
+  "homeLastUpdated": "Cập nhật lần cuối",
+  "adminUserDetailRefresh": "Làm mới",
+  "adminUserDetailTabWallets": "Ví",
+  "adminUserDetailTabAdjust": "Nạp/Rút",
+  "adminUserDetailTabOrders": "Lệnh",
+  "adminUserDetailTabOnchain": "Giao dịch",
+  "adminUserDetailTabSecurity": "Thay đổi TT",
+  "adminUserDetailCreatedAtLabel": "Ngày tạo",
+
+  "snackbarOk": "OK",
+
+  "walletDebugTitle": "Thông tin debug ví",
+
+  "advancedTradingNoData": "Không có dữ liệu",
+  "advancedTradingMacd": "MACD",
+  "advancedTradingSignal": "Signal",
+  "advancedTradingHistogram": "Histogram",
+  "advancedTradingZoomIn": "Phóng to",
+  "advancedTradingZoomOut": "Thu nhỏ",
+  "advancedTradingShowIndicators": "Hiện chỉ báo",
+
+  "paymentConfigClientId": "Client ID",
+  "paymentConfigApiKey": "API Key",
+  "paymentConfigChecksumKey": "Checksum Key",
+  "paymentConfigUrlHint": "https://...",
+  "paymentConfigHotWalletKey": "Hot Wallet Private Key",
+  "paymentConfigMainnet": "Mainnet"
 }

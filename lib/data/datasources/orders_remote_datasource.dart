@@ -96,14 +96,35 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         '/orders/my',
         queryParameters: query,
       );
-      final data = response.data is Map ? response.data as Map<String, dynamic> : null;
-      final list = data?['data'] as List? ?? response.data as List? ?? [];
-      final total = _toInt(data?['total']);
-      final pageVal = _toInt(data?['page']) == 0 ? page : _toInt(data?['page']);
-      final limitVal = _toInt(data?['limit']) == 0 ? limit : _toInt(data?['limit']);
+      final root = response.data is Map<String, dynamic>
+          ? response.data as Map<String, dynamic>
+          : null;
+      final envelope = root?['data'];
+      List<dynamic> list = const [];
+      var total = 0;
+      var pageVal = page;
+      var limitVal = limit;
+
+      if (envelope is Map<String, dynamic>) {
+        final inner = envelope['data'];
+        if (inner is List) {
+          list = inner;
+          total = _toInt(envelope['total']);
+          pageVal = _toInt(envelope['page']) == 0 ? page : _toInt(envelope['page']);
+          limitVal = _toInt(envelope['limit']) == 0 ? limit : _toInt(envelope['limit']);
+        }
+      } else if (envelope is List) {
+        // Legacy: interceptor used to unwrap to a bare array (pagination metadata lost).
+        list = envelope;
+        total = envelope.length;
+      }
+
       final orders = list
           .map((e) => OrderModel.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();
+      if (total == 0 && orders.isNotEmpty) {
+        total = orders.length;
+      }
       return (data: orders, total: total, page: pageVal, limit: limitVal);
     } on DioException catch (e) {
       throw _mapDioToException(e);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 
@@ -24,9 +25,10 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chi tiết rút tiền'),
+        title: Text(l10n.withdrawalDetailTitle),
       ),
       body: Consumer<WithdrawalManagementProvider>(
         builder: (_, p, __) {
@@ -42,7 +44,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () => p.loadDetail(widget.txId),
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -50,18 +52,18 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
           }
           final w = p.selectedDetail;
           if (w == null) {
-            return const Center(child: Text('Không tìm thấy'));
+            return Center(child: Text(l10n.withdrawalNotFound));
           }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _UserInfoCard(withdrawal: w),
+                _UserInfoCard(withdrawal: w, l10n: l10n),
                 const SizedBox(height: 16),
-                _TransactionCard(withdrawal: w),
+                _TransactionCard(withdrawal: w, l10n: l10n),
                 const SizedBox(height: 16),
-                _StatusTimeline(withdrawal: w),
+                _StatusTimeline(withdrawal: w, l10n: l10n),
                 if (w.status == 'PENDING') ...[
                   const SizedBox(height: 24),
                   Row(
@@ -76,7 +78,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                                     if (ok) {
                                       Navigator.pop(context);
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Đã duyệt')),
+                                        SnackBar(content: Text(l10n.withdrawalApprovedSnack)),
                                       );
                                     } else if (p.error != null) {
                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,7 +88,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                                   }
                                 },
                           icon: const Icon(Icons.check_circle_outline),
-                          label: const Text('Duyệt'),
+                          label: Text(l10n.withdrawalApproveButton),
                           style: FilledButton.styleFrom(
                             backgroundColor: Colors.green,
                           ),
@@ -99,7 +101,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                               ? null
                               : () => _showRejectDialog(context, p, w),
                           icon: const Icon(Icons.cancel_outlined),
-                          label: const Text('Từ chối'),
+                          label: Text(l10n.withdrawalRejectButton),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
@@ -121,15 +123,16 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
     WithdrawalManagementProvider p,
     AdminWithdrawalModel w,
   ) {
+    final l10n = AppLocalizations.of(context);
     final reasonController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Từ chối yêu cầu rút tiền'),
+        title: Text(l10n.withdrawalRejectDialogTitle),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(
-            hintText: 'Lý do từ chối (tùy chọn)',
+          decoration: InputDecoration(
+            hintText: l10n.withdrawalRejectReasonHint,
             border: OutlineInputBorder(),
           ),
           maxLines: 2,
@@ -137,7 +140,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Huỷ'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -147,7 +150,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                 if (ok) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã từ chối')),
+                    SnackBar(content: Text(l10n.withdrawalRejectedSnack)),
                   );
                 } else if (p.error != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -157,7 +160,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
               }
             },
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Từ chối'),
+            child: Text(l10n.withdrawalRejectButton),
           ),
         ],
       ),
@@ -167,8 +170,9 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
 
 class _UserInfoCard extends StatelessWidget {
   final AdminWithdrawalModel withdrawal;
+  final AppLocalizations l10n;
 
-  const _UserInfoCard({required this.withdrawal});
+  const _UserInfoCard({required this.withdrawal, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +183,7 @@ class _UserInfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Thông tin người dùng',
+              l10n.withdrawalUserInfoTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -213,7 +217,7 @@ class _UserInfoCard extends StatelessWidget {
                         ),
                       if (withdrawal.userWalletBalance != null)
                         Text(
-                          'Số dư: ${withdrawal.userWalletBalance}',
+                          '${l10n.withdrawalBalanceLabel}: ${withdrawal.userWalletBalance}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                     ],
@@ -230,8 +234,9 @@ class _UserInfoCard extends StatelessWidget {
 
 class _TransactionCard extends StatelessWidget {
   final AdminWithdrawalModel withdrawal;
+  final AppLocalizations l10n;
 
-  const _TransactionCard({required this.withdrawal});
+  const _TransactionCard({required this.withdrawal, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -242,16 +247,16 @@ class _TransactionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Giao dịch',
+              l10n.withdrawalTransactionTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            _Row(label: 'Mạng', value: withdrawal.chain),
-            _Row(label: 'Số lượng', value: withdrawal.amount),
-            _Row(label: 'Địa chỉ đích', value: withdrawal.toAddress),
-            _Row(label: 'Thời gian', value: DateFormat('dd/MM/yyyy HH:mm').format(withdrawal.createdAt.toLocal())),
+            _Row(label: l10n.withdrawalNetworkLabel, value: withdrawal.chain),
+            _Row(label: l10n.withdrawalAmountLabel, value: withdrawal.amount),
+            _Row(label: l10n.withdrawalDestinationLabel, value: withdrawal.toAddress),
+            _Row(label: l10n.withdrawalTimeLabel, value: DateFormat('dd/MM/yyyy HH:mm').format(withdrawal.createdAt.toLocal())),
             if (withdrawal.txHash != null && withdrawal.txHash!.isNotEmpty)
-              _Row(label: 'TX Hash', value: withdrawal.txHash!),
+              _Row(label: l10n.withdrawalTxHashLabel, value: withdrawal.txHash!),
           ],
         ),
       ),
@@ -290,13 +295,14 @@ class _Row extends StatelessWidget {
 
 class _StatusTimeline extends StatelessWidget {
   final AdminWithdrawalModel withdrawal;
+  final AppLocalizations l10n;
 
-  const _StatusTimeline({required this.withdrawal});
+  const _StatusTimeline({required this.withdrawal, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
     // REQUESTED → APPROVED/REJECTED → SENT → COMPLETED
-    const steps = ['Yêu cầu', 'Duyệt', 'Gửi on-chain', 'Hoàn thành'];
+    final steps = [l10n.withdrawalStatusRequested, l10n.withdrawalStatusApproved, l10n.withdrawalStatusSent, l10n.withdrawalStatusCompleted];
     int current = 0;
     bool rejected = false;
     switch (withdrawal.status) {
@@ -324,7 +330,7 @@ class _StatusTimeline extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Trạng thái',
+              l10n.withdrawalStatusLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -344,7 +350,7 @@ class _StatusTimeline extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    isRejectedStep ? 'Từ chối' : steps[i],
+                    isRejectedStep ? l10n.withdrawalStatusRejected : steps[i],
                     style: TextStyle(
                       color: isRejectedStep ? Colors.red : (done ? null : Colors.grey),
                       fontWeight: i == current ? FontWeight.w600 : null,

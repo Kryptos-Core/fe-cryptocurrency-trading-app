@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_detail_screen.dart';
@@ -69,15 +70,16 @@ class _WithdrawalManagementScreenState extends State<WithdrawalManagementScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý Rút tiền'),
+        title: Text(l10n.withdrawalManagementTitle),
         bottom: TabBar(
           controller: _tabs,
           onTap: (_) => _onTabChange(),
-          tabs: const [
-            Tab(icon: Icon(Icons.pending_outlined), text: 'Chờ duyệt'),
-            Tab(icon: Icon(Icons.list), text: 'Tất cả'),
+          tabs: [
+            Tab(icon: const Icon(Icons.pending_outlined), text: l10n.withdrawalManagementTabPending),
+            Tab(icon: const Icon(Icons.list), text: l10n.withdrawalManagementTabAll),
           ],
         ),
       ),
@@ -96,21 +98,20 @@ class _WithdrawalManagementScreenState extends State<WithdrawalManagementScreen>
         onPressed: () async {
           final p = context.read<WithdrawalManagementProvider>();
           if (p.isSubmitting) return;
+          final l10n = AppLocalizations.of(context);
           final ok = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Duyệt tất cả nhỏ'),
-              content: const Text(
-                'Xử lý hàng loạt các yêu cầu rút tiền đang chờ (dưới ngưỡng auto-send). Tiếp tục?',
-              ),
+              title: Text(l10n.withdrawalApproveAllSmallTitle),
+              content: Text(l10n.withdrawalApproveAllSmallContent),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Huỷ'),
+                  child: Text(l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Xử lý'),
+                  child: Text(l10n.withdrawalApproveAllProcess),
                 ),
               ],
             ),
@@ -123,13 +124,13 @@ class _WithdrawalManagementScreenState extends State<WithdrawalManagementScreen>
               );
             } else if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã xử lý xong')),
+                SnackBar(content: Text(l10n.withdrawalProcessedSnack)),
               );
             }
           }
         },
         icon: const Icon(Icons.play_arrow),
-        label: const Text('Duyệt tất cả nhỏ'),
+        label: Text(l10n.withdrawalApproveAllSmallTitle),
       ),
     );
   }
@@ -138,6 +139,7 @@ class _WithdrawalManagementScreenState extends State<WithdrawalManagementScreen>
 class _StatsBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<WithdrawalManagementProvider>(
       builder: (_, p, __) {
         final stats = p.stats;
@@ -152,7 +154,7 @@ class _StatsBanner extends StatelessWidget {
               const Icon(Icons.schedule, size: 16, color: Colors.orange),
               const SizedBox(width: 6),
               Text(
-                '${stats.pendingCount} yêu cầu chờ duyệt',
+                l10n.withdrawalStatsPendingCount(stats.pendingCount),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -186,12 +188,12 @@ class _FilterBar extends StatelessWidget {
     required this.onSearch,
   });
 
-  static const _statuses = [
-    ('Tất cả', null),
-    ('Chờ duyệt', 'PENDING'),
-    ('Đang xác nhận', 'CONFIRMING'),
-    ('Hoàn thành', 'COMPLETED'),
-    ('Thất bại', 'FAILED'),
+  static List<(String, String?)> _statuses(AppLocalizations l10n) => [
+    (l10n.adminFilterAll, null),
+    (l10n.withdrawalStatusPending, 'PENDING'),
+    (l10n.withdrawalStatusConfirming, 'CONFIRMING'),
+    (l10n.withdrawalStatusCompleted, 'COMPLETED'),
+    (l10n.withdrawalStatusFailed, 'FAILED'),
   ];
 
   static const _chains = [
@@ -204,6 +206,7 @@ class _FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: Column(
@@ -213,7 +216,7 @@ class _FilterBar extends StatelessWidget {
             controller: searchController,
             onChanged: onSearch,
             decoration: InputDecoration(
-              hintText: 'Tìm theo email, địa chỉ, txId...',
+              hintText: l10n.withdrawalSearchHint,
               prefixIcon: const Icon(Icons.search_outlined),
               isDense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -227,7 +230,7 @@ class _FilterBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Trạng thái',
+                    l10n.status,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
@@ -237,7 +240,7 @@ class _FilterBar extends StatelessWidget {
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
-                    children: _statuses.map((s) {
+                    children: _statuses(l10n).map((s) {
                       final sel = p.filterStatus == s.$2;
                       return FilterChip(
                         label: Text(s.$1),
@@ -258,7 +261,7 @@ class _FilterBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Mạng',
+                    l10n.withdrawalNetworkLabel,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w600,
@@ -304,6 +307,7 @@ class _WithdrawalList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<WithdrawalManagementProvider>(
       builder: (_, p, __) {
         if (p.isLoading && p.withdrawals.isEmpty) {
@@ -323,20 +327,20 @@ class _WithdrawalList extends StatelessWidget {
                     search: p.filterSearch,
                     page: 1,
                   ),
-                  child: const Text('Thử lại'),
+                  child: Text(AppLocalizations.of(context).retry),
                 ),
               ],
             ),
           );
         }
         if (p.withdrawals.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 12),
-                Text('Không có yêu cầu rút tiền', style: TextStyle(color: Colors.grey)),
+                const Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                const SizedBox(height: 12),
+                Text(l10n.withdrawalNoRequests, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           );
@@ -378,6 +382,7 @@ class _WithdrawalList extends StatelessWidget {
                     final w = p.withdrawals[i];
                     return _WithdrawalTile(
                       withdrawal: w,
+                      l10n: l10n,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -410,12 +415,13 @@ class _WithdrawalList extends StatelessWidget {
 class _WithdrawalTile extends StatelessWidget {
   final AdminWithdrawalModel withdrawal;
   final VoidCallback onTap;
+  final AppLocalizations l10n;
 
-  const _WithdrawalTile({required this.withdrawal, required this.onTap});
+  const _WithdrawalTile({required this.withdrawal, required this.onTap, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
-    final (statusColor, statusLabel) = _statusInfo(withdrawal.status);
+    final (statusColor, statusLabel) = _statusInfo(l10n, withdrawal.status);
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -473,16 +479,16 @@ class _WithdrawalTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _statusInfo(String s) {
+  (Color, String) _statusInfo(AppLocalizations l10n, String s) {
     switch (s) {
       case 'COMPLETED':
-        return (Colors.green, 'Hoàn thành');
+        return (Colors.green, l10n.withdrawalStatusCompleted);
       case 'CONFIRMING':
-        return (Colors.blue, 'Đang xác nhận');
+        return (Colors.blue, l10n.withdrawalStatusConfirming);
       case 'PENDING':
-        return (Colors.orange, 'Chờ duyệt');
+        return (Colors.orange, l10n.withdrawalStatusPending);
       case 'FAILED':
-        return (Colors.red, 'Thất bại');
+        return (Colors.red, l10n.withdrawalStatusFailed);
       default:
         return (Colors.grey, s);
     }

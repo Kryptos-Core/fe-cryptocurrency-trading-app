@@ -191,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Chủ đề',
+                            l10n.settingsTheme,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -199,21 +199,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(height: 12),
                           // Light / System / Dark toggle
                           SegmentedButton<ThemeMode>(
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: ThemeMode.light,
-                                icon: Icon(Icons.light_mode_outlined),
-                                label: Text('Sáng'),
+                                icon: const Icon(Icons.light_mode_outlined),
+                                label: Text(l10n.settingsThemeLight),
                               ),
                               ButtonSegment(
                                 value: ThemeMode.system,
-                                icon: Icon(Icons.auto_mode_outlined),
-                                label: Text('Hệ thống'),
+                                icon: const Icon(Icons.auto_mode_outlined),
+                                label: Text(l10n.settingsThemeSystem),
                               ),
                               ButtonSegment(
                                 value: ThemeMode.dark,
-                                icon: Icon(Icons.dark_mode_outlined),
-                                label: Text('Tối'),
+                                icon: const Icon(Icons.dark_mode_outlined),
+                                label: Text(l10n.settingsThemeDark),
                               ),
                             ],
                             selected: {themeProvider.themeMode},
@@ -222,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Màu chủ đề',
+                            l10n.settingsSeedColor,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),

@@ -41,7 +41,7 @@ Future<String?> _showSweepDialog(
             title: Text(l10n.treasurySweepDialogTitle),
             content: mainWallets.isEmpty
                 ? Text(
-                    'No main wallets configured for ${wallet.chain}. Sweep will use default.',
+                    l10n.treasuryNoMainWallets(wallet.chain),
                     style: const TextStyle(fontSize: 12),
                   )
                 : Column(

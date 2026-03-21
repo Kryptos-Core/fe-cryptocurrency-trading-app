@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Snackbar type for styling (replaces ToastType).
 enum SnackBarType { success, error, warning, info }
@@ -100,7 +101,7 @@ void showAppSnackBar(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         minimumSize: const Size(48, 32),
                       ),
-                      child: const Text('OK'),
+                      child: Text(AppLocalizations.of(context).snackbarOk),
                     ),
                   ],
                 ),

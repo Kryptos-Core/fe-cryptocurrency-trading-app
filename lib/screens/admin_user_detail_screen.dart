@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -119,7 +120,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
         if (auth.canManageWallets)
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Làm mới',
+            tooltip: AppLocalizations.of(context).refresh,
             onPressed: () {
               final p = context.read<AdminUsersProvider>();
               p.fetchSelectedUserWallets();
@@ -133,12 +134,12 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        tabs: const [
-          Tab(icon: Icon(Icons.account_balance_wallet_outlined), text: 'Ví'),
-          Tab(icon: Icon(Icons.swap_vert), text: 'Nạp/Rút'),
-          Tab(icon: Icon(Icons.list_alt_outlined), text: 'Lệnh'),
-          Tab(icon: Icon(Icons.link), text: 'Giao dịch'),
-          Tab(icon: Icon(Icons.history_edu), text: 'Thay đổi TT'),
+        tabs: [
+          Tab(icon: const Icon(Icons.account_balance_wallet_outlined), text: AppLocalizations.of(context).adminUserDetailTabWallets),
+          Tab(icon: const Icon(Icons.swap_vert), text: AppLocalizations.of(context).adminUserDetailTabAdjust),
+          Tab(icon: const Icon(Icons.list_alt_outlined), text: AppLocalizations.of(context).adminUserDetailTabOrders),
+          Tab(icon: const Icon(Icons.link), text: AppLocalizations.of(context).adminUserDetailTabOnchain),
+          Tab(icon: const Icon(Icons.history_edu), text: AppLocalizations.of(context).adminUserDetailTabSecurity),
         ],
       ),
     );
@@ -234,7 +235,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text('Ngày tạo: $dateStr',
+                    Text('${AppLocalizations.of(context).adminUserDetailCreatedAtLabel}: $dateStr',
                         style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant)),
                   ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// Debug screen to verify JWT user and token info
 class WalletDebugScreen extends StatelessWidget {
@@ -6,9 +7,10 @@ class WalletDebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wallet Debug Info'),
+        title: Text(l10n.walletDebugTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

@@ -28,6 +28,7 @@
   "submit": "Submit",
   "back": "Back",
   "close": "Close",
+  "dismiss": "Skip",
   "search": "Search",
   "noMarkets": "No markets",
   "noWallets": "No wallets",
@@ -122,6 +123,7 @@
   "orderPlacedSuccess": "Order placed successfully",
   "insufficientBalance": "Insufficient balance",
   "tradingPair": "Trading pair",
+  "ordersPayosUsdtHint": "PayOS deposits are credited as USDT in your spot wallet (not VND). To buy, pick a pair quoted in USDT (e.g. BTC/USDT). A pair like …/USDC needs USDC balance.",
   "recentTrades": "Recent trades",
   "youWillReceive": "You will receive",
   "estimatedFee": "Estimated fee",
@@ -130,6 +132,77 @@
   "orderFundsTo": "To wallet",
   "orderInsufficientBase": "Insufficient base balance. Available",
   "orderInsufficientQuote": "Insufficient quote balance. Available",
+  "ordersSelectPairFirst": "Please select a trading pair first.",
+  "ordersMyOrdersWithCount": "My orders ({count})",
+  "@ordersMyOrdersWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myOrdersEmpty": "You have no orders yet",
+  "amountMustBePositive": "Amount must be a positive number",
+  "priceMustBePositive": "Price must be a positive number",
+  "amountMaxDecimals": "Amount supports up to {n} decimal places",
+  "@amountMaxDecimals": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "priceMaxDecimals": "Price supports up to {n} decimal places",
+  "@priceMaxDecimals": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "orderColumnSide": "Side",
+  "orderColumnTime": "Time",
+  "orderBookColumnSize": "Size",
+  "orderBookColumnCount": "Count",
+  "tickerBid": "Bid",
+  "tickerAsk": "Ask",
+  "ticker24hHigh": "24h H",
+  "ticker24hLow": "24h L",
+  "tickerVolume": "Vol",
+  "marketPriceAbbrev": "MKT",
+  "orderFilledQuantity": "Filled",
+  "maxAmountButton": "MAX",
+  "priceHintExample": "e.g. 50000.00",
+  "amountHintExample": "e.g. 0.01",
+  "orderStatusOpen": "Open",
+  "orderStatusPartial": "Partial",
+  "orderStatusFilled": "Filled",
+  "orderStatusCancelled": "Cancelled",
+  "orderStatusRejected": "Rejected",
+  "timeSecondsShort": "{count}s",
+  "@timeSecondsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeMinutesShort": "{count}m",
+  "@timeMinutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursShort": "{count}h",
+  "@timeHoursShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "syncBinance": "Sync Binance",
   "syncBinanceDescription": "Sync currencies and market pairs from Binance into the app database",
   "manualResyncBinance": "Manual re-sync from Binance",
@@ -170,6 +243,22 @@
   "payosPaymentUpdated": "Payment successful. Balance and history have been updated.",
   "payosOrderProcessing": "Order is being processed. The system will auto-update when PayOS webhook arrives.",
   "payosNeedFiatTitle": "Need fiat deposit instead?",
+  "payosTransitioningBanner": "Payment method is being updated{grace}. Please wait before creating a new transaction.",
+  "@payosTransitioningBanner": {
+    "placeholders": {
+      "grace": {
+        "type": "String"
+      }
+    }
+  },
+  "payosTransitioningGraceMinutes": " (~{minutes} min)",
+  "@payosTransitioningGraceMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "payosNeedFiatDesc": "Use PayOS to top up VND, then return to trade or transfer funds.",
   "openOnchainWalletFlow": "Open On-chain Wallet Flow",
 
@@ -471,6 +560,18 @@
   "drawerManualResyncComingSoon": "Manual exchange re-sync — coming soon",
   "drawerSecurityRequests": "Security requests",
   "drawerSecuritySubtitle": "Approve/reject email & password changes",
+  "drawerTransactionMonitoring": "Transaction monitoring",
+  "drawerTransactionMonitoringSubtitle": "Orders · Deposits · Withdrawals",
+  "drawerCoinManagement": "Coin management",
+  "drawerCoinManagementSubtitleCrud": "CRUD · Status toggle",
+  "drawerCoinManagementSubtitleView": "View coin catalog",
+  "drawerPaymentConfig": "Payment configuration",
+  "drawerPaymentConfigSubtitle": "PayOS · Blockchain · Hot wallet",
+  "drawerWithdrawalManagement": "Withdrawal management",
+  "drawerWithdrawalManagementSubtitle": "Approve · Reject · History",
+  "adminTabOrders": "Orders",
+  "adminTabDeposits": "Deposits",
+  "adminTabWithdrawals": "Withdrawals",
   "authRequiredTitle": "Sign in required",
   "authRequiredSubtitle": "Please sign in to access this feature.",
   "createAccount": "Create Account",
@@ -797,5 +898,222 @@
       "sellPrice": { "type": "String" }
     }
   },
-  "marketMakerPlaceOrdersFormHint": "Uses the saved configuration for the selected pair. Override amount or idempotency key if needed."
+  "marketMakerPlaceOrdersFormHint": "Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.",
+
+  "filterByUserId": "Filter by User ID...",
+  "adminFilterAll": "All",
+  "adminUserLabel": "User",
+  "adminOrderCodeLabel": "Order code",
+  "adminTxHashLabel": "TX",
+  "adminRetryButton": "Retry",
+  "adminOrdersCountLabel": "orders",
+  "adminDepositsCountLabel": "transactions",
+  "adminWithdrawalsCountLabel": "transactions",
+  "adminShowingCount": "Showing {shown} / {total} {label}",
+  "@adminShowingCount": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" },
+      "label": { "type": "String" }
+    }
+  },
+  "adminOrdersEmpty": "No orders",
+  "adminDepositsEmpty": "No deposit transactions",
+  "adminWithdrawalsEmpty": "No withdrawal transactions",
+  "adminOrderPriceLabel": "Price",
+  "depositStatusPaid": "Paid",
+  "depositStatusPending": "Pending",
+  "depositStatusCancelled": "Cancelled",
+  "withdrawalStatusCompleted": "Completed",
+  "withdrawalStatusConfirming": "Confirming",
+  "withdrawalStatusPending": "Pending",
+  "withdrawalStatusFailed": "Failed",
+
+  "withdrawalDetailTitle": "Withdrawal details",
+  "withdrawalNotFound": "Not found",
+  "withdrawalApprovedSnack": "Approved",
+  "withdrawalRejectedSnack": "Rejected",
+  "withdrawalApproveButton": "Approve",
+  "withdrawalRejectButton": "Reject",
+  "withdrawalRejectDialogTitle": "Reject withdrawal request",
+  "withdrawalRejectReasonHint": "Rejection reason (optional)",
+  "withdrawalNetworkLabel": "Network",
+  "withdrawalAmountLabel": "Amount",
+  "withdrawalDestinationLabel": "Destination address",
+  "withdrawalTimeLabel": "Time",
+  "withdrawalTxHashLabel": "TX Hash",
+  "withdrawalUserInfoTitle": "User info",
+  "withdrawalTransactionTitle": "Transaction",
+  "withdrawalBalanceLabel": "Balance",
+  "withdrawalStatusLabel": "Status",
+  "withdrawalStatusRequested": "Requested",
+  "withdrawalStatusApproved": "Approved",
+  "withdrawalStatusSent": "Sent on-chain",
+  "withdrawalStatusCompleted": "Completed",
+  "withdrawalStatusRejected": "Rejected",
+  "withdrawalManagementTabPending": "Pending",
+  "withdrawalManagementTabAll": "All",
+  "withdrawalStatsPendingCount": "{count} pending",
+  "@withdrawalStatsPendingCount": { "placeholders": { "count": { "type": "int" } } },
+  "withdrawalApproveAllProcess": "Process",
+
+  "withdrawalManagementTitle": "Withdrawal management",
+  "withdrawalApproveAllSmallTitle": "Approve all (small)",
+  "withdrawalApproveAllSmallContent": "Approve all pending withdrawals below the configured threshold.",
+  "withdrawalProcessedSnack": "Processing complete",
+  "withdrawalSearchHint": "Search by email, address, txId...",
+  "withdrawalNoRequests": "No withdrawal requests",
+
+  "adminWalletAdjustTitle": "Wallet adjustment",
+  "adminWalletAdjustDepositWithdrawTab": "Deposit / Withdraw",
+  "adminWalletAdjustHistoryTab": "History",
+  "adminWalletAdjustUseUserMgmt": "Recommended: User management",
+  "adminWalletAdjustUseUserMgmtSubtitle": "Go to User management → Select user → Deposit/Withdraw for a better experience.",
+  "adminWalletAdjustOpen": "Open",
+  "adminWalletAdjustSelectUserHint": "Select user...",
+  "adminWalletAdjustAmountLabel": "Amount",
+  "adminWalletAdjustNoteLabel": "Note (optional)",
+  "adminWalletAdjustAmountRequired": "Please enter amount",
+  "adminWalletAdjustAmountInvalid": "Invalid amount (max 18 decimal places)",
+  "adminWalletAdjustAmountMustBePositive": "Amount must be greater than 0",
+  "adminWalletAdjustSuccessDeposit": "Deposit successful!",
+  "adminWalletAdjustSuccessWithdraw": "Withdraw successful!",
+  "adminWalletAdjustSelectUserRequired": "Please select a user",
+  "adminWalletAdjustUsdtNotFound": "USDT wallet not found. Please try again later.",
+  "adminWalletAdjustError": "An error occurred. Please try again.",
+  "adminWalletAdjustUserIdRequired": "Please enter User ID",
+  "adminWalletAdjustOperationType": "Operation type",
+  "adminWalletAdjustInfo": "Adjustment info",
+  "adminWalletAdjustAmountHint": "0.00",
+  "adminWalletAdjustReasonHint": "Adjustment reason...",
+  "adminWalletAdjustDepositTab": "Deposit",
+  "adminWalletAdjustWithdrawTab": "Withdraw",
+  "adminWalletPlatformCash": "Wallets (Platform Cash)",
+  "adminWalletSearchUserIdHint": "Enter user UUID",
+  "adminWalletSearchButton": "Search",
+  "adminWalletSearchByUserList": "Search via user list",
+  "adminWalletNoAdjustmentHistory": "No adjustment history",
+  "adminWalletTargetLabel": "Recipient",
+  "adminWalletActorLabel": "Performed by",
+  "adminWalletPlatformCashInfo": "USDT — Balance will be deposited/withdrawn to fixed virtual wallet",
+  "adminWalletLoading": "Loading...",
+  "adminWalletAdjustProcessing": "Processing...",
+  "adminWalletAdjustDepositBalance": "Deposit balance",
+  "adminWalletAdjustWithdrawBalance": "Withdraw balance",
+  "adminWalletHistoryUserIdLabel": "User ID",
+
+  "adminUserDetailCreatedAt": "Created",
+  "adminUserDetailNoWallets": "User has no wallets",
+  "adminUserDetailNoAdjustmentHistory": "No adjustment history",
+  "adminUserDetailNoOrders": "User has no orders",
+  "adminUserDetailNoOnchainTx": "No on-chain transactions",
+  "adminUserDetailNoChangeHistory": "No change history",
+  "adminUserDetailByLabel": "By",
+  "adminUserDetailNoteLabel": "Note",
+  "adminUserDetailReviewNoteLabel": "Review note",
+  "adminUserDetailWalletsTitle": "Wallets (Platform Cash)",
+
+  "adminCurrenciesTitle": "Coin management",
+  "adminCurrenciesSearchHint": "Search by symbol or name...",
+  "adminCurrenciesStatusLabel": "Status",
+  "adminCurrenciesTradingLabel": "Trading",
+  "adminCurrenciesFilterAll": "All",
+  "adminCurrenciesFilterActive": "Active",
+  "adminCurrenciesFilterInactive": "Inactive",
+  "adminCurrenciesFilterTradable": "Trading",
+  "adminCurrenciesFilterPaused": "Paused",
+  "adminCurrenciesNoCoinsFound": "No coins found",
+  "adminCurrenciesCreateCoin": "Create coin",
+  "adminCurrenciesDeleteCoinTitle": "Delete coin",
+  "adminCurrenciesDeleteButton": "Delete",
+  "adminCurrenciesHideButton": "Hide",
+  "adminCurrenciesEditButton": "Edit",
+  "adminCurrenciesTradingTab": "Trading",
+  "adminCurrenciesActiveTab": "Active",
+  "adminCurrenciesCreateButton": "Create",
+  "adminCurrenciesSaveButton": "Save",
+  "adminCurrenciesEditTitle": "Edit {symbol}",
+  "@adminCurrenciesEditTitle": { "placeholders": { "symbol": { "type": "String" } } },
+  "adminCurrenciesSymbolHint": "BTC",
+  "adminCurrenciesNameHint": "Bitcoin",
+  "adminCurrenciesScaleHint": "8",
+  "adminCurrenciesMinAmountHint": "0.001",
+
+  "adminUserListTitle": "User management",
+  "adminUserListSearchHint": "Search by email or name...",
+  "adminUserListRoleLabel": "Role",
+  "adminUserListStatusLabel": "Status",
+  "adminUserListNoUsersFound": "No users found",
+  "adminUserListRoleAll": "All",
+  "adminUserListRoleTrader": "Trader",
+  "adminUserListRoleVerified": "Verified",
+  "adminUserListRoleMarketMaker": "Market Maker",
+  "adminUserListRoleSupport": "Support",
+  "adminUserListRoleRiskOfficer": "Risk Officer",
+  "adminUserListRoleAdmin": "Admin",
+  "adminUserListStatusActive": "Active",
+  "adminUserListStatusBanned": "Banned",
+  "adminUserListStatusPending": "Pending",
+  "adminUserListTotalUsers": "Total: {count} users",
+  "@adminUserListTotalUsers": { "placeholders": { "count": { "type": "int" } } },
+  "adminUserListSelectUserPlaceholder": "Select a user to view details",
+
+  "profileSubmitRequest": "Submit request",
+  "profileNewEmailLabel": "New email",
+  "profileNewEmailHint": "Enter new email",
+
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeSystem": "System",
+  "settingsThemeDark": "Dark",
+  "settingsSeedColor": "Seed color",
+
+  "loginEmailHint": "user@example.com",
+  "loginPasswordHint": "Enter your password",
+  "loginCheckHealth": "Check connection (health)",
+  "loginConnectMetaMask": "Connect MetaMask",
+  "loginConnectTronLink": "Connect TronLink",
+
+  "homeLogoutConfirmTitle": "Logout",
+  "homeLogoutConfirmContent": "Are you sure you want to logout?",
+  "homeLogoutCancel": "Cancel",
+  "homeLogoutConfirm": "Logout",
+  "homeGoToLogin": "Go to Login",
+  "homeAppTitle": "Crypto Trading App",
+  "homeWelcomeBack": "Welcome back,",
+  "homeFailedToLoadUser": "Failed to load user",
+  "profileFirstName": "First name",
+  "profileLastName": "Last name",
+  "treasuryNoMainWallets": "No main wallets configured for {chain}. Sweep will use default.",
+  "@treasuryNoMainWallets": { "placeholders": { "chain": { "type": "String" } } },
+  "homeCryptoPlatform": "Crypto Trading Platform",
+  "homeAuthReady": "Authentication system is ready!\n\nMarket, Trading, and Wallet modules coming soon.",
+  "homeMemberSince": "Member since",
+  "homeLastUpdated": "Last updated",
+  "adminUserDetailRefresh": "Refresh",
+  "adminUserDetailTabWallets": "Wallets",
+  "adminUserDetailTabAdjust": "Deposit/Withdraw",
+  "adminUserDetailTabOrders": "Orders",
+  "adminUserDetailTabOnchain": "Transactions",
+  "adminUserDetailTabSecurity": "Security changes",
+  "adminUserDetailCreatedAtLabel": "Created at",
+
+  "snackbarOk": "OK",
+
+  "walletDebugTitle": "Wallet Debug Info",
+
+  "advancedTradingNoData": "No data",
+  "advancedTradingMacd": "MACD",
+  "advancedTradingSignal": "Signal",
+  "advancedTradingHistogram": "Histogram",
+  "advancedTradingZoomIn": "Zoom In",
+  "advancedTradingZoomOut": "Zoom Out",
+  "advancedTradingShowIndicators": "Show Indicators",
+
+  "paymentConfigClientId": "Client ID",
+  "paymentConfigApiKey": "API Key",
+  "paymentConfigChecksumKey": "Checksum Key",
+  "paymentConfigUrlHint": "https://...",
+  "paymentConfigHotWalletKey": "Hot Wallet Private Key",
+  "paymentConfigMainnet": "Mainnet"
 }

@@ -93,6 +93,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get close => 'Đóng';
 
   @override
+  String get dismiss => 'Bỏ qua';
+
+  @override
   String get search => 'Tìm kiếm';
 
   @override
@@ -376,6 +379,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tradingPair => 'Cặp giao dịch';
 
   @override
+  String get ordersPayosUsdtHint =>
+      'Nạp PayOS được cộng USDT vào ví spot (không giữ VND để khớp lệnh). Để mua, chọn cặp có đồng định giá USDT (vd. BTC/USDT). Cặp …/USDC cần số dư USDC.';
+
+  @override
   String get recentTrades => 'Giao dịch gần đây';
 
   @override
@@ -399,6 +406,105 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get orderInsufficientQuote =>
       'Không đủ số dư tài sản định giá. Khả dụng';
+
+  @override
+  String get ordersSelectPairFirst => 'Vui lòng chọn cặp giao dịch trước.';
+
+  @override
+  String ordersMyOrdersWithCount(int count) {
+    return 'Lệnh của tôi ($count)';
+  }
+
+  @override
+  String get myOrdersEmpty => 'Bạn chưa có lệnh nào';
+
+  @override
+  String get amountMustBePositive => 'Số lượng phải > 0';
+
+  @override
+  String get priceMustBePositive => 'Giá phải là số dương';
+
+  @override
+  String amountMaxDecimals(int n) {
+    return 'Số lượng tối đa $n chữ số thập phân';
+  }
+
+  @override
+  String priceMaxDecimals(int n) {
+    return 'Giá tối đa $n chữ số thập phân';
+  }
+
+  @override
+  String get orderColumnSide => 'Chiều';
+
+  @override
+  String get orderColumnTime => 'Thời gian';
+
+  @override
+  String get orderBookColumnSize => 'Khối lượng';
+
+  @override
+  String get orderBookColumnCount => 'Số lệnh';
+
+  @override
+  String get tickerBid => 'Mua';
+
+  @override
+  String get tickerAsk => 'Bán';
+
+  @override
+  String get ticker24hHigh => '24h cao';
+
+  @override
+  String get ticker24hLow => '24h thấp';
+
+  @override
+  String get tickerVolume => 'KL 24h';
+
+  @override
+  String get marketPriceAbbrev => 'MKT';
+
+  @override
+  String get orderFilledQuantity => 'Đã khớp';
+
+  @override
+  String get maxAmountButton => 'TỐI ĐA';
+
+  @override
+  String get priceHintExample => 'vd. 50000.00';
+
+  @override
+  String get amountHintExample => 'vd. 0.01';
+
+  @override
+  String get orderStatusOpen => 'Đang mở';
+
+  @override
+  String get orderStatusPartial => 'Khớp phần';
+
+  @override
+  String get orderStatusFilled => 'Đã khớp';
+
+  @override
+  String get orderStatusCancelled => 'Đã hủy';
+
+  @override
+  String get orderStatusRejected => 'Từ chối';
+
+  @override
+  String timeSecondsShort(int count) {
+    return '${count}s';
+  }
+
+  @override
+  String timeMinutesShort(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String timeHoursShort(int count) {
+    return '${count}h';
+  }
 
   @override
   String get syncBinance => 'Đồng bộ Binance';
@@ -521,6 +627,16 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get payosNeedFiatTitle => 'Muốn nạp tiền pháp định thay thế?';
+
+  @override
+  String payosTransitioningBanner(String grace) {
+    return 'Phương thức thanh toán đang được cập nhật$grace. Vui lòng chờ trước khi tạo giao dịch mới.';
+  }
+
+  @override
+  String payosTransitioningGraceMinutes(int minutes) {
+    return ' (~$minutes phút)';
+  }
 
   @override
   String get payosNeedFiatDesc =>
@@ -892,9 +1008,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get amountRequired => 'Số lượng là bắt buộc';
-
-  @override
-  String get amountMustBePositive => 'Số lượng phải > 0';
 
   @override
   String get depositPreviewLinked =>
@@ -1279,6 +1392,42 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get drawerSecuritySubtitle =>
       'Duyệt/từ chối yêu cầu đổi email & mật khẩu';
+
+  @override
+  String get drawerTransactionMonitoring => 'Giám sát giao dịch';
+
+  @override
+  String get drawerTransactionMonitoringSubtitle => 'Lệnh · Nạp · Rút';
+
+  @override
+  String get drawerCoinManagement => 'Quản lý coin';
+
+  @override
+  String get drawerCoinManagementSubtitleCrud => 'CRUD · Bật/tắt trạng thái';
+
+  @override
+  String get drawerCoinManagementSubtitleView => 'Xem danh sách coin';
+
+  @override
+  String get drawerPaymentConfig => 'Cấu hình thanh toán';
+
+  @override
+  String get drawerPaymentConfigSubtitle => 'PayOS · Blockchain · Hot wallet';
+
+  @override
+  String get drawerWithdrawalManagement => 'Quản lý rút tiền';
+
+  @override
+  String get drawerWithdrawalManagementSubtitle => 'Duyệt · Từ chối · Lịch sử';
+
+  @override
+  String get adminTabOrders => 'Lệnh';
+
+  @override
+  String get adminTabDeposits => 'Nạp tiền';
+
+  @override
+  String get adminTabWithdrawals => 'Rút tiền';
 
   @override
   String get authRequiredTitle => 'Yêu cầu đăng nhập';
@@ -2122,4 +2271,592 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get marketMakerPlaceOrdersFormHint =>
       'Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.';
+
+  @override
+  String get filterByUserId => 'Lọc theo User ID...';
+
+  @override
+  String get adminFilterAll => 'Tất cả';
+
+  @override
+  String get adminUserLabel => 'User';
+
+  @override
+  String get adminOrderCodeLabel => 'Mã đơn';
+
+  @override
+  String get adminTxHashLabel => 'TX';
+
+  @override
+  String get adminRetryButton => 'Thử lại';
+
+  @override
+  String get adminOrdersCountLabel => 'lệnh';
+
+  @override
+  String get adminDepositsCountLabel => 'giao dịch';
+
+  @override
+  String get adminWithdrawalsCountLabel => 'giao dịch';
+
+  @override
+  String adminShowingCount(int shown, int total, String label) {
+    return 'Đang hiển thị $shown / $total $label';
+  }
+
+  @override
+  String get adminOrdersEmpty => 'Không có lệnh nào';
+
+  @override
+  String get adminDepositsEmpty => 'Không có giao dịch nạp tiền nào';
+
+  @override
+  String get adminWithdrawalsEmpty => 'Không có giao dịch rút tiền nào';
+
+  @override
+  String get adminOrderPriceLabel => 'Giá';
+
+  @override
+  String get depositStatusPaid => 'Đã thanh toán';
+
+  @override
+  String get depositStatusPending => 'Chờ xử lý';
+
+  @override
+  String get depositStatusCancelled => 'Đã hủy';
+
+  @override
+  String get withdrawalStatusCompleted => 'Hoàn thành';
+
+  @override
+  String get withdrawalStatusConfirming => 'Đang xác nhận';
+
+  @override
+  String get withdrawalStatusPending => 'Đang chờ';
+
+  @override
+  String get withdrawalStatusFailed => 'Thất bại';
+
+  @override
+  String get withdrawalDetailTitle => 'Chi tiết rút tiền';
+
+  @override
+  String get withdrawalNotFound => 'Không tìm thấy';
+
+  @override
+  String get withdrawalApprovedSnack => 'Đã duyệt';
+
+  @override
+  String get withdrawalRejectedSnack => 'Đã từ chối';
+
+  @override
+  String get withdrawalApproveButton => 'Duyệt';
+
+  @override
+  String get withdrawalRejectButton => 'Từ chối';
+
+  @override
+  String get withdrawalRejectDialogTitle => 'Từ chối yêu cầu rút tiền';
+
+  @override
+  String get withdrawalRejectReasonHint => 'Lý do từ chối (tùy chọn)';
+
+  @override
+  String get withdrawalNetworkLabel => 'Mạng';
+
+  @override
+  String get withdrawalAmountLabel => 'Số lượng';
+
+  @override
+  String get withdrawalDestinationLabel => 'Địa chỉ đích';
+
+  @override
+  String get withdrawalTimeLabel => 'Thời gian';
+
+  @override
+  String get withdrawalTxHashLabel => 'TX Hash';
+
+  @override
+  String get withdrawalUserInfoTitle => 'Thông tin người dùng';
+
+  @override
+  String get withdrawalTransactionTitle => 'Giao dịch';
+
+  @override
+  String get withdrawalBalanceLabel => 'Số dư';
+
+  @override
+  String get withdrawalStatusLabel => 'Trạng thái';
+
+  @override
+  String get withdrawalStatusRequested => 'Yêu cầu';
+
+  @override
+  String get withdrawalStatusApproved => 'Duyệt';
+
+  @override
+  String get withdrawalStatusSent => 'Gửi on-chain';
+
+  @override
+  String get withdrawalStatusRejected => 'Từ chối';
+
+  @override
+  String get withdrawalManagementTabPending => 'Chờ duyệt';
+
+  @override
+  String get withdrawalManagementTabAll => 'Tất cả';
+
+  @override
+  String withdrawalStatsPendingCount(int count) {
+    return '$count yêu cầu chờ duyệt';
+  }
+
+  @override
+  String get withdrawalApproveAllProcess => 'Xử lý';
+
+  @override
+  String get withdrawalManagementTitle => 'Quản lý rút tiền';
+
+  @override
+  String get withdrawalApproveAllSmallTitle => 'Duyệt tất cả nhỏ';
+
+  @override
+  String get withdrawalApproveAllSmallContent =>
+      'Duyệt tất cả yêu cầu rút tiền đang chờ dưới ngưỡng cấu hình.';
+
+  @override
+  String get withdrawalProcessedSnack => 'Đã xử lý xong';
+
+  @override
+  String get withdrawalSearchHint => 'Tìm theo email, địa chỉ, txId...';
+
+  @override
+  String get withdrawalNoRequests => 'Không có yêu cầu rút tiền';
+
+  @override
+  String get adminWalletAdjustTitle => 'Điều chỉnh ví';
+
+  @override
+  String get adminWalletAdjustDepositWithdrawTab => 'Nạp / Rút';
+
+  @override
+  String get adminWalletAdjustHistoryTab => 'Lịch sử';
+
+  @override
+  String get adminWalletAdjustUseUserMgmt => 'Nên dùng: Quản lý người dùng';
+
+  @override
+  String get adminWalletAdjustUseUserMgmtSubtitle =>
+      'Vào mục Quản lý người dùng → Chọn user → Nạp/Rút để có trải nghiệm tốt hơn.';
+
+  @override
+  String get adminWalletAdjustOpen => 'Mở';
+
+  @override
+  String get adminWalletAdjustSelectUserHint => 'Chọn người dùng...';
+
+  @override
+  String get adminWalletAdjustAmountLabel => 'Số tiền';
+
+  @override
+  String get adminWalletAdjustNoteLabel => 'Ghi chú (tuỳ chọn)';
+
+  @override
+  String get adminWalletAdjustAmountRequired => 'Vui lòng nhập số tiền';
+
+  @override
+  String get adminWalletAdjustAmountInvalid =>
+      'Số tiền không hợp lệ (tối đa 18 chữ số thập phân)';
+
+  @override
+  String get adminWalletAdjustAmountMustBePositive => 'Số tiền phải lớn hơn 0';
+
+  @override
+  String get adminWalletAdjustSuccessDeposit => 'Nạp số dư thành công!';
+
+  @override
+  String get adminWalletAdjustSuccessWithdraw => 'Rút số dư thành công!';
+
+  @override
+  String get adminWalletAdjustSelectUserRequired => 'Vui lòng chọn người dùng';
+
+  @override
+  String get adminWalletAdjustUsdtNotFound =>
+      'Không tìm thấy ví USDT. Vui lòng thử lại sau.';
+
+  @override
+  String get adminWalletAdjustError => 'Có lỗi xảy ra. Vui lòng thử lại.';
+
+  @override
+  String get adminWalletAdjustUserIdRequired => 'Vui lòng nhập User ID';
+
+  @override
+  String get adminWalletAdjustOperationType => 'Loại thao tác';
+
+  @override
+  String get adminWalletAdjustInfo => 'Thông tin điều chỉnh';
+
+  @override
+  String get adminWalletAdjustAmountHint => '0.00';
+
+  @override
+  String get adminWalletAdjustReasonHint => 'Lý do điều chỉnh...';
+
+  @override
+  String get adminWalletAdjustDepositTab => 'Nạp tiền';
+
+  @override
+  String get adminWalletAdjustWithdrawTab => 'Rút tiền';
+
+  @override
+  String get adminWalletPlatformCash => 'Ví tiền (Platform Cash)';
+
+  @override
+  String get adminWalletSearchUserIdHint => 'Nhập UUID người dùng';
+
+  @override
+  String get adminWalletSearchButton => 'Tìm';
+
+  @override
+  String get adminWalletSearchByUserList => 'Tìm qua danh sách người dùng';
+
+  @override
+  String get adminWalletNoAdjustmentHistory => 'Chưa có lịch sử điều chỉnh';
+
+  @override
+  String get adminWalletTargetLabel => 'Người nhận';
+
+  @override
+  String get adminWalletActorLabel => 'Thực hiện bởi';
+
+  @override
+  String get adminWalletPlatformCashInfo =>
+      'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định';
+
+  @override
+  String get adminWalletLoading => 'Đang tải...';
+
+  @override
+  String get adminWalletAdjustProcessing => 'Đang xử lý...';
+
+  @override
+  String get adminWalletAdjustDepositBalance => 'Nạp số dư';
+
+  @override
+  String get adminWalletAdjustWithdrawBalance => 'Rút số dư';
+
+  @override
+  String get adminWalletHistoryUserIdLabel => 'User ID';
+
+  @override
+  String get adminUserDetailCreatedAt => 'Ngày tạo';
+
+  @override
+  String get adminUserDetailNoWallets => 'Người dùng chưa có ví nào';
+
+  @override
+  String get adminUserDetailNoAdjustmentHistory =>
+      'Chưa có lịch sử điều chỉnh nào';
+
+  @override
+  String get adminUserDetailNoOrders => 'Người dùng chưa có lệnh nào';
+
+  @override
+  String get adminUserDetailNoOnchainTx => 'Không có giao dịch onchain nào';
+
+  @override
+  String get adminUserDetailNoChangeHistory => 'Không có lịch sử thay đổi nào';
+
+  @override
+  String get adminUserDetailByLabel => 'Bởi';
+
+  @override
+  String get adminUserDetailNoteLabel => 'Ghi chú';
+
+  @override
+  String get adminUserDetailReviewNoteLabel => 'Ghi chú duyệt';
+
+  @override
+  String get adminUserDetailWalletsTitle => 'Ví tiền (Platform Cash)';
+
+  @override
+  String get adminCurrenciesTitle => 'Quản lý coin';
+
+  @override
+  String get adminCurrenciesSearchHint => 'Tìm theo symbol hoặc tên...';
+
+  @override
+  String get adminCurrenciesStatusLabel => 'Trạng thái';
+
+  @override
+  String get adminCurrenciesTradingLabel => 'Giao dịch';
+
+  @override
+  String get adminCurrenciesFilterAll => 'Tất cả';
+
+  @override
+  String get adminCurrenciesFilterActive => 'Hoạt động';
+
+  @override
+  String get adminCurrenciesFilterInactive => 'Không HĐ';
+
+  @override
+  String get adminCurrenciesFilterTradable => 'Đang GD';
+
+  @override
+  String get adminCurrenciesFilterPaused => 'Tạm dừng';
+
+  @override
+  String get adminCurrenciesNoCoinsFound => 'Không tìm thấy coin nào';
+
+  @override
+  String get adminCurrenciesCreateCoin => 'Tạo coin';
+
+  @override
+  String get adminCurrenciesDeleteCoinTitle => 'Xoá coin';
+
+  @override
+  String get adminCurrenciesDeleteButton => 'Xoá';
+
+  @override
+  String get adminCurrenciesHideButton => 'Ẩn';
+
+  @override
+  String get adminCurrenciesEditButton => 'Chỉnh sửa';
+
+  @override
+  String get adminCurrenciesTradingTab => 'Giao dịch';
+
+  @override
+  String get adminCurrenciesActiveTab => 'Hoạt động';
+
+  @override
+  String get adminCurrenciesCreateButton => 'Tạo';
+
+  @override
+  String get adminCurrenciesSaveButton => 'Lưu';
+
+  @override
+  String adminCurrenciesEditTitle(String symbol) {
+    return 'Chỉnh sửa $symbol';
+  }
+
+  @override
+  String get adminCurrenciesSymbolHint => 'BTC';
+
+  @override
+  String get adminCurrenciesNameHint => 'Bitcoin';
+
+  @override
+  String get adminCurrenciesScaleHint => '8';
+
+  @override
+  String get adminCurrenciesMinAmountHint => '0.001';
+
+  @override
+  String get adminUserListTitle => 'Quản lý người dùng';
+
+  @override
+  String get adminUserListSearchHint => 'Tìm theo email hoặc tên...';
+
+  @override
+  String get adminUserListRoleLabel => 'Role';
+
+  @override
+  String get adminUserListStatusLabel => 'Trạng thái';
+
+  @override
+  String get adminUserListNoUsersFound => 'Không tìm thấy người dùng';
+
+  @override
+  String get adminUserListRoleAll => 'Tất cả';
+
+  @override
+  String get adminUserListRoleTrader => 'Trader';
+
+  @override
+  String get adminUserListRoleVerified => 'Verified';
+
+  @override
+  String get adminUserListRoleMarketMaker => 'Market Maker';
+
+  @override
+  String get adminUserListRoleSupport => 'Support';
+
+  @override
+  String get adminUserListRoleRiskOfficer => 'Risk Officer';
+
+  @override
+  String get adminUserListRoleAdmin => 'Admin';
+
+  @override
+  String get adminUserListStatusActive => 'Hoạt động';
+
+  @override
+  String get adminUserListStatusBanned => 'Bị khoá';
+
+  @override
+  String get adminUserListStatusPending => 'Chờ duyệt';
+
+  @override
+  String adminUserListTotalUsers(int count) {
+    return 'Tổng: $count người dùng';
+  }
+
+  @override
+  String get adminUserListSelectUserPlaceholder =>
+      'Chọn một người dùng để xem chi tiết';
+
+  @override
+  String get profileSubmitRequest => 'Gửi yêu cầu';
+
+  @override
+  String get profileNewEmailLabel => 'Email mới';
+
+  @override
+  String get profileNewEmailHint => 'Nhập email mới';
+
+  @override
+  String get settingsTheme => 'Chủ đề';
+
+  @override
+  String get settingsThemeLight => 'Sáng';
+
+  @override
+  String get settingsThemeSystem => 'Hệ thống';
+
+  @override
+  String get settingsThemeDark => 'Tối';
+
+  @override
+  String get settingsSeedColor => 'Màu chủ đề';
+
+  @override
+  String get loginEmailHint => 'user@example.com';
+
+  @override
+  String get loginPasswordHint => 'Nhập mật khẩu';
+
+  @override
+  String get loginCheckHealth => 'Kiểm tra kết nối (health)';
+
+  @override
+  String get loginConnectMetaMask => 'Kết nối MetaMask';
+
+  @override
+  String get loginConnectTronLink => 'Kết nối TronLink';
+
+  @override
+  String get homeLogoutConfirmTitle => 'Đăng xuất';
+
+  @override
+  String get homeLogoutConfirmContent => 'Bạn có chắc muốn đăng xuất?';
+
+  @override
+  String get homeLogoutCancel => 'Hủy';
+
+  @override
+  String get homeLogoutConfirm => 'Đăng xuất';
+
+  @override
+  String get homeGoToLogin => 'Đến trang đăng nhập';
+
+  @override
+  String get homeAppTitle => 'Crypto Trading App';
+
+  @override
+  String get homeWelcomeBack => 'Chào mừng trở lại,';
+
+  @override
+  String get homeFailedToLoadUser => 'Không tải được thông tin người dùng';
+
+  @override
+  String get profileFirstName => 'Tên';
+
+  @override
+  String get profileLastName => 'Họ';
+
+  @override
+  String treasuryNoMainWallets(String chain) {
+    return 'Chưa cấu hình ví chính cho $chain. Sweep sẽ dùng mặc định.';
+  }
+
+  @override
+  String get homeCryptoPlatform => 'Nền tảng Crypto Trading';
+
+  @override
+  String get homeAuthReady =>
+      'Hệ thống xác thực đã sẵn sàng!\n\nMô-đun Thị trường, Giao dịch và Ví sẽ sớm ra mắt.';
+
+  @override
+  String get homeMemberSince => 'Thành viên từ';
+
+  @override
+  String get homeLastUpdated => 'Cập nhật lần cuối';
+
+  @override
+  String get adminUserDetailRefresh => 'Làm mới';
+
+  @override
+  String get adminUserDetailTabWallets => 'Ví';
+
+  @override
+  String get adminUserDetailTabAdjust => 'Nạp/Rút';
+
+  @override
+  String get adminUserDetailTabOrders => 'Lệnh';
+
+  @override
+  String get adminUserDetailTabOnchain => 'Giao dịch';
+
+  @override
+  String get adminUserDetailTabSecurity => 'Thay đổi TT';
+
+  @override
+  String get adminUserDetailCreatedAtLabel => 'Ngày tạo';
+
+  @override
+  String get snackbarOk => 'OK';
+
+  @override
+  String get walletDebugTitle => 'Thông tin debug ví';
+
+  @override
+  String get advancedTradingNoData => 'Không có dữ liệu';
+
+  @override
+  String get advancedTradingMacd => 'MACD';
+
+  @override
+  String get advancedTradingSignal => 'Signal';
+
+  @override
+  String get advancedTradingHistogram => 'Histogram';
+
+  @override
+  String get advancedTradingZoomIn => 'Phóng to';
+
+  @override
+  String get advancedTradingZoomOut => 'Thu nhỏ';
+
+  @override
+  String get advancedTradingShowIndicators => 'Hiện chỉ báo';
+
+  @override
+  String get paymentConfigClientId => 'Client ID';
+
+  @override
+  String get paymentConfigApiKey => 'API Key';
+
+  @override
+  String get paymentConfigChecksumKey => 'Checksum Key';
+
+  @override
+  String get paymentConfigUrlHint => 'https://...';
+
+  @override
+  String get paymentConfigHotWalletKey => 'Hot Wallet Private Key';
+
+  @override
+  String get paymentConfigMainnet => 'Mainnet';
 }

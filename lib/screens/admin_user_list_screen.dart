@@ -3,26 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'admin_user_detail_screen.dart';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const _kRoles = [
-  ('Tất cả', null),
-  ('Trader', 'TRADER'),
-  ('Verified', 'VERIFIED_USER'),
-  ('Market Maker', 'MARKET_MAKER'),
-  ('Support', 'SUPPORT_AGENT'),
-  ('Risk Officer', 'RISK_OFFICER'),
-  ('Admin', 'ADMIN'),
+List<(String, String?)> _roles(AppLocalizations l10n) => [
+  (l10n.adminUserListRoleAll, null),
+  (l10n.adminUserListRoleTrader, 'TRADER'),
+  (l10n.adminUserListRoleVerified, 'VERIFIED_USER'),
+  (l10n.adminUserListRoleMarketMaker, 'MARKET_MAKER'),
+  (l10n.adminUserListRoleSupport, 'SUPPORT_AGENT'),
+  (l10n.adminUserListRoleRiskOfficer, 'RISK_OFFICER'),
+  (l10n.adminUserListRoleAdmin, 'ADMIN'),
 ];
 
-const _kStatuses = [
-  ('Tất cả', null),
-  ('Hoạt động', 'ACTIVE'),
-  ('Bị khoá', 'BANNED'),
-  ('Chờ duyệt', 'PENDING'),
+List<(String, String?)> _statuses(AppLocalizations l10n) => [
+  (l10n.adminFilterAll, null),
+  (l10n.adminUserListStatusActive, 'ACTIVE'),
+  (l10n.adminUserListStatusBanned, 'BANNED'),
+  (l10n.adminUserListStatusPending, 'PENDING'),
 ];
 
 // Responsive breakpoint: above this width, show master-detail side-by-side.
@@ -93,9 +94,10 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý Người dùng'),
+        title: Text(l10n.adminUserListTitle),
         actions: [
           Consumer<AdminUsersProvider>(
             builder: (_, p, __) => p.totalUsers > 0
@@ -114,9 +116,9 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= _kWideBreakpoint;
           if (isWide) {
-            return _buildMasterDetail(context);
+            return _buildMasterDetail(context, l10n);
           }
-          return _buildListPanel(context, isWide: false);
+          return _buildListPanel(context, l10n, isWide: false);
         },
       ),
     );
@@ -124,7 +126,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
 
   // ── Wide layout: list panel + inline detail ──────────────────────────────────
 
-  Widget _buildMasterDetail(BuildContext context) {
+  Widget _buildMasterDetail(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +143,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 ),
               ),
             ),
-            child: _buildListPanel(context, isWide: true),
+            child: _buildListPanel(context, l10n, isWide: true),
           ),
         ),
         // Right: detail panel
@@ -160,27 +162,28 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
 
   // ── Narrow layout: list only ──────────────────────────────────────────────
 
-  Widget _buildListPanel(BuildContext context, {required bool isWide}) {
+  Widget _buildListPanel(BuildContext context, AppLocalizations l10n, {required bool isWide}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        _buildSearchBar(colorScheme),
-        _buildFilterSection(),
+        _buildSearchBar(context, colorScheme),
+        _buildFilterSection(context, l10n),
         const Divider(height: 1),
-        _buildStatsSummary(),
-        Expanded(child: _buildUserList(isWide: isWide)),
+        _buildStatsSummary(context, l10n),
+        Expanded(child: _buildUserList(context, l10n, isWide: isWide)),
       ],
     );
   }
 
-  Widget _buildSearchBar(ColorScheme colorScheme) {
+  Widget _buildSearchBar(BuildContext context, ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
         decoration: InputDecoration(
-          hintText: 'Tìm theo email hoặc tên...',
+          hintText: l10n.adminUserListSearchHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -200,7 +203,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     );
   }
 
-  Widget _buildFilterSection() {
+  Widget _buildFilterSection(BuildContext context, AppLocalizations l10n) {
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         return Padding(
@@ -209,15 +212,15 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildFilterGroup(
-                label: 'Role',
-                chips: _kRoles,
+                label: l10n.adminUserListRoleLabel,
+                chips: _roles(l10n),
                 selected: provider.roleFilter,
                 onSelect: (v) => provider.applyFilters(role: v),
               ),
               const SizedBox(height: 4),
               _buildFilterGroup(
-                label: 'Trạng thái',
-                chips: _kStatuses,
+                label: l10n.adminUserListStatusLabel,
+                chips: _statuses(l10n),
                 selected: provider.statusFilter,
                 onSelect: (v) => provider.applyFilters(status: v),
               ),
@@ -266,7 +269,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     );
   }
 
-  Widget _buildStatsSummary() {
+  Widget _buildStatsSummary(BuildContext context, AppLocalizations l10n) {
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         if (provider.totalUsers == 0) return const SizedBox.shrink();
@@ -279,7 +282,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(
-                'Tổng: ${provider.totalUsers} người dùng',
+                l10n.adminUserListTotalUsers(provider.totalUsers),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
@@ -290,7 +293,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     );
   }
 
-  Widget _buildUserList({required bool isWide}) {
+  Widget _buildUserList(BuildContext context, AppLocalizations l10n, {required bool isWide}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Consumer<AdminUsersProvider>(
       builder: (context, provider, _) {
@@ -309,7 +312,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () => provider.fetchUsers(refresh: true),
-                  child: const Text('Thử lại'),
+                  child: Text(l10n.retry),
                 ),
               ],
             ),
@@ -317,14 +320,14 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
         }
 
         if (provider.users.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                SizedBox(height: 12),
-                Text('Không tìm thấy người dùng',
-                    style: TextStyle(color: Colors.grey)),
+                const SizedBox(height: 12),
+                Text(l10n.adminUserListNoUsersFound,
+                    style: const TextStyle(color: Colors.grey)),
               ],
             ),
           );
@@ -366,6 +369,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
 class _EmptyDetailPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
@@ -376,7 +380,7 @@ class _EmptyDetailPlaceholder extends StatelessWidget {
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
-            'Chọn một người dùng để xem chi tiết',
+            l10n.adminUserListSelectUserPlaceholder,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant),
           ),
