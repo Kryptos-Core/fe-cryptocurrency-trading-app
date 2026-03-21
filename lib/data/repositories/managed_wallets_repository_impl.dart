@@ -53,7 +53,16 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
   Future<Either<Failure, List<ManagedWallet>>> getDepositDefaults() async {
     try {
       final response = await _dio.get(ApiConstants.managedWalletsDepositDefaults);
-      final list = _extractDataList(response.data);
+      // Backend shape: { success, data: { recommended_chain, defaults: [...] } }
+      // Keep backward compatibility with older list-only responses.
+      final payload = _extractDataMap(response.data);
+      final defaultsRaw = payload['defaults'];
+      final list = defaultsRaw is List
+          ? defaultsRaw
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList()
+          : _extractDataList(response.data);
       return Right(list.map(_parseManagedWallet).toList());
     } on DioException catch (e) {
       return Left(_mapDioError(e));

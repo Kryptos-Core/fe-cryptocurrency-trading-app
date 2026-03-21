@@ -317,33 +317,51 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: screens,
       ),
-      floatingActionButton: _TradeFab(onTap: _openTradeScreen),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        height: 60,
-        padding: EdgeInsets.zero,
-        child: Row(
+      bottomNavigationBar: SizedBox(
+        height: 72,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.topCenter,
           children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, l10n.dashboard),
-                  _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up, l10n.markets),
-                ],
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BottomAppBar(
+                height: 60,
+                padding: EdgeInsets.zero,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, l10n.dashboard),
+                          _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up, l10n.markets),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 56),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildNavItem(2, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, l10n.wallets),
+                          _buildNavItem(3, Icons.person_outline, Icons.person, l10n.profile),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(width: 56),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildNavItem(2, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, l10n.wallets),
-                  _buildNavItem(3, Icons.person_outline, Icons.person, l10n.profile),
-                ],
-              ),
+            const Positioned(
+              top: 0,
+              child: _TradeFabPlaceholder(),
+            ),
+            Positioned(
+              top: 0,
+              child: _TradeFab(onTap: _openTradeScreen),
             ),
           ],
         ),
@@ -1042,8 +1060,29 @@ class _FeatureRow extends StatelessWidget {
   }
 }
 
-/// Trade FAB with 3D gradient circle style.
-/// Uses a real FloatingActionButton so CircularNotchedRectangle can compute the notch.
+/// Fake notch background under the center action to preserve the old visual rhythm
+/// without using BottomAppBar's built-in notch/clipper on desktop.
+class _TradeFabPlaceholder extends StatelessWidget {
+  const _TradeFabPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).bottomAppBarTheme.color ?? Theme.of(context).colorScheme.surface;
+    return IgnorePointer(
+      child: Container(
+        width: 72,
+        height: 28,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Trade button with the same raised 3D visual, but rendered as a normal widget
+/// so it no longer depends on Scaffold geometry/notch behavior.
 class _TradeFab extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -1054,64 +1093,65 @@ class _TradeFab extends StatelessWidget {
     return SizedBox(
       width: 56,
       height: 56,
-      child: FloatingActionButton(
-        onPressed: onTap,
-        elevation: 0,
-        highlightElevation: 0,
-        backgroundColor: Colors.transparent,
-        shape: const CircleBorder(),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF4DB6AC), Color(0xFF00695C)],
+      child: Material(
+        color: Colors.transparent,
+        child: InkResponse(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          radius: 32,
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF4DB6AC), Color(0xFF00695C)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF26A69A).withValues(alpha: 0.55),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  blurRadius: 4,
+                  offset: const Offset(-2, -2),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF26A69A).withValues(alpha: 0.55),
-                blurRadius: 12,
-                spreadRadius: 1,
-                offset: const Offset(0, 4),
-              ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.18),
-                blurRadius: 4,
-                offset: const Offset(-2, -2),
-              ),
-            ],
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                top: 5,
-                left: 8,
-                child: Container(
-                  width: 40,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(7),
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.3),
-                        Colors.transparent,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: 5,
+                  left: 8,
+                  child: Container(
+                    width: 40,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withValues(alpha: 0.3),
+                          Colors.transparent,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const Icon(
-                Icons.swap_horiz_rounded,
-                color: Colors.white,
-                size: 26,
-              ),
-            ],
+                const Icon(
+                  Icons.swap_horiz_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -8,25 +8,30 @@ enum SnackBarType { success, error, warning, info }
 
 OverlayEntry? _activeToastEntry;
 Timer? _activeToastTimer;
-bool _toastIsHovered = false;
-bool _toastHasFocus = false;
+bool _dismissScheduled = false;
 
 void _dismissActiveToast() {
+  if (_dismissScheduled) return;
+  _dismissScheduled = true;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _dismissScheduled = false;
+    _activeToastTimer?.cancel();
+    _activeToastTimer = null;
+    _activeToastEntry?.remove();
+    _activeToastEntry = null;
+  });
+}
+
+void _dismissActiveToastNow() {
   _activeToastTimer?.cancel();
   _activeToastTimer = null;
   _activeToastEntry?.remove();
   _activeToastEntry = null;
-  _toastIsHovered = false;
-  _toastHasFocus = false;
 }
 
 void _scheduleToastDismiss(Duration duration) {
   _activeToastTimer?.cancel();
-  _activeToastTimer = Timer(duration, () {
-    if (!_toastIsHovered && !_toastHasFocus) {
-      _dismissActiveToast();
-    }
-  });
+  _activeToastTimer = Timer(duration, _dismissActiveToast);
 }
 
 /// Shows a floating toast overlay.
@@ -46,10 +51,9 @@ void showAppSnackBar(
   // AppLocalizations inside [OverlayEntry.builder] (rebuilds after route pop).
   final okLabel = AppLocalizations.of(context).snackbarOk;
 
-  _dismissActiveToast();
+  _dismissActiveToastNow();
 
   final color = _colorForType(type);
-  final focusNode = FocusNode(debugLabel: 'app-toast-focus');
 
   _activeToastEntry = OverlayEntry(
     builder: (_) => Positioned(
@@ -59,60 +63,39 @@ void showAppSnackBar(
       child: SafeArea(
         child: Material(
           color: Colors.transparent,
-          child: MouseRegion(
-            onEnter: (_) {
-              _toastIsHovered = true;
-              _activeToastTimer?.cancel();
-            },
-            onExit: (_) {
-              _toastIsHovered = false;
-              _scheduleToastDismiss(const Duration(milliseconds: 250));
-            },
-            child: Focus(
-              focusNode: focusNode,
-              onFocusChange: (hasFocus) {
-                _toastHasFocus = hasFocus;
-                if (hasFocus) {
-                  _activeToastTimer?.cancel();
-                } else {
-                  _scheduleToastDismiss(const Duration(milliseconds: 250));
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x22000000),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x22000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        message,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    TextButton(
-                      onPressed: _dismissActiveToast,
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        minimumSize: const Size(48, 32),
-                      ),
-                      child: Text(okLabel),
-                    ),
-                  ],
+              ],
+            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: _dismissActiveToast,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    minimumSize: const Size(48, 32),
+                  ),
+                  child: Text(okLabel),
+                ),
+              ],
             ),
           ),
         ),
