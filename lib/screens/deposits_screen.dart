@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/core/utils/checkout_tab_preopen.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
@@ -390,10 +391,14 @@ class _DepositsScreenState extends State<DepositsScreen> {
                       controller: _amountController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [_amountFormatter],
-                      decoration: InputDecoration(
-                        labelText: l10n.payosAmountLabel,
-                        border: const OutlineInputBorder(),
-                        hintText: l10n.payosMinAmountHint,
+                      decoration: CurrencyAmountInput.withCurrencySuffix(
+                        context,
+                        InputDecoration(
+                          labelText: l10n.payosAmountLabel,
+                          border: const OutlineInputBorder(),
+                          hintText: l10n.payosMinAmountHint,
+                        ),
+                        currencySymbol: 'VND',
                       ),
                     ),
                     const SizedBox(height: 16),

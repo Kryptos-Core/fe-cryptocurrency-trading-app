@@ -1419,6 +1419,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerWithdrawalManagementSubtitle => 'Approve · Reject · History';
 
   @override
+  String get drawerSectionGeneral => 'General';
+
+  @override
+  String get drawerSectionAdministration => 'Administration';
+
+  @override
+  String get drawerSectionAdminUsers => 'Users & security';
+
+  @override
+  String get drawerSectionAdminOps => 'Trading & catalog';
+
+  @override
+  String get drawerSectionAdminSystem => 'System';
+
+  @override
+  String get drawerSectionFinance => 'Payments & finance';
+
+  @override
+  String get drawerSectionAccount => 'Account';
+
+  @override
   String get adminTabOrders => 'Orders';
 
   @override

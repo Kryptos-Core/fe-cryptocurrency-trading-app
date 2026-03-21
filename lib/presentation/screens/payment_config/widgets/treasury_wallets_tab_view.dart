@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -361,10 +362,15 @@ class _TreasuryWalletCard extends StatelessWidget {
                                 controller: amountCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 inputFormatters: [AmountInputFormatter()],
-                                decoration: InputDecoration(
-                                  labelText: l10n.treasuryAmountLabel,
-                                  hintText: l10n.treasuryAmountHint,
-                                  border: const OutlineInputBorder(),
+                                decoration: CurrencyAmountInput.withCurrencySuffix(
+                                  ctx,
+                                  InputDecoration(
+                                    labelText: l10n.treasuryAmountLabel,
+                                    hintText: l10n.treasuryAmountHint,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  currencySymbol:
+                                      mainWallet?.symbol ?? wallet.symbol ?? '',
                                 ),
                               ),
                             ],

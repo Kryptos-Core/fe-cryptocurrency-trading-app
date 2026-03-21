@@ -1421,6 +1421,27 @@ class AppLocalizationsVi extends AppLocalizations {
   String get drawerWithdrawalManagementSubtitle => 'Duyệt · Từ chối · Lịch sử';
 
   @override
+  String get drawerSectionGeneral => 'Chung';
+
+  @override
+  String get drawerSectionAdministration => 'Quản trị';
+
+  @override
+  String get drawerSectionAdminUsers => 'Người dùng & bảo mật';
+
+  @override
+  String get drawerSectionAdminOps => 'Giao dịch & danh mục';
+
+  @override
+  String get drawerSectionAdminSystem => 'Hệ thống';
+
+  @override
+  String get drawerSectionFinance => 'Thanh toán & tài chính';
+
+  @override
+  String get drawerSectionAccount => 'Tài khoản';
+
+  @override
   String get adminTabOrders => 'Lệnh';
 
   @override

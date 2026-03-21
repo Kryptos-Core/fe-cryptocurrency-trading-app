@@ -3,9 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/domain/entities/currency.dart';
 import 'package:crypto_trading_app/domain/entities/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/domain/entities/user_security_change.dart';
@@ -282,9 +284,6 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
   }
 
   void _showAdjustSheet(BuildContext context, User user, String initialType) {
-    // Load currencies lazily — only when the sheet is actually opened so we
-    // avoid triggering extra notifyListeners() calls during the initial layout.
-    context.read<CurrenciesProvider>().fetchCurrencies(refresh: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -836,12 +835,32 @@ class _AdjustBalanceBottomSheetState
 
   late String _selectedType;
 
+  /// Tiền tệ nền tảng (USDT) được fetch trực tiếp qua API, không phụ thuộc danh sách phân trang.
+  Currency? _platformCurrency;
+  bool _isLoadingCurrency = true;
+
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CurrenciesProvider>().fetchCurrencies(refresh: false);
+      _loadPlatformCurrency();
+    });
+  }
+
+  /// Fetch USDT trực tiếp theo ký hiệu thay vì tìm trong danh sách currencies phân trang.
+  /// Tránh lỗi "Không tìm thấy ví USDT" khi USDT chưa được tải vào trang hiện tại.
+  Future<void> _loadPlatformCurrency() async {
+    if (!mounted) return;
+    final provider = context.read<CurrenciesProvider>();
+    await provider.getCurrencyBySymbol(_kPlatformCashSymbol);
+    if (!mounted) return;
+    setState(() {
+      final fetched = provider.selectedCurrency;
+      _platformCurrency = fetched?.symbol.toUpperCase() == _kPlatformCashSymbol
+          ? fetched
+          : null;
+      _isLoadingCurrency = false;
     });
   }
 
@@ -855,11 +874,7 @@ class _AdjustBalanceBottomSheetState
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final currProvider = context.read<CurrenciesProvider>();
-    final usdt = currProvider.currencies
-        .where((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol)
-        .firstOrNull;
-    if (usdt == null) {
+    if (_platformCurrency == null) {
       showAppSnackBar(context,
           message: 'Không tìm thấy ví USDT. Vui lòng thử lại sau.',
           type: SnackBarType.warning);
@@ -869,7 +884,7 @@ class _AdjustBalanceBottomSheetState
     final provider = context.read<AdminUsersProvider>();
     final success = await provider.adjustBalance(
       userId: widget.user.id,
-      currencyId: usdt.currencyId,
+      currencyId: _platformCurrency!.currencyId,
       amount: parseAmountInput(_amountController.text),
       type: _selectedType,
       note: _noteController.text.trim().isEmpty
@@ -967,46 +982,62 @@ class _AdjustBalanceBottomSheetState
                 ),
               ),
               const SizedBox(height: 16),
-              Consumer<CurrenciesProvider>(
-                builder: (_, currProvider, __) {
-                  if (currProvider.isLoading && currProvider.currencies.isEmpty) {
-                    return const LinearProgressIndicator();
-                  }
-                  final hasUsdt = currProvider.currencies
-                      .any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
-                  return ListTile(
-                    leading: const Icon(Icons.account_balance_wallet),
-                    title: const Text('Ví tiền (Platform Cash)'),
-                    subtitle: Text(
-                      hasUsdt
-                          ? 'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định'
-                          : 'Đang tải...',
-                      style: theme.textTheme.bodySmall,
+              if (_isLoadingCurrency)
+                const LinearProgressIndicator()
+              else
+                ListTile(
+                  leading: Icon(
+                    Icons.account_balance_wallet,
+                    color: _platformCurrency != null ? null : colorScheme.error,
+                  ),
+                  title: const Text('Ví tiền (Platform Cash)'),
+                  subtitle: Text(
+                    _platformCurrency != null
+                        ? 'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định'
+                        : 'Không tìm thấy USDT — vui lòng thử lại',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: _platformCurrency != null
+                          ? null
+                          : colorScheme.error,
                     ),
-                    tileColor: colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  );
-                },
-              ),
+                  ),
+                  trailing: _platformCurrency == null
+                      ? IconButton(
+                          icon: const Icon(Icons.refresh),
+                          tooltip: 'Thử lại',
+                          onPressed: () {
+                            setState(() => _isLoadingCurrency = true);
+                            _loadPlatformCurrency();
+                          },
+                        )
+                      : null,
+                  tileColor: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _amountController,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [AmountInputFormatter()],
-                decoration: InputDecoration(
-                  labelText: 'Số tiền',
-                  hintText: '0.00',
-                  prefixIcon: Icon(
-                    isDeposit
-                        ? Icons.add_circle_outline
-                        : Icons.remove_circle_outline,
-                    color: isDeposit ? Colors.green : Colors.red,
+                decoration: CurrencyAmountInput.withCurrencySuffix(
+                  context,
+                  InputDecoration(
+                    labelText: 'Số tiền',
+                    hintText: '0.00',
+                    prefixIcon: Icon(
+                      isDeposit
+                          ? Icons.add_circle_outline
+                          : Icons.remove_circle_outline,
+                      color: isDeposit ? Colors.green : Colors.red,
+                    ),
+                    border: const OutlineInputBorder(),
                   ),
-                  border: const OutlineInputBorder(),
+                  currencySymbol:
+                      _platformCurrency?.symbol ?? _kPlatformCashSymbol,
                 ),
                 validator: (v) {
                   final raw = parseAmountInput(v ?? '');

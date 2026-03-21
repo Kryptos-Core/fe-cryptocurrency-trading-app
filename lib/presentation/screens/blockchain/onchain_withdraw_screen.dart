@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
@@ -309,9 +310,13 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   controller: _amountController,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: l10n.amount,
-                    border: const OutlineInputBorder(),
+                  decoration: CurrencyAmountInput.withCurrencySuffix(
+                    context,
+                    InputDecoration(
+                      labelText: l10n.amount,
+                      border: const OutlineInputBorder(),
+                    ),
+                    currencySymbol: _selectedNetwork.nativeSymbol,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

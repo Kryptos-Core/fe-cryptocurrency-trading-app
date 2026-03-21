@@ -2684,6 +2684,48 @@ abstract class AppLocalizations {
   /// **'Approve · Reject · History'**
   String get drawerWithdrawalManagementSubtitle;
 
+  /// No description provided for @drawerSectionGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get drawerSectionGeneral;
+
+  /// No description provided for @drawerSectionAdministration.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get drawerSectionAdministration;
+
+  /// No description provided for @drawerSectionAdminUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users & security'**
+  String get drawerSectionAdminUsers;
+
+  /// No description provided for @drawerSectionAdminOps.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading & catalog'**
+  String get drawerSectionAdminOps;
+
+  /// No description provided for @drawerSectionAdminSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get drawerSectionAdminSystem;
+
+  /// No description provided for @drawerSectionFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments & finance'**
+  String get drawerSectionFinance;
+
+  /// No description provided for @drawerSectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get drawerSectionAccount;
+
   /// No description provided for @adminTabOrders.
   ///
   /// In en, this message translates to:

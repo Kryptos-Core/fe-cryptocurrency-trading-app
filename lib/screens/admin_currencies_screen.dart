@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
@@ -602,6 +603,14 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    _symbolCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     _symbolCtrl.dispose();
     _nameCtrl.dispose();
@@ -668,9 +677,14 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _minWithdrawCtrl,
-                  decoration: const InputDecoration(
+                  decoration: CurrencyAmountInput.withCurrencySuffix(
+                    context,
+                    const InputDecoration(
                       labelText: 'Min Withdraw',
-                      hintText: '0.001'),
+                      hintText: '0.001',
+                    ),
+                    currencySymbol: _symbolCtrl.text.trim().toUpperCase(),
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(
                       decimal: true),
                 ),
@@ -801,8 +815,11 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _minWithdrawCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Min Withdraw'),
+                  decoration: CurrencyAmountInput.withCurrencySuffix(
+                    context,
+                    const InputDecoration(labelText: 'Min Withdraw'),
+                    currencySymbol: widget.currency.symbol,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(
                       decimal: true),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 
@@ -120,12 +121,15 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                 TextFormField(
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: l10n.sendTrxAmountLabel,
-                    hintText: l10n.sendTrxAmountHint,
-                    suffixText: 'TRX',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    isDense: true,
+                  decoration: CurrencyAmountInput.withCurrencySuffix(
+                    context,
+                    InputDecoration(
+                      labelText: l10n.sendTrxAmountLabel,
+                      hintText: l10n.sendTrxAmountHint,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      isDense: true,
+                    ),
+                    currencySymbol: 'TRX',
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return l10n.sendTrxAmountRequired;

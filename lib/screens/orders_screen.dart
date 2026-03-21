@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
@@ -372,29 +373,38 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       style: theme.textTheme.bodyLarge,
-                      decoration: InputDecoration(
-                        labelText: l10n.price,
-                        filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.5),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(_kInputRadius)),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(_kInputRadius),
-                          borderSide: BorderSide(
-                              color:
-                                  colorScheme.outline.withValues(alpha: 0.5)),
+                      decoration: CurrencyAmountInput.withCurrencySuffix(
+                        context,
+                        InputDecoration(
+                          labelText: l10n.price,
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(_kInputRadius)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(_kInputRadius),
+                            borderSide: BorderSide(
+                                color: colorScheme.outline
+                                    .withValues(alpha: 0.5)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(_kInputRadius),
+                            borderSide: BorderSide(
+                                color: colorScheme.primary, width: 1.5),
+                          ),
+                          hintText: marketsProvider.ticker != null
+                              ? marketsProvider.ticker!.lastPrice
+                              : l10n.priceHintExample,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(_kInputRadius),
-                          borderSide: BorderSide(
-                              color: colorScheme.primary, width: 1.5),
-                        ),
-                        hintText: marketsProvider.ticker != null
-                            ? marketsProvider.ticker!.lastPrice
-                            : l10n.priceHintExample,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                        currencySymbol: _selectedMarket != null
+                            ? _quoteSymbol(_selectedMarket!)
+                            : '',
                       ),
                     ),
                   ),
@@ -439,26 +449,55 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       BorderSide(color: colorScheme.primary, width: 1.5),
                 ),
                 hintText: l10n.amountHintExample,
-                suffixIcon: (_side == 'SELL' && _selectedMarket != null)
-                    ? TextButton(
-                        onPressed: () {
-                          final available =
-                              ordersProvider.baseBalance?.available ?? '';
-                          if (available.isEmpty) return;
+                suffix: _selectedMarket == null
+                    ? null
+                    : (_side == 'SELL'
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _baseSymbol(_selectedMarket!),
+                                  style: CurrencyAmountInput.suffixStyle(
+                                      context),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    final available = ordersProvider
+                                            .baseBalance?.available ??
+                                        '';
+                                    if (available.isEmpty) return;
 
-                          final amountScale = _selectedMarket!.amountScale;
-                          final maxSell =
-                              _truncateToScale(available, amountScale);
-                          if (maxSell.isEmpty) return;
+                                    final amountScale =
+                                        _selectedMarket!.amountScale;
+                                    final maxSell = _truncateToScale(
+                                        available, amountScale);
+                                    if (maxSell.isEmpty) return;
 
-                          _amountController.text = maxSell;
-                          _amountController.selection = TextSelection.collapsed(
-                            offset: _amountController.text.length,
-                          );
-                        },
-                        child: Text(l10n.maxAmountButton),
-                      )
-                    : null,
+                                    _amountController.text = maxSell;
+                                    _amountController.selection =
+                                        TextSelection.collapsed(
+                                      offset: _amountController.text.length,
+                                    );
+                                  },
+                                  child: Text(l10n.maxAmountButton),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Align(
+                              widthFactor: 1,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _baseSymbol(_selectedMarket!),
+                                style:
+                                    CurrencyAmountInput.suffixStyle(context),
+                              ),
+                            ),
+                          )),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),

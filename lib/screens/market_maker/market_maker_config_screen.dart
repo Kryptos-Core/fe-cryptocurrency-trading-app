@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
 
@@ -240,6 +241,18 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
               ? null
               : provider.configByPairId(_selectedPairId!);
 
+          String pairBaseSymbol() {
+            if (_selectedPairId == null) return '';
+            for (final p in provider.pairs) {
+              if (p.pairId == _selectedPairId) {
+                return CurrencyAmountInput.baseSymbolFromPairDisplay(p.symbol);
+              }
+            }
+            return '';
+          }
+
+          final baseSym = pairBaseSymbol();
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(
@@ -305,9 +318,13 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _orderAmountCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldOrderAmount,
-                        border: const OutlineInputBorder(),
+                      decoration: CurrencyAmountInput.withCurrencySuffix(
+                        context,
+                        InputDecoration(
+                          labelText: l10n.marketMakerFieldOrderAmount,
+                          border: const OutlineInputBorder(),
+                        ),
+                        currencySymbol: baseSym,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) {
@@ -322,15 +339,21 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
                       decoration: InputDecoration(
                         labelText: l10n.marketMakerFieldStopLossOptional,
                         border: const OutlineInputBorder(),
+                        suffixText: '%',
+                        suffixStyle: CurrencyAmountInput.suffixStyle(context),
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _maxPositionBaseCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldMaxPositionBaseOptional,
-                        border: const OutlineInputBorder(),
+                      decoration: CurrencyAmountInput.withCurrencySuffix(
+                        context,
+                        InputDecoration(
+                          labelText: l10n.marketMakerFieldMaxPositionBaseOptional,
+                          border: const OutlineInputBorder(),
+                        ),
+                        currencySymbol: baseSym,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
@@ -375,9 +398,13 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _orderAmountOverrideCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldOrderAmountOverrideOptional,
-                        border: const OutlineInputBorder(),
+                      decoration: CurrencyAmountInput.withCurrencySuffix(
+                        context,
+                        InputDecoration(
+                          labelText: l10n.marketMakerFieldOrderAmountOverrideOptional,
+                          border: const OutlineInputBorder(),
+                        ),
+                        currencySymbol: baseSym,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),

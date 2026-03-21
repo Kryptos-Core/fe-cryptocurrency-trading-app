@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/data/models/payment_method_config_model.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
@@ -514,6 +515,10 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
   bool _showSensitiveFields = false;
   bool _isSubmitting = false;
 
+  void _onCurrencySuffixControllersChanged() {
+    if (mounted) setState(() {});
+  }
+
   final List<String> _types = ['PAYOS', 'ETH', 'TRON', 'SOL'];
   final Map<String, List<String>> _networks = {
     'PAYOS': ['MAINNET'],
@@ -538,10 +543,14 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
       'SOL' => 'SOL',
       _ => '',
     };
+    _payosQuoteSymbolCtrl.addListener(_onCurrencySuffixControllersChanged);
+    _nativeCurrencyCtrl.addListener(_onCurrencySuffixControllersChanged);
   }
 
   @override
   void dispose() {
+    _payosQuoteSymbolCtrl.removeListener(_onCurrencySuffixControllersChanged);
+    _nativeCurrencyCtrl.removeListener(_onCurrencySuffixControllersChanged);
     _displayNameCtrl.dispose();
     _graceMinsCtrl.dispose();
     _payosClientIdCtrl.dispose();
@@ -784,7 +793,16 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosRateCtrl,
-              decoration: InputDecoration(labelText: l10n.paymentConfigRateLabel, border: const OutlineInputBorder()),
+              decoration: CurrencyAmountInput.withCurrencySuffix(
+                context,
+                InputDecoration(
+                  labelText: l10n.paymentConfigRateLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                currencySymbol: _payosQuoteSymbolCtrl.text.trim().isEmpty
+                    ? 'USDT'
+                    : _payosQuoteSymbolCtrl.text.trim().toUpperCase(),
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
           ),
@@ -829,7 +847,14 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _withdrawMaxCtrl,
-              decoration: const InputDecoration(labelText: 'Withdraw Auto Max', border: OutlineInputBorder()),
+              decoration: CurrencyAmountInput.withCurrencySuffix(
+                context,
+                const InputDecoration(
+                  labelText: 'Withdraw Auto Max',
+                  border: OutlineInputBorder(),
+                ),
+                currencySymbol: _nativeCurrencyCtrl.text.trim().toUpperCase(),
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
           ),
@@ -837,9 +862,13 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
         const SizedBox(height: 10),
         TextFormField(
           controller: _fxFallbackRateCtrl,
-          decoration: const InputDecoration(
-            labelText: 'FX Fallback Rate (1 Native → X USDT)',
-            border: OutlineInputBorder(),
+          decoration: CurrencyAmountInput.withCurrencySuffix(
+            context,
+            const InputDecoration(
+              labelText: 'FX Fallback Rate (1 Native → X USDT)',
+              border: OutlineInputBorder(),
+            ),
+            currencySymbol: 'USDT',
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
         ),

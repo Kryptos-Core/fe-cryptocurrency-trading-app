@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
@@ -266,18 +267,22 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         inputFormatters: [AmountInputFormatter()],
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).adminWalletAdjustAmountLabel,
-                          hintText: AppLocalizations.of(context).adminWalletAdjustAmountHint,
-                          prefixIcon: Icon(
-                            _selectedType == 'DEPOSIT'
-                                ? Icons.add_circle_outline
-                                : Icons.remove_circle_outline,
-                            color: _selectedType == 'DEPOSIT'
-                                ? Colors.green
-                                : Colors.red,
+                        decoration: CurrencyAmountInput.withCurrencySuffix(
+                          context,
+                          InputDecoration(
+                            labelText: AppLocalizations.of(context).adminWalletAdjustAmountLabel,
+                            hintText: AppLocalizations.of(context).adminWalletAdjustAmountHint,
+                            prefixIcon: Icon(
+                              _selectedType == 'DEPOSIT'
+                                  ? Icons.add_circle_outline
+                                  : Icons.remove_circle_outline,
+                              color: _selectedType == 'DEPOSIT'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            border: const OutlineInputBorder(),
                           ),
-                          border: const OutlineInputBorder(),
+                          currencySymbol: _kPlatformCashSymbol,
                         ),
                         validator: (v) {
                           final l10n = AppLocalizations.of(context);

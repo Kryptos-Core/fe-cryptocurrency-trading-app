@@ -325,300 +325,535 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Consumer<AuthProvider>(
-              builder: (_, auth, __) => UserAccountsDrawerHeader(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                accountName: Row(
-                  children: [
-                    Text(
-                      auth.currentUser?.fullName ?? l10n.appTitle,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(12),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) => UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  accountName: Row(
+                    children: [
+                      Text(
+                        auth.currentUser?.fullName ?? l10n.appTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      child: Text(
-                        auth.role.displayName,
-                        style:
-                            const TextStyle(fontSize: 11, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          auth.role.displayName,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                accountEmail: Text(
-                  auth.currentUser?.email ?? '',
-                  style: const TextStyle(color: Colors.white70),
-                ),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white24,
-                  backgroundImage: auth.currentUser?.avatarUrl != null &&
-                          auth.currentUser!.avatarUrl!.isNotEmpty
-                      ? NetworkImage(auth.currentUser!.avatarUrl!)
-                      : null,
-                  child: auth.currentUser?.avatarUrl == null ||
-                          auth.currentUser!.avatarUrl!.isEmpty
-                      ? Text(
-                          (auth.currentUser?.fullName.isNotEmpty == true
-                                  ? auth.currentUser!.fullName[0]
-                                  : '?')
-                              .toUpperCase(),
-                          style: const TextStyle(fontSize: 28, color: Colors.white),
-                        )
-                      : null,
+                    ],
+                  ),
+                  accountEmail: Text(
+                    auth.currentUser?.email ?? '',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.white24,
+                    backgroundImage: auth.currentUser?.avatarUrl != null &&
+                            auth.currentUser!.avatarUrl!.isNotEmpty
+                        ? NetworkImage(auth.currentUser!.avatarUrl!)
+                        : null,
+                    child: auth.currentUser?.avatarUrl == null ||
+                            auth.currentUser!.avatarUrl!.isEmpty
+                        ? Text(
+                            (auth.currentUser?.fullName.isNotEmpty == true
+                                    ? auth.currentUser!.fullName[0]
+                                    : '?')
+                                .toUpperCase(),
+                            style: const TextStyle(
+                                fontSize: 28, color: Colors.white),
+                          )
+                        : null,
+                  ),
                 ),
               ),
-            ),
-            // ── Standard navigation ──────────────────────────────────
-            ListTile(
-              leading: const Icon(Icons.currency_bitcoin),
-              title: Text(l10n.currencies),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CurrenciesListScreen(),
+              // ── Chung: tiền tệ, công cụ, cài đặt ─────────────────────
+              _DrawerSectionHeader(
+                l10n.drawerSectionGeneral,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              ),
+              ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                leading: Icon(
+                  Icons.currency_bitcoin,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.currencies),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CurrenciesListScreen(),
+                    ),
+                  );
+                },
+              ),
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) {
+                  if (!auth.canAccessMarketMakerHub) {
+                    return const SizedBox.shrink();
+                  }
+                  return ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    leading: Icon(
+                      Icons.trending_up,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    title: Text(l10n.marketMakerHubTitle),
+                    subtitle: Text(
+                      l10n.marketMakerHubDrawerSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MarketMakerHubScreen(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                leading: Icon(
+                  Icons.settings_outlined,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.drawerSettings),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) {
+                  final showAdmin = auth.canViewUserList;
+                  final showFinance = auth.canManagePaymentConfigs;
+                  if (!showAdmin && !showFinance) {
+                    return const SizedBox.shrink();
+                  }
+                  return const Divider(height: 1);
+                },
+              ),
+              // ── Quản trị (nhóm phụ: người dùng, vận hành, hệ thống) ─
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) {
+                  if (!auth.canViewUserList) {
+                    return const SizedBox.shrink();
+                  }
+                  final cs = Theme.of(context).colorScheme;
+                  final subtitleStyle = Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: cs.onSurfaceVariant);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Material(
+                      color: cs.surfaceContainerHighest.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(12),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _DrawerSectionHeader(
+                            l10n.drawerSectionAdministration,
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                          ),
+                          _DrawerSubsectionHeader(l10n.drawerSectionAdminUsers),
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 2),
+                            leading: Icon(
+                              Icons.admin_panel_settings_outlined,
+                              size: 22,
+                              color: cs.primary,
+                            ),
+                            title: Text(l10n.drawerUserManagement),
+                            subtitle: Text(
+                              l10n.drawerAdminArea,
+                              style: subtitleStyle,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AdminUserListScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          if (auth.canReviewSecurityRequests)
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
+                              leading: Icon(
+                                Icons.security,
+                                size: 22,
+                                color: cs.primary,
+                              ),
+                              title: Text(l10n.drawerSecurityRequests),
+                              subtitle: Text(
+                                l10n.drawerSecuritySubtitle,
+                                style: subtitleStyle,
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SecurityRequestsReviewScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          _DrawerSubsectionHeader(
+                              l10n.drawerSectionAdminOps),
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 2),
+                            leading: Icon(
+                              Icons.receipt_long_outlined,
+                              size: 22,
+                              color: cs.primary,
+                            ),
+                            title: Text(l10n.drawerTransactionMonitoring),
+                            subtitle: Text(
+                              l10n.drawerTransactionMonitoringSubtitle,
+                              style: subtitleStyle,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const AdminTransactionsScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 2),
+                            leading: Icon(
+                              Icons.currency_bitcoin,
+                              size: 22,
+                              color: cs.primary,
+                            ),
+                            title: Text(l10n.drawerCoinManagement),
+                            subtitle: Text(
+                              auth.canManageCurrencies
+                                  ? l10n.drawerCoinManagementSubtitleCrud
+                                  : l10n.drawerCoinManagementSubtitleView,
+                              style: subtitleStyle,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const AdminCurrenciesScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          if (auth.isAdmin) ...[
+                            _DrawerSubsectionHeader(
+                                l10n.drawerSectionAdminSystem),
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
+                              leading: Icon(
+                                Icons.campaign_outlined,
+                                size: 22,
+                                color: cs.primary,
+                              ),
+                              title: Text(l10n.drawerBroadcastNotification),
+                              subtitle: Text(
+                                l10n.drawerBroadcastSubtitle,
+                                style: subtitleStyle,
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const BroadcastNotificationScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
+                              leading: Icon(
+                                Icons.sync,
+                                size: 22,
+                                color: cs.primary,
+                              ),
+                              title: Text(l10n.drawerManualResync),
+                              subtitle: Text(
+                                l10n.drawerAdminArea,
+                                style: subtitleStyle,
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        l10n.drawerManualResyncComingSoon),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              // ── Thanh toán & tài chính ───────────────────────────────
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) {
+                  if (!auth.canManagePaymentConfigs) {
+                    return const SizedBox.shrink();
+                  }
+                  final cs = Theme.of(context).colorScheme;
+                  final subtitleStyle = Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: cs.onSurfaceVariant);
+                  return Padding(
+                    padding:
+                        const EdgeInsets.only(left: 8, right: 8, top: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Divider(height: 1),
+                        _DrawerSectionHeader(
+                          l10n.drawerSectionFinance,
+                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+                        ),
+                        Material(
+                          color:
+                              cs.surfaceContainerHighest.withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(12),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            children: [
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 4),
+                                leading: Icon(
+                                  Icons.payment_outlined,
+                                  size: 22,
+                                  color: cs.primary,
+                                ),
+                                title: Text(l10n.drawerPaymentConfig),
+                                subtitle: Text(
+                                  l10n.drawerPaymentConfigSubtitle,
+                                  style: subtitleStyle,
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          ChangeNotifierProvider.value(
+                                        value: context
+                                            .read<PaymentConfigProvider>(),
+                                        child: const PaymentConfigScreen(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 4),
+                                leading: Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 22,
+                                  color: cs.primary,
+                                ),
+                                title: Text(l10n.drawerWithdrawalManagement),
+                                subtitle: Text(
+                                  l10n.drawerWithdrawalManagementSubtitle,
+                                  style: subtitleStyle,
+                                ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const WithdrawalManagementScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              // ── Tài khoản ─────────────────────────────────────────────
+              const Divider(height: 1),
+              _DrawerSectionHeader(
+                l10n.drawerSectionAccount,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              ),
+              ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                leading: Icon(
+                  Icons.info_outline,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.aboutTitle),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ),
+                  );
+                },
+              ),
+              if (isAuthenticated)
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: Text(
+                    l10n.logout,
+                    style: const TextStyle(color: Colors.redAccent),
                   ),
-                );
-              },
-            ),
-            Consumer<AuthProvider>(
-              builder: (_, auth, __) {
-                if (!auth.canAccessMarketMakerHub) {
-                  return const SizedBox.shrink();
-                }
-                return ListTile(
-                  leading: const Icon(Icons.trending_up, color: Colors.deepOrange),
-                  title: Text(l10n.marketMakerHubTitle),
-                  subtitle: Text(
-                    l10n.marketMakerHubDrawerSubtitle,
-                    style: const TextStyle(fontSize: 11),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.read<AuthProvider>().logout();
+                  },
+                )
+              else
+                ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  leading: const Icon(Icons.login, color: Colors.indigo),
+                  title: Text(
+                    l10n.signIn,
+                    style: const TextStyle(
+                        color: Colors.indigo, fontWeight: FontWeight.w600),
                   ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const MarketMakerHubScreen(),
-                      ),
+                          builder: (_) => const LoginScreen()),
                     );
                   },
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: Text(l10n.drawerSettings),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                );
-              },
-            ),
-            const Divider(),
-            // ── Admin section (visible only to ADMIN / Support / Risk) ─
-            Consumer<AuthProvider>(
-              builder: (_, auth, __) {
-                if (!auth.canViewUserList) return const SizedBox.shrink();
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.admin_panel_settings, color: Colors.deepOrange),
-                      title: Text(l10n.drawerUserManagement),
-                      subtitle: Text(l10n.drawerAdminArea, style: const TextStyle(fontSize: 11)),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AdminUserListScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    if (auth.canReviewSecurityRequests)
-                      ListTile(
-                        leading: const Icon(Icons.security, color: Colors.deepOrange),
-                        title: Text(l10n.drawerSecurityRequests),
-                        subtitle: Text(l10n.drawerSecuritySubtitle, style: const TextStyle(fontSize: 11)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const SecurityRequestsReviewScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    // Giám sát giao dịch (ADMIN / RISK_OFFICER / SUPPORT_AGENT)
-                    if (auth.canViewUserList)
-                      ListTile(
-                        leading: const Icon(Icons.receipt_long_outlined, color: Colors.deepOrange),
-                        title: Text(l10n.drawerTransactionMonitoring),
-                        subtitle: Text(l10n.drawerTransactionMonitoringSubtitle, style: const TextStyle(fontSize: 11)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AdminTransactionsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    // Coin management — full CRUD for admin, read-only view for
-                    // risk officer and support agent (role guard inside screen).
-                    if (auth.canViewUserList)
-                      ListTile(
-                        leading: const Icon(Icons.currency_bitcoin, color: Colors.deepOrange),
-                        title: Text(l10n.drawerCoinManagement),
-                        subtitle: Text(
-                          auth.canManageCurrencies
-                              ? l10n.drawerCoinManagementSubtitleCrud
-                              : l10n.drawerCoinManagementSubtitleView,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AdminCurrenciesScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    // Broadcast & manual resync remain admin-only
-                    if (auth.isAdmin) ...[
-                      ListTile(
-                        leading: const Icon(Icons.campaign_outlined, color: Colors.deepOrange),
-                        title: Text(l10n.drawerBroadcastNotification),
-                        subtitle: Text(l10n.drawerBroadcastSubtitle, style: const TextStyle(fontSize: 11)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  const BroadcastNotificationScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.sync, color: Colors.deepOrange),
-                        title: Text(l10n.drawerManualResync),
-                        subtitle: Text(l10n.drawerAdminArea, style: const TextStyle(fontSize: 11)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.drawerManualResyncComingSoon),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                    const Divider(),
-                  ],
-                );
-              },
-            ),
-            // ── Payment config (ADMIN + FINANCE_MANAGER) ─────────────
-            Consumer<AuthProvider>(
-              builder: (_, auth, __) {
-                if (!auth.canManagePaymentConfigs) return const SizedBox.shrink();
-                return Column(
-                  children: [
-                    const Divider(),
-                    ListTile(
-                      leading: const Icon(Icons.payment_outlined, color: Colors.deepOrange),
-                      title: Text(l10n.drawerPaymentConfig),
-                      subtitle: Text(l10n.drawerPaymentConfigSubtitle, style: const TextStyle(fontSize: 11)),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChangeNotifierProvider.value(
-                              value: context.read<PaymentConfigProvider>(),
-                              child: const PaymentConfigScreen(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.account_balance_wallet_outlined, color: Colors.deepOrange),
-                      title: Text(l10n.drawerWithdrawalManagement),
-                      subtitle: Text(l10n.drawerWithdrawalManagementSubtitle, style: const TextStyle(fontSize: 11)),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const WithdrawalManagementScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: Text(l10n.aboutTitle),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AboutScreen(),
-                  ),
-                );
-              },
-            ),
-            if (isAuthenticated)
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.redAccent),
-                title: Text(l10n.logout, style: const TextStyle(color: Colors.redAccent)),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.read<AuthProvider>().logout();
-                },
-              )
-            else
-              ListTile(
-                leading: const Icon(Icons.login, color: Colors.indigo),
-                title: Text(l10n.signIn, style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.w600)),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
-              ),
-          ],
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Drawer layout helpers ─────────────────────────────────────────────────────
+
+/// Tiêu đề nhóm menu (CHUNG, QUẢN TRỊ, …).
+class _DrawerSectionHeader extends StatelessWidget {
+  final String title;
+  final EdgeInsets padding;
+
+  const _DrawerSectionHeader(
+    this.title, {
+    this.padding = const EdgeInsets.fromLTRB(16, 16, 16, 8),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: padding,
+      child: Text(
+        title.toUpperCase(),
+        style: textTheme.labelSmall?.copyWith(
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+/// Tiêu đề nhóm con trong khối quản trị.
+class _DrawerSubsectionHeader extends StatelessWidget {
+  final String title;
+
+  const _DrawerSubsectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }
