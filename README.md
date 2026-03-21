@@ -1,378 +1,147 @@
-# Cryptocurrency Trading App - Flutter
+# Kryptos Core — Flutter App
 
-Ứng dụng giao dịch tiền ảo được xây dựng với Flutter.
+Ứng dụng desktop/web/Android cho nền tảng giao dịch (**package:** `crypto_trading_app`). Giao tiếp với backend NestJS qua REST (**Dio**) và realtime (**Socket.IO**).
 
-## Yêu cầu hệ thống
+## Yêu cầu
 
-### 1. Flutter SDK
-- Version: 3.38.6 trở lên
-- Download: https://flutter.dev/docs/get-started/install/windows
-- Cài đặt:
-  1. Tải Flutter SDK (zip)
-  2. Giải nén vào `C:\src\flutter`
-  3. Thêm `C:\src\flutter\bin` vào PATH environment variable
-  4. Khởi động lại terminal
+- **Flutter SDK:** `>=3.0.0 <4.0.0` (xem [`pubspec.yaml`](pubspec.yaml))
+- **Dart:** đi kèm Flutter
+- **Android:** JDK 17, Android SDK (khi build/run Android)
+- **Windows:** Visual Studio workload “Desktop development with C++” (khi build Windows)
 
-### 2. JDK 17
-- Version: JDK 17 (bắt buộc cho Android build)
-- Download: https://adoptium.net/temurin/releases/?version=17
-- Cài đặt:
-  1. Tải JDK 17 Windows x64 MSI
-  2. Chạy installer
-  3. Set biến môi trường:
-     ```powershell
-     [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk-17", "User")
-     ```
+Kiểm tra môi trường:
 
-### 3. Android SDK
-- Cài đặt Android Command Line Tools:
-  1. Tải: https://developer.android.com/studio#command-tools
-  2. Giải nén vào `C:\Android\cmdline-tools\latest`
-  3. Set biến môi trường:
-     ```powershell
-     [Environment]::SetEnvironmentVariable("ANDROID_SDK_ROOT", "C:\Android", "User")
-     [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Android\cmdline-tools\latest\bin;C:\Android\platform-tools;C:\Android\emulator", "User")
-     ```
-  4. Cài SDK packages:
-     ```powershell
-     sdkmanager --sdk_root=C:\Android "platform-tools" "build-tools;34.0.0" "platforms;android-34" "cmdline-tools;latest" "ndk;28.2.13676358" "emulator" "system-images;android-34;google_apis;x86_64"
-     ```
-  5. Accept licenses:
-     ```powershell
-     sdkmanager --sdk_root=C:\Android --licenses
-     ```
-
-### 4. Android Emulator (Optional)
-Tạo Android Virtual Device:
-```powershell
-avdmanager create avd -n "pixel_6_api_34" -k "system-images;android-34;google_apis;x86_64" --device "pixel_6"
+```bash
+flutter doctor -v
 ```
 
-## Cài đặt dự án
+## Cài đặt
 
-### 1. Clone repository
 ```bash
-git clone https://gitlab.duthu.net/cryptocurrency-trading-app/fe-cryptocurrency-trading-app.git
 cd fe-cryptocurrency-trading-app
-```
-
-### 2. Cài dependencies
-```bash
 flutter pub get
 ```
 
-### 3. Kiểm tra môi trường
+### Cấu hình API (bắt buộc)
+
 ```bash
-flutter doctor
+copy .env.example .env
+```
+
+Chỉnh `BASE_URL` trong `.env` (phải **kèm** `/api/v1`):
+
+| Môi trường chạy app | `BASE_URL` gợi ý |
+|---------------------|------------------|
+| Windows / Chrome / Edge | `http://127.0.0.1:3000/api/v1` |
+| Android Emulator | `http://10.0.2.2:3000/api/v1` |
+| Máy thật (cùng WiFi) | `http://<IP-máy-chạy-BE>:3000/api/v1` |
+
+Ứng dụng load `.env` lúc khởi động (`flutter_dotenv`). Chi tiết logic URL: [`lib/core/constants/api_constants.dart`](lib/core/constants/api_constants.dart).
+
+### Localization
+
+Sau khi sửa `lib/l10n/*.arb`:
+
+```bash
+flutter gen-l10n
 ```
 
 ## Chạy ứng dụng
 
-### Web (Nhanh nhất - Recommended)
-Không cần setup Android emulator, test ngay lập tức:
 ```bash
+# Thiết bị mặc định
+flutter run
+
+# Web (nhanh cho UI)
 flutter run -d chrome
-```
-Perfect cho frontend development & testing  
-Hot reload cực nhanh  
-Không cần emulator setup phức tạp
 
-### Android Emulator
-1. **Chạy emulator** (terminal riêng):
-   ```powershell
-   # Nếu emulator không trong PATH, dùng full path:
-   C:\Android\emulator\emulator.exe -avd pixel_6_api_34
-   
-   # Hoặc nếu đã add vào PATH:
-   emulator -avd pixel_6_api_34
-   ```
-   Chờ emulator boot xong (1-2 phút)
+# Windows desktop
+flutter run -d windows
 
-2. **Chạy app** (terminal khác):
-   ```bash
-   flutter run
-   ```
-   Sau đó chọn Android emulator từ danh sách
-
-### Web (nhanh nhất - Legacy command)
-```bash
-flutter run -d chrome
+# Liệt kê thiết bị
+flutter devices
 ```
 
-### Android Device (thiết bị thật)
-1. Bật Developer Mode trên điện thoại
-2. Bật USB Debugging
-3. Kết nối USB
-4. Chạy:
-   ```bash
-   flutter run
-   ```
+Trong session `flutter run`: `r` hot reload, `R` hot restart, `q` thoát.
 
-## Hot Reload
+## Backend
 
-Khi app đang chạy:
-- `r` - Hot reload (giữ state, nhanh)
-- `R` - Hot restart (reset state)
-- `q` - Thoát app
+Backend NestJS là **`be-cryptocurrency-trading-app`** (cùng workspace). Khởi chạy tối thiểu:
 
-Cách dùng:
-1. Sửa code trong VS Code
-2. Save file (Ctrl+S)
-3. Nhấn `r` trong terminal
+```bash
+cd ../be-cryptocurrency-trading-app
+npm install
+cp env.example .env
+# MySQL + Redis (docker-compose.infrastructure.yml)
+npm run migration:run
+npm run db:seed
+npm run start:dev
+```
 
-## Kiến trúc dự án
+Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
-Xem chi tiết trong file `ARCHITECTURE.md`
+## Kiến trúc mã nguồn
 
 ```
 lib/
-├── core/               # Constants, DI, Error handling, Network
-├── data/              # Models, Repositories, Data sources
-├── domain/            # Entities, Use cases, Repository interfaces
-└── presentation/      # Screens, Widgets, Providers
+├── main.dart
+├── core/                 # constants, DI (GetIt), network (Dio), utils
+├── data/                 # models, datasources, repository implementations
+├── domain/               # entities, repository contracts, use cases
+├── presentation/         # providers (Provider), widgets, một số màn feature
+├── screens/              # màn hình chính (home, admin, orders, wallets, …)
+├── gen_l10n/             # generated — không sửa tay
+└── l10n/                 # app_en.arb, app_vi.arb
 ```
 
-## Tech Stack
+Mô tả sâu hơn: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
-- **Flutter**: 3.38.6
-- **Dart**: 3.0+
-- **State Management**: GetIt (Service Locator pattern - no Provider needed)
-- **Networking**: Dio 5.4.0 với custom interceptors
-- **Local Storage**: SharedPreferences 2.2.2 (JWT tokens)
-- **Error Handling**: dartz (Either<Failure, Success> pattern)
-- **Architecture**: Clean Architecture (5 layers)
+## Công nghệ chính
 
-### Key Dependencies
-```yaml
-dependencies:
-  dio: ^5.4.0                    # HTTP client
-  get_it: ^7.6.0                # Dependency injection
-  shared_preferences: ^2.2.2     # Token storage
-  dartz: ^0.10.1                # Functional programming (Either)
-  equatable: ^2.0.5             # Value equality
-```
+| Thành phần | Thư viện |
+|------------|----------|
+| State (UI) | `provider` |
+| Dependency injection | `get_it` |
+| HTTP | `dio` |
+| JSON models | `json_annotation` + `json_serializable` / `freezed` (nơi dùng) |
+| Lưu local | `shared_preferences`, `hive` |
+| Realtime | `socket_io_client` (namespace trading; origin từ `ApiConstants`) |
+| Biểu đồ | Lightweight Charts qua `webview_windows` (Windows) |
+| Đa ngôn ngữ | `flutter_localizations` + ARB |
+| Push (mobile) | `firebase_core`, `firebase_messaging`, local notifications |
 
-## Troubleshooting
-
-### Lỗi: emulator không được recognize
-**Triệu chứng:** `emulator: The term 'emulator' is not recognized...`
-
-**Nguyên nhân:** Android emulator không trong PATH
-
-**Giải pháp:**
-```powershell
-# Option 1: Thêm emulator vào PATH (lâu dài)
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Android\emulator", "User")
-# Sau đó restart terminal mới
-
-# Option 2: Dùng full path (nhanh)
-C:\Android\emulator\emulator.exe -avd pixel_6_api_34
-
-# Option 3: Dùng Android Studio GUI
-# Mở Android Studio → Tools → Device Manager → Create device
-```
-
-### Lỗi: JAVA_HOME not set
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
-$env:Path += ";$env:JAVA_HOME\bin"
-```
-
-### Lỗi: Flutter command not found
-Thêm Flutter vào PATH:
-```powershell
-$env:Path += ";C:\src\flutter\bin"
-```
-
-### Lỗi: Android SDK not found
-```powershell
-flutter config --android-sdk "C:\Android"
-```
-
-### Lỗi: Gradle build failed
-Đảm bảo đang dùng JDK 17, không phải JDK 25.
-
-### Lỗi: "Connected devices" không có Android emulator
-**Triệu chứng:** Chỉ thấy Windows/Chrome/Edge, không thấy Android emulator
-```
-Connected devices:
-Windows (desktop) • windows • windows-x64
-Chrome (web)      • chrome  • web-javascript
-Edge (web)        • edge    • web-javascript
-```
-
-**Nguyên nhân:** 
-- Emulator chưa được tạo
-- Emulator không được chạy
-- PATH chưa setup đúng
-
-**Giải pháp:**
-```powershell
-# Bước 1: Kiểm tra emulator đã tạo chưa
-C:\Android\emulator\emulator.exe -list-avds
-
-# Bước 2: Nếu không có, tạo emulator
-C:\Android\cmdline-tools\latest\bin\avdmanager.bat create avd -n "pixel_6_api_34" -k "system-images;android-34;google_apis;x86_64" --device "pixel_6"
-
-# Bước 3: Chạy emulator
-C:\Android\emulator\emulator.exe -avd pixel_6_api_34
-# Chờ emulator boot xong (1-2 phút)
-
-# Bước 4: Mở terminal khác, chạy app
-flutter run
-# Lúc này sẽ thấy emulator trong danh sách
-```
-
-**Quick Fix: Dùng Web để test**
-```powershell
-# Nếu emulator setup phức tạp, test bằng web (nhanh & simple)
-flutter run -d chrome
-```
-Web không cần emulator, chạy ngay  
-Hot reload cực nhanh  
-Perfect cho frontend testing
-
-### Lỗi: Connection refused khi call API
-**Triệu chứng:** DioException [connection error]: The connection errored...
-
-**Nguyên nhân:** Android emulator không thể truy cập `localhost` của máy host
-
-**Giải pháp:** 
-- Kiểm tra backend đang chạy: `curl http://localhost:3000/api/v1/health`
-- Trong code dùng `http://10.0.2.2:3000/api/v1` cho Android emulator
-- Nếu dùng web hoặc thiết bị thật, dùng IP thật của máy (ví dụ: `http://192.168.1.100:3000/api/v1`)
-
-### Lỗi: 401 Unauthorized
-**Nguyên nhân:** Token hết hạn hoặc không hợp lệ
-
-**Giải pháp:**
-- App sẽ tự động clear tokens và redirect về login screen
-- Đăng nhập lại để lấy token mới
-
-### Lỗi: RangeError (index): Invalid value: Valid value range is empty
-**Nguyên nhân:** Backend trả về user với firstName/lastName empty
-
-**Giải pháp:** Đã fix - Code có fallback logic:
-- Avatar initials: firstName[0] + lastName[0] → email[0] → "?"
-- Display name: firstName + lastName → email
-
-### Lỗi: type 'Null' is not a subtype of type 'String'
-**Nguyên nhân:** Backend không trả về refreshToken
-
-**Giải pháp:** Đã fix - refreshToken đã được mark nullable trong models
-
-## Common Issues
-
-### Backend không chạy
-```bash
-# Check backend status
-curl http://localhost:3000/api/v1/health
-
-# Nếu lỗi, restart backend
-cd be-cryptocurrency-trading-app
-npm run start:dev
-```
-
-### App không connect được backend trên Android emulator
-Đảm bảo:
-1. Backend đang chạy: `http://localhost:3000/api/v1`
-2. Code dùng URL: `http://10.0.2.2:3000/api/v1`
-3. File config: [lib/core/network/dio_client.dart](lib/core/network/dio_client.dart)
-
-### Hot reload không work sau khi sửa model
-```bash
-# Stop app (q trong terminal)
-# Clean build
-flutter clean
-flutter pub get
-# Run lại
-flutter run
-```
-
-## Commands hữu ích
+## Lệnh hữu ích
 
 ```bash
-# Xem devices khả dụng
-flutter devices
-
-# Xem emulators
-flutter emulators
-
-# Clean build cache
-flutter clean
-
-# Update dependencies
-flutter pub upgrade
-
-# Format code
-dart format .
-
-# Analyze code
 flutter analyze
+dart format lib
+
+# Sinh code (khi đổi model có annotation)
+dart run build_runner build --delete-conflicting-outputs
+
+flutter clean && flutter pub get   # khi build lỗi cache
 ```
 
-## Backend API
+## Gỡ lỗi thường gặp
 
-### Yêu cầu Backend
-Dự án yêu cầu backend NestJS đang chạy ở `http://localhost:3000/api/v1`
+**Không gọi được API / connection refused**
 
-### Clone và setup backend
-```bash
-# Clone backend repository
-git clone https://gitlab.duthu.net/cryptocurrency-trading-app/be-cryptocurrency-trading-app.git
-cd be-cryptocurrency-trading-app
+- Backend đã chạy và đúng cổng `3000`.
+- Android emulator: dùng `10.0.2.2`, không dùng `localhost` của máy host.
+- Kiểm tra `BASE_URL` trong `.env` có đuôi `/api/v1`.
 
-# Cài dependencies
-npm install
+**401 sau một thời gian**
 
-# Chạy database (PostgreSQL/Docker)
-docker-compose up -d
+- Token hết hạn — đăng nhập lại; interceptor có thể đã xóa token và đưa về màn login.
 
-# Chạy migration
-npm run migration:run
+**Đồ thị / cặp không có dữ liệu**
 
-# Start backend
-npm run start:dev
-```
+- Đảm bảo backend đã seed/sync markets; xem gợi ý trong [`.env.example`](.env.example) (đồng bộ exchange, khởi động lại BE nếu cần).
 
-### Android Emulator Network Config
-- Backend URL trong code: `http://10.0.2.2:3000/api/v1` (Android emulator routing)
-- `10.0.2.2` = localhost của máy host từ góc nhìn emulator
-- Web/Real device: Dùng `http://localhost:3000` hoặc IP thật
+## Nền tảng
 
-### API Endpoints đã implement
+Dự án có **Windows**, **Web**, **Android**. Không có thư mục `ios/` trong repo hiện tại.
 
-#### Authentication
-- `POST /auth/register` - Đăng ký (email + password + optional firstName/lastName)
-  - **NEW (2025-01-13):** firstName và lastName are now supported
-  - Example: `{ email, password, firstName?: "John", lastName?: "Doe" }`
-- `POST /auth/login` - Đăng nhập (email + password)
+## Script bổ sung
 
-#### User Management
-- `GET /users/me` - Lấy thông tin user hiện tại
-- `PATCH /users/me` - Cập nhật profile (firstName, lastName)
-
-## Dependency Injection
-
-App sử dụng GetIt cho DI. Tất cả services được register trong [lib/core/di/injection_container.dart](lib/core/di/injection_container.dart):
-
-```dart
-// Sử dụng trong code
-final tokenService = sl<TokenService>();
-final loginUseCase = sl<LoginUseCase>();
-```
-
-**Registered Services:**
-- TokenService
-- AuthRemoteDataSource
-- AuthRepositoryImpl
-- LoginUseCase, RegisterUseCase, GetCurrentUserUseCase
-- DioClient (với custom interceptors)
-
-## Testing
-
-### Test flows
-1. **Register Flow**: Tạo tài khoản mới → Verify toast success → Auto-login → Navigate to home
-2. **Login Flow**: Login với credentials → Verify token saved → Load profile → Display user info
-3. **Logout Flow**: Logout → Confirm dialog → Clear tokens → Navigate to login
-4. **Token Expiry**: Đóng app → Mở lại → Verify auto-redirect if token expired
+- [`scripts/README-FLUTTER.md`](scripts/README-FLUTTER.md) — ghi chú script hỗ trợ Flutter (nếu có).

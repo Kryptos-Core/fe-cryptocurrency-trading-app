@@ -2,10 +2,10 @@
 
 ## Cách 1: Script tự động (khi mạng kết nối GitHub được)
 
-Mở **PowerShell** (hoặc Terminal trong Cursor) và chạy:
+Mở **PowerShell** (hoặc Terminal trong Cursor) và chạy từ thư mục `scripts` của repo FE:
 
 ```powershell
-cd D:\Sources\cryptocurrency-trading-app\fe-cryptocurrency-trading-app\scripts
+cd path\to\fe-cryptocurrency-trading-app\scripts
 .\install-flutter-windows.ps1
 ```
 
@@ -25,7 +25,7 @@ Script sẽ:
 3. Chạy script chỉ set biến môi trường:
 
 ```powershell
-cd D:\Sources\cryptocurrency-trading-app\fe-cryptocurrency-trading-app\scripts
+cd path\to\fe-cryptocurrency-trading-app\scripts
 .\set-flutter-env.ps1 -FlutterPath "C:\src\flutter"
 ```
 

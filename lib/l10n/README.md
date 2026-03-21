@@ -9,7 +9,7 @@
 
 - `lib/l10n/`: file nguồn `.arb` (app_en.arb, app_vi.arb).
 - `lib/gen_l10n/`: code sinh bởi `flutter gen-l10n` (AppLocalizations).
-- Locale được lưu trong `LocaleProvider` (SharedPreferences), đổi ngôn ngữ ở màn Profile (chỉ text, không dùng icon cờ).
+- Locale được lưu trong [`LocaleProvider`](../core/providers/locale_provider.dart) (`SharedPreferences`); đổi ngôn ngữ chủ yếu ở màn **Settings** (chỉ text, không dùng icon cờ).
 
 ## Thêm chuỗi mới
 
