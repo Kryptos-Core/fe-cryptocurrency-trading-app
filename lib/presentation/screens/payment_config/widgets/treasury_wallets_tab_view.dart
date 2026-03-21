@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
-import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -42,7 +41,7 @@ Future<String?> _showSweepDialog(
             title: Text(l10n.treasurySweepDialogTitle),
             content: mainWallets.isEmpty
                 ? Text(
-                    l10n.treasuryNoMainWallets(wallet.chain),
+                    'No main wallets configured for ${wallet.chain}. Sweep will use default.',
                     style: const TextStyle(fontSize: 12),
                   )
                 : Column(
@@ -52,7 +51,7 @@ Future<String?> _showSweepDialog(
                       Text(l10n.treasurySweepTargetLabel),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        initialValue: selectedId,
+                        value: selectedId,
                         decoration: const InputDecoration(border: OutlineInputBorder()),
                         items: mainWallets
                             .map(
@@ -362,15 +361,10 @@ class _TreasuryWalletCard extends StatelessWidget {
                                 controller: amountCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 inputFormatters: [AmountInputFormatter()],
-                                decoration: CurrencyAmountInput.withCurrencySuffix(
-                                  ctx,
-                                  InputDecoration(
-                                    labelText: l10n.treasuryAmountLabel,
-                                    hintText: l10n.treasuryAmountHint,
-                                    border: const OutlineInputBorder(),
-                                  ),
-                                  currencySymbol:
-                                      mainWallet?.symbol ?? wallet.symbol ?? '',
+                                decoration: InputDecoration(
+                                  labelText: l10n.treasuryAmountLabel,
+                                  hintText: l10n.treasuryAmountHint,
+                                  border: const OutlineInputBorder(),
                                 ),
                               ),
                             ],
