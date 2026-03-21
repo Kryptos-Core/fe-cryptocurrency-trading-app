@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 
@@ -217,7 +218,7 @@ class _UserInfoCard extends StatelessWidget {
                         ),
                       if (withdrawal.userWalletBalance != null)
                         Text(
-                          '${l10n.withdrawalBalanceLabel}: ${withdrawal.userWalletBalance}',
+                          '${l10n.withdrawalBalanceLabel}: ${FormatUtils.formatDecimalAmountDisplay(withdrawal.userWalletBalance!)}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                     ],
@@ -252,7 +253,7 @@ class _TransactionCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _Row(label: l10n.withdrawalNetworkLabel, value: withdrawal.chain),
-            _Row(label: l10n.withdrawalAmountLabel, value: withdrawal.amount),
+            _Row(label: l10n.withdrawalAmountLabel, value: FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)),
             _Row(label: l10n.withdrawalDestinationLabel, value: withdrawal.toAddress),
             _Row(label: l10n.withdrawalTimeLabel, value: DateFormat('dd/MM/yyyy HH:mm').format(withdrawal.createdAt.toLocal())),
             if (withdrawal.txHash != null && withdrawal.txHash!.isNotEmpty)

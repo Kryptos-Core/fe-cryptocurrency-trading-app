@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:intl/intl.dart';
 
@@ -68,7 +69,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${wallet.available} ${wallet.currency.symbol}',
+                          '${FormatUtils.formatDecimalAmountDisplay(wallet.available)} ${wallet.currency.symbol}',
                           style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -86,7 +87,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                                 Text(
-                                  '${wallet.frozen} ${wallet.currency.symbol}',
+                                  '${FormatUtils.formatDecimalAmountDisplay(wallet.frozen)} ${wallet.currency.symbol}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -102,7 +103,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                                 Text(
-                                  '${wallet.total} ${wallet.currency.symbol}',
+                                  '${FormatUtils.formatDecimalAmountDisplay(wallet.total)} ${wallet.currency.symbol}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -161,7 +162,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              '${isCredit ? '+' : '-'}${ledger.amount}',
+              '${isCredit ? '+' : '-'}${FormatUtils.formatDecimalAmountDisplay(ledger.amount.toString())}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -169,7 +170,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
               ),
             ),
             Text(
-              AppLocalizations.of(context).walletBalanceAfter(ledger.balanceAfter.toString()),
+              AppLocalizations.of(context).walletBalanceAfter(FormatUtils.formatDecimalAmountDisplay(ledger.balanceAfter.toString())),
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,

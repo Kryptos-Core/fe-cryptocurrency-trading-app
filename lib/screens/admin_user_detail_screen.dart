@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
@@ -153,7 +154,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              _WalletsTab(auth: auth),
+              _WalletsTab(auth: auth, selectedUser: widget.user),
               _AdjustHistoryTab(),
               _UserOrdersTab(),
               _OnchainTxTab(),
@@ -295,7 +296,9 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
         user: user,
         initialType: initialType,
         onSuccess: () {
-          context.read<AdminUsersProvider>().fetchSelectedUserAdjustments();
+          final p = context.read<AdminUsersProvider>();
+          p.fetchSelectedUserAdjustments();
+          p.fetchSelectedUserWallets();
           _tabController.animateTo(1);
         },
       ),
@@ -320,7 +323,32 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
 
 class _WalletsTab extends StatelessWidget {
   final AuthProvider auth;
-  const _WalletsTab({required this.auth});
+  final User? selectedUser;
+
+  const _WalletsTab({required this.auth, this.selectedUser});
+
+  void _openAdjustForWallet(BuildContext context, AdminUserWalletItem wallet) {
+    final user = selectedUser;
+    if (user == null) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => AdjustBalanceBottomSheet(
+        user: user,
+        initialType: 'DEPOSIT',
+        initialCurrencyId: wallet.currencyId,
+        onSuccess: () {
+          final p = context.read<AdminUsersProvider>();
+          p.fetchSelectedUserAdjustments();
+          p.fetchSelectedUserWallets();
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,24 +378,40 @@ class _WalletsTab extends StatelessWidget {
           separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (_, i) {
             final w = provider.selectedUserWallets[i];
+            final colorScheme = Theme.of(context).colorScheme;
             return ListTile(
               leading: CircleAvatar(
-                backgroundColor:
-                    Theme.of(context).colorScheme.secondaryContainer,
+                backgroundColor: colorScheme.secondaryContainer,
                 child: Text(w.symbol.isEmpty ? '?' : w.symbol[0],
-                    style:
-                        const TextStyle(fontWeight: FontWeight.bold)),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
               title: Text('${w.symbol} — ${w.name}'),
               subtitle: Text(
-                  'Khả dụng: ${w.available}  |  Đóng băng: ${w.frozen}'),
-              trailing: Text(
-                w.total,
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: w.hasBalance
-                        ? Colors.green
-                        : Theme.of(context).colorScheme.onSurfaceVariant),
+                  'Khả dụng: ${FormatUtils.formatDecimalAmountDisplay(w.available)}  |  Đóng băng: ${FormatUtils.formatDecimalAmountDisplay(w.frozen)}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    FormatUtils.formatDecimalAmountDisplay(w.total),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: w.hasBalance
+                            ? Colors.green
+                            : colorScheme.onSurfaceVariant),
+                  ),
+                  if (selectedUser != null) ...[
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline,
+                          size: 20, color: colorScheme.primary),
+                      tooltip: 'Nạp/Rút ${w.symbol}',
+                      onPressed: () => _openAdjustForWallet(context, w),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ],
               ),
             );
           },
@@ -558,7 +602,7 @@ class _AdjustmentTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        '$sign${item.amount} ${item.currencySymbol ?? item.currencyId}',
+        '$sign${FormatUtils.formatDecimalAmountDisplay(item.amount)} ${item.currencySymbol ?? item.currencyId}',
         style: TextStyle(fontWeight: FontWeight.w600, color: color),
       ),
       subtitle: Column(
@@ -644,7 +688,7 @@ class _OrderTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SL: $amount${price != null ? ' · Giá: $price' : ''} · $type',
+            'SL: ${FormatUtils.formatDecimalAmountDisplay(amount)}${price != null ? ' · Giá: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''} · $type',
             style: const TextStyle(fontSize: 12),
           ),
           if (dateStr.isNotEmpty)
@@ -703,7 +747,7 @@ class _OnchainTxTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        '${isDeposit ? '+' : '-'}${tx.amount}',
+        '${isDeposit ? '+' : '-'}${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
         style: TextStyle(fontWeight: FontWeight.w600, color: color),
       ),
       subtitle: Column(
@@ -813,12 +857,16 @@ class _SecurityChangeTile extends StatelessWidget {
 class AdjustBalanceBottomSheet extends StatefulWidget {
   final User user;
   final String initialType;
+
+  /// Pre-select a specific currency by its ID (e.g. when tapping a wallet item).
+  final String? initialCurrencyId;
   final VoidCallback? onSuccess;
 
   const AdjustBalanceBottomSheet({
     super.key,
     required this.user,
     this.initialType = 'DEPOSIT',
+    this.initialCurrencyId,
     this.onSuccess,
   });
 
@@ -827,41 +875,64 @@ class AdjustBalanceBottomSheet extends StatefulWidget {
       _AdjustBalanceBottomSheetState();
 }
 
-class _AdjustBalanceBottomSheetState
-    extends State<AdjustBalanceBottomSheet> {
+class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
   late String _selectedType;
-
-  /// Tiền tệ nền tảng (USDT) được fetch trực tiếp qua API, không phụ thuộc danh sách phân trang.
-  Currency? _platformCurrency;
-  bool _isLoadingCurrency = true;
+  Currency? _selectedCurrency;
+  bool _isLoadingCurrencies = true;
+  List<Currency> _availableCurrencies = [];
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadPlatformCurrency();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAllCurrencies());
+  }
+
+  /// Loads all tradable currencies and ensures USDT (platform cash) is included.
+  Future<void> _loadAllCurrencies() async {
+    if (!mounted) return;
+    final currProvider = context.read<CurrenciesProvider>();
+    await currProvider.fetchTradableCurrencies();
+    if (!mounted) return;
+
+    final currencies = List<Currency>.from(currProvider.tradableCurrencies);
+
+    // Ensure platform cash (USDT) is included even if not tradable
+    final hasUsdt =
+        currencies.any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+    if (!hasUsdt) {
+      await currProvider.getCurrencyBySymbol(_kPlatformCashSymbol);
+      if (!mounted) return;
+      if (currProvider.selectedCurrency != null) {
+        currencies.insert(0, currProvider.selectedCurrency!);
+      }
+    }
+
+    setState(() {
+      _availableCurrencies = currencies;
+      _selectedCurrency = _resolveInitialCurrency(currencies);
+      _isLoadingCurrencies = false;
     });
   }
 
-  /// Fetch USDT trực tiếp theo ký hiệu thay vì tìm trong danh sách currencies phân trang.
-  /// Tránh lỗi "Không tìm thấy ví USDT" khi USDT chưa được tải vào trang hiện tại.
-  Future<void> _loadPlatformCurrency() async {
-    if (!mounted) return;
-    final provider = context.read<CurrenciesProvider>();
-    await provider.getCurrencyBySymbol(_kPlatformCashSymbol);
-    if (!mounted) return;
-    setState(() {
-      final fetched = provider.selectedCurrency;
-      _platformCurrency = fetched?.symbol.toUpperCase() == _kPlatformCashSymbol
-          ? fetched
-          : null;
-      _isLoadingCurrency = false;
-    });
+  Currency? _resolveInitialCurrency(List<Currency> currencies) {
+    if (currencies.isEmpty) return null;
+    // Honor pre-selected currency (e.g. from tapping a wallet row)
+    if (widget.initialCurrencyId != null) {
+      final match = currencies
+          .where((c) => c.currencyId == widget.initialCurrencyId)
+          .firstOrNull;
+      if (match != null) return match;
+    }
+    // Fall back to USDT, then first available
+    return currencies.firstWhere(
+      (c) => c.symbol.toUpperCase() == _kPlatformCashSymbol,
+      orElse: () => currencies.first,
+    );
   }
 
   @override
@@ -873,18 +944,16 @@ class _AdjustBalanceBottomSheetState
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-
-    if (_platformCurrency == null) {
+    if (_selectedCurrency == null) {
       showAppSnackBar(context,
-          message: 'Không tìm thấy ví USDT. Vui lòng thử lại sau.',
-          type: SnackBarType.warning);
+          message: 'Vui lòng chọn loại coin', type: SnackBarType.warning);
       return;
     }
 
     final provider = context.read<AdminUsersProvider>();
     final success = await provider.adjustBalance(
       userId: widget.user.id,
-      currencyId: _platformCurrency!.currencyId,
+      currencyId: _selectedCurrency!.currencyId,
       amount: parseAmountInput(_amountController.text),
       type: _selectedType,
       note: _noteController.text.trim().isEmpty
@@ -898,8 +967,8 @@ class _AdjustBalanceBottomSheetState
       showAppSnackBar(
         context,
         message: _selectedType == 'DEPOSIT'
-            ? 'Nạp số dư thành công!'
-            : 'Rút số dư thành công!',
+            ? 'Nạp ${_selectedCurrency!.symbol} thành công!'
+            : 'Rút ${_selectedCurrency!.symbol} thành công!',
         type: SnackBarType.success,
       );
       widget.onSuccess?.call();
@@ -907,11 +976,29 @@ class _AdjustBalanceBottomSheetState
     } else {
       showAppSnackBar(
         context,
-        message:
-            provider.adjustError ?? 'Có lỗi xảy ra. Vui lòng thử lại.',
+        message: provider.adjustError ?? 'Có lỗi xảy ra. Vui lòng thử lại.',
         type: SnackBarType.error,
       );
     }
+  }
+
+  void _showCurrencyPicker() {
+    final userWallets = context.read<AdminUsersProvider>().selectedUserWallets;
+    showDialog<Currency>(
+      context: context,
+      builder: (_) => _CurrencyPickerDialog(
+        currencies: _availableCurrencies,
+        userWallets: userWallets,
+        selectedCurrencyId: _selectedCurrency?.currencyId,
+      ),
+    ).then((selected) {
+      if (selected != null && mounted) {
+        setState(() {
+          _selectedCurrency = selected;
+          _amountController.clear();
+        });
+      }
+    });
   }
 
   @override
@@ -919,6 +1006,14 @@ class _AdjustBalanceBottomSheetState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDeposit = _selectedType == 'DEPOSIT';
+
+    // Live balance lookup for the selected currency
+    final wallets = context.watch<AdminUsersProvider>().selectedUserWallets;
+    final currentWallet = _selectedCurrency != null
+        ? wallets
+            .where((w) => w.currencyId == _selectedCurrency!.currencyId)
+            .firstOrNull
+        : null;
 
     return Padding(
       padding:
@@ -931,6 +1026,7 @@ class _AdjustBalanceBottomSheetState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Handle bar
               Center(
                 child: Container(
                   width: 40,
@@ -943,9 +1039,7 @@ class _AdjustBalanceBottomSheetState
                 ),
               ),
               Text(
-                isDeposit
-                    ? 'Nạp tiền cho người dùng'
-                    : 'Rút tiền từ người dùng',
+                isDeposit ? 'Nạp coin cho người dùng' : 'Rút coin từ người dùng',
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
@@ -956,15 +1050,16 @@ class _AdjustBalanceBottomSheetState
                     ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
+              // Deposit / Withdraw toggle
               SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(
                       value: 'DEPOSIT',
-                      label: Text('Nạp tiền'),
+                      label: Text('Nạp coin'),
                       icon: Icon(Icons.arrow_downward)),
                   ButtonSegment(
                       value: 'WITHDRAW',
-                      label: Text('Rút tiền'),
+                      label: Text('Rút coin'),
                       icon: Icon(Icons.arrow_upward)),
                 ],
                 selected: {_selectedType},
@@ -982,42 +1077,20 @@ class _AdjustBalanceBottomSheetState
                 ),
               ),
               const SizedBox(height: 16),
-              if (_isLoadingCurrency)
+              // Currency picker
+              if (_isLoadingCurrencies)
                 const LinearProgressIndicator()
               else
-                ListTile(
-                  leading: Icon(
-                    Icons.account_balance_wallet,
-                    color: _platformCurrency != null ? null : colorScheme.error,
-                  ),
-                  title: const Text('Ví tiền (Platform Cash)'),
-                  subtitle: Text(
-                    _platformCurrency != null
-                        ? 'USDT — Số dư sẽ được nạp/rút vào ví ảo cố định'
-                        : 'Không tìm thấy USDT — vui lòng thử lại',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: _platformCurrency != null
-                          ? null
-                          : colorScheme.error,
-                    ),
-                  ),
-                  trailing: _platformCurrency == null
-                      ? IconButton(
-                          icon: const Icon(Icons.refresh),
-                          tooltip: 'Thử lại',
-                          onPressed: () {
-                            setState(() => _isLoadingCurrency = true);
-                            _loadPlatformCurrency();
-                          },
-                        )
-                      : null,
-                  tileColor: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                _CurrencyPickerTile(
+                  selectedCurrency: _selectedCurrency,
+                  currentWallet: currentWallet,
+                  isDeposit: isDeposit,
+                  onTap: _showCurrencyPicker,
+                  colorScheme: colorScheme,
+                  theme: theme,
                 ),
               const SizedBox(height: 12),
+              // Amount field
               TextFormField(
                 controller: _amountController,
                 keyboardType:
@@ -1026,7 +1099,7 @@ class _AdjustBalanceBottomSheetState
                 decoration: CurrencyAmountInput.withCurrencySuffix(
                   context,
                   InputDecoration(
-                    labelText: 'Số tiền',
+                    labelText: 'Số lượng',
                     hintText: '0.00',
                     prefixIcon: Icon(
                       isDeposit
@@ -1036,21 +1109,16 @@ class _AdjustBalanceBottomSheetState
                     ),
                     border: const OutlineInputBorder(),
                   ),
-                  currencySymbol:
-                      _platformCurrency?.symbol ?? _kPlatformCashSymbol,
+                  currencySymbol: _selectedCurrency?.symbol ?? '',
                 ),
                 validator: (v) {
                   final raw = parseAmountInput(v ?? '');
-                  if (raw.isEmpty) {
-                    return 'Vui lòng nhập số tiền';
-                  }
+                  if (raw.isEmpty) return 'Vui lòng nhập số lượng';
                   if (!RegExp(r'^\d+(\.\d{1,18})?$').hasMatch(raw)) {
-                    return 'Số tiền không hợp lệ';
+                    return 'Số lượng không hợp lệ';
                   }
                   final num = double.tryParse(raw);
-                  if (num == null || num <= 0) {
-                    return 'Số tiền phải lớn hơn 0';
-                  }
+                  if (num == null || num <= 0) return 'Số lượng phải lớn hơn 0';
                   return null;
                 },
               ),
@@ -1069,7 +1137,9 @@ class _AdjustBalanceBottomSheetState
               const SizedBox(height: 8),
               Consumer<AdminUsersProvider>(
                 builder: (_, provider, __) => FilledButton.icon(
-                  onPressed: provider.isAdjusting ? null : _submit,
+                  onPressed: (provider.isAdjusting || _selectedCurrency == null)
+                      ? null
+                      : _submit,
                   icon: provider.isAdjusting
                       ? const SizedBox(
                           width: 18,
@@ -1081,7 +1151,7 @@ class _AdjustBalanceBottomSheetState
                           : Icons.remove_circle),
                   label: Text(provider.isAdjusting
                       ? 'Đang xử lý...'
-                      : (isDeposit ? 'Nạp số dư' : 'Rút số dư')),
+                      : (isDeposit ? 'Nạp coin' : 'Rút coin')),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: isDeposit ? Colors.green : Colors.red,
@@ -1092,6 +1162,300 @@ class _AdjustBalanceBottomSheetState
           ),
         ),
       ),
+    );
+  }
+}
+
+// ── Currency Picker Tile ──────────────────────────────────────────────────────
+
+/// Tappable tile that shows the currently selected currency and its balance.
+class _CurrencyPickerTile extends StatelessWidget {
+  final Currency? selectedCurrency;
+  final AdminUserWalletItem? currentWallet;
+  final bool isDeposit;
+  final VoidCallback onTap;
+  final ColorScheme colorScheme;
+  final ThemeData theme;
+
+  const _CurrencyPickerTile({
+    required this.selectedCurrency,
+    required this.currentWallet,
+    required this.isDeposit,
+    required this.onTap,
+    required this.colorScheme,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasBalance = currentWallet?.hasBalance == true;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: colorScheme.primaryContainer,
+              child: Text(
+                selectedCurrency?.symbol.isNotEmpty == true
+                    ? selectedCurrency!.symbol[0]
+                    : '?',
+                style: TextStyle(
+                    color: colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selectedCurrency != null
+                        ? '${selectedCurrency!.symbol} — ${selectedCurrency!.name}'
+                        : 'Chọn loại coin',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  if (currentWallet != null)
+                    Text(
+                      'Số dư khả dụng: ${FormatUtils.formatDecimalAmountDisplay(currentWallet!.available)} ${selectedCurrency?.symbol ?? ''}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                          color: hasBalance
+                              ? Colors.green
+                              : colorScheme.onSurfaceVariant),
+                    )
+                  else if (selectedCurrency != null)
+                    Text(
+                      isDeposit
+                          ? 'Người dùng chưa có ví — sẽ tự động tạo'
+                          : 'Người dùng chưa có ví ${selectedCurrency!.symbol}',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                    ),
+                ],
+              ),
+            ),
+            Icon(Icons.swap_horiz, color: colorScheme.primary, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Currency Picker Dialog ────────────────────────────────────────────────────
+
+/// Search-and-select dialog for choosing which coin to deposit/withdraw.
+/// Groups results into "existing wallets" (with balance) and "new wallets".
+class _CurrencyPickerDialog extends StatefulWidget {
+  final List<Currency> currencies;
+  final List<AdminUserWalletItem> userWallets;
+  final String? selectedCurrencyId;
+
+  const _CurrencyPickerDialog({
+    required this.currencies,
+    required this.userWallets,
+    this.selectedCurrencyId,
+  });
+
+  @override
+  State<_CurrencyPickerDialog> createState() => _CurrencyPickerDialogState();
+}
+
+class _CurrencyPickerDialogState extends State<_CurrencyPickerDialog> {
+  final _searchController = TextEditingController();
+  List<Currency> _filtered = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filtered = widget.currencies;
+    _searchController.addListener(_onSearch);
+  }
+
+  void _onSearch() {
+    final q = _searchController.text.toLowerCase().trim();
+    setState(() {
+      _filtered = q.isEmpty
+          ? widget.currencies
+          : widget.currencies
+              .where((c) =>
+                  c.symbol.toLowerCase().contains(q) ||
+                  c.name.toLowerCase().contains(q))
+              .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final walletIds = widget.userWallets.map((w) => w.currencyId).toSet();
+    final inWallet =
+        _filtered.where((c) => walletIds.contains(c.currencyId)).toList();
+    final notInWallet =
+        _filtered.where((c) => !walletIds.contains(c.currencyId)).toList();
+
+    return AlertDialog(
+      title: const Text('Chọn loại coin'),
+      contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      content: SizedBox(
+        width: 400,
+        height: 420,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Tìm theo tên hoặc ký hiệu...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  isDense: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView(
+                children: [
+                  if (inWallet.isNotEmpty) ...[
+                    _SectionLabel(
+                        label: 'VÍ HIỆN CÓ',
+                        color: colorScheme.primary,
+                        theme: theme),
+                    ...inWallet.map((c) {
+                      final wallet = widget.userWallets
+                          .firstWhere((w) => w.currencyId == c.currencyId);
+                      return _CurrencyListTile(
+                        currency: c,
+                        badge: FormatUtils.formatDecimalAmountDisplay(
+                            wallet.available),
+                        badgeColor: wallet.hasBalance ? Colors.green : null,
+                        isSelected: c.currencyId == widget.selectedCurrencyId,
+                        onTap: () => Navigator.pop(context, c),
+                      );
+                    }),
+                    if (notInWallet.isNotEmpty) const Divider(height: 8),
+                  ],
+                  if (notInWallet.isNotEmpty) ...[
+                    if (inWallet.isNotEmpty)
+                      _SectionLabel(
+                          label: 'TẠO VÍ MỚI',
+                          color: colorScheme.onSurfaceVariant,
+                          theme: theme),
+                    ...notInWallet.map((c) => _CurrencyListTile(
+                          currency: c,
+                          badge: 'Chưa có ví',
+                          badgeColor: null,
+                          isSelected: c.currencyId == widget.selectedCurrencyId,
+                          onTap: () => Navigator.pop(context, c),
+                        )),
+                  ],
+                  if (_filtered.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('Không tìm thấy coin nào',
+                          textAlign: TextAlign.center),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy'),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  final Color color;
+  final ThemeData theme;
+
+  const _SectionLabel(
+      {required this.label, required this.color, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Text(label,
+          style: theme.textTheme.labelSmall
+              ?.copyWith(color: color, letterSpacing: 0.8)),
+    );
+  }
+}
+
+class _CurrencyListTile extends StatelessWidget {
+  final Currency currency;
+  final String badge;
+  final Color? badgeColor;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CurrencyListTile({
+    required this.currency,
+    required this.badge,
+    required this.badgeColor,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListTile(
+      dense: true,
+      leading: CircleAvatar(
+        radius: 16,
+        backgroundColor:
+            isSelected ? colorScheme.primary : colorScheme.primaryContainer,
+        child: Text(
+          currency.symbol.isNotEmpty ? currency.symbol[0] : '?',
+          style: TextStyle(
+            color: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onPrimaryContainer,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      title: Text('${currency.symbol} — ${currency.name}'),
+      subtitle: Text(badge,
+          style: TextStyle(
+              fontSize: 11,
+              color: badgeColor ?? colorScheme.onSurfaceVariant)),
+      trailing:
+          isSelected ? Icon(Icons.check, color: colorScheme.primary) : null,
+      onTap: onTap,
+      selected: isSelected,
+      selectedTileColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
     );
   }
 }

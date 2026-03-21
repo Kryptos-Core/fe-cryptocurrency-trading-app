@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/domain/entities/currency.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
@@ -181,7 +182,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                 ),
                 _buildDetailCard(
                   l10n.currenciesMinWithdrawLabel,
-                  '${currency.minWithdraw} ${currency.symbol}',
+                  '${FormatUtils.formatDecimalAmountDisplay(currency.minWithdraw)} ${currency.symbol}',
                   Icons.arrow_downward,
                 ),
                 _buildDetailCard(

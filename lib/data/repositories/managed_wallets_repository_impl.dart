@@ -195,17 +195,21 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
     } catch (_) {
       chain = BlockchainNetwork.tronNile;
     }
+
+    final isDefault = json['isDefaultDeposit'] ?? json['is_default_deposit'];
+    final isActiveVal = json['isActive'] ?? json['is_active'];
+
     return ManagedWallet(
-      walletId: json['wallet_id']?.toString() ?? '',
-      userId: json['user_id']?.toString() ?? '',
+      walletId: (json['walletId'] ?? json['wallet_id'])?.toString() ?? '',
+      userId: (json['userId'] ?? json['user_id'])?.toString() ?? '',
       chain: chain,
       address: json['address']?.toString() ?? '',
       label: json['label']?.toString(),
-      isDefaultDeposit: json['is_default_deposit'] == true || json['is_default_deposit'] == 1,
-      defaultSetAt: _tryParseDateTime(json['default_set_at']),
-      isActive: json['is_active'] != false && json['is_active'] != 0,
-      createdAt: _tryParseDateTime(json['created_at']) ?? DateTime.now(),
-      updatedAt: _tryParseDateTime(json['updated_at']) ?? DateTime.now(),
+      isDefaultDeposit: isDefault == true || isDefault == 1,
+      defaultSetAt: _tryParseDateTime(json['defaultSetAt'] ?? json['default_set_at']),
+      isActive: isActiveVal != false && isActiveVal != 0,
+      createdAt: _tryParseDateTime(json['createdAt'] ?? json['created_at']) ?? DateTime.now(),
+      updatedAt: _tryParseDateTime(json['updatedAt'] ?? json['updated_at']) ?? DateTime.now(),
     );
   }
 

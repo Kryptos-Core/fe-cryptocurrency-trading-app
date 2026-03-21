@@ -11,15 +11,11 @@ import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
-/// Format số tiền hiển thị: dấu phẩy nghìn, tối đa 2 chữ số thập phân (bỏ số 0 thừa).
-String _formatAmountForDisplay(String amountStr) {
-  final n = double.tryParse(amountStr.replaceAll(',', ''));
-  if (n == null) return amountStr;
-  final formatter = NumberFormat('#,##0.##');
-  return formatter.format(n);
-}
+String _formatAmountForDisplay(String amountStr) =>
+    FormatUtils.formatDecimalAmountDisplay(amountStr);
 
 /// Format ngày giờ giao dịch (ngắn gọn, chuẩn doanh nghiệp).
 String _formatTxDate(DateTime dt) {

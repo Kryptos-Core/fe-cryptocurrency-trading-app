@@ -37,7 +37,14 @@ void showAppSnackBar(
   required SnackBarType type,
   Duration duration = const Duration(seconds: 5),
 }) {
+  // Caller may be disposed after async work; never use this [context] inside
+  // [OverlayEntry.builder] — only for Overlay lookup here while still mounted.
+  if (!context.mounted) return;
+
   final overlay = Overlay.of(context, rootOverlay: true);
+  // Resolve l10n once while [context] is guaranteed mounted — do not call
+  // AppLocalizations inside [OverlayEntry.builder] (rebuilds after route pop).
+  final okLabel = AppLocalizations.of(context).snackbarOk;
 
   _dismissActiveToast();
 
@@ -45,7 +52,7 @@ void showAppSnackBar(
   final focusNode = FocusNode(debugLabel: 'app-toast-focus');
 
   _activeToastEntry = OverlayEntry(
-    builder: (overlayContext) => Positioned(
+    builder: (_) => Positioned(
       left: 12,
       right: 12,
       bottom: 12,
@@ -101,7 +108,7 @@ void showAppSnackBar(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         minimumSize: const Size(48, 32),
                       ),
-                      child: Text(AppLocalizations.of(context).snackbarOk),
+                      child: Text(okLabel),
                     ),
                   ],
                 ),

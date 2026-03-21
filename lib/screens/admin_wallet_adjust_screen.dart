@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/domain/entities/currency.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
@@ -32,10 +34,17 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
 
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
+  final _currencySearchController = TextEditingController();
 
   // Người dùng được chọn từ user picker
   User? _selectedUser;
   String _selectedType = 'DEPOSIT';
+
+  // Selected currency (default USDT)
+  Currency? _selectedCurrency;
+  List<Currency> _availableCurrencies = [];
+  bool _isLoadingCurrencies = true;
+  List<Currency> _filteredCurrencies = [];
 
   // For history tab
   final _historyUserIdController = TextEditingController();
@@ -44,8 +53,49 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CurrenciesProvider>().fetchCurrencies(refresh: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAllCurrencies());
+  }
+
+  Future<void> _loadAllCurrencies() async {
+    if (!mounted) return;
+    final currProvider = context.read<CurrenciesProvider>();
+    await currProvider.fetchTradableCurrencies();
+    if (!mounted) return;
+
+    final currencies = List<Currency>.from(currProvider.tradableCurrencies);
+    final hasUsdt =
+        currencies.any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+    if (!hasUsdt) {
+      await currProvider.getCurrencyBySymbol(_kPlatformCashSymbol);
+      if (!mounted) return;
+      if (currProvider.selectedCurrency != null) {
+        currencies.insert(0, currProvider.selectedCurrency!);
+      }
+    }
+
+    setState(() {
+      _availableCurrencies = currencies;
+      _filteredCurrencies = currencies;
+      _selectedCurrency = currencies.firstWhere(
+        (c) => c.symbol.toUpperCase() == _kPlatformCashSymbol,
+        orElse: () => currencies.isNotEmpty ? currencies.first : currencies.first,
+      );
+      _isLoadingCurrencies = false;
+    });
+
+    _currencySearchController.addListener(_filterCurrencies);
+  }
+
+  void _filterCurrencies() {
+    final q = _currencySearchController.text.toLowerCase().trim();
+    setState(() {
+      _filteredCurrencies = q.isEmpty
+          ? _availableCurrencies
+          : _availableCurrencies
+              .where((c) =>
+                  c.symbol.toLowerCase().contains(q) ||
+                  c.name.toLowerCase().contains(q))
+              .toList();
     });
   }
 
@@ -55,6 +105,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     _amountController.dispose();
     _noteController.dispose();
     _historyUserIdController.dispose();
+    _currencySearchController.dispose();
     super.dispose();
   }
 
@@ -69,26 +120,21 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     final l10n = AppLocalizations.of(context);
     if (_selectedUser == null) {
       showAppSnackBar(context,
-          message: l10n.adminWalletAdjustSelectUserRequired, type: SnackBarType.warning);
+          message: l10n.adminWalletAdjustSelectUserRequired,
+          type: SnackBarType.warning);
+      return;
+    }
+    if (_selectedCurrency == null) {
+      showAppSnackBar(context,
+          message: 'Vui lòng chọn loại coin', type: SnackBarType.warning);
       return;
     }
     if (!_formKey.currentState!.validate()) return;
 
-    final currProvider = context.read<CurrenciesProvider>();
-    final usdt = currProvider.currencies
-        .where((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol)
-        .firstOrNull;
-    if (usdt == null) {
-      showAppSnackBar(context,
-          message: l10n.adminWalletAdjustUsdtNotFound,
-          type: SnackBarType.warning);
-      return;
-    }
-
     final provider = context.read<WalletsProvider>();
     final success = await provider.adminAdjustBalance(
       userId: _selectedUser!.id,
-      currencyId: usdt.currencyId,
+      currencyId: _selectedCurrency!.currencyId,
       amount: parseAmountInput(_amountController.text),
       type: _selectedType,
       note: _noteController.text.trim().isEmpty
@@ -102,8 +148,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       showAppSnackBar(
         context,
         message: _selectedType == 'DEPOSIT'
-            ? 'Nạp số dư thành công!'
-            : 'Rút số dư thành công!',
+            ? 'Nạp ${_selectedCurrency!.symbol} thành công!'
+            : 'Rút ${_selectedCurrency!.symbol} thành công!',
         type: SnackBarType.success,
       );
       _formKey.currentState!.reset();
@@ -204,7 +250,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   title: AppLocalizations.of(context).adminWalletAdjustInfo,
                   child: Column(
                     children: [
-                      _buildPlatformCashInfo(context, theme, colorScheme),
+                      _buildCurrencyPicker(context, theme, colorScheme),
                       const SizedBox(height: 12),
                       // User picker
                       InkWell(
@@ -282,7 +328,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                             ),
                             border: const OutlineInputBorder(),
                           ),
-                          currencySymbol: _kPlatformCashSymbol,
+                          currencySymbol:
+                              _selectedCurrency?.symbol ?? _kPlatformCashSymbol,
                         ),
                         validator: (v) {
                           final l10n = AppLocalizations.of(context);
@@ -354,31 +401,92 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     );
   }
 
-  Widget _buildPlatformCashInfo(
+  Widget _buildCurrencyPicker(
       BuildContext context, ThemeData theme, ColorScheme colorScheme) {
-    return Consumer<CurrenciesProvider>(
-      builder: (context, currProvider, _) {
-        if (currProvider.isLoading && currProvider.currencies.isEmpty) {
-          return const LinearProgressIndicator();
-        }
-        final hasUsdt = currProvider.currencies
-            .any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
-        final l10n = AppLocalizations.of(context);
-        return ListTile(
-          leading: const Icon(Icons.account_balance_wallet),
-          title: Text(l10n.adminWalletPlatformCash),
-          subtitle: Text(
-            hasUsdt
-                ? l10n.adminWalletPlatformCashInfo
-                : l10n.adminWalletLoading,
-            style: theme.textTheme.bodySmall,
+    if (_isLoadingCurrencies) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: LinearProgressIndicator(),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Loại coin',
+          style: theme.textTheme.labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _currencySearchController,
+          decoration: InputDecoration(
+            hintText: 'Tìm coin...',
+            prefixIcon: const Icon(Icons.search, size: 18),
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
-          tileColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(
+        ),
+        const SizedBox(height: 6),
+        Container(
+          constraints: const BoxConstraints(maxHeight: 200),
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
-        );
-      },
+          child: _filteredCurrencies.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text('Không tìm thấy coin nào',
+                      textAlign: TextAlign.center),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  itemCount: _filteredCurrencies.length,
+                  separatorBuilder: (_, __) => Divider(
+                      height: 1, color: colorScheme.outlineVariant),
+                  itemBuilder: (_, i) {
+                    final c = _filteredCurrencies[i];
+                    final isSelected =
+                        _selectedCurrency?.currencyId == c.currencyId;
+                    return ListTile(
+                      dense: true,
+                      selected: isSelected,
+                      selectedTileColor:
+                          colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      leading: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.primaryContainer,
+                        child: Text(
+                          c.symbol.isNotEmpty ? c.symbol[0] : '?',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isSelected
+                                ? colorScheme.onPrimary
+                                : colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      title: Text('${c.symbol} — ${c.name}',
+                          style: const TextStyle(fontSize: 13)),
+                      trailing: isSelected
+                          ? Icon(Icons.check,
+                              color: colorScheme.primary, size: 18)
+                          : null,
+                      onTap: () =>
+                          setState(() => _selectedCurrency = c),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 
@@ -530,7 +638,7 @@ class _AdjustmentTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        '$sign${item.amount} ${item.currencySymbol ?? item.currencyId}',
+        '$sign${FormatUtils.formatDecimalAmountDisplay(item.amount)} ${item.currencySymbol ?? item.currencyId}',
         style: TextStyle(
           fontWeight: FontWeight.w600,
           color: color,

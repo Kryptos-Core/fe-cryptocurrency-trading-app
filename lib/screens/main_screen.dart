@@ -32,6 +32,8 @@ import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/screens/admin_currencies_screen.dart';
+import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallets_screen.dart';
+import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -250,7 +252,28 @@ class _MainScreenState extends State<MainScreen> {
               },
               tooltip: l10n.refresh,
             ),
-          if (_currentIndex == 2 && isAuthenticated)
+          if (_currentIndex == 2 && isAuthenticated) ...[
+            // Treasury (Managed Wallets) — visible for users with canManageWallets permission
+            Consumer<AuthProvider>(
+              builder: (_, auth, __) {
+                if (!auth.canManageWallets) return const SizedBox.shrink();
+                return IconButton(
+                  icon: const Icon(Icons.account_balance_outlined),
+                  tooltip: l10n.treasuryTitle,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                          value: context.read<ManagedWalletsProvider>(),
+                          child: const ManagedWalletsScreen(),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.account_tree_outlined),
               tooltip: l10n.onchainTooltip,
@@ -263,6 +286,7 @@ class _MainScreenState extends State<MainScreen> {
                 );
               },
             ),
+          ],
           // Notification bell — visible for all authenticated users
           if (isAuthenticated)
             Consumer<NotificationProvider>(

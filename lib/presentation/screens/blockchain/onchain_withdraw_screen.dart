@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
@@ -428,7 +429,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${tx.type.apiValue} · ${tx.amount}',
+                                      '${tx.type.apiValue} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),

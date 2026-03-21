@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
@@ -50,7 +51,7 @@ class _TreasuryHistoryTabViewState extends State<TreasuryHistoryTabView> {
                 ...provider.operations
                     .map((op) => ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text('${op.type} · ${op.chain} · ${op.amount}'),
+                          title: Text('${op.type} · ${op.chain} · ${FormatUtils.formatDecimalAmountDisplay(op.amount)}'),
                           subtitle: Text('${op.status}${op.txHash != null ? ' · ${op.txHash!}' : ''}'),
                         )),
               const Divider(height: 24),
@@ -62,7 +63,7 @@ class _TreasuryHistoryTabViewState extends State<TreasuryHistoryTabView> {
                 ...provider.transactions
                     .map((tx) => ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text('${tx.type} · ${tx.chain} · ${tx.amount}'),
+                          title: Text('${tx.type} · ${tx.chain} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}'),
                           subtitle: Text('${tx.status}${tx.txHash != null ? ' · ${tx.txHash!}' : ''}'),
                         )),
             ],

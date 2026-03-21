@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
@@ -161,7 +162,9 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 _BalanceCard(
-                  balance: provider.selectedBalance?.balance ?? '—',
+                  balance: provider.selectedBalance != null
+                      ? FormatUtils.formatDecimalAmountDisplay(provider.selectedBalance!.balance)
+                      : '—',
                   symbol: provider.selectedBalance?.symbol ?? 'TRX',
                   isLoading: provider.isLoading && provider.selectedBalance == null,
                 ),
@@ -379,7 +382,7 @@ class _TxListTile extends StatelessWidget {
         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
       ),
       trailing: Text(
-        '${isIncoming ? '+' : '-'}${tx.amount} TRX',
+        '${isIncoming ? '+' : '-'}${FormatUtils.formatDecimalAmountDisplay(tx.amount)} TRX',
         style: TextStyle(
           fontWeight: FontWeight.w600,
           color: isIncoming ? Colors.green.shade700 : Colors.orange.shade700,

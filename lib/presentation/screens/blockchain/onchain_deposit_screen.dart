@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
@@ -810,7 +811,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${tx.type.apiValue} · ${tx.amount} ${tx.chain.nativeSymbol}',
+                                          '${tx.type.apiValue} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)} ${tx.chain.nativeSymbol}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -819,7 +820,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                         if (tx.hasFxConversion) ...[
                                           const SizedBox(height: 2),
                                           Text(
-                                            '→ ${tx.creditedAmount} USDT',
+                                            '→ ${FormatUtils.formatDecimalAmountDisplay(tx.creditedAmount ?? '0')} USDT',
                                             style: const TextStyle(
                                               fontSize: 12,
                                               color: Color(0xFF0F8A49),

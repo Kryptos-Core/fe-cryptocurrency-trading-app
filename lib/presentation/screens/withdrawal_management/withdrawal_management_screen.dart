@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_detail_screen.dart';
@@ -440,7 +441,7 @@ class _WithdrawalTile extends StatelessWidget {
       title: Row(
         children: [
           Text(
-            '${withdrawal.amount} ${withdrawal.chain}',
+            '${FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)} ${withdrawal.chain}',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(width: 8),
