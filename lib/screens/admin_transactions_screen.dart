@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/network/dio_client.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart' show sl;
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/data/models/user_model.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'admin_user_detail_screen.dart';
 
 class AdminTransactionsScreen extends StatefulWidget {
   const AdminTransactionsScreen({super.key});
@@ -615,7 +622,9 @@ class _OrderTile extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
+      trailing: const Icon(Icons.chevron_right, size: 18),
       isThreeLine: true,
+      onTap: () => _OrderDetailSheet.show(context, order),
     );
   }
 
@@ -683,7 +692,9 @@ class _DepositTile extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
+      trailing: const Icon(Icons.chevron_right, size: 18),
       isThreeLine: true,
+      onTap: () => _DepositDetailSheet.show(context, deposit),
     );
   }
 
@@ -755,7 +766,9 @@ class _WithdrawalTile extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
+      trailing: const Icon(Icons.chevron_right, size: 18),
       isThreeLine: true,
+      onTap: () => _WithdrawalDetailSheet.show(context, tx),
     );
   }
 
@@ -772,6 +785,842 @@ class _WithdrawalTile extends StatelessWidget {
       default:
         return (Colors.grey, s);
     }
+  }
+}
+
+// ── Detail Sheets ─────────────────────────────────────────────────────────────
+
+/// Helper to copy text and show snack.
+void _copyToClipboard(BuildContext context, String text, String message) {
+  Clipboard.setData(ClipboardData(text: text));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
+/// Fetch user entity from /users/:id and navigate to AdminUserDetailScreen.
+Future<void> _openUserDetail(BuildContext context, String userId) async {
+  if (userId.isEmpty) return;
+  final scaffold = ScaffoldMessenger.of(context);
+  try {
+    final dio = sl<DioClient>().dio;
+    final resp = await dio.get(ApiConstants.userById(userId));
+    final raw = resp.data is Map<String, dynamic>
+        ? ((resp.data as Map<String, dynamic>)['data'] ?? resp.data) as Map<String, dynamic>
+        : resp.data as Map<String, dynamic>;
+    final user = UserModel.fromJson(raw).toEntity();
+    if (!context.mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: context.read<AdminUsersProvider>(),
+          child: AdminUserDetailScreen(user: user),
+        ),
+      ),
+    );
+  } catch (e) {
+    scaffold.showSnackBar(SnackBar(
+      content: Text('Không thể tải thông tin user: $e'),
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+}
+
+// ── _OrderDetailSheet ─────────────────────────────────────────────────────────
+
+class _OrderDetailSheet extends StatelessWidget {
+  final Map<String, dynamic> order;
+  const _OrderDetailSheet({required this.order});
+
+  static void show(BuildContext context, Map<String, dynamic> order) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _OrderDetailSheet(order: order),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    final orderId    = order['order_id']?.toString() ?? order['orderId']?.toString() ?? '';
+    final userId     = order['user_id']?.toString() ?? order['userId']?.toString() ?? '';
+    final side       = order['side']?.toString() ?? '';
+    final isBuy      = side == 'BUY';
+    final sideColor  = isBuy ? Colors.green : Colors.red;
+    final type       = order['type']?.toString() ?? '';
+    final status     = order['status']?.toString() ?? '';
+    final pairSymbol = order['pair_symbol']?.toString() ??
+        order['pairSymbol']?.toString() ??
+        order['market_symbol']?.toString() ?? '';
+    final amount        = order['amount']?.toString() ?? '0';
+    final price         = order['price']?.toString();
+    final filledAmount  = order['filled_amount']?.toString() ?? order['filledAmount']?.toString() ?? '0';
+    final avgPrice      = order['avg_price']?.toString() ?? order['avgPrice']?.toString();
+    final tif           = order['time_in_force']?.toString() ?? order['timeInForce']?.toString() ?? 'GTC';
+    final clientOid     = order['client_order_id']?.toString() ?? order['clientOrderId']?.toString();
+    final createdAt     = _parseDate(order['created_at'] ?? order['createdAt']);
+    final updatedAt     = _parseDate(order['updated_at'] ?? order['updatedAt']);
+    final (statusColor, statusLabel) = _resolveStatus(l10n, status);
+
+    // Derived values
+    final amountD    = double.tryParse(amount) ?? 0;
+    final filledD    = double.tryParse(filledAmount) ?? 0;
+    final remaining  = amountD > 0 ? amountD - filledD : 0.0;
+    final fillPct    = amountD > 0 ? (filledD / amountD * 100) : 0.0;
+    final typeLabel  = type == 'LIMIT'
+        ? l10n.orderDetailTypeLimitLabel
+        : type == 'MARKET'
+            ? l10n.orderDetailTypeMarketLabel
+            : type;
+    final sideLabel  = isBuy ? l10n.orderDetailSideBuy : l10n.orderDetailSideSell;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) => Column(
+        children: [
+          // Drag handle
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: sideColor.withValues(alpha: 0.12),
+                  child: Icon(
+                    isBuy ? Icons.trending_up : Icons.trending_down,
+                    color: sideColor, size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${isBuy ? l10n.buy : l10n.sell} $pairSymbol',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          color: sideColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          _StatusBadge(label: statusLabel, color: statusColor),
+                          if (type.isNotEmpty) ...[
+                            const SizedBox(width: 6),
+                            _StatusBadge(label: typeLabel, color: cs.primary),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // Body
+          Expanded(
+            child: ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.all(16),
+              children: [
+                _DetailSection(
+                  title: 'Thông tin lệnh',
+                  children: [
+                    if (orderId.isNotEmpty)
+                      _CopyableRow(
+                        label: l10n.orderDetailOrderId,
+                        value: orderId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, orderId, l10n.orderDetailCopied),
+                      ),
+                    if (pairSymbol.isNotEmpty)
+                      _InfoRow(label: l10n.orderDetailPair, value: pairSymbol),
+                    _InfoRow(
+                      label: l10n.orderDetailSide,
+                      valueWidget: Text(
+                        sideLabel,
+                        style: TextStyle(fontWeight: FontWeight.w600, color: sideColor),
+                      ),
+                    ),
+                    _InfoRow(label: l10n.orderDetailType, value: typeLabel),
+                    _InfoRow(label: l10n.orderDetailTimeInForce, value: tif),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Giá & Khối lượng',
+                  children: [
+                    _InfoRow(
+                      label: l10n.orderDetailAmount,
+                      value: '${FormatUtils.formatDecimalAmountDisplay(amount)} ${pairSymbol.split('/').firstOrNull ?? ''}',
+                    ),
+                    if (price != null && price.isNotEmpty)
+                      _InfoRow(
+                        label: l10n.orderDetailPrice,
+                        value: '${FormatUtils.formatDecimalAmountDisplay(price)} ${pairSymbol.split('/').lastOrNull ?? ''}',
+                      ),
+                    _InfoRow(
+                      label: l10n.orderDetailFilledAmount,
+                      value: '${FormatUtils.formatDecimalAmountDisplay(filledAmount)} ${pairSymbol.split('/').firstOrNull ?? ''}',
+                    ),
+                    if (avgPrice != null && avgPrice.isNotEmpty)
+                      _InfoRow(
+                        label: l10n.orderDetailAvgPrice,
+                        value: '${FormatUtils.formatDecimalAmountDisplay(avgPrice)} ${pairSymbol.split('/').lastOrNull ?? ''}',
+                      ),
+                    _InfoRow(
+                      label: l10n.orderDetailRemainingAmount,
+                      value: '${FormatUtils.formatDecimalAmountDisplay(remaining.toStringAsFixed(8))} ${pairSymbol.split('/').firstOrNull ?? ''}',
+                    ),
+                    _InfoRow(
+                      label: l10n.orderDetailFilledPct,
+                      valueWidget: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: LinearProgressIndicator(
+                              value: fillPct / 100,
+                              backgroundColor: cs.surfaceContainerHighest,
+                              color: fillPct >= 100 ? Colors.green : cs.primary,
+                              minHeight: 6,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text('${fillPct.toStringAsFixed(1)}%',
+                              style: const TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Thời gian',
+                  children: [
+                    if (createdAt != null)
+                      _InfoRow(
+                        label: l10n.orderDetailCreatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(createdAt.toLocal()),
+                      ),
+                    if (updatedAt != null)
+                      _InfoRow(
+                        label: l10n.orderDetailUpdatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(updatedAt.toLocal()),
+                      ),
+                  ],
+                ),
+                if (clientOid != null && clientOid.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _DetailSection(
+                    title: 'Tham chiếu',
+                    children: [
+                      _CopyableRow(
+                        label: 'Client Order ID',
+                        value: clientOid,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, clientOid, l10n.orderDetailCopied),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Người dùng',
+                  children: [
+                    if (userId.isNotEmpty)
+                      _CopyableRow(
+                        label: l10n.orderDetailUserId,
+                        value: userId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, userId, l10n.orderDetailCopied),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (userId.isNotEmpty)
+                  FilledButton.tonal(
+                    onPressed: () => _openUserDetail(context, userId),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.person_search_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(l10n.orderDetailViewUser),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  (Color, String) _resolveStatus(AppLocalizations l10n, String s) {
+    switch (s) {
+      case 'FILLED':
+        return (Colors.green, l10n.orderStatusFilled);
+      case 'PARTIAL':
+        return (Colors.blue, l10n.orderStatusPartial);
+      case 'OPEN':
+        return (Colors.orange, l10n.orderStatusOpen);
+      case 'CANCELLED':
+        return (Colors.grey, l10n.orderStatusCancelled);
+      default:
+        return (Colors.red, s);
+    }
+  }
+}
+
+// ── _DepositDetailSheet ───────────────────────────────────────────────────────
+
+class _DepositDetailSheet extends StatelessWidget {
+  final Map<String, dynamic> deposit;
+  const _DepositDetailSheet({required this.deposit});
+
+  static void show(BuildContext context, Map<String, dynamic> deposit) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _DepositDetailSheet(deposit: deposit),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    final depositId  = deposit['id']?.toString() ?? deposit['deposit_id']?.toString() ?? '';
+    final userId     = deposit['user_id']?.toString() ?? deposit['userId']?.toString() ?? '';
+    final amount     = deposit['amount']?.toString() ?? '0';
+    final status     = deposit['status']?.toString() ?? '';
+    final orderCode  = deposit['order_code']?.toString() ?? deposit['orderCode']?.toString() ?? '';
+    final createdAt  = _parseDate(deposit['created_at'] ?? deposit['createdAt']);
+    final updatedAt  = _parseDate(deposit['updated_at'] ?? deposit['updatedAt']);
+    final (statusColor, statusLabel) = _resolveStatus(l10n, status);
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (_, scrollCtrl) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.green.withValues(alpha: 0.12),
+                  child: const Icon(Icons.arrow_downward, color: Colors.green, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.depositDetailTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                      ),
+                      const SizedBox(height: 2),
+                      _StatusBadge(label: statusLabel, color: statusColor),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.all(16),
+              children: [
+                _DetailSection(
+                  title: 'Thông tin nạp tiền',
+                  children: [
+                    _InfoRow(
+                      label: l10n.depositDetailAmount,
+                      valueWidget: Text(
+                        '${FormatUtils.formatFiatIntegerDisplay(amount)} VND',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ),
+                    _InfoRow(
+                      label: l10n.depositDetailStatus,
+                      valueWidget: _StatusBadge(label: statusLabel, color: statusColor),
+                    ),
+                    if (orderCode.isNotEmpty)
+                      _CopyableRow(
+                        label: l10n.depositDetailOrderCode,
+                        value: orderCode,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, orderCode, l10n.depositDetailCopied),
+                      ),
+                    if (depositId.isNotEmpty)
+                      _CopyableRow(
+                        label: 'Deposit ID',
+                        value: depositId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, depositId, l10n.depositDetailCopied),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Thời gian',
+                  children: [
+                    if (createdAt != null)
+                      _InfoRow(
+                        label: l10n.depositDetailCreatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(createdAt.toLocal()),
+                      ),
+                    if (updatedAt != null)
+                      _InfoRow(
+                        label: l10n.depositDetailUpdatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(updatedAt.toLocal()),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Người dùng',
+                  children: [
+                    if (userId.isNotEmpty)
+                      _CopyableRow(
+                        label: l10n.depositDetailUserId,
+                        value: userId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, userId, l10n.depositDetailCopied),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (userId.isNotEmpty)
+                  FilledButton.tonal(
+                    onPressed: () => _openUserDetail(context, userId),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.person_search_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(l10n.depositDetailViewUser),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  (Color, String) _resolveStatus(AppLocalizations l10n, String s) {
+    switch (s) {
+      case 'PAID':
+        return (Colors.green, l10n.depositStatusPaid);
+      case 'PENDING':
+        return (Colors.orange, l10n.depositStatusPending);
+      case 'CANCELLED':
+        return (Colors.grey, l10n.depositStatusCancelled);
+      default:
+        return (Colors.grey, s);
+    }
+  }
+}
+
+// ── _WithdrawalDetailSheet ────────────────────────────────────────────────────
+
+class _WithdrawalDetailSheet extends StatelessWidget {
+  final Map<String, dynamic> tx;
+  const _WithdrawalDetailSheet({required this.tx});
+
+  static void show(BuildContext context, Map<String, dynamic> tx) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _WithdrawalDetailSheet(tx: tx),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    final txId      = tx['id']?.toString() ?? tx['tx_id']?.toString() ?? '';
+    final userId    = tx['user_id']?.toString() ?? tx['userId']?.toString() ?? '';
+    final amount    = tx['amount']?.toString() ?? '0';
+    final chain     = tx['chain']?.toString() ?? '';
+    final address   = tx['to_address']?.toString() ?? tx['toAddress']?.toString() ?? tx['address']?.toString() ?? '';
+    final txHash    = tx['tx_hash']?.toString() ?? tx['txHash']?.toString() ?? '';
+    final symbol    = tx['symbol']?.toString() ?? tx['currency_symbol']?.toString() ?? '';
+    final status    = tx['status']?.toString() ?? '';
+    final createdAt = _parseDate(tx['created_at'] ?? tx['createdAt']);
+    final updatedAt = _parseDate(tx['updated_at'] ?? tx['updatedAt']);
+    final (statusColor, statusLabel) = _resolveStatus(l10n, status);
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.65,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: statusColor.withValues(alpha: 0.12),
+                  child: Icon(Icons.arrow_upward, color: statusColor, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.withdrawalDetailInfoTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                      ),
+                      const SizedBox(height: 2),
+                      _StatusBadge(label: statusLabel, color: statusColor),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.all(16),
+              children: [
+                _DetailSection(
+                  title: 'Thông tin giao dịch',
+                  children: [
+                    _InfoRow(
+                      label: l10n.withdrawalDetailAmount,
+                      valueWidget: Text(
+                        '${FormatUtils.formatDecimalAmountDisplay(amount)}${symbol.isNotEmpty ? ' $symbol' : ''}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                      ),
+                    ),
+                    if (chain.isNotEmpty)
+                      _InfoRow(label: l10n.withdrawalDetailChain, value: chain),
+                    _InfoRow(
+                      label: l10n.withdrawalDetailStatus,
+                      valueWidget: _StatusBadge(label: statusLabel, color: statusColor),
+                    ),
+                    if (txId.isNotEmpty)
+                      _CopyableRow(
+                        label: 'Withdrawal ID',
+                        value: txId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, txId, l10n.withdrawalDetailCopied),
+                      ),
+                  ],
+                ),
+                if (address.isNotEmpty || txHash.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _DetailSection(
+                    title: 'On-Chain',
+                    children: [
+                      if (address.isNotEmpty)
+                        _CopyableRow(
+                          label: l10n.withdrawalDetailAddress,
+                          value: address,
+                          monospace: true,
+                          onCopy: () => _copyToClipboard(context, address, l10n.withdrawalDetailCopied),
+                        ),
+                      if (txHash.isNotEmpty)
+                        _CopyableRow(
+                          label: l10n.withdrawalDetailTxHash,
+                          value: txHash,
+                          monospace: true,
+                          onCopy: () => _copyToClipboard(context, txHash, l10n.withdrawalDetailCopied),
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Thời gian',
+                  children: [
+                    if (createdAt != null)
+                      _InfoRow(
+                        label: l10n.withdrawalDetailCreatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(createdAt.toLocal()),
+                      ),
+                    if (updatedAt != null)
+                      _InfoRow(
+                        label: l10n.withdrawalDetailUpdatedAt,
+                        value: DateFormat('dd/MM/yyyy HH:mm:ss').format(updatedAt.toLocal()),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailSection(
+                  title: 'Người dùng',
+                  children: [
+                    if (userId.isNotEmpty)
+                      _CopyableRow(
+                        label: l10n.withdrawalDetailUserId,
+                        value: userId,
+                        monospace: true,
+                        onCopy: () => _copyToClipboard(context, userId, l10n.withdrawalDetailCopied),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (userId.isNotEmpty)
+                  FilledButton.tonal(
+                    onPressed: () => _openUserDetail(context, userId),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.person_search_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(l10n.withdrawalDetailViewUser),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  (Color, String) _resolveStatus(AppLocalizations l10n, String s) {
+    switch (s) {
+      case 'COMPLETED':
+        return (Colors.green, l10n.withdrawalStatusCompleted);
+      case 'CONFIRMING':
+        return (Colors.blue, l10n.withdrawalStatusConfirming);
+      case 'PENDING':
+        return (Colors.orange, l10n.withdrawalStatusPending);
+      case 'FAILED':
+        return (Colors.red, l10n.withdrawalStatusFailed);
+      default:
+        return (Colors.grey, s);
+    }
+  }
+}
+
+// ── Detail sub-widgets ────────────────────────────────────────────────────────
+
+class _DetailSection extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  const _DetailSection({required this.title, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    if (children.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: cs.primary,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Material(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            children: [
+              for (int i = 0; i < children.length; i++) ...[
+                if (i > 0)
+                  Divider(height: 1, indent: 16, endIndent: 16,
+                      color: cs.outlineVariant.withValues(alpha: 0.4)),
+                children[i],
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String? value;
+  final Widget? valueWidget;
+  const _InfoRow({required this.label, this.value, this.valueWidget});
+
+  @override
+  Widget build(BuildContext context) {
+    assert(value != null || valueWidget != null, '_InfoRow needs value or valueWidget');
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Expanded(
+            child: valueWidget ??
+                Text(
+                  value!,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.end,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CopyableRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool monospace;
+  final VoidCallback onCopy;
+  const _CopyableRow({
+    required this.label,
+    required this.value,
+    required this.onCopy,
+    this.monospace = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontFamily: monospace ? 'monospace' : null,
+                fontSize: monospace ? 11 : null,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              textAlign: TextAlign.end,
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.copy_outlined, size: 16),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            tooltip: 'Copy',
+            onPressed: onCopy,
+          ),
+        ],
+      ),
+    );
   }
 }
 

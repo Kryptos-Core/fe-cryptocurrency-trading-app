@@ -2338,6 +2338,129 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminOrderPriceLabel => 'Price';
 
   @override
+  String get orderDetailTitle => 'Order Detail';
+
+  @override
+  String get orderDetailOrderId => 'Order ID';
+
+  @override
+  String get orderDetailUserId => 'User ID';
+
+  @override
+  String get orderDetailPair => 'Trading Pair';
+
+  @override
+  String get orderDetailSide => 'Side';
+
+  @override
+  String get orderDetailType => 'Order Type';
+
+  @override
+  String get orderDetailTypeLimitLabel => 'Limit';
+
+  @override
+  String get orderDetailTypeMarketLabel => 'Market';
+
+  @override
+  String get orderDetailAmount => 'Quantity';
+
+  @override
+  String get orderDetailPrice => 'Order Price';
+
+  @override
+  String get orderDetailAvgPrice => 'Avg. Fill Price';
+
+  @override
+  String get orderDetailFilledAmount => 'Filled Qty';
+
+  @override
+  String get orderDetailFilledPct => 'Fill Rate';
+
+  @override
+  String get orderDetailRemainingAmount => 'Remaining';
+
+  @override
+  String get orderDetailTimeInForce => 'Time in Force';
+
+  @override
+  String get orderDetailCreatedAt => 'Created At';
+
+  @override
+  String get orderDetailUpdatedAt => 'Last Updated';
+
+  @override
+  String get orderDetailCopied => 'Copied!';
+
+  @override
+  String get orderDetailViewUser => 'View User Detail';
+
+  @override
+  String get orderDetailSideBuy => 'Buy';
+
+  @override
+  String get orderDetailSideSell => 'Sell';
+
+  @override
+  String get depositDetailTitle => 'Deposit Detail';
+
+  @override
+  String get depositDetailOrderCode => 'Order Code';
+
+  @override
+  String get depositDetailAmount => 'Amount';
+
+  @override
+  String get depositDetailStatus => 'Status';
+
+  @override
+  String get depositDetailUserId => 'User ID';
+
+  @override
+  String get depositDetailCreatedAt => 'Created At';
+
+  @override
+  String get depositDetailUpdatedAt => 'Last Updated';
+
+  @override
+  String get depositDetailCopied => 'Copied!';
+
+  @override
+  String get depositDetailViewUser => 'View User Detail';
+
+  @override
+  String get withdrawalDetailInfoTitle => 'On-Chain Withdrawal Detail';
+
+  @override
+  String get withdrawalDetailUserId => 'User ID';
+
+  @override
+  String get withdrawalDetailAmount => 'Amount';
+
+  @override
+  String get withdrawalDetailChain => 'Network';
+
+  @override
+  String get withdrawalDetailAddress => 'Recipient Address';
+
+  @override
+  String get withdrawalDetailTxHash => 'Transaction Hash';
+
+  @override
+  String get withdrawalDetailStatus => 'Status';
+
+  @override
+  String get withdrawalDetailCreatedAt => 'Created At';
+
+  @override
+  String get withdrawalDetailUpdatedAt => 'Last Updated';
+
+  @override
+  String get withdrawalDetailCopied => 'Copied!';
+
+  @override
+  String get withdrawalDetailViewUser => 'View User Detail';
+
+  @override
   String get depositStatusPaid => 'Paid';
 
   @override

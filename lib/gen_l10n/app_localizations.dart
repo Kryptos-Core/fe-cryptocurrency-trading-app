@@ -4371,6 +4371,252 @@ abstract class AppLocalizations {
   /// **'Price'**
   String get adminOrderPriceLabel;
 
+  /// No description provided for @orderDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Detail'**
+  String get orderDetailTitle;
+
+  /// No description provided for @orderDetailOrderId.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get orderDetailOrderId;
+
+  /// No description provided for @orderDetailUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get orderDetailUserId;
+
+  /// No description provided for @orderDetailPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading Pair'**
+  String get orderDetailPair;
+
+  /// No description provided for @orderDetailSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get orderDetailSide;
+
+  /// No description provided for @orderDetailType.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Type'**
+  String get orderDetailType;
+
+  /// No description provided for @orderDetailTypeLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get orderDetailTypeLimitLabel;
+
+  /// No description provided for @orderDetailTypeMarketLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get orderDetailTypeMarketLabel;
+
+  /// No description provided for @orderDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get orderDetailAmount;
+
+  /// No description provided for @orderDetailPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Price'**
+  String get orderDetailPrice;
+
+  /// No description provided for @orderDetailAvgPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. Fill Price'**
+  String get orderDetailAvgPrice;
+
+  /// No description provided for @orderDetailFilledAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled Qty'**
+  String get orderDetailFilledAmount;
+
+  /// No description provided for @orderDetailFilledPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill Rate'**
+  String get orderDetailFilledPct;
+
+  /// No description provided for @orderDetailRemainingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get orderDetailRemainingAmount;
+
+  /// No description provided for @orderDetailTimeInForce.
+  ///
+  /// In en, this message translates to:
+  /// **'Time in Force'**
+  String get orderDetailTimeInForce;
+
+  /// No description provided for @orderDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get orderDetailCreatedAt;
+
+  /// No description provided for @orderDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Updated'**
+  String get orderDetailUpdatedAt;
+
+  /// No description provided for @orderDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get orderDetailCopied;
+
+  /// No description provided for @orderDetailViewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'View User Detail'**
+  String get orderDetailViewUser;
+
+  /// No description provided for @orderDetailSideBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get orderDetailSideBuy;
+
+  /// No description provided for @orderDetailSideSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get orderDetailSideSell;
+
+  /// No description provided for @depositDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Detail'**
+  String get depositDetailTitle;
+
+  /// No description provided for @depositDetailOrderCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Code'**
+  String get depositDetailOrderCode;
+
+  /// No description provided for @depositDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get depositDetailAmount;
+
+  /// No description provided for @depositDetailStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get depositDetailStatus;
+
+  /// No description provided for @depositDetailUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get depositDetailUserId;
+
+  /// No description provided for @depositDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get depositDetailCreatedAt;
+
+  /// No description provided for @depositDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Updated'**
+  String get depositDetailUpdatedAt;
+
+  /// No description provided for @depositDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get depositDetailCopied;
+
+  /// No description provided for @depositDetailViewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'View User Detail'**
+  String get depositDetailViewUser;
+
+  /// No description provided for @withdrawalDetailInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-Chain Withdrawal Detail'**
+  String get withdrawalDetailInfoTitle;
+
+  /// No description provided for @withdrawalDetailUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get withdrawalDetailUserId;
+
+  /// No description provided for @withdrawalDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get withdrawalDetailAmount;
+
+  /// No description provided for @withdrawalDetailChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get withdrawalDetailChain;
+
+  /// No description provided for @withdrawalDetailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient Address'**
+  String get withdrawalDetailAddress;
+
+  /// No description provided for @withdrawalDetailTxHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Hash'**
+  String get withdrawalDetailTxHash;
+
+  /// No description provided for @withdrawalDetailStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get withdrawalDetailStatus;
+
+  /// No description provided for @withdrawalDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get withdrawalDetailCreatedAt;
+
+  /// No description provided for @withdrawalDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Updated'**
+  String get withdrawalDetailUpdatedAt;
+
+  /// No description provided for @withdrawalDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied!'**
+  String get withdrawalDetailCopied;
+
+  /// No description provided for @withdrawalDetailViewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'View User Detail'**
+  String get withdrawalDetailViewUser;
+
   /// No description provided for @depositStatusPaid.
   ///
   /// In en, this message translates to:

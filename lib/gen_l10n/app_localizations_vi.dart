@@ -2338,6 +2338,129 @@ class AppLocalizationsVi extends AppLocalizations {
   String get adminOrderPriceLabel => 'Giá';
 
   @override
+  String get orderDetailTitle => 'Chi tiết lệnh';
+
+  @override
+  String get orderDetailOrderId => 'Order ID';
+
+  @override
+  String get orderDetailUserId => 'User ID';
+
+  @override
+  String get orderDetailPair => 'Cặp giao dịch';
+
+  @override
+  String get orderDetailSide => 'Chiều';
+
+  @override
+  String get orderDetailType => 'Loại lệnh';
+
+  @override
+  String get orderDetailTypeLimitLabel => 'Giới hạn';
+
+  @override
+  String get orderDetailTypeMarketLabel => 'Thị trường';
+
+  @override
+  String get orderDetailAmount => 'Khối lượng đặt';
+
+  @override
+  String get orderDetailPrice => 'Giá đặt';
+
+  @override
+  String get orderDetailAvgPrice => 'Giá trung bình khớp';
+
+  @override
+  String get orderDetailFilledAmount => 'Khối lượng đã khớp';
+
+  @override
+  String get orderDetailFilledPct => 'Tỷ lệ khớp';
+
+  @override
+  String get orderDetailRemainingAmount => 'Còn lại';
+
+  @override
+  String get orderDetailTimeInForce => 'Time in Force';
+
+  @override
+  String get orderDetailCreatedAt => 'Thời gian tạo';
+
+  @override
+  String get orderDetailUpdatedAt => 'Cập nhật lần cuối';
+
+  @override
+  String get orderDetailCopied => 'Đã sao chép!';
+
+  @override
+  String get orderDetailViewUser => 'Xem chi tiết User';
+
+  @override
+  String get orderDetailSideBuy => 'Mua';
+
+  @override
+  String get orderDetailSideSell => 'Bán';
+
+  @override
+  String get depositDetailTitle => 'Chi tiết nạp tiền';
+
+  @override
+  String get depositDetailOrderCode => 'Mã đơn hàng';
+
+  @override
+  String get depositDetailAmount => 'Số tiền';
+
+  @override
+  String get depositDetailStatus => 'Trạng thái';
+
+  @override
+  String get depositDetailUserId => 'User ID';
+
+  @override
+  String get depositDetailCreatedAt => 'Thời gian tạo';
+
+  @override
+  String get depositDetailUpdatedAt => 'Cập nhật lần cuối';
+
+  @override
+  String get depositDetailCopied => 'Đã sao chép!';
+
+  @override
+  String get depositDetailViewUser => 'Xem chi tiết User';
+
+  @override
+  String get withdrawalDetailInfoTitle => 'Chi tiết rút tiền on-chain';
+
+  @override
+  String get withdrawalDetailUserId => 'User ID';
+
+  @override
+  String get withdrawalDetailAmount => 'Số lượng';
+
+  @override
+  String get withdrawalDetailChain => 'Mạng';
+
+  @override
+  String get withdrawalDetailAddress => 'Địa chỉ nhận';
+
+  @override
+  String get withdrawalDetailTxHash => 'Transaction Hash';
+
+  @override
+  String get withdrawalDetailStatus => 'Trạng thái';
+
+  @override
+  String get withdrawalDetailCreatedAt => 'Thời gian tạo';
+
+  @override
+  String get withdrawalDetailUpdatedAt => 'Cập nhật lần cuối';
+
+  @override
+  String get withdrawalDetailCopied => 'Đã sao chép!';
+
+  @override
+  String get withdrawalDetailViewUser => 'Xem chi tiết User';
+
+  @override
   String get depositStatusPaid => 'Đã thanh toán';
 
   @override
