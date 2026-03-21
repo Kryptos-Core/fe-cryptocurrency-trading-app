@@ -150,6 +150,82 @@ class _MainScreenState extends State<MainScreen> {
     l10n.profile,
   ];
 
+  /// Handle bottom nav tab tap with smart refresh logic.
+  void _onTabTap(int index) {
+    setState(() => _currentIndex = index);
+    if (index == 0) {
+      context.read<DashboardProvider>().refresh();
+    }
+    if (index == 2) {
+      context.read<DashboardProvider>().refresh();
+      context.read<WalletsProvider>().fetchWallets(includeZero: true);
+    }
+  }
+
+  /// Open the Trade (Orders) screen. Requires authentication.
+  void _openTradeScreen() {
+    if (!context.read<AuthProvider>().isAuthenticated) {
+      _showAuthRequired();
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const OrdersScreen()),
+    );
+  }
+
+  /// Show a prompt directing the user to sign in before trading.
+  void _showAuthRequired() {
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.authRequiredTitle),
+        action: SnackBarAction(
+          label: l10n.signIn,
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Build a single bottom nav item (icon + label, tap-to-select).
+  Widget _buildNavItem(
+    int index,
+    IconData outlinedIcon,
+    IconData filledIcon,
+    String label,
+  ) {
+    final isSelected = _currentIndex == index;
+    final color = isSelected
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    return InkWell(
+      onTap: () => _onTabTap(index),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(isSelected ? filledIcon : outlinedIcon, color: color, size: 22),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(fontSize: 10, color: color, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -217,44 +293,36 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          // Smart refresh: re-check dashboard data freshness on tab focus
-          if (index == 0) {
-            context.read<DashboardProvider>().refresh();
-          }
-          if (index == 2) {
-            context.read<DashboardProvider>().refresh();
-            context.read<WalletsProvider>().fetchWallets(includeZero: true);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard_outlined),
-            activeIcon: const Icon(Icons.dashboard),
-            label: l10n.dashboard,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.trending_up_outlined),
-            activeIcon: const Icon(Icons.trending_up),
-            label: l10n.markets,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: const Icon(Icons.account_balance_wallet),
-            label: l10n.wallets,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person_outline),
-            activeIcon: const Icon(Icons.person),
-            label: l10n.profile,
-          ),
-        ],
+      floatingActionButton: _TradeFab(onTap: _openTradeScreen),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        height: 60,
+        padding: EdgeInsets.zero,
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, l10n.dashboard),
+                  _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up, l10n.markets),
+                ],
+              ),
+            ),
+            const SizedBox(width: 56),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNavItem(2, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, l10n.wallets),
+                  _buildNavItem(3, Icons.person_outline, Icons.person, l10n.profile),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -320,32 +388,6 @@ class _MainScreenState extends State<MainScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CurrenciesListScreen(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list_alt),
-              title: Text(l10n.orders),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OrdersScreen(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.account_tree_outlined),
-              title: Text(l10n.drawerOnchainWallets),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BlockchainHubScreen(),
                   ),
                 );
               },
@@ -728,6 +770,83 @@ class _FeatureRow extends StatelessWidget {
           const SizedBox(width: 12),
           Text(label, style: Theme.of(context).textTheme.bodyMedium),
         ],
+      ),
+    );
+  }
+}
+
+/// Trade FAB with 3D gradient circle style.
+/// Uses a real FloatingActionButton so CircularNotchedRectangle can compute the notch.
+class _TradeFab extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _TradeFab({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: FloatingActionButton(
+        onPressed: onTap,
+        elevation: 0,
+        highlightElevation: 0,
+        backgroundColor: Colors.transparent,
+        shape: const CircleBorder(),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4DB6AC), Color(0xFF00695C)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF26A69A).withValues(alpha: 0.55),
+                blurRadius: 12,
+                spreadRadius: 1,
+                offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.18),
+                blurRadius: 4,
+                offset: const Offset(-2, -2),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                top: 5,
+                left: 8,
+                child: Container(
+                  width: 40,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(7),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.3),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.swap_horiz_rounded,
+                color: Colors.white,
+                size: 26,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
