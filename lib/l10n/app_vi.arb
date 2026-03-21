@@ -828,6 +828,23 @@
   "adminDepositsEmpty": "Không có giao dịch nạp tiền nào",
   "adminWithdrawalsEmpty": "Không có giao dịch rút tiền nào",
   "adminOrderPriceLabel": "Giá",
+  "adminOrderListBuyWhat": "Mua {base} (trả bằng {quote})",
+  "@adminOrderListBuyWhat": {
+    "placeholders": {
+      "base": { "type": "String" },
+      "quote": { "type": "String" }
+    }
+  },
+  "adminOrderListSellWhat": "Bán {base} (nhận {quote})",
+  "@adminOrderListSellWhat": {
+    "placeholders": {
+      "base": { "type": "String" },
+      "quote": { "type": "String" }
+    }
+  },
+  "adminOrderListBuyPriceLabel": "Giá mua đặt",
+  "adminOrderListSellPriceLabel": "Giá bán đặt",
+  "adminOrderListMarketPriceHint": "Theo giá thị trường",
 
   "orderDetailTitle": "Chi tiết lệnh",
   "orderDetailOrderId": "Order ID",

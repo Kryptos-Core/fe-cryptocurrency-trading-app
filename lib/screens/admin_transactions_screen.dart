@@ -226,8 +226,9 @@ class _OrdersTabState extends State<_OrdersTab>
                 onRefresh: () => p.fetchOrders(refresh: true),
                 child: ListView.separated(
                   controller: _scroll,
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
                   itemCount: p.orders.length + (p.ordersHasMore ? 1 : 0),
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (_, i) {
                     if (i >= p.orders.length) {
                       return const _LoadMoreIndicator();
@@ -572,59 +573,166 @@ class _OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     final side = order['side']?.toString() ?? '';
     final isBuy = side == 'BUY';
     final sideColor = isBuy ? Colors.green : Colors.red;
     final status = order['status']?.toString() ?? '';
     final amount = order['amount']?.toString() ?? '0';
     final price = order['price']?.toString();
-    final pairSymbol = order['pair_symbol']?.toString() ??
-        order['pairSymbol']?.toString() ??
-        order['market_symbol']?.toString() ?? '';
+    final pairSymbol = _pairSymbolFromOrder(order);
+    final (base, quote) = _baseQuoteFromPairSymbol(pairSymbol);
+    final orderType = order['type']?.toString() ?? '';
+    final priceStr = price?.toString() ?? '';
+    final hasPrice = priceStr.isNotEmpty;
     final userId = order['user_id']?.toString() ?? order['userId']?.toString() ?? '';
     final createdAt = _parseDate(order['created_at'] ?? order['createdAt']);
     final (statusColor, statusLabel) = _statusInfo(l10n, status);
 
-    return ListTile(
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      leading: CircleAvatar(
-        backgroundColor: sideColor.withValues(alpha: 0.1),
-        child: Icon(
-          isBuy ? Icons.trending_up : Icons.trending_down,
-          color: sideColor,
-          size: 20,
+    final pairIdRaw = order['pair_id']?.toString() ?? order['pairId']?.toString() ?? '';
+    final pairDisplay = pairSymbol.isNotEmpty
+        ? pairSymbol
+        : (pairIdRaw.isNotEmpty ? _truncate(pairIdRaw, 18) : '');
+    final typeLabel = orderType == 'LIMIT'
+        ? l10n.orderDetailTypeLimitLabel
+        : orderType == 'MARKET'
+            ? l10n.orderDetailTypeMarketLabel
+            : orderType;
+    final buySellPriceLabel = isBuy
+        ? l10n.adminOrderListBuyPriceLabel
+        : l10n.adminOrderListSellPriceLabel;
+
+    final amountValue = [
+      FormatUtils.formatDecimalAmountDisplay(amount),
+      if (base.isNotEmpty) base,
+    ].join(' ');
+
+    final priceValue = orderType == 'MARKET'
+        ? '${l10n.orderDetailTypeMarketLabel} · ${l10n.adminOrderListMarketPriceHint}'
+        : (!hasPrice
+            ? '—'
+            : [
+                FormatUtils.formatDecimalAmountDisplay(priceStr),
+                if (quote.isNotEmpty) quote,
+              ].join(' '));
+
+    final metaParts = <String>[
+      if (userId.isNotEmpty)
+        '${l10n.adminUserLabel}: ${_truncate(userId, 22)}',
+      if (createdAt != null)
+        DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal()),
+    ];
+
+    return Material(
+      color: cs.surfaceContainerLow.withValues(alpha: 0.85),
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.45)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _OrderDetailSheet.show(context, order),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: sideColor.withValues(alpha: 0.12),
+                child: Icon(
+                  isBuy ? Icons.trending_up : Icons.trending_down,
+                  color: sideColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                pairDisplay.isNotEmpty ? pairDisplay : '—',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: cs.onSurface,
+                                  height: 1.2,
+                                ),
+                              ),
+                              _OrderPill(
+                                label: isBuy ? l10n.buy : l10n.sell,
+                                foreground: sideColor,
+                                background: sideColor.withValues(alpha: 0.12),
+                                border: sideColor.withValues(alpha: 0.35),
+                              ),
+                              _OrderPill(
+                                label: typeLabel,
+                                foreground: cs.onSurfaceVariant,
+                                background: cs.surfaceContainerHighest
+                                    .withValues(alpha: 0.65),
+                                border: cs.outlineVariant.withValues(alpha: 0.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _StatusBadge(label: statusLabel, color: statusColor),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 22,
+                          color: cs.outline,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _OrderListMetric(
+                            label: l10n.orderDetailAmount,
+                            value: amountValue,
+                          ),
+                        ),
+                        Expanded(
+                          child: _OrderListMetric(
+                            label: orderType == 'MARKET'
+                                ? l10n.orderDetailPrice
+                                : buySellPriceLabel,
+                            value: priceValue,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (metaParts.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        metaParts.join(' · '),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      title: Row(
-        children: [
-          Text(
-            '${isBuy ? l10n.buy : l10n.sell} $pairSymbol',
-            style:
-                TextStyle(fontWeight: FontWeight.w600, color: sideColor),
-          ),
-          const SizedBox(width: 8),
-          _StatusBadge(label: statusLabel, color: statusColor),
-        ],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-              '${l10n.amount}: ${FormatUtils.formatDecimalAmountDisplay(amount)}'
-              '${price != null ? ' · ${l10n.adminOrderPriceLabel}: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''}',
-              style: const TextStyle(fontSize: 12)),
-          if (userId.isNotEmpty)
-            Text('${l10n.adminUserLabel}: ${_truncate(userId, 16)}',
-                style: const TextStyle(fontSize: 11)),
-          if (createdAt != null)
-            Text(DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal()),
-                style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
-      trailing: const Icon(Icons.chevron_right, size: 18),
-      isThreeLine: true,
-      onTap: () => _OrderDetailSheet.show(context, order),
     );
   }
 
@@ -638,9 +746,84 @@ class _OrderTile extends StatelessWidget {
         return (Colors.orange, l10n.orderStatusOpen);
       case 'CANCELLED':
         return (Colors.grey, l10n.orderStatusCancelled);
+      case 'REJECTED':
+        return (Colors.red, l10n.orderStatusRejected);
       default:
         return (Colors.red, s);
     }
+  }
+}
+
+/// Compact capsule used on admin order cards (Mua/Bán, Limit/Market).
+class _OrderPill extends StatelessWidget {
+  final String label;
+  final Color foreground;
+  final Color background;
+  final Color border;
+
+  const _OrderPill({
+    required this.label,
+    required this.foreground,
+    required this.background,
+    required this.border,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border, width: 1),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: foreground,
+          height: 1.1,
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderListMetric extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _OrderListMetric({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: cs.onSurfaceVariant,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -861,9 +1044,7 @@ class _OrderDetailSheet extends StatelessWidget {
     final sideColor  = isBuy ? Colors.green : Colors.red;
     final type       = order['type']?.toString() ?? '';
     final status     = order['status']?.toString() ?? '';
-    final pairSymbol = order['pair_symbol']?.toString() ??
-        order['pairSymbol']?.toString() ??
-        order['market_symbol']?.toString() ?? '';
+    final pairSymbol = _pairSymbolFromOrder(order);
     final amount        = order['amount']?.toString() ?? '0';
     final price         = order['price']?.toString();
     final filledAmount  = order['filled_amount']?.toString() ?? order['filledAmount']?.toString() ?? '0';
@@ -1625,6 +1806,27 @@ class _CopyableRow extends StatelessWidget {
 }
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
+
+String _pairSymbolFromOrder(Map<String, dynamic> order) {
+  final direct = order['pair_symbol']?.toString() ??
+      order['pairSymbol']?.toString() ??
+      order['market_symbol']?.toString();
+  if (direct != null && direct.isNotEmpty) return direct;
+  final p = order['pair'];
+  if (p is Map) {
+    final sym = p['symbol']?.toString();
+    if (sym != null && sym.isNotEmpty) return sym;
+  }
+  return '';
+}
+
+(String base, String quote) _baseQuoteFromPairSymbol(String symbol) {
+  final parts = symbol.split('/');
+  if (parts.length >= 2) {
+    return (parts.first.trim(), parts.last.trim());
+  }
+  return ('', '');
+}
 
 DateTime? _parseDate(dynamic v) {
   if (v == null) return null;

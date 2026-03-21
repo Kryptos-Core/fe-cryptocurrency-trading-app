@@ -2338,6 +2338,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminOrderPriceLabel => 'Price';
 
   @override
+  String adminOrderListBuyWhat(String base, String quote) {
+    return 'Buy $base (pay with $quote)';
+  }
+
+  @override
+  String adminOrderListSellWhat(String base, String quote) {
+    return 'Sell $base (receive $quote)';
+  }
+
+  @override
+  String get adminOrderListBuyPriceLabel => 'Buy limit price';
+
+  @override
+  String get adminOrderListSellPriceLabel => 'Sell limit price';
+
+  @override
+  String get adminOrderListMarketPriceHint => 'At best available price';
+
+  @override
   String get orderDetailTitle => 'Order Detail';
 
   @override

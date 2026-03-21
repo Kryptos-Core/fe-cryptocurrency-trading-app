@@ -2338,6 +2338,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String get adminOrderPriceLabel => 'Giá';
 
   @override
+  String adminOrderListBuyWhat(String base, String quote) {
+    return 'Mua $base (trả bằng $quote)';
+  }
+
+  @override
+  String adminOrderListSellWhat(String base, String quote) {
+    return 'Bán $base (nhận $quote)';
+  }
+
+  @override
+  String get adminOrderListBuyPriceLabel => 'Giá mua đặt';
+
+  @override
+  String get adminOrderListSellPriceLabel => 'Giá bán đặt';
+
+  @override
+  String get adminOrderListMarketPriceHint => 'Theo giá thị trường';
+
+  @override
   String get orderDetailTitle => 'Chi tiết lệnh';
 
   @override

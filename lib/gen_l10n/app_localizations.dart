@@ -4371,6 +4371,36 @@ abstract class AppLocalizations {
   /// **'Price'**
   String get adminOrderPriceLabel;
 
+  /// No description provided for @adminOrderListBuyWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {base} (pay with {quote})'**
+  String adminOrderListBuyWhat(String base, String quote);
+
+  /// No description provided for @adminOrderListSellWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell {base} (receive {quote})'**
+  String adminOrderListSellWhat(String base, String quote);
+
+  /// No description provided for @adminOrderListBuyPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy limit price'**
+  String get adminOrderListBuyPriceLabel;
+
+  /// No description provided for @adminOrderListSellPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell limit price'**
+  String get adminOrderListSellPriceLabel;
+
+  /// No description provided for @adminOrderListMarketPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At best available price'**
+  String get adminOrderListMarketPriceHint;
+
   /// No description provided for @orderDetailTitle.
   ///
   /// In en, this message translates to:

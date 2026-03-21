@@ -928,6 +928,23 @@
   "adminDepositsEmpty": "No deposit transactions",
   "adminWithdrawalsEmpty": "No withdrawal transactions",
   "adminOrderPriceLabel": "Price",
+  "adminOrderListBuyWhat": "Buy {base} (pay with {quote})",
+  "@adminOrderListBuyWhat": {
+    "placeholders": {
+      "base": { "type": "String" },
+      "quote": { "type": "String" }
+    }
+  },
+  "adminOrderListSellWhat": "Sell {base} (receive {quote})",
+  "@adminOrderListSellWhat": {
+    "placeholders": {
+      "base": { "type": "String" },
+      "quote": { "type": "String" }
+    }
+  },
+  "adminOrderListBuyPriceLabel": "Buy limit price",
+  "adminOrderListSellPriceLabel": "Sell limit price",
+  "adminOrderListMarketPriceHint": "At best available price",
 
   "orderDetailTitle": "Order Detail",
   "orderDetailOrderId": "Order ID",
