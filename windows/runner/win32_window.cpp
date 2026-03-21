@@ -144,6 +144,20 @@ bool Win32Window::Create(const std::wstring& title,
     return false;
   }
 
+  // Use system title-bar / taskbar icon metrics so the shell picks the best
+  // resolution from the .ico (class icon alone is often undersized on high DPI).
+  HINSTANCE const module = GetModuleHandle(nullptr);
+  if (HICON big = reinterpret_cast<HICON>(LoadImageW(
+          module, MAKEINTRESOURCEW(IDI_APP_ICON), IMAGE_ICON,
+          GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0))) {
+    SendMessageW(window, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(big));
+  }
+  if (HICON icon_sm = reinterpret_cast<HICON>(LoadImageW(
+          module, MAKEINTRESOURCEW(IDI_APP_ICON), IMAGE_ICON,
+          GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0))) {
+    SendMessageW(window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon_sm));
+  }
+
   UpdateTheme(window);
 
   return OnCreate();

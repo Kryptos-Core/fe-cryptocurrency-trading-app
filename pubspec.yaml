@@ -71,7 +71,8 @@ flutter_launcher_icons:
   image_path: "assets/images/logo.png"
   windows:
     generate: true
-    image_path: "assets/images/logo.png"
+    # Tight crop + square canvas so the glyph fills the .ico (logo.png has large margins).
+    image_path: "assets/images/logo_windows_icon.png"
     icon_size: 256
 
 flutter:
