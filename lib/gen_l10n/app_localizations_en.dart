@@ -232,6 +232,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectCurrency => 'Select Currency';
 
   @override
+  String get currencySelectHint => 'Tap to search or choose a currency';
+
+  @override
+  String get searchCurrenciesHint =>
+      'Search by symbol or name (e.g. BTC, USDT)';
+
+  @override
+  String get currencyPickerFilter => 'Show';
+
+  @override
+  String get currencyPickerFilterAll => 'All';
+
+  @override
+  String get currencyPickerFilterTradable => 'Tradable';
+
+  @override
+  String get currencyPickerFilterNonTradable => 'Non-tradable';
+
+  @override
+  String get currencyPickerNoMatches =>
+      'No currencies match your search or filter';
+
+  @override
   String get available => 'Available';
 
   @override
@@ -374,6 +397,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tradingPair => 'Trading pair';
+
+  @override
+  String get tradingPairPickerTitle => 'Select trading pair';
+
+  @override
+  String get tradingPairQuoteAll => 'All';
+
+  @override
+  String get tradingPairSectionRecent => 'Recent';
+
+  @override
+  String get tradingPairSectionFavorites => 'Favorites';
+
+  @override
+  String get tradingPairSelectPairHint => 'Tap to search or choose a pair';
+
+  @override
+  String get tradingPairAddFavorite => 'Add to favorites';
+
+  @override
+  String get tradingPairRemoveFavorite => 'Remove from favorites';
 
   @override
   String get recentTrades => 'Recent trades';

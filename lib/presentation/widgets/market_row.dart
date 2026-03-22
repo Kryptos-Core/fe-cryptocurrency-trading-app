@@ -53,20 +53,50 @@ String _formatChangeAmount(String changeAmount24h, bool isPositive) {
   return '$sign${v.toStringAsFixed(2)}';
 }
 
+Widget _favoriteButton(
+  BuildContext context, {
+  required VoidCallback onFavoriteTap,
+  required bool isFavorite,
+  String? tooltip,
+}) {
+  final btn = IconButton(
+    padding: EdgeInsets.zero,
+    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+    visualDensity: VisualDensity.compact,
+    icon: Icon(
+      isFavorite ? Icons.star : Icons.star_border,
+      color: isFavorite
+          ? Colors.amber.shade700
+          : Theme.of(context).colorScheme.primary,
+    ),
+    onPressed: onFavoriteTap,
+  );
+  if (tooltip != null && tooltip.isNotEmpty) {
+    return Tooltip(message: tooltip, child: btn);
+  }
+  return btn;
+}
+
 /// Market Row Widget
 /// Displays market pair information in a list row
 class MarketRow extends StatelessWidget {
   final MarketPair market;
   final market_entity.MarketTicker? ticker;
   final VoidCallback? onTap;
-  final bool showFavorite;
+
+  /// When set, shows a trailing favorite control (does not overlap change %).
+  final VoidCallback? onFavoriteTap;
+  final bool isFavorite;
+  final String? favoriteTooltip;
 
   const MarketRow({
     super.key,
     required this.market,
     this.ticker,
     this.onTap,
-    this.showFavorite = false,
+    this.onFavoriteTap,
+    this.isFavorite = false,
+    this.favoriteTooltip,
   });
 
   /// When ticker is missing, show "—" so user knows data is loading/missing (not real 0).
@@ -153,51 +183,76 @@ class MarketRow extends StatelessWidget {
               // Change Percent
               Expanded(
                 flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                          size: 16,
-                          color: isPositive ? Colors.green : Colors.red,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          hasTicker ? '${isPositive ? '+' : ''}$changePercent%' : '$_noData%',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: hasTicker
-                                ? (isPositive ? Colors.green : Colors.red)
-                                : Colors.grey,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: onFavoriteTap != null ? 4 : 0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            isPositive
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            size: 16,
+                            color: isPositive ? Colors.green : Colors.red,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      hasTicker
-                          ? _formatChangeAmount(ticker!.changeAmount24h, isPositive)
-                          : _noData,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: hasTicker
-                            ? (isPositive ? Colors.green.shade700 : Colors.red.shade700)
-                            : Colors.grey,
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                hasTicker
+                                    ? '${isPositive ? '+' : ''}$changePercent%'
+                                    : '$_noData%',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: hasTicker
+                                      ? (isPositive ? Colors.green : Colors.red)
+                                      : Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        hasTicker
+                            ? _formatChangeAmount(
+                                ticker!.changeAmount24h, isPositive)
+                            : _noData,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: hasTicker
+                              ? (isPositive
+                                  ? Colors.green.shade700
+                                  : Colors.red.shade700)
+                              : Colors.grey,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        textAlign: TextAlign.end,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              // Favorite Icon
-              if (showFavorite)
-                IconButton(
-                  icon: const Icon(Icons.star_border),
-                  onPressed: () {},
-                  color: Colors.amber,
+              if (onFavoriteTap != null)
+                SizedBox(
+                  width: 44,
+                  child: _favoriteButton(
+                    context,
+                    onFavoriteTap: onFavoriteTap!,
+                    isFavorite: isFavorite,
+                    tooltip: favoriteTooltip,
+                  ),
                 ),
             ],
           ),

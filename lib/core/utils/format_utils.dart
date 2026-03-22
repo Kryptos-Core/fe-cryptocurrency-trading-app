@@ -11,6 +11,11 @@ class FormatUtils {
   static final NumberFormat _usdFull =
       NumberFormat('#,##0.00', 'en_US');
 
+  /// USDT/USDC-style totals: "10,000.40" (thousands separator, 2 decimals).
+  static String formatQuoteAmount(double value) {
+    return _usdFull.format(value);
+  }
+
   static final NumberFormat _percentFormat =
       NumberFormat('+#,##0.00;-#,##0.00', 'en_US');
 

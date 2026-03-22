@@ -9,9 +9,12 @@ import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/services/trading_pair_bookmark_store.dart';
+import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/trading_pair_picker_sheet.dart';
 
 // --- Format số hiển thị (best practice: dấu phân cách hàng nghìn, bỏ số 0 thừa) ---
 
@@ -157,7 +160,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrdersProvider>().fetchMyOrders(refresh: true);
-      context.read<MarketsProvider>().fetchActiveMarkets();
     });
   }
 
@@ -166,6 +168,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
     _priceController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openTradingPairPicker(
+    BuildContext context,
+    MarketsProvider marketsProvider,
+    OrdersProvider ordersProvider,
+  ) async {
+    final repo = sl<MarketsRepository>();
+    final store = TradingPairBookmarkStore(sl<SharedPreferences>());
+    final pair = await showTradingPairPickerBottomSheet(
+      context,
+      marketsRepository: repo,
+      bookmarkStore: store,
+      selected: _selectedMarket,
+    );
+    if (!context.mounted || pair == null) return;
+    await store.addRecent(pair);
+    setState(() => _selectedMarket = pair);
+    marketsProvider.fetchTicker(pair.pairId);
+    marketsProvider.fetchOrderBook(pair.pairId, limit: 20);
+    marketsProvider.fetchTrades(pair.pairId, limit: 20);
+    ordersProvider.fetchBaseQuoteBalances(
+        pair.baseCurrencyId, pair.quoteCurrencyId);
+    ordersProvider.fetchOrderBook(pair.pairId, limit: 20);
   }
 
   @override
@@ -214,7 +240,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final marketsProvider = context.watch<MarketsProvider>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final markets = marketsProvider.markets;
 
     return Card(
       elevation: _kCardElevation,
@@ -233,32 +258,40 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            AppDropdownField<MarketPair>(
-              value: _selectedMarket,
-              labelText: l10n.tradingPair,
-              hintText: markets.isEmpty ? l10n.loading : l10n.tradingPair,
-              items: markets
-                  .map((m) => DropdownMenuItem<MarketPair>(
-                        value: m,
-                        child: Text(_formatSymbol(m.symbol),
-                            style: theme.textTheme.bodyLarge),
-                      ))
-                  .toList(),
-              onChanged: markets.isEmpty
-                  ? null
-                  : (MarketPair? v) {
-                      setState(() => _selectedMarket = v);
-                      if (v != null) {
-                        marketsProvider.fetchTicker(v.pairId);
-                        marketsProvider.fetchOrderBook(v.pairId, limit: 20);
-                        marketsProvider.fetchTrades(v.pairId, limit: 20);
-                        ordersProvider.fetchBaseQuoteBalances(
-                            v.baseCurrencyId, v.quoteCurrencyId);
-                        ordersProvider.fetchOrderBook(v.pairId, limit: 20);
-                      } else {
-                        ordersProvider.clearPairBalances();
-                      }
-                    },
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                key: const Key('trading_pair_picker'),
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => _openTradingPairPicker(
+                  context,
+                  marketsProvider,
+                  ordersProvider,
+                ),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: l10n.tradingPair,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                    suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+                  ),
+                  child: Text(
+                    _selectedMarket != null
+                        ? _formatSymbol(_selectedMarket!.symbol)
+                        : l10n.tradingPairSelectPairHint,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: _selectedMarket != null
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -369,6 +402,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      key: const Key('orders_price_field'),
                       controller: _priceController,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
@@ -427,6 +461,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ],
             const SizedBox(height: 14),
             TextField(
+              key: const Key('orders_amount_field'),
               controller: _amountController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),

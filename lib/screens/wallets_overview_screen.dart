@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/screens/wallet_detail_screen.dart';
@@ -16,7 +18,8 @@ const _kCashCurrencySymbol = 'USDT';
 ///  1. Ví Tiền (USDT) — nhận toàn bộ tiền nạp (PayOS, TronLink, MetaMask)
 ///  2. Tài sản — coin sở hữu từ giao dịch (BTC, ETH, TRX...)
 ///
-/// Tổng danh mục (_PortfolioHeader): hiển thị cho mọi role đã đăng nhập.
+/// Tổng danh mục (_PortfolioHeader): [DashboardProvider.portfolioTotal] (GET /dashboard),
+/// cùng nguồn với tab Ví.
 class WalletsOverviewScreen extends StatefulWidget {
   const WalletsOverviewScreen({super.key});
 
@@ -29,6 +32,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().refresh(force: true);
       context.read<WalletsProvider>().fetchWallets(refresh: true);
     });
   }
@@ -39,18 +43,18 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.myWallets),
-        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
+              context.read<DashboardProvider>().refresh(force: true);
               context.read<WalletsProvider>().fetchWallets(refresh: true);
             },
           ),
         ],
       ),
-      body: Consumer<WalletsProvider>(
-        builder: (context, provider, child) {
+      body: Consumer2<WalletsProvider, DashboardProvider>(
+        builder: (context, provider, dashboard, child) {
           if (provider.isLoading && provider.wallets.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -90,6 +94,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
+              await dashboard.refresh(force: true);
               await provider.fetchWallets(refresh: true);
             },
             child: CustomScrollView(
@@ -97,7 +102,7 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                 // Tổng danh mục
                 SliverToBoxAdapter(
                   child: _PortfolioHeader(
-                    totalValue: provider.totalPortfolioValue,
+                    totalValue: dashboard.portfolioTotal,
                     l10n: l10n,
                   ),
                 ),
@@ -220,7 +225,7 @@ class _PortfolioHeader extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${totalValue.toStringAsFixed(2)} USDT',
+            '${FormatUtils.formatQuoteAmount(totalValue)} USDT',
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
@@ -9,6 +7,7 @@ import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
+import 'package:crypto_trading_app/presentation/widgets/market_search_bar.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
 /// Markets List Screen
@@ -29,8 +28,8 @@ class MarketsListScreen extends StatefulWidget {
 
 class _MarketsListScreenState extends State<MarketsListScreen> {
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<_MarketSearchBarState> _searchBarKey =
-      GlobalKey<_MarketSearchBarState>();
+  final GlobalKey<MarketSearchBarState> _searchBarKey =
+      GlobalKey<MarketSearchBarState>();
   bool _isLoadingMore = false;
   bool _fallbackTickersRequested = false;
 
@@ -219,7 +218,7 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _MarketSearchBar(
+          MarketSearchBar(
             key: _searchBarKey,
             hintText: l10n.searchMarketsHint,
             initialValue: provider.searchQuery,
@@ -279,100 +278,6 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Search bar that owns its controller and debounce so focus is preserved when parent rebuilds.
-class _MarketSearchBar extends StatefulWidget {
-  final String hintText;
-  final String initialValue;
-  final void Function(String) onDebouncedSearch;
-
-  const _MarketSearchBar({
-    super.key,
-    required this.hintText,
-    required this.initialValue,
-    required this.onDebouncedSearch,
-  });
-
-  @override
-  State<_MarketSearchBar> createState() => _MarketSearchBarState();
-}
-
-class _MarketSearchBarState extends State<_MarketSearchBar> {
-  static const _debounceMs = 400;
-  late final TextEditingController _controller;
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue);
-    _controller.addListener(_onTextChanged);
-  }
-
-  @override
-  void didUpdateWidget(covariant _MarketSearchBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.initialValue == '' && _controller.text.isNotEmpty) {
-      _controller.clear();
-    }
-  }
-
-  void _onTextChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: _debounceMs), () {
-      if (!mounted) return;
-      widget.onDebouncedSearch(_controller.text);
-    });
-  }
-
-  void clear() {
-    _controller.clear();
-    widget.onDebouncedSearch('');
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _controller.removeListener(_onTextChanged);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: _controller,
-      builder: (context, value, child) {
-        return TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: value.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _controller.clear();
-                      widget.onDebouncedSearch('');
-                    },
-                  )
-                : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            isDense: true,
-          ),
-          textCapitalization: TextCapitalization.characters,
-          onSubmitted: widget.onDebouncedSearch,
-        );
-      },
     );
   }
 }

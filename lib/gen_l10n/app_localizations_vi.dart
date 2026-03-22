@@ -232,6 +232,28 @@ class AppLocalizationsVi extends AppLocalizations {
   String get selectCurrency => 'Chọn tiền tệ';
 
   @override
+  String get currencySelectHint => 'Chạm để tìm hoặc chọn tiền tệ';
+
+  @override
+  String get searchCurrenciesHint => 'Tìm theo symbol hoặc tên (vd. BTC, USDT)';
+
+  @override
+  String get currencyPickerFilter => 'Hiển thị';
+
+  @override
+  String get currencyPickerFilterAll => 'Tất cả';
+
+  @override
+  String get currencyPickerFilterTradable => 'Có thể giao dịch';
+
+  @override
+  String get currencyPickerFilterNonTradable => 'Không giao dịch';
+
+  @override
+  String get currencyPickerNoMatches =>
+      'Không có tiền tệ phù hợp với tìm kiếm hoặc bộ lọc';
+
+  @override
   String get available => 'Khả dụng';
 
   @override
@@ -374,6 +396,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tradingPair => 'Cặp giao dịch';
+
+  @override
+  String get tradingPairPickerTitle => 'Chọn cặp giao dịch';
+
+  @override
+  String get tradingPairQuoteAll => 'Tất cả';
+
+  @override
+  String get tradingPairSectionRecent => 'Gần đây';
+
+  @override
+  String get tradingPairSectionFavorites => 'Yêu thích';
+
+  @override
+  String get tradingPairSelectPairHint => 'Chạm để tìm hoặc chọn cặp';
+
+  @override
+  String get tradingPairAddFavorite => 'Thêm yêu thích';
+
+  @override
+  String get tradingPairRemoveFavorite => 'Bỏ yêu thích';
 
   @override
   String get recentTrades => 'Giao dịch gần đây';

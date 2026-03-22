@@ -542,6 +542,48 @@ abstract class AppLocalizations {
   /// **'Select Currency'**
   String get selectCurrency;
 
+  /// No description provided for @currencySelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to search or choose a currency'**
+  String get currencySelectHint;
+
+  /// No description provided for @searchCurrenciesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by symbol or name (e.g. BTC, USDT)'**
+  String get searchCurrenciesHint;
+
+  /// No description provided for @currencyPickerFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get currencyPickerFilter;
+
+  /// No description provided for @currencyPickerFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get currencyPickerFilterAll;
+
+  /// No description provided for @currencyPickerFilterTradable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable'**
+  String get currencyPickerFilterTradable;
+
+  /// No description provided for @currencyPickerFilterNonTradable.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-tradable'**
+  String get currencyPickerFilterNonTradable;
+
+  /// No description provided for @currencyPickerNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies match your search or filter'**
+  String get currencyPickerNoMatches;
+
   /// No description provided for @available.
   ///
   /// In en, this message translates to:
@@ -829,6 +871,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trading pair'**
   String get tradingPair;
+
+  /// No description provided for @tradingPairPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select trading pair'**
+  String get tradingPairPickerTitle;
+
+  /// No description provided for @tradingPairQuoteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tradingPairQuoteAll;
+
+  /// No description provided for @tradingPairSectionRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get tradingPairSectionRecent;
+
+  /// No description provided for @tradingPairSectionFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get tradingPairSectionFavorites;
+
+  /// No description provided for @tradingPairSelectPairHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to search or choose a pair'**
+  String get tradingPairSelectPairHint;
+
+  /// No description provided for @tradingPairAddFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get tradingPairAddFavorite;
+
+  /// No description provided for @tradingPairRemoveFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get tradingPairRemoveFavorite;
 
   /// No description provided for @recentTrades.
   ///

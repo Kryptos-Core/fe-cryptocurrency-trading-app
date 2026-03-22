@@ -70,10 +70,6 @@ class WalletsProvider extends ChangeNotifier {
       List.unmodifiable(_adjustmentHistory);
   bool get isLoadingHistory => _isLoadingHistory;
 
-  /// Total portfolio value in USDT. Returns 0 when no price source is available;
-  /// integrate with Markets/ticker API for real conversion (e.g. BTC/USDT, ETH/USDT).
-  double get totalPortfolioValue => 0.0;
-
   /// Fetch wallets with optional filters
   Future<void> fetchWallets({
     String? currencyId,

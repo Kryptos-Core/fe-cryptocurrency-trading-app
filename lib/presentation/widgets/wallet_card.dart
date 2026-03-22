@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
@@ -18,9 +19,7 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final available = double.tryParse(wallet.available) ?? 0;
-    final frozen = double.tryParse(wallet.frozen) ?? 0;
-    final total = double.tryParse(wallet.total) ?? 0;
+    final scale = wallet.currency.precisionScale;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -83,9 +82,24 @@ class WalletCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildBalanceColumn(AppLocalizations.of(context).walletAvailable, available, wallet.currency.symbol),
-                  _buildBalanceColumn(AppLocalizations.of(context).walletFrozen, frozen, wallet.currency.symbol),
-                  _buildBalanceColumn(AppLocalizations.of(context).walletTotal, total, wallet.currency.symbol),
+                  _buildBalanceColumn(
+                    AppLocalizations.of(context).walletAvailable,
+                    wallet.available,
+                    scale,
+                    wallet.currency.symbol,
+                  ),
+                  _buildBalanceColumn(
+                    AppLocalizations.of(context).walletFrozen,
+                    wallet.frozen,
+                    scale,
+                    wallet.currency.symbol,
+                  ),
+                  _buildBalanceColumn(
+                    AppLocalizations.of(context).walletTotal,
+                    wallet.total,
+                    scale,
+                    wallet.currency.symbol,
+                  ),
                 ],
               ),
               // USD Value
@@ -105,7 +119,7 @@ class WalletCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        '\$${usdValue!.toStringAsFixed(2)}',
+                        FormatUtils.formatUsdValue(usdValue!),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -123,7 +137,16 @@ class WalletCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBalanceColumn(String label, double value, String symbol) {
+  Widget _buildBalanceColumn(
+    String label,
+    String amountStr,
+    int precisionScale,
+    String symbol,
+  ) {
+    final formatted = FormatUtils.formatDecimalAmountForScale(
+      amountStr,
+      precisionScale,
+    );
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +160,7 @@ class WalletCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '$value $symbol',
+            '$formatted $symbol',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

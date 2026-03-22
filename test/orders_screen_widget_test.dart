@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart' hide Order;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/models/create_market_pair_dto.dart';
 import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
@@ -349,6 +351,22 @@ class FakeMarketsRepository implements MarketsRepository {
   }
 }
 
+Future<void> _registerPickerServiceLocator(
+  MarketsRepository marketsRepository,
+) async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
+  if (sl.isRegistered<MarketsRepository>()) {
+    sl.unregister<MarketsRepository>();
+  }
+  if (sl.isRegistered<SharedPreferences>()) {
+    sl.unregister<SharedPreferences>();
+  }
+  sl.registerSingleton<SharedPreferences>(prefs);
+  sl.registerSingleton<MarketsRepository>(marketsRepository);
+}
+
 Widget _buildTestApp({
   required FakeMarketsRepository marketsRepository,
   required FakeOrdersRepository ordersRepository,
@@ -375,9 +393,28 @@ Widget _buildTestApp({
 }
 
 Future<void> _selectFirstMarket(WidgetTester tester) async {
-  await tester.tap(find.byType(DropdownButtonFormField<MarketPair>));
+  await tester.tap(find.byKey(const Key('trading_pair_picker')));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('BTC/USDT').last);
+  final sheetSymbol = find.descendant(
+    of: find.byKey(const Key('trading_pair_picker_sheet')),
+    matching: find.text('BTC/USDT'),
+  );
+  await tester.tap(sheetSymbol.first);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _tapMaxAmountSuffix(WidgetTester tester) async {
+  final amountField = find.byKey(const Key('orders_amount_field'));
+  final maxButton = find.descendant(
+    of: amountField,
+    matching: find.byType(TextButton),
+  );
+  await tester.ensureVisible(amountField);
+  await tester.ensureVisible(maxButton);
+  // Gesture hits can be absorbed by a just-dismissed modal route in tests;
+  // invoke the handler directly (same outcome as user tap).
+  final btn = tester.widget<TextButton>(maxButton);
+  btn.onPressed?.call();
   await tester.pumpAndSettle();
 }
 
@@ -423,6 +460,8 @@ void main() {
       quoteAvailable: '10000',
     );
 
+    await _registerPickerServiceLocator(marketsRepository);
+
     await tester.pumpWidget(
       _buildTestApp(
         marketsRepository: marketsRepository,
@@ -437,12 +476,10 @@ void main() {
     await tester.tap(find.text('Sell').first);
     await tester.pumpAndSettle();
 
-    final maxFinder = find.text('MAX');
-    await tester.ensureVisible(maxFinder);
-    await tester.tap(maxFinder);
-    await tester.pumpAndSettle();
+    await _tapMaxAmountSuffix(tester);
 
-    final amountField = tester.widget<TextField>(find.byType(TextField).at(1));
+    final amountField =
+        tester.widget<TextField>(find.byKey(const Key('orders_amount_field')));
     expect(amountField.controller?.text, '1.234567');
   });
 
@@ -459,6 +496,8 @@ void main() {
       quoteAvailable: '10000',
     );
 
+    await _registerPickerServiceLocator(marketsRepository);
+
     await tester.pumpWidget(
       _buildTestApp(
         marketsRepository: marketsRepository,
@@ -473,12 +512,10 @@ void main() {
     await tester.tap(find.text('Sell').first);
     await tester.pumpAndSettle();
 
-    final maxFinder = find.text('MAX');
-    await tester.ensureVisible(maxFinder);
-    await tester.tap(maxFinder);
-    await tester.pumpAndSettle();
+    await _tapMaxAmountSuffix(tester);
 
-    final amountField = tester.widget<TextField>(find.byType(TextField).at(1));
+    final amountField =
+        tester.widget<TextField>(find.byKey(const Key('orders_amount_field')));
     expect(amountField.controller?.text, '12');
   });
 
@@ -495,6 +532,8 @@ void main() {
       quoteAvailable: '100000',
     );
 
+    await _registerPickerServiceLocator(marketsRepository);
+
     await tester.pumpWidget(
       _buildTestApp(
         marketsRepository: marketsRepository,
@@ -506,21 +545,26 @@ void main() {
 
     await _selectFirstMarket(tester);
 
-    await tester.ensureVisible(find.byType(TextField).at(0));
-    await tester.enterText(find.byType(TextField).at(0), '100.12');
-    await tester.enterText(find.byType(TextField).at(1), '1.1234');
+    await tester.ensureVisible(find.byKey(const Key('orders_price_field')));
+    await tester.enterText(
+        find.byKey(const Key('orders_price_field')), '100.12');
+    await tester.enterText(
+        find.byKey(const Key('orders_amount_field')), '1.1234');
     await _tapPlaceOrderButton(tester);
 
     expect(ordersRepository.createOrderCalls, 0);
     expect(find.text('Amount supports up to 3 decimal places'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).at(1), '1.123');
-    await tester.enterText(find.byType(TextField).at(0), '100.123');
+    await tester.enterText(
+        find.byKey(const Key('orders_amount_field')), '1.123');
+    await tester.enterText(
+        find.byKey(const Key('orders_price_field')), '100.123');
     await _tapPlaceOrderButton(tester);
 
     expect(ordersRepository.createOrderCalls, 0);
 
-    await tester.enterText(find.byType(TextField).at(0), '100.12');
+    await tester.enterText(
+        find.byKey(const Key('orders_price_field')), '100.12');
     await _tapPlaceOrderButton(tester);
 
     expect(ordersRepository.createOrderCalls, 1);

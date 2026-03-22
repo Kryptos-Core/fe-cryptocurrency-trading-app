@@ -9,8 +9,9 @@ import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/services/currency_bookmark_store.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/currency_picker_sheet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
@@ -116,6 +117,28 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     _fetchBalance();
   }
 
+  CurrencyModel? get _selectedCurrency {
+    final id = _selectedCurrencyId;
+    if (id == null || _currencies.isEmpty) return null;
+    for (final c in _currencies) {
+      if (c.currencyId == id) return c;
+    }
+    return null;
+  }
+
+  Future<void> _openCurrencyPicker(BuildContext context) async {
+    final store = CurrencyBookmarkStore(sl<SharedPreferences>());
+    final picked = await showCurrencyPickerBottomSheet(
+      context,
+      currencies: _currencies,
+      selectedCurrencyId: _selectedCurrencyId,
+      bookmarkStore: store,
+    );
+    if (!mounted || picked == null) return;
+    setState(() => _selectedCurrencyId = picked.currencyId);
+    _fetchBalance();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -153,6 +176,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
             );
           }
 
+          final theme = Theme.of(context);
+          final colorScheme = theme.colorScheme;
+          final selected = _selectedCurrency;
+
           return Column(
             children: [
               // Tổng danh mục: mọi role đã đăng nhập (fallback dashboard nếu /wallets rỗng)
@@ -164,25 +191,39 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: AppDropdownField<String>(
-                  value: _selectedCurrencyId,
-                  menuMaxHeight: MediaQuery.of(context).size.height * 0.4,
-                  labelText: l10n.selectCurrency,
-                  items: _currencies.map((currency) {
-                    return DropdownMenuItem<String>(
-                      value: currency.currencyId,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    key: const Key('wallet_currency_picker'),
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _openCurrencyPicker(context),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: l10n.selectCurrency,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                        suffixIcon:
+                            const Icon(Icons.keyboard_arrow_down_rounded),
+                      ),
                       child: Text(
-                        '${currency.symbol} (${currency.name})',
+                        selected != null
+                            ? '${selected.symbol} (${selected.name})'
+                            : l10n.currencySelectHint,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: selected != null
+                              ? colorScheme.onSurface
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCurrencyId = value;
-                    });
-                    _fetchBalance();
-                  },
+                    ),
+                  ),
                 ),
               ),
               Padding(
