@@ -27,14 +27,6 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
 
   WithdrawalAdminRemoteDataSourceImpl({required this.dioClient});
 
-  T _unwrap<T>(dynamic payload) {
-    if (payload is Map<String, dynamic> && payload['data'] is T) {
-      return payload['data'] as T;
-    }
-    if (payload is T) return payload;
-    throw const FormatException('Unexpected API response format');
-  }
-
   @override
   Future<Map<String, dynamic>> listWithdrawals({
     String? userId,

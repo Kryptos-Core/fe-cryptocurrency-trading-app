@@ -28,7 +28,7 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
     super.dispose();
   }
 
-  Future<void> _onSend(BuildContext context) async {
+  Future<void> _onSend() async {
     if (!_formKey.currentState!.validate()) return;
 
     final confirmed = await showDialog<bool>(
@@ -142,7 +142,7 @@ class _SendTrxSheetState extends State<SendTrxSheet> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: provider.isSubmitting ? null : () => _onSend(context),
+                    onPressed: provider.isSubmitting ? null : _onSend,
                     icon: provider.isSubmitting
                         ? const SizedBox(
                             width: 16,

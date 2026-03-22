@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
@@ -10,6 +11,7 @@ import 'package:crypto_trading_app/data/models/update_currency_dto.dart';
 import 'package:crypto_trading_app/domain/entities/currency.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 /// Admin screen for browsing and managing currencies/coins.
 ///
@@ -173,40 +175,84 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
             ),
           ),
 
-          // ── Filter chips ───────────────────────────────────────────────────
+          // ── Filters (dropdowns — avoids Row overflow on narrow widths) ───
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+            padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Status row
-                Row(
-                  children: [
-                    Text('${l10n.adminCurrenciesStatusLabel}:',
-                        style: theme.textTheme.labelSmall
-                            ?.copyWith(color: colorScheme.onSurfaceVariant)),
-                    const SizedBox(width: 6),
-                    _buildStatusChip(context, _StatusFilter.all, l10n.adminCurrenciesFilterAll),
-                    const SizedBox(width: 4),
-                    _buildStatusChip(context, _StatusFilter.active, l10n.adminCurrenciesFilterActive),
-                    const SizedBox(width: 4),
-                    _buildStatusChip(context, _StatusFilter.inactive, l10n.adminCurrenciesFilterInactive),
+                AppDropdownField<_StatusFilter>(
+                  value: _statusFilter,
+                  labelText: l10n.adminCurrenciesStatusLabel,
+                  menuMaxHeight: 240,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: _StatusFilter.all,
+                      child: Text(
+                        l10n.adminCurrenciesFilterAll,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: _StatusFilter.active,
+                      child: Text(
+                        l10n.adminCurrenciesFilterActive,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: _StatusFilter.inactive,
+                      child: Text(
+                        l10n.adminCurrenciesFilterInactive,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
+                  onChanged: (v) {
+                    if (v == null) return;
+                    _setStatusFilter(v);
+                  },
                 ),
-                const SizedBox(height: 4),
-                // Tradable row
-                Row(
-                  children: [
-                    Text('${l10n.adminCurrenciesTradingLabel}:',
-                        style: theme.textTheme.labelSmall
-                            ?.copyWith(color: colorScheme.onSurfaceVariant)),
-                    const SizedBox(width: 6),
-                    _buildTradableChip(context, _TradableFilter.all, l10n.adminCurrenciesFilterAll),
-                    const SizedBox(width: 4),
-                    _buildTradableChip(context, _TradableFilter.tradable, l10n.adminCurrenciesFilterTradable),
-                    const SizedBox(width: 4),
-                    _buildTradableChip(context, _TradableFilter.paused, l10n.adminCurrenciesFilterPaused),
+                const SizedBox(height: 10),
+                AppDropdownField<_TradableFilter>(
+                  value: _tradableFilter,
+                  labelText: l10n.adminCurrenciesTradingLabel,
+                  menuMaxHeight: 240,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: _TradableFilter.all,
+                      child: Text(
+                        l10n.adminCurrenciesFilterAll,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: _TradableFilter.tradable,
+                      child: Text(
+                        l10n.adminCurrenciesFilterTradable,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: _TradableFilter.paused,
+                      child: Text(
+                        l10n.adminCurrenciesFilterPaused,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
+                  onChanged: (v) {
+                    if (v == null) return;
+                    _setTradableFilter(v);
+                  },
                 ),
               ],
             ),
@@ -302,28 +348,6 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
     );
   }
 
-  // ── Chip helpers ─────────────────────────────────────────────────────────
-
-  Widget _buildStatusChip(BuildContext context, _StatusFilter value, String label) {
-    final selected = _statusFilter == value;
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      visualDensity: VisualDensity.compact,
-      onSelected: (_) => _setStatusFilter(value),
-    );
-  }
-
-  Widget _buildTradableChip(BuildContext context, _TradableFilter value, String label) {
-    final selected = _tradableFilter == value;
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      visualDensity: VisualDensity.compact,
-      onSelected: (_) => _setTradableFilter(value),
-    );
-  }
-
   // ── Actions ──────────────────────────────────────────────────────────────
 
   Future<void> _handleToggle(
@@ -339,7 +363,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
     showDialog(
       context: context,
       builder: (_) => _CurrencyFormDialog(
-        title: 'Tạo coin mới',
+        title: AppLocalizations.of(context).adminCurrenciesCreateTitle,
         onSubmit: (dto) async {
           final provider = context.read<CurrenciesProvider>();
           final err = await provider.createCurrency(dto);
@@ -349,7 +373,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
           } else {
             Navigator.pop(context);
             showAppSnackBar(context,
-                message: 'Tạo coin thành công!', type: SnackBarType.success);
+                message: AppLocalizations.of(context).adminCurrenciesCreateSuccess, type: SnackBarType.success);
           }
         },
       ),
@@ -370,7 +394,7 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
           } else {
             Navigator.pop(context);
             showAppSnackBar(context,
-                message: 'Cập nhật thành công!', type: SnackBarType.success);
+                message: AppLocalizations.of(context).adminCurrenciesUpdateSuccess, type: SnackBarType.success);
           }
         },
       ),
@@ -381,13 +405,13 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Xoá coin'),
-        content: Text(
-            'Bạn có chắc muốn xoá "${currency.symbol} — ${currency.name}"?\nThao tác này không thể hoàn tác.'),
+        title: Text(AppLocalizations.of(context).adminCurrenciesDeleteTitle),
+        content: Text(AppLocalizations.of(context)
+            .adminCurrenciesDeleteConfirmWithPair(currency.symbol, currency.name)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Huỷ')),
+              child: Text(AppLocalizations.of(context).adminCurrenciesCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
@@ -399,10 +423,10 @@ class _AdminCurrenciesScreenState extends State<AdminCurrenciesScreen> {
                 showAppSnackBar(context, message: err, type: SnackBarType.error);
               } else {
                 showAppSnackBar(context,
-                    message: 'Đã xoá coin!', type: SnackBarType.success);
+                    message: AppLocalizations.of(context).adminCurrenciesDeleteSuccess, type: SnackBarType.success);
               }
             },
-            child: const Text('Xoá'),
+            child: Text(AppLocalizations.of(context).adminCurrenciesDeleteAction),
           ),
         ],
       ),
@@ -435,6 +459,7 @@ class _CurrencyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isActive = currency.isActive;
@@ -478,8 +503,8 @@ class _CurrencyRow extends StatelessWidget {
                 color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Text('Ẩn',
-                  style: TextStyle(
+              child: Text(AppLocalizations.of(context).adminCurrenciesHide,
+                  style: const TextStyle(
                       fontSize: 10,
                       color: Colors.red,
                       fontWeight: FontWeight.w600)),
@@ -487,7 +512,13 @@ class _CurrencyRow extends StatelessWidget {
         ],
       ),
       subtitle: Text(
-        'Precision: ${currency.precisionScale} · Min Withdraw: ${currency.minWithdraw}',
+        l10n.adminCurrenciesListMeta(
+          currency.precisionScale.toString(),
+          FormatUtils.formatDecimalAmountForScale(
+            currency.minWithdraw,
+            currency.precisionScale,
+          ),
+        ),
         style: theme.textTheme.bodySmall
             ?.copyWith(color: colorScheme.onSurfaceVariant),
         overflow: TextOverflow.ellipsis,
@@ -497,14 +528,24 @@ class _CurrencyRow extends StatelessWidget {
         children: [
           // Tradable indicator / toggle
           Tooltip(
-            message: currency.isTradable ? 'Đang giao dịch' : 'Không giao dịch',
+            message: currency.isTradable
+                ? l10n.adminCurrenciesTradableLabel
+                : l10n.adminCurrenciesTradingPausedTooltip,
             child: canManage
                 ? InkWell(
                     onTap: () => onToggleTradable?.call(!currency.isTradable),
                     borderRadius: BorderRadius.circular(4),
-                    child: _TradableBadge(isTradable: currency.isTradable),
+                    child: _TradableBadge(
+                      isTradable: currency.isTradable,
+                      onLabel: l10n.adminCurrenciesTradableBadgeOn,
+                      offLabel: l10n.adminCurrenciesTradableBadgeOff,
+                    ),
                   )
-                : _TradableBadge(isTradable: currency.isTradable),
+                : _TradableBadge(
+                    isTradable: currency.isTradable,
+                    onLabel: l10n.adminCurrenciesTradableBadgeOn,
+                    offLabel: l10n.adminCurrenciesTradableBadgeOff,
+                  ),
           ),
           const SizedBox(width: 4),
           // Active switch (manage only) or static badge
@@ -528,11 +569,11 @@ class _CurrencyRow extends StatelessWidget {
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, size: 18),
               itemBuilder: (_) => [
-                const PopupMenuItem(value: 'edit', child: Text('Chỉnh sửa')),
-                const PopupMenuItem(
+                PopupMenuItem(value: 'edit', child: Text(l10n.adminCurrenciesEdit)),
+                PopupMenuItem(
                     value: 'delete',
                     child:
-                        Text('Xoá', style: TextStyle(color: Colors.red))),
+                        Text(l10n.adminCurrenciesDeleteAction, style: const TextStyle(color: Colors.red))),
               ],
               onSelected: (v) {
                 if (v == 'edit') onEdit?.call();
@@ -547,7 +588,14 @@ class _CurrencyRow extends StatelessWidget {
 
 class _TradableBadge extends StatelessWidget {
   final bool isTradable;
-  const _TradableBadge({required this.isTradable});
+  final String onLabel;
+  final String offLabel;
+
+  const _TradableBadge({
+    required this.isTradable,
+    required this.onLabel,
+    required this.offLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -564,7 +612,7 @@ class _TradableBadge extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            isTradable ? 'GD' : 'Off',
+            isTradable ? onLabel : offLabel,
             style: TextStyle(
                 fontSize: 10,
                 color: isTradable
@@ -638,6 +686,7 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
@@ -650,27 +699,27 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
               children: [
                 TextFormField(
                   controller: _symbolCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Symbol *',
+                  decoration: InputDecoration(
+                      labelText: '${l10n.adminCurrenciesSymbolLabel} *',
                       hintText: 'BTC'),
                   textCapitalization: TextCapitalization.characters,
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Bắt buộc' : null,
+                      v == null || v.trim().isEmpty ? l10n.adminCurrenciesFieldRequired : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _nameCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Name *',
+                  decoration: InputDecoration(
+                      labelText: '${l10n.adminCurrenciesNameInputLabel} *',
                       hintText: 'Bitcoin'),
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Bắt buộc' : null,
+                      v == null || v.trim().isEmpty ? l10n.adminCurrenciesFieldRequired : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _precisionCtrl,
-                  decoration: const InputDecoration(
-                      labelText: 'Precision Scale',
+                  decoration: InputDecoration(
+                      labelText: l10n.adminCurrenciesPrecisionScaleLabel,
                       hintText: '8'),
                   keyboardType: TextInputType.number,
                 ),
@@ -679,8 +728,8 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
                   controller: _minWithdrawCtrl,
                   decoration: CurrencyAmountInput.withCurrencySuffix(
                     context,
-                    const InputDecoration(
-                      labelText: 'Min Withdraw',
+                    InputDecoration(
+                      labelText: l10n.adminCurrenciesMinWithdrawLabel,
                       hintText: '0.001',
                     ),
                     currencySymbol: _symbolCtrl.text.trim().toUpperCase(),
@@ -691,13 +740,13 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Text('Giao dịch'),
+                    Text(l10n.adminCurrenciesTradableLabel),
                     Switch(
                         value: _isTradable,
                         onChanged: (v) =>
                             setState(() => _isTradable = v)),
                     const SizedBox(width: 12),
-                    const Text('Hoạt động'),
+                    Text(l10n.adminCurrenciesActiveLabel),
                     Switch(
                         value: _isActive,
                         onChanged: (v) =>
@@ -712,7 +761,7 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
       actions: [
         TextButton(
             onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-            child: const Text('Huỷ')),
+            child: Text(l10n.adminCurrenciesCancel)),
         FilledButton(
           onPressed: _isSubmitting ? null : _submit,
           child: _isSubmitting
@@ -720,7 +769,7 @@ class _CurrencyFormDialogState extends State<_CurrencyFormDialog> {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('Tạo'),
+              : Text(l10n.adminCurrenciesCreateAction),
         ),
       ],
     );
@@ -789,8 +838,9 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text('Chỉnh sửa ${widget.currency.symbol}'),
+      title: Text(l10n.adminCurrenciesEditTitle(widget.currency.symbol)),
       content: SizedBox(
         width: 360,
         child: Form(
@@ -801,15 +851,15 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
               children: [
                 TextFormField(
                   controller: _nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(labelText: l10n.adminCurrenciesNameInputLabel),
                   validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Bắt buộc' : null,
+                      v == null || v.trim().isEmpty ? l10n.adminCurrenciesFieldRequired : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _precisionCtrl,
                   decoration:
-                      const InputDecoration(labelText: 'Precision Scale'),
+                      InputDecoration(labelText: l10n.adminCurrenciesPrecisionScaleLabel),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 12),
@@ -817,7 +867,7 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
                   controller: _minWithdrawCtrl,
                   decoration: CurrencyAmountInput.withCurrencySuffix(
                     context,
-                    const InputDecoration(labelText: 'Min Withdraw'),
+                    InputDecoration(labelText: l10n.adminCurrenciesMinWithdrawLabel),
                     currencySymbol: widget.currency.symbol,
                   ),
                   keyboardType: const TextInputType.numberWithOptions(
@@ -826,13 +876,13 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Text('Giao dịch'),
+                    Text(l10n.adminCurrenciesTradableLabel),
                     Switch(
                         value: _isTradable,
                         onChanged: (v) =>
                             setState(() => _isTradable = v)),
                     const SizedBox(width: 12),
-                    const Text('Hoạt động'),
+                    Text(l10n.adminCurrenciesActiveLabel),
                     Switch(
                         value: _isActive,
                         onChanged: (v) =>
@@ -847,7 +897,7 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
       actions: [
         TextButton(
             onPressed: _isSubmitting ? null : () => Navigator.pop(context),
-            child: const Text('Huỷ')),
+            child: Text(l10n.adminCurrenciesCancel)),
         FilledButton(
           onPressed: _isSubmitting ? null : _submit,
           child: _isSubmitting
@@ -855,7 +905,7 @@ class _CurrencyEditDialogState extends State<_CurrencyEditDialog> {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('Lưu'),
+              : Text(l10n.adminCurrenciesSaveAction),
         ),
       ],
     );
@@ -871,6 +921,7 @@ class _ErrorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -880,7 +931,7 @@ class _ErrorPanel extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Thử lại')),
+          FilledButton(onPressed: onRetry, child: Text(l10n.adminCurrenciesRetryAction)),
         ],
       ),
     );

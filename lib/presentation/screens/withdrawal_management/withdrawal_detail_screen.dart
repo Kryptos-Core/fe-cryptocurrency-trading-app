@@ -75,17 +75,16 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                               ? null
                               : () async {
                                   final ok = await p.approve(w.txId);
-                                  if (mounted) {
-                                    if (ok) {
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(l10n.withdrawalApprovedSnack)),
-                                      );
-                                    } else if (p.error != null) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(p.error!)),
-                                      );
-                                    }
+                                  if (!context.mounted) return;
+                                  if (ok) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(l10n.withdrawalApprovedSnack)),
+                                    );
+                                  } else if (p.error != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(p.error!)),
+                                    );
                                   }
                                 },
                           icon: const Icon(Icons.check_circle_outline),
@@ -134,7 +133,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
           controller: reasonController,
           decoration: InputDecoration(
             hintText: l10n.withdrawalRejectReasonHint,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
           maxLines: 2,
         ),
@@ -147,17 +146,16 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
             onPressed: () async {
               Navigator.pop(ctx);
               final ok = await p.reject(w.txId, reason: reasonController.text.trim());
-              if (mounted) {
-                if (ok) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.withdrawalRejectedSnack)),
-                  );
-                } else if (p.error != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(p.error!)),
-                  );
-                }
+              if (!context.mounted) return;
+              if (ok) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.withdrawalRejectedSnack)),
+                );
+              } else if (p.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(p.error!)),
+                );
               }
             },
             style: FilledButton.styleFrom(backgroundColor: Colors.red),

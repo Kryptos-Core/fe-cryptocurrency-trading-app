@@ -10,6 +10,10 @@ import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart'
 import 'package:crypto_trading_app/domain/entities/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/user_security_change.dart';
 
+/// Sentinel so [AdminUsersProvider.applyFilters] can update role or status alone
+/// without the other parameter defaulting to `null` and clearing that filter.
+const Object _kAdminUsersFilterUnset = Object();
+
 /// Mô tả số dư ví đơn giản dùng cho admin view.
 class AdminUserWalletItem {
   final String walletId;
@@ -162,12 +166,16 @@ class AdminUsersProvider extends ChangeNotifier {
   /// Áp dụng bộ lọc mới và tải lại danh sách từ đầu.
   Future<void> applyFilters({
     String? search,
-    String? role,
-    String? status,
+    Object? role = _kAdminUsersFilterUnset,
+    Object? status = _kAdminUsersFilterUnset,
   }) async {
-    _searchQuery = search ?? _searchQuery;
-    _roleFilter = role;
-    _statusFilter = status;
+    if (search != null) _searchQuery = search;
+    if (role != _kAdminUsersFilterUnset) {
+      _roleFilter = role as String?;
+    }
+    if (status != _kAdminUsersFilterUnset) {
+      _statusFilter = status as String?;
+    }
     await fetchUsers(refresh: true);
   }
 

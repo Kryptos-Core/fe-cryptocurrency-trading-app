@@ -1,4 +1,5 @@
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// Local data source for caching wallet balances
@@ -44,7 +45,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
       });
     } catch (e) {
       // Log but don't fail - caching is not critical
-      print('Failed to cache wallet balance: $e');
+      debugPrint('Failed to cache wallet balance: $e');
     }
   }
 
@@ -66,7 +67,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
       );
     } catch (e) {
       // Log but don't fail - cache read failure is not critical
-      print('Failed to read cached wallet balance: $e');
+      debugPrint('Failed to read cached wallet balance: $e');
       return null;
     }
   }
@@ -79,7 +80,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
       await box.delete(key);
     } catch (e) {
       // Log but don't fail
-      print('Failed to clear cached wallet balance: $e');
+      debugPrint('Failed to clear cached wallet balance: $e');
     }
   }
 
@@ -90,7 +91,7 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
       await box.clear();
     } catch (e) {
       // Log but don't fail
-      print('Failed to clear all cached wallet balances: $e');
+      debugPrint('Failed to clear all cached wallet balances: $e');
     }
   }
 }

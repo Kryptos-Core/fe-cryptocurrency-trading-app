@@ -7,7 +7,7 @@ const String _themeModeKey = 'app_theme_mode';
 /// Preset seed colors — each generates a full Material 3 color scheme via
 /// [ColorScheme.fromSeed], which applies the HCT color space algorithm used
 /// by Material You to produce 40+ harmonious tonal roles automatically.
-typedef _Preset = ({String name, Color seed});
+typedef Preset = ({String name, Color seed});
 
 /// Manages app-wide [ThemeMode] and seed [Color], persisting choices via
 /// SharedPreferences.  Follows the same ChangeNotifier + SharedPreferences
@@ -43,7 +43,7 @@ class ThemeProvider extends ChangeNotifier {
 
   /// 8 curated seed colors — picked to span the hue wheel evenly so every
   /// generated palette is visually distinct and aesthetically balanced.
-  static const List<_Preset> presetSeeds = [
+  static const List<Preset> presetSeeds = [
     (name: 'Chàm',       seed: Color(0xFF3F51B5)),
     (name: 'Tím',        seed: Color(0xFF9C27B0)),
     (name: 'Xanh dương', seed: Color(0xFF2196F3)),
@@ -57,9 +57,9 @@ class ThemeProvider extends ChangeNotifier {
   // ── Setters ─────────────────────────────────────────────────────────────
 
   Future<void> setSeedColor(Color color) async {
-    if (_seedColor.value == color.value) return;
+    if (_seedColor.toARGB32() == color.toARGB32()) return;
     _seedColor = color;
-    await _prefs.setInt(_seedColorKey, color.value);
+    await _prefs.setInt(_seedColorKey, color.toARGB32());
     notifyListeners();
   }
 

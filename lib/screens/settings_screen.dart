@@ -234,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             runSpacing: 10,
                             children: ThemeProvider.presetSeeds.map((preset) {
                               final isSelected =
-                                  themeProvider.seedColor.value == preset.seed.value;
+                                  themeProvider.seedColor.toARGB32() == preset.seed.toARGB32();
                               return Tooltip(
                                 message: preset.name,
                                 child: InkWell(
@@ -260,7 +260,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           ? [
                                               BoxShadow(
                                                 color: preset.seed
-                                                    .withOpacity(0.5),
+                                                    .withValues(alpha: 0.5),
                                                 blurRadius: 6,
                                                 spreadRadius: 1,
                                               )

@@ -51,7 +51,7 @@ Future<String?> _showSweepDialog(
                       Text(l10n.treasurySweepTargetLabel),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: selectedId,
+                        initialValue: selectedId,
                         decoration: const InputDecoration(border: OutlineInputBorder()),
                         items: mainWallets
                             .map(

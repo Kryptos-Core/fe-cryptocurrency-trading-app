@@ -182,7 +182,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
                 ),
                 _buildDetailCard(
                   l10n.currenciesMinWithdrawLabel,
-                  '${FormatUtils.formatDecimalAmountDisplay(currency.minWithdraw)} ${currency.symbol}',
+                  '${FormatUtils.formatDecimalAmountForScale(currency.minWithdraw, currency.precisionScale)} ${currency.symbol}',
                   Icons.arrow_downward,
                 ),
                 _buildDetailCard(

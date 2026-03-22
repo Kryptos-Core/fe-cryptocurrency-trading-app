@@ -257,17 +257,17 @@ class OrdersProvider extends ChangeNotifier {
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
-      case ServerFailure:
+      case ServerFailure _:
         return failure.message.isNotEmpty
             ? failure.message
             : 'Server error. Please try again.';
-      case NetworkFailure:
+      case NetworkFailure _:
         return 'Network error. Check your connection.';
-      case ValidationFailure:
+      case ValidationFailure _:
         return failure.message;
-      case NotFoundFailure:
+      case NotFoundFailure _:
         return failure.message.isNotEmpty ? failure.message : 'Order not found.';
-      case AuthenticationFailure:
+      case AuthenticationFailure _:
         return 'Please sign in again.';
       default:
         return failure.message;

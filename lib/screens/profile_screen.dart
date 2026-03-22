@@ -10,7 +10,6 @@ import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
-import 'package:crypto_trading_app/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
@@ -674,21 +673,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
             const Divider(),
-            // Additional Options
-            ListTile(
-              leading: const Icon(Icons.currency_bitcoin),
-              title: Text(l10n.currencies),
-              subtitle: Text(l10n.viewAllCurrencies),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CurrenciesListScreen(),
-                  ),
-                );
-              },
-            ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: Text(l10n.settings),

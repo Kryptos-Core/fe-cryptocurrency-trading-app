@@ -266,12 +266,6 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
-  /// No description provided for @dismiss.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get dismiss;
-
   /// No description provided for @search.
   ///
   /// In en, this message translates to:
@@ -836,12 +830,6 @@ abstract class AppLocalizations {
   /// **'Trading pair'**
   String get tradingPair;
 
-  /// No description provided for @ordersPayosUsdtHint.
-  ///
-  /// In en, this message translates to:
-  /// **'PayOS deposits are credited as USDT in your spot wallet (not VND). To buy, pick a pair quoted in USDT (e.g. BTC/USDT). A pair like …/USDC needs USDC balance.'**
-  String get ordersPayosUsdtHint;
-
   /// No description provided for @recentTrades.
   ///
   /// In en, this message translates to:
@@ -889,180 +877,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Insufficient quote balance. Available'**
   String get orderInsufficientQuote;
-
-  /// No description provided for @ordersSelectPairFirst.
-  ///
-  /// In en, this message translates to:
-  /// **'Please select a trading pair first.'**
-  String get ordersSelectPairFirst;
-
-  /// No description provided for @ordersMyOrdersWithCount.
-  ///
-  /// In en, this message translates to:
-  /// **'My orders ({count})'**
-  String ordersMyOrdersWithCount(int count);
-
-  /// No description provided for @myOrdersEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'You have no orders yet'**
-  String get myOrdersEmpty;
-
-  /// No description provided for @amountMustBePositive.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount must be > 0'**
-  String get amountMustBePositive;
-
-  /// No description provided for @priceMustBePositive.
-  ///
-  /// In en, this message translates to:
-  /// **'Price must be a positive number'**
-  String get priceMustBePositive;
-
-  /// No description provided for @amountMaxDecimals.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount supports up to {n} decimal places'**
-  String amountMaxDecimals(int n);
-
-  /// No description provided for @priceMaxDecimals.
-  ///
-  /// In en, this message translates to:
-  /// **'Price supports up to {n} decimal places'**
-  String priceMaxDecimals(int n);
-
-  /// No description provided for @orderColumnSide.
-  ///
-  /// In en, this message translates to:
-  /// **'Side'**
-  String get orderColumnSide;
-
-  /// No description provided for @orderColumnTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Time'**
-  String get orderColumnTime;
-
-  /// No description provided for @orderBookColumnSize.
-  ///
-  /// In en, this message translates to:
-  /// **'Size'**
-  String get orderBookColumnSize;
-
-  /// No description provided for @orderBookColumnCount.
-  ///
-  /// In en, this message translates to:
-  /// **'Count'**
-  String get orderBookColumnCount;
-
-  /// No description provided for @tickerBid.
-  ///
-  /// In en, this message translates to:
-  /// **'Bid'**
-  String get tickerBid;
-
-  /// No description provided for @tickerAsk.
-  ///
-  /// In en, this message translates to:
-  /// **'Ask'**
-  String get tickerAsk;
-
-  /// No description provided for @ticker24hHigh.
-  ///
-  /// In en, this message translates to:
-  /// **'24h H'**
-  String get ticker24hHigh;
-
-  /// No description provided for @ticker24hLow.
-  ///
-  /// In en, this message translates to:
-  /// **'24h L'**
-  String get ticker24hLow;
-
-  /// No description provided for @tickerVolume.
-  ///
-  /// In en, this message translates to:
-  /// **'Vol'**
-  String get tickerVolume;
-
-  /// No description provided for @marketPriceAbbrev.
-  ///
-  /// In en, this message translates to:
-  /// **'MKT'**
-  String get marketPriceAbbrev;
-
-  /// No description provided for @orderFilledQuantity.
-  ///
-  /// In en, this message translates to:
-  /// **'Filled'**
-  String get orderFilledQuantity;
-
-  /// No description provided for @maxAmountButton.
-  ///
-  /// In en, this message translates to:
-  /// **'MAX'**
-  String get maxAmountButton;
-
-  /// No description provided for @priceHintExample.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. 50000.00'**
-  String get priceHintExample;
-
-  /// No description provided for @amountHintExample.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. 0.01'**
-  String get amountHintExample;
-
-  /// No description provided for @orderStatusOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Open'**
-  String get orderStatusOpen;
-
-  /// No description provided for @orderStatusPartial.
-  ///
-  /// In en, this message translates to:
-  /// **'Partial'**
-  String get orderStatusPartial;
-
-  /// No description provided for @orderStatusFilled.
-  ///
-  /// In en, this message translates to:
-  /// **'Filled'**
-  String get orderStatusFilled;
-
-  /// No description provided for @orderStatusCancelled.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancelled'**
-  String get orderStatusCancelled;
-
-  /// No description provided for @orderStatusRejected.
-  ///
-  /// In en, this message translates to:
-  /// **'Rejected'**
-  String get orderStatusRejected;
-
-  /// No description provided for @timeSecondsShort.
-  ///
-  /// In en, this message translates to:
-  /// **'{count}s'**
-  String timeSecondsShort(int count);
-
-  /// No description provided for @timeMinutesShort.
-  ///
-  /// In en, this message translates to:
-  /// **'{count}m'**
-  String timeMinutesShort(int count);
-
-  /// No description provided for @timeHoursShort.
-  ///
-  /// In en, this message translates to:
-  /// **'{count}h'**
-  String timeHoursShort(int count);
 
   /// No description provided for @syncBinance.
   ///
@@ -1297,18 +1111,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Need fiat deposit instead?'**
   String get payosNeedFiatTitle;
-
-  /// No description provided for @payosTransitioningBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment method is being updated{grace}. Please wait before creating a new transaction.'**
-  String payosTransitioningBanner(String grace);
-
-  /// No description provided for @payosTransitioningGraceMinutes.
-  ///
-  /// In en, this message translates to:
-  /// **' (~{minutes} min)'**
-  String payosTransitioningGraceMinutes(int minutes);
 
   /// No description provided for @payosNeedFiatDesc.
   ///
@@ -1927,6 +1729,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount is required'**
   String get amountRequired;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be positive'**
+  String get amountMustBePositive;
 
   /// No description provided for @depositPreviewLinked.
   ///
@@ -2629,120 +2437,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Approve/reject email & password changes'**
   String get drawerSecuritySubtitle;
-
-  /// No description provided for @drawerTransactionMonitoring.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction monitoring'**
-  String get drawerTransactionMonitoring;
-
-  /// No description provided for @drawerTransactionMonitoringSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Orders · Deposits · Withdrawals'**
-  String get drawerTransactionMonitoringSubtitle;
-
-  /// No description provided for @drawerCoinManagement.
-  ///
-  /// In en, this message translates to:
-  /// **'Coin management'**
-  String get drawerCoinManagement;
-
-  /// No description provided for @drawerCoinManagementSubtitleCrud.
-  ///
-  /// In en, this message translates to:
-  /// **'CRUD · Status toggle'**
-  String get drawerCoinManagementSubtitleCrud;
-
-  /// No description provided for @drawerCoinManagementSubtitleView.
-  ///
-  /// In en, this message translates to:
-  /// **'View coin catalog'**
-  String get drawerCoinManagementSubtitleView;
-
-  /// No description provided for @drawerPaymentConfig.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment configuration'**
-  String get drawerPaymentConfig;
-
-  /// No description provided for @drawerPaymentConfigSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'PayOS · Blockchain · Hot wallet'**
-  String get drawerPaymentConfigSubtitle;
-
-  /// No description provided for @drawerWithdrawalManagement.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdrawal management'**
-  String get drawerWithdrawalManagement;
-
-  /// No description provided for @drawerWithdrawalManagementSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve · Reject · History'**
-  String get drawerWithdrawalManagementSubtitle;
-
-  /// No description provided for @drawerSectionGeneral.
-  ///
-  /// In en, this message translates to:
-  /// **'General'**
-  String get drawerSectionGeneral;
-
-  /// No description provided for @drawerSectionAdministration.
-  ///
-  /// In en, this message translates to:
-  /// **'Administration'**
-  String get drawerSectionAdministration;
-
-  /// No description provided for @drawerSectionAdminUsers.
-  ///
-  /// In en, this message translates to:
-  /// **'Users & security'**
-  String get drawerSectionAdminUsers;
-
-  /// No description provided for @drawerSectionAdminOps.
-  ///
-  /// In en, this message translates to:
-  /// **'Trading & catalog'**
-  String get drawerSectionAdminOps;
-
-  /// No description provided for @drawerSectionAdminSystem.
-  ///
-  /// In en, this message translates to:
-  /// **'System'**
-  String get drawerSectionAdminSystem;
-
-  /// No description provided for @drawerSectionFinance.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments & finance'**
-  String get drawerSectionFinance;
-
-  /// No description provided for @drawerSectionAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Account'**
-  String get drawerSectionAccount;
-
-  /// No description provided for @adminTabOrders.
-  ///
-  /// In en, this message translates to:
-  /// **'Orders'**
-  String get adminTabOrders;
-
-  /// No description provided for @adminTabDeposits.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposits'**
-  String get adminTabDeposits;
-
-  /// No description provided for @adminTabWithdrawals.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdrawals'**
-  String get adminTabWithdrawals;
 
   /// No description provided for @authRequiredTitle.
   ///
@@ -4287,263 +3981,161 @@ abstract class AppLocalizations {
   /// **'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.'**
   String get marketMakerPlaceOrdersFormHint;
 
-  /// No description provided for @filterByUserId.
+  /// No description provided for @adminCurrenciesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Filter by User ID...'**
-  String get filterByUserId;
+  /// **'Admin - Currencies'**
+  String get adminCurrenciesTitle;
 
-  /// No description provided for @adminFilterAll.
+  /// No description provided for @adminCurrenciesCreateTitle.
   ///
   /// In en, this message translates to:
-  /// **'All'**
-  String get adminFilterAll;
+  /// **'Create new coin'**
+  String get adminCurrenciesCreateTitle;
 
-  /// No description provided for @adminUserLabel.
+  /// No description provided for @adminCurrenciesDeleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'User'**
-  String get adminUserLabel;
+  /// **'Delete coin'**
+  String get adminCurrenciesDeleteTitle;
 
-  /// No description provided for @adminOrderCodeLabel.
+  /// No description provided for @adminCurrenciesDeleteConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'Order code'**
-  String get adminOrderCodeLabel;
+  /// **'Are you sure you want to delete this coin?'**
+  String get adminCurrenciesDeleteConfirmMessage;
 
-  /// No description provided for @adminTxHashLabel.
+  /// No description provided for @adminCurrenciesEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'TX'**
-  String get adminTxHashLabel;
+  /// **'Edit {symbol}'**
+  String adminCurrenciesEditTitle(String symbol);
 
-  /// No description provided for @adminRetryButton.
+  /// No description provided for @adminCurrenciesEdit.
   ///
   /// In en, this message translates to:
-  /// **'Retry'**
-  String get adminRetryButton;
+  /// **'Edit'**
+  String get adminCurrenciesEdit;
 
-  /// No description provided for @adminOrdersCountLabel.
+  /// No description provided for @adminCurrenciesCancel.
   ///
   /// In en, this message translates to:
-  /// **'orders'**
-  String get adminOrdersCountLabel;
+  /// **'Cancel'**
+  String get adminCurrenciesCancel;
 
-  /// No description provided for @adminDepositsCountLabel.
+  /// No description provided for @adminCurrenciesCreateAction.
   ///
   /// In en, this message translates to:
-  /// **'transactions'**
-  String get adminDepositsCountLabel;
+  /// **'Create'**
+  String get adminCurrenciesCreateAction;
 
-  /// No description provided for @adminWithdrawalsCountLabel.
+  /// No description provided for @adminCurrenciesSaveAction.
   ///
   /// In en, this message translates to:
-  /// **'transactions'**
-  String get adminWithdrawalsCountLabel;
+  /// **'Save'**
+  String get adminCurrenciesSaveAction;
 
-  /// No description provided for @adminShowingCount.
+  /// No description provided for @adminCurrenciesDeleteAction.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} / {total} {label}'**
-  String adminShowingCount(int shown, int total, String label);
+  /// **'Delete'**
+  String get adminCurrenciesDeleteAction;
 
-  /// No description provided for @adminOrdersEmpty.
+  /// No description provided for @adminCurrenciesHide.
   ///
   /// In en, this message translates to:
-  /// **'No orders'**
-  String get adminOrdersEmpty;
+  /// **'Hide'**
+  String get adminCurrenciesHide;
 
-  /// No description provided for @adminDepositsEmpty.
+  /// No description provided for @adminCurrenciesShow.
   ///
   /// In en, this message translates to:
-  /// **'No deposit transactions'**
-  String get adminDepositsEmpty;
+  /// **'Show'**
+  String get adminCurrenciesShow;
 
-  /// No description provided for @adminWithdrawalsEmpty.
+  /// No description provided for @adminCurrenciesTradableLabel.
   ///
   /// In en, this message translates to:
-  /// **'No withdrawal transactions'**
-  String get adminWithdrawalsEmpty;
+  /// **'Tradable'**
+  String get adminCurrenciesTradableLabel;
 
-  /// No description provided for @adminOrderPriceLabel.
+  /// No description provided for @adminCurrenciesActiveLabel.
   ///
   /// In en, this message translates to:
-  /// **'Price'**
-  String get adminOrderPriceLabel;
+  /// **'Active'**
+  String get adminCurrenciesActiveLabel;
 
-  /// No description provided for @adminOrderListBuyWhat.
+  /// No description provided for @adminCurrenciesStatusLabel.
   ///
   /// In en, this message translates to:
-  /// **'Buy {base} (pay with {quote})'**
-  String adminOrderListBuyWhat(String base, String quote);
+  /// **'Status'**
+  String get adminCurrenciesStatusLabel;
 
-  /// No description provided for @adminOrderListSellWhat.
+  /// No description provided for @adminCurrenciesNameInputLabel.
   ///
   /// In en, this message translates to:
-  /// **'Sell {base} (receive {quote})'**
-  String adminOrderListSellWhat(String base, String quote);
+  /// **'Name'**
+  String get adminCurrenciesNameInputLabel;
 
-  /// No description provided for @adminOrderListBuyPriceLabel.
+  /// No description provided for @adminCurrenciesPrecisionScaleLabel.
   ///
   /// In en, this message translates to:
-  /// **'Buy limit price'**
-  String get adminOrderListBuyPriceLabel;
+  /// **'Precision Scale'**
+  String get adminCurrenciesPrecisionScaleLabel;
 
-  /// No description provided for @adminOrderListSellPriceLabel.
+  /// No description provided for @adminCurrenciesMinWithdrawLabel.
   ///
   /// In en, this message translates to:
-  /// **'Sell limit price'**
-  String get adminOrderListSellPriceLabel;
+  /// **'Min Withdraw'**
+  String get adminCurrenciesMinWithdrawLabel;
 
-  /// No description provided for @adminOrderListMarketPriceHint.
+  /// No description provided for @adminCurrenciesFieldRequired.
   ///
   /// In en, this message translates to:
-  /// **'At best available price'**
-  String get adminOrderListMarketPriceHint;
+  /// **'Required'**
+  String get adminCurrenciesFieldRequired;
 
-  /// No description provided for @orderDetailTitle.
+  /// No description provided for @adminCurrenciesRetryAction.
   ///
   /// In en, this message translates to:
-  /// **'Order Detail'**
-  String get orderDetailTitle;
+  /// **'Try again'**
+  String get adminCurrenciesRetryAction;
 
-  /// No description provided for @orderDetailOrderId.
+  /// No description provided for @adminCurrenciesCreateNewCoin.
   ///
   /// In en, this message translates to:
-  /// **'Order ID'**
-  String get orderDetailOrderId;
+  /// **'Create new coin'**
+  String get adminCurrenciesCreateNewCoin;
 
-  /// No description provided for @orderDetailUserId.
+  /// No description provided for @adminCurrenciesNoData.
   ///
   /// In en, this message translates to:
-  /// **'User ID'**
-  String get orderDetailUserId;
+  /// **'No data'**
+  String get adminCurrenciesNoData;
 
-  /// No description provided for @orderDetailPair.
+  /// No description provided for @adminCurrenciesSymbolLabel.
   ///
   /// In en, this message translates to:
-  /// **'Trading Pair'**
-  String get orderDetailPair;
+  /// **'Symbol'**
+  String get adminCurrenciesSymbolLabel;
 
-  /// No description provided for @orderDetailSide.
+  /// No description provided for @adminCurrenciesCreateSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Side'**
-  String get orderDetailSide;
+  /// **'Coin created successfully!'**
+  String get adminCurrenciesCreateSuccess;
 
-  /// No description provided for @orderDetailType.
+  /// No description provided for @adminCurrenciesUpdateSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Order Type'**
-  String get orderDetailType;
+  /// **'Coin updated successfully!'**
+  String get adminCurrenciesUpdateSuccess;
 
-  /// No description provided for @orderDetailTypeLimitLabel.
+  /// No description provided for @adminCurrenciesDeleteSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Limit'**
-  String get orderDetailTypeLimitLabel;
-
-  /// No description provided for @orderDetailTypeMarketLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Market'**
-  String get orderDetailTypeMarketLabel;
-
-  /// No description provided for @orderDetailAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Quantity'**
-  String get orderDetailAmount;
-
-  /// No description provided for @orderDetailPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'Order Price'**
-  String get orderDetailPrice;
-
-  /// No description provided for @orderDetailAvgPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'Avg. Fill Price'**
-  String get orderDetailAvgPrice;
-
-  /// No description provided for @orderDetailFilledAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Filled Qty'**
-  String get orderDetailFilledAmount;
-
-  /// No description provided for @orderDetailFilledPct.
-  ///
-  /// In en, this message translates to:
-  /// **'Fill Rate'**
-  String get orderDetailFilledPct;
-
-  /// No description provided for @orderDetailRemainingAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Remaining'**
-  String get orderDetailRemainingAmount;
-
-  /// No description provided for @orderDetailTimeInForce.
-  ///
-  /// In en, this message translates to:
-  /// **'Time in Force'**
-  String get orderDetailTimeInForce;
-
-  /// No description provided for @orderDetailCreatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Created At'**
-  String get orderDetailCreatedAt;
-
-  /// No description provided for @orderDetailUpdatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Updated'**
-  String get orderDetailUpdatedAt;
-
-  /// No description provided for @orderDetailCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get orderDetailCopied;
-
-  /// No description provided for @orderDetailViewUser.
-  ///
-  /// In en, this message translates to:
-  /// **'View User Detail'**
-  String get orderDetailViewUser;
-
-  /// No description provided for @orderDetailSideBuy.
-  ///
-  /// In en, this message translates to:
-  /// **'Buy'**
-  String get orderDetailSideBuy;
-
-  /// No description provided for @orderDetailSideSell.
-  ///
-  /// In en, this message translates to:
-  /// **'Sell'**
-  String get orderDetailSideSell;
-
-  /// No description provided for @depositDetailTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit Detail'**
-  String get depositDetailTitle;
-
-  /// No description provided for @depositDetailOrderCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Order Code'**
-  String get depositDetailOrderCode;
-
-  /// No description provided for @depositDetailAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount'**
-  String get depositDetailAmount;
+  /// **'Coin deleted successfully!'**
+  String get adminCurrenciesDeleteSuccess;
 
   /// No description provided for @depositDetailStatus.
   ///
@@ -4551,101 +4143,41 @@ abstract class AppLocalizations {
   /// **'Status'**
   String get depositDetailStatus;
 
+  /// No description provided for @depositDetailOrderCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Code'**
+  String get depositDetailOrderCode;
+
+  /// No description provided for @depositDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get depositDetailCopied;
+
+  /// No description provided for @depositDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get depositDetailCreatedAt;
+
+  /// No description provided for @depositDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get depositDetailUpdatedAt;
+
   /// No description provided for @depositDetailUserId.
   ///
   /// In en, this message translates to:
   /// **'User ID'**
   String get depositDetailUserId;
 
-  /// No description provided for @depositDetailCreatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Created At'**
-  String get depositDetailCreatedAt;
-
-  /// No description provided for @depositDetailUpdatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Updated'**
-  String get depositDetailUpdatedAt;
-
-  /// No description provided for @depositDetailCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get depositDetailCopied;
-
   /// No description provided for @depositDetailViewUser.
   ///
   /// In en, this message translates to:
-  /// **'View User Detail'**
+  /// **'View user'**
   String get depositDetailViewUser;
-
-  /// No description provided for @withdrawalDetailInfoTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'On-Chain Withdrawal Detail'**
-  String get withdrawalDetailInfoTitle;
-
-  /// No description provided for @withdrawalDetailUserId.
-  ///
-  /// In en, this message translates to:
-  /// **'User ID'**
-  String get withdrawalDetailUserId;
-
-  /// No description provided for @withdrawalDetailAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount'**
-  String get withdrawalDetailAmount;
-
-  /// No description provided for @withdrawalDetailChain.
-  ///
-  /// In en, this message translates to:
-  /// **'Network'**
-  String get withdrawalDetailChain;
-
-  /// No description provided for @withdrawalDetailAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Recipient Address'**
-  String get withdrawalDetailAddress;
-
-  /// No description provided for @withdrawalDetailTxHash.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction Hash'**
-  String get withdrawalDetailTxHash;
-
-  /// No description provided for @withdrawalDetailStatus.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get withdrawalDetailStatus;
-
-  /// No description provided for @withdrawalDetailCreatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Created At'**
-  String get withdrawalDetailCreatedAt;
-
-  /// No description provided for @withdrawalDetailUpdatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Updated'**
-  String get withdrawalDetailUpdatedAt;
-
-  /// No description provided for @withdrawalDetailCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get withdrawalDetailCopied;
-
-  /// No description provided for @withdrawalDetailViewUser.
-  ///
-  /// In en, this message translates to:
-  /// **'View User Detail'**
-  String get withdrawalDetailViewUser;
 
   /// No description provided for @depositStatusPaid.
   ///
@@ -4664,6 +4196,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelled'**
   String get depositStatusCancelled;
+
+  /// No description provided for @withdrawalDetailInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Information'**
+  String get withdrawalDetailInfoTitle;
+
+  /// No description provided for @withdrawalDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get withdrawalDetailAmount;
+
+  /// No description provided for @withdrawalDetailChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain'**
+  String get withdrawalDetailChain;
+
+  /// No description provided for @withdrawalDetailStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get withdrawalDetailStatus;
+
+  /// No description provided for @withdrawalDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get withdrawalDetailCopied;
+
+  /// No description provided for @withdrawalDetailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get withdrawalDetailAddress;
+
+  /// No description provided for @withdrawalDetailTxHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Hash'**
+  String get withdrawalDetailTxHash;
+
+  /// No description provided for @withdrawalDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get withdrawalDetailCreatedAt;
+
+  /// No description provided for @withdrawalDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get withdrawalDetailUpdatedAt;
+
+  /// No description provided for @withdrawalDetailUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get withdrawalDetailUserId;
+
+  /// No description provided for @withdrawalDetailViewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'View user'**
+  String get withdrawalDetailViewUser;
 
   /// No description provided for @withdrawalStatusCompleted.
   ///
@@ -4692,26 +4290,20 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalDetailTitle.
   ///
   /// In en, this message translates to:
-  /// **'Withdrawal details'**
+  /// **'Withdrawal Details'**
   String get withdrawalDetailTitle;
 
   /// No description provided for @withdrawalNotFound.
   ///
   /// In en, this message translates to:
-  /// **'Not found'**
+  /// **'Withdrawal not found'**
   String get withdrawalNotFound;
 
   /// No description provided for @withdrawalApprovedSnack.
   ///
   /// In en, this message translates to:
-  /// **'Approved'**
+  /// **'Withdrawal approved'**
   String get withdrawalApprovedSnack;
-
-  /// No description provided for @withdrawalRejectedSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Rejected'**
-  String get withdrawalRejectedSnack;
 
   /// No description provided for @withdrawalApproveButton.
   ///
@@ -4728,14 +4320,38 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalRejectDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'Reject withdrawal request'**
+  /// **'Reject withdrawal'**
   String get withdrawalRejectDialogTitle;
 
   /// No description provided for @withdrawalRejectReasonHint.
   ///
   /// In en, this message translates to:
-  /// **'Rejection reason (optional)'**
+  /// **'Reason (optional)'**
   String get withdrawalRejectReasonHint;
+
+  /// No description provided for @withdrawalRejectedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal rejected'**
+  String get withdrawalRejectedSnack;
+
+  /// No description provided for @withdrawalUserInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User Information'**
+  String get withdrawalUserInfoTitle;
+
+  /// No description provided for @withdrawalBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get withdrawalBalanceLabel;
+
+  /// No description provided for @withdrawalTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Information'**
+  String get withdrawalTransactionTitle;
 
   /// No description provided for @withdrawalNetworkLabel.
   ///
@@ -4752,7 +4368,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalDestinationLabel.
   ///
   /// In en, this message translates to:
-  /// **'Destination address'**
+  /// **'Destination'**
   String get withdrawalDestinationLabel;
 
   /// No description provided for @withdrawalTimeLabel.
@@ -4764,32 +4380,8 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalTxHashLabel.
   ///
   /// In en, this message translates to:
-  /// **'TX Hash'**
+  /// **'Tx Hash'**
   String get withdrawalTxHashLabel;
-
-  /// No description provided for @withdrawalUserInfoTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'User info'**
-  String get withdrawalUserInfoTitle;
-
-  /// No description provided for @withdrawalTransactionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction'**
-  String get withdrawalTransactionTitle;
-
-  /// No description provided for @withdrawalBalanceLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get withdrawalBalanceLabel;
-
-  /// No description provided for @withdrawalStatusLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get withdrawalStatusLabel;
 
   /// No description provided for @withdrawalStatusRequested.
   ///
@@ -4806,8 +4398,14 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalStatusSent.
   ///
   /// In en, this message translates to:
-  /// **'Sent on-chain'**
+  /// **'Sent'**
   String get withdrawalStatusSent;
+
+  /// No description provided for @withdrawalStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get withdrawalStatusLabel;
 
   /// No description provided for @withdrawalStatusRejected.
   ///
@@ -4815,371 +4413,11 @@ abstract class AppLocalizations {
   /// **'Rejected'**
   String get withdrawalStatusRejected;
 
-  /// No description provided for @withdrawalManagementTabPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending'**
-  String get withdrawalManagementTabPending;
-
-  /// No description provided for @withdrawalManagementTabAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get withdrawalManagementTabAll;
-
-  /// No description provided for @withdrawalStatsPendingCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} pending'**
-  String withdrawalStatsPendingCount(int count);
-
-  /// No description provided for @withdrawalApproveAllProcess.
-  ///
-  /// In en, this message translates to:
-  /// **'Process'**
-  String get withdrawalApproveAllProcess;
-
-  /// No description provided for @withdrawalManagementTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdrawal management'**
-  String get withdrawalManagementTitle;
-
-  /// No description provided for @withdrawalApproveAllSmallTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve all (small)'**
-  String get withdrawalApproveAllSmallTitle;
-
-  /// No description provided for @withdrawalApproveAllSmallContent.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve all pending withdrawals below the configured threshold.'**
-  String get withdrawalApproveAllSmallContent;
-
-  /// No description provided for @withdrawalProcessedSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Processing complete'**
-  String get withdrawalProcessedSnack;
-
-  /// No description provided for @withdrawalSearchHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search by email, address, txId...'**
-  String get withdrawalSearchHint;
-
-  /// No description provided for @withdrawalNoRequests.
-  ///
-  /// In en, this message translates to:
-  /// **'No withdrawal requests'**
-  String get withdrawalNoRequests;
-
-  /// No description provided for @adminWalletAdjustTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet adjustment'**
-  String get adminWalletAdjustTitle;
-
-  /// No description provided for @adminWalletAdjustDepositWithdrawTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit / Withdraw'**
-  String get adminWalletAdjustDepositWithdrawTab;
-
-  /// No description provided for @adminWalletAdjustHistoryTab.
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get adminWalletAdjustHistoryTab;
-
-  /// No description provided for @adminWalletAdjustUseUserMgmt.
-  ///
-  /// In en, this message translates to:
-  /// **'Recommended: User management'**
-  String get adminWalletAdjustUseUserMgmt;
-
-  /// No description provided for @adminWalletAdjustUseUserMgmtSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Go to User management → Select user → Deposit/Withdraw for a better experience.'**
-  String get adminWalletAdjustUseUserMgmtSubtitle;
-
-  /// No description provided for @adminWalletAdjustOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Open'**
-  String get adminWalletAdjustOpen;
-
-  /// No description provided for @adminWalletAdjustSelectUserHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Select user...'**
-  String get adminWalletAdjustSelectUserHint;
-
-  /// No description provided for @adminWalletAdjustAmountLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount'**
-  String get adminWalletAdjustAmountLabel;
-
-  /// No description provided for @adminWalletAdjustNoteLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Note (optional)'**
-  String get adminWalletAdjustNoteLabel;
-
-  /// No description provided for @adminWalletAdjustAmountRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter amount'**
-  String get adminWalletAdjustAmountRequired;
-
-  /// No description provided for @adminWalletAdjustAmountInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid amount (max 18 decimal places)'**
-  String get adminWalletAdjustAmountInvalid;
-
-  /// No description provided for @adminWalletAdjustAmountMustBePositive.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount must be greater than 0'**
-  String get adminWalletAdjustAmountMustBePositive;
-
-  /// No description provided for @adminWalletAdjustSuccessDeposit.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit successful!'**
-  String get adminWalletAdjustSuccessDeposit;
-
-  /// No description provided for @adminWalletAdjustSuccessWithdraw.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdraw successful!'**
-  String get adminWalletAdjustSuccessWithdraw;
-
-  /// No description provided for @adminWalletAdjustSelectUserRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Please select a user'**
-  String get adminWalletAdjustSelectUserRequired;
-
-  /// No description provided for @adminWalletAdjustUsdtNotFound.
-  ///
-  /// In en, this message translates to:
-  /// **'USDT wallet not found. Please try again later.'**
-  String get adminWalletAdjustUsdtNotFound;
-
-  /// No description provided for @adminWalletAdjustError.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred. Please try again.'**
-  String get adminWalletAdjustError;
-
-  /// No description provided for @adminWalletAdjustUserIdRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter User ID'**
-  String get adminWalletAdjustUserIdRequired;
-
-  /// No description provided for @adminWalletAdjustOperationType.
-  ///
-  /// In en, this message translates to:
-  /// **'Operation type'**
-  String get adminWalletAdjustOperationType;
-
-  /// No description provided for @adminWalletAdjustInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Adjustment info'**
-  String get adminWalletAdjustInfo;
-
-  /// No description provided for @adminWalletAdjustAmountHint.
-  ///
-  /// In en, this message translates to:
-  /// **'0.00'**
-  String get adminWalletAdjustAmountHint;
-
-  /// No description provided for @adminWalletAdjustReasonHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Adjustment reason...'**
-  String get adminWalletAdjustReasonHint;
-
-  /// No description provided for @adminWalletAdjustDepositTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit'**
-  String get adminWalletAdjustDepositTab;
-
-  /// No description provided for @adminWalletAdjustWithdrawTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdraw'**
-  String get adminWalletAdjustWithdrawTab;
-
-  /// No description provided for @adminWalletPlatformCash.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallets (Platform Cash)'**
-  String get adminWalletPlatformCash;
-
-  /// No description provided for @adminWalletSearchUserIdHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter user UUID'**
-  String get adminWalletSearchUserIdHint;
-
-  /// No description provided for @adminWalletSearchButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get adminWalletSearchButton;
-
-  /// No description provided for @adminWalletSearchByUserList.
-  ///
-  /// In en, this message translates to:
-  /// **'Search via user list'**
-  String get adminWalletSearchByUserList;
-
-  /// No description provided for @adminWalletNoAdjustmentHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'No adjustment history'**
-  String get adminWalletNoAdjustmentHistory;
-
-  /// No description provided for @adminWalletTargetLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Recipient'**
-  String get adminWalletTargetLabel;
-
-  /// No description provided for @adminWalletActorLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Performed by'**
-  String get adminWalletActorLabel;
-
-  /// No description provided for @adminWalletPlatformCashInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'USDT — Balance will be deposited/withdrawn to fixed virtual wallet'**
-  String get adminWalletPlatformCashInfo;
-
-  /// No description provided for @adminWalletLoading.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading...'**
-  String get adminWalletLoading;
-
-  /// No description provided for @adminWalletAdjustProcessing.
-  ///
-  /// In en, this message translates to:
-  /// **'Processing...'**
-  String get adminWalletAdjustProcessing;
-
-  /// No description provided for @adminWalletAdjustDepositBalance.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit balance'**
-  String get adminWalletAdjustDepositBalance;
-
-  /// No description provided for @adminWalletAdjustWithdrawBalance.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdraw balance'**
-  String get adminWalletAdjustWithdrawBalance;
-
-  /// No description provided for @adminWalletHistoryUserIdLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'User ID'**
-  String get adminWalletHistoryUserIdLabel;
-
-  /// No description provided for @adminUserDetailCreatedAt.
-  ///
-  /// In en, this message translates to:
-  /// **'Created'**
-  String get adminUserDetailCreatedAt;
-
-  /// No description provided for @adminUserDetailNoWallets.
-  ///
-  /// In en, this message translates to:
-  /// **'User has no wallets'**
-  String get adminUserDetailNoWallets;
-
-  /// No description provided for @adminUserDetailNoAdjustmentHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'No adjustment history'**
-  String get adminUserDetailNoAdjustmentHistory;
-
-  /// No description provided for @adminUserDetailNoOrders.
-  ///
-  /// In en, this message translates to:
-  /// **'User has no orders'**
-  String get adminUserDetailNoOrders;
-
-  /// No description provided for @adminUserDetailNoOnchainTx.
-  ///
-  /// In en, this message translates to:
-  /// **'No on-chain transactions'**
-  String get adminUserDetailNoOnchainTx;
-
-  /// No description provided for @adminUserDetailNoChangeHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'No change history'**
-  String get adminUserDetailNoChangeHistory;
-
-  /// No description provided for @adminUserDetailByLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'By'**
-  String get adminUserDetailByLabel;
-
-  /// No description provided for @adminUserDetailNoteLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Note'**
-  String get adminUserDetailNoteLabel;
-
-  /// No description provided for @adminUserDetailReviewNoteLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Review note'**
-  String get adminUserDetailReviewNoteLabel;
-
-  /// No description provided for @adminUserDetailWalletsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallets (Platform Cash)'**
-  String get adminUserDetailWalletsTitle;
-
-  /// No description provided for @adminCurrenciesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Coin management'**
-  String get adminCurrenciesTitle;
-
   /// No description provided for @adminCurrenciesSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search by symbol or name...'**
+  /// **'Search currencies...'**
   String get adminCurrenciesSearchHint;
-
-  /// No description provided for @adminCurrenciesStatusLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get adminCurrenciesStatusLabel;
-
-  /// No description provided for @adminCurrenciesTradingLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Trading'**
-  String get adminCurrenciesTradingLabel;
 
   /// No description provided for @adminCurrenciesFilterAll.
   ///
@@ -5199,10 +4437,16 @@ abstract class AppLocalizations {
   /// **'Inactive'**
   String get adminCurrenciesFilterInactive;
 
-  /// No description provided for @adminCurrenciesFilterTradable.
+  /// No description provided for @adminCurrenciesTradingLabel.
   ///
   /// In en, this message translates to:
   /// **'Trading'**
+  String get adminCurrenciesTradingLabel;
+
+  /// No description provided for @adminCurrenciesFilterTradable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable'**
   String get adminCurrenciesFilterTradable;
 
   /// No description provided for @adminCurrenciesFilterPaused.
@@ -5223,203 +4467,683 @@ abstract class AppLocalizations {
   /// **'Create coin'**
   String get adminCurrenciesCreateCoin;
 
-  /// No description provided for @adminCurrenciesDeleteCoinTitle.
+  /// No description provided for @adminCurrenciesDeleteConfirmWithPair.
   ///
   /// In en, this message translates to:
-  /// **'Delete coin'**
-  String get adminCurrenciesDeleteCoinTitle;
+  /// **'Are you sure you want to delete \"{symbol} — {name}\"?\nThis action cannot be undone.'**
+  String adminCurrenciesDeleteConfirmWithPair(String symbol, String name);
 
-  /// No description provided for @adminCurrenciesDeleteButton.
+  /// No description provided for @adminCurrenciesListMeta.
   ///
   /// In en, this message translates to:
-  /// **'Delete'**
-  String get adminCurrenciesDeleteButton;
+  /// **'Precision: {precision} · Min withdraw: {minWithdraw}'**
+  String adminCurrenciesListMeta(String precision, String minWithdraw);
 
-  /// No description provided for @adminCurrenciesHideButton.
+  /// No description provided for @adminCurrenciesTradableBadgeOn.
   ///
   /// In en, this message translates to:
-  /// **'Hide'**
-  String get adminCurrenciesHideButton;
+  /// **'Trade'**
+  String get adminCurrenciesTradableBadgeOn;
 
-  /// No description provided for @adminCurrenciesEditButton.
+  /// No description provided for @adminCurrenciesTradableBadgeOff.
   ///
   /// In en, this message translates to:
-  /// **'Edit'**
-  String get adminCurrenciesEditButton;
+  /// **'Off'**
+  String get adminCurrenciesTradableBadgeOff;
 
-  /// No description provided for @adminCurrenciesTradingTab.
+  /// No description provided for @adminCurrenciesTradingPausedTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Trading'**
-  String get adminCurrenciesTradingTab;
+  /// **'Trading paused'**
+  String get adminCurrenciesTradingPausedTooltip;
 
-  /// No description provided for @adminCurrenciesActiveTab.
+  /// No description provided for @adminShowingCount.
   ///
   /// In en, this message translates to:
-  /// **'Active'**
-  String get adminCurrenciesActiveTab;
+  /// **'Showing {shown} of {total} {label}'**
+  String adminShowingCount(int shown, int total, String label);
 
-  /// No description provided for @adminCurrenciesCreateButton.
+  /// No description provided for @adminRetryButton.
   ///
   /// In en, this message translates to:
-  /// **'Create'**
-  String get adminCurrenciesCreateButton;
+  /// **'Retry'**
+  String get adminRetryButton;
 
-  /// No description provided for @adminCurrenciesSaveButton.
+  /// No description provided for @payosTransitioningBanner.
   ///
   /// In en, this message translates to:
-  /// **'Save'**
-  String get adminCurrenciesSaveButton;
+  /// **'PayOS payment method will be activated in {minutes} minute(s)'**
+  String payosTransitioningBanner(int minutes);
 
-  /// No description provided for @adminCurrenciesEditTitle.
+  /// No description provided for @payosTransitioningGraceMinutes.
   ///
   /// In en, this message translates to:
-  /// **'Edit {symbol}'**
-  String adminCurrenciesEditTitle(String symbol);
+  /// **'Activation in {minutes} minute(s)'**
+  String payosTransitioningGraceMinutes(int minutes);
 
-  /// No description provided for @adminCurrenciesSymbolHint.
+  /// No description provided for @dismiss.
   ///
   /// In en, this message translates to:
-  /// **'BTC'**
-  String get adminCurrenciesSymbolHint;
+  /// **'Dismiss'**
+  String get dismiss;
 
-  /// No description provided for @adminCurrenciesNameHint.
+  /// No description provided for @snackbarOk.
   ///
   /// In en, this message translates to:
-  /// **'Bitcoin'**
-  String get adminCurrenciesNameHint;
+  /// **'OK'**
+  String get snackbarOk;
 
-  /// No description provided for @adminCurrenciesScaleHint.
+  /// No description provided for @adminUserDetailTabWallets.
   ///
   /// In en, this message translates to:
-  /// **'8'**
-  String get adminCurrenciesScaleHint;
+  /// **'Wallets'**
+  String get adminUserDetailTabWallets;
 
-  /// No description provided for @adminCurrenciesMinAmountHint.
+  /// No description provided for @adminUserDetailTabAdjust.
   ///
   /// In en, this message translates to:
-  /// **'0.001'**
-  String get adminCurrenciesMinAmountHint;
+  /// **'Adjust'**
+  String get adminUserDetailTabAdjust;
 
-  /// No description provided for @adminUserListTitle.
+  /// No description provided for @adminUserDetailTabOrders.
   ///
   /// In en, this message translates to:
-  /// **'User management'**
-  String get adminUserListTitle;
+  /// **'Orders'**
+  String get adminUserDetailTabOrders;
 
-  /// No description provided for @adminUserListSearchHint.
+  /// No description provided for @adminUserDetailTabOnchain.
   ///
   /// In en, this message translates to:
-  /// **'Search by email or name...'**
-  String get adminUserListSearchHint;
+  /// **'On-chain'**
+  String get adminUserDetailTabOnchain;
 
-  /// No description provided for @adminUserListRoleLabel.
+  /// No description provided for @adminUserDetailTabSecurity.
   ///
   /// In en, this message translates to:
-  /// **'Role'**
-  String get adminUserListRoleLabel;
+  /// **'Security'**
+  String get adminUserDetailTabSecurity;
 
-  /// No description provided for @adminUserListStatusLabel.
+  /// No description provided for @adminUserDetailCreatedAtLabel.
   ///
   /// In en, this message translates to:
-  /// **'Status'**
-  String get adminUserListStatusLabel;
+  /// **'Created at'**
+  String get adminUserDetailCreatedAtLabel;
 
-  /// No description provided for @adminUserListNoUsersFound.
+  /// No description provided for @withdrawalManagementTitle.
   ///
   /// In en, this message translates to:
-  /// **'No users found'**
-  String get adminUserListNoUsersFound;
+  /// **'Withdrawal Management'**
+  String get withdrawalManagementTitle;
 
-  /// No description provided for @adminUserListRoleAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get adminUserListRoleAll;
-
-  /// No description provided for @adminUserListRoleTrader.
-  ///
-  /// In en, this message translates to:
-  /// **'Trader'**
-  String get adminUserListRoleTrader;
-
-  /// No description provided for @adminUserListRoleVerified.
-  ///
-  /// In en, this message translates to:
-  /// **'Verified'**
-  String get adminUserListRoleVerified;
-
-  /// No description provided for @adminUserListRoleMarketMaker.
-  ///
-  /// In en, this message translates to:
-  /// **'Market Maker'**
-  String get adminUserListRoleMarketMaker;
-
-  /// No description provided for @adminUserListRoleSupport.
-  ///
-  /// In en, this message translates to:
-  /// **'Support'**
-  String get adminUserListRoleSupport;
-
-  /// No description provided for @adminUserListRoleRiskOfficer.
-  ///
-  /// In en, this message translates to:
-  /// **'Risk Officer'**
-  String get adminUserListRoleRiskOfficer;
-
-  /// No description provided for @adminUserListRoleAdmin.
-  ///
-  /// In en, this message translates to:
-  /// **'Admin'**
-  String get adminUserListRoleAdmin;
-
-  /// No description provided for @adminUserListStatusActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get adminUserListStatusActive;
-
-  /// No description provided for @adminUserListStatusBanned.
-  ///
-  /// In en, this message translates to:
-  /// **'Banned'**
-  String get adminUserListStatusBanned;
-
-  /// No description provided for @adminUserListStatusPending.
+  /// No description provided for @withdrawalManagementTabPending.
   ///
   /// In en, this message translates to:
   /// **'Pending'**
-  String get adminUserListStatusPending;
+  String get withdrawalManagementTabPending;
 
-  /// No description provided for @adminUserListTotalUsers.
+  /// No description provided for @withdrawalManagementTabAll.
   ///
   /// In en, this message translates to:
-  /// **'Total: {count} users'**
-  String adminUserListTotalUsers(int count);
+  /// **'All'**
+  String get withdrawalManagementTabAll;
 
-  /// No description provided for @adminUserListSelectUserPlaceholder.
+  /// No description provided for @withdrawalApproveAllSmallTitle.
   ///
   /// In en, this message translates to:
-  /// **'Select a user to view details'**
-  String get adminUserListSelectUserPlaceholder;
+  /// **'Approve All'**
+  String get withdrawalApproveAllSmallTitle;
 
-  /// No description provided for @profileSubmitRequest.
+  /// No description provided for @withdrawalApproveAllSmallContent.
   ///
   /// In en, this message translates to:
-  /// **'Submit request'**
-  String get profileSubmitRequest;
+  /// **'Approve all pending withdrawals?'**
+  String get withdrawalApproveAllSmallContent;
 
-  /// No description provided for @profileNewEmailLabel.
+  /// No description provided for @withdrawalApproveAllProcess.
   ///
   /// In en, this message translates to:
-  /// **'New email'**
-  String get profileNewEmailLabel;
+  /// **'Processing...'**
+  String get withdrawalApproveAllProcess;
 
-  /// No description provided for @profileNewEmailHint.
+  /// No description provided for @withdrawalProcessedSnack.
   ///
   /// In en, this message translates to:
-  /// **'Enter new email'**
-  String get profileNewEmailHint;
+  /// **'Withdrawals processed successfully'**
+  String get withdrawalProcessedSnack;
+
+  /// No description provided for @withdrawalStatsPendingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pending'**
+  String withdrawalStatsPendingCount(int count);
+
+  /// No description provided for @adminFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminFilterAll;
+
+  /// No description provided for @withdrawalSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by user ID or wallet address...'**
+  String get withdrawalSearchHint;
+
+  /// No description provided for @withdrawalNoRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No withdrawal requests'**
+  String get withdrawalNoRequests;
+
+  /// No description provided for @drawerTransactionMonitoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Monitoring'**
+  String get drawerTransactionMonitoring;
+
+  /// No description provided for @adminTabOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get adminTabOrders;
+
+  /// No description provided for @adminTabDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits'**
+  String get adminTabDeposits;
+
+  /// No description provided for @adminTabWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawals'**
+  String get adminTabWithdrawals;
+
+  /// No description provided for @orderStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get orderStatusOpen;
+
+  /// No description provided for @orderStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partially Filled'**
+  String get orderStatusPartial;
+
+  /// No description provided for @orderStatusFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled'**
+  String get orderStatusFilled;
+
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get orderStatusRejected;
+
+  /// No description provided for @filterByUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by User ID'**
+  String get filterByUserId;
+
+  /// No description provided for @adminOrdersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders'**
+  String get adminOrdersEmpty;
+
+  /// No description provided for @adminOrdersCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders'**
+  String adminOrdersCountLabel(int count);
+
+  /// No description provided for @adminDepositsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No deposits'**
+  String get adminDepositsEmpty;
+
+  /// No description provided for @adminDepositsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} deposits'**
+  String adminDepositsCountLabel(int count);
+
+  /// No description provided for @adminWithdrawalsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No withdrawals'**
+  String get adminWithdrawalsEmpty;
+
+  /// No description provided for @adminWithdrawalsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} withdrawals'**
+  String adminWithdrawalsCountLabel(int count);
+
+  /// No description provided for @orderDetailTypeLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get orderDetailTypeLimitLabel;
+
+  /// No description provided for @orderDetailTypeMarketLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get orderDetailTypeMarketLabel;
+
+  /// No description provided for @adminOrderListBuyPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Price'**
+  String get adminOrderListBuyPriceLabel;
+
+  /// No description provided for @adminOrderListSellPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell Price'**
+  String get adminOrderListSellPriceLabel;
+
+  /// No description provided for @adminOrderListMarketPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'(Market Order)'**
+  String get adminOrderListMarketPriceHint;
+
+  /// No description provided for @adminUserLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get adminUserLabel;
+
+  /// No description provided for @orderDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get orderDetailAmount;
+
+  /// No description provided for @orderDetailPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get orderDetailPrice;
+
+  /// No description provided for @adminOrderCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Code'**
+  String get adminOrderCodeLabel;
+
+  /// No description provided for @adminTxHashLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tx Hash'**
+  String get adminTxHashLabel;
+
+  /// No description provided for @orderDetailSideBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get orderDetailSideBuy;
+
+  /// No description provided for @orderDetailSideSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get orderDetailSideSell;
+
+  /// No description provided for @orderDetailOrderId.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get orderDetailOrderId;
+
+  /// No description provided for @orderDetailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get orderDetailCopied;
+
+  /// No description provided for @orderDetailPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get orderDetailPair;
+
+  /// No description provided for @orderDetailSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get orderDetailSide;
+
+  /// No description provided for @orderDetailType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get orderDetailType;
+
+  /// No description provided for @orderDetailTimeInForce.
+  ///
+  /// In en, this message translates to:
+  /// **'Time in force'**
+  String get orderDetailTimeInForce;
+
+  /// No description provided for @orderDetailFilledAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled amount'**
+  String get orderDetailFilledAmount;
+
+  /// No description provided for @orderDetailAvgPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Average price'**
+  String get orderDetailAvgPrice;
+
+  /// No description provided for @orderDetailRemainingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get orderDetailRemainingAmount;
+
+  /// No description provided for @orderDetailFilledPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled %'**
+  String get orderDetailFilledPct;
+
+  /// No description provided for @orderDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get orderDetailCreatedAt;
+
+  /// No description provided for @orderDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get orderDetailUpdatedAt;
+
+  /// No description provided for @orderDetailUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get orderDetailUserId;
+
+  /// No description provided for @orderDetailViewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'View user'**
+  String get orderDetailViewUser;
+
+  /// No description provided for @depositDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Details'**
+  String get depositDetailTitle;
+
+  /// No description provided for @depositDetailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get depositDetailAmount;
+
+  /// No description provided for @drawerSectionGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get drawerSectionGeneral;
+
+  /// No description provided for @drawerSectionAdministration.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get drawerSectionAdministration;
+
+  /// No description provided for @drawerSectionAdminUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Users'**
+  String get drawerSectionAdminUsers;
+
+  /// No description provided for @drawerSectionAdminOps.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Operations'**
+  String get drawerSectionAdminOps;
+
+  /// No description provided for @drawerTransactionMonitoringSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders, deposits, withdrawals'**
+  String get drawerTransactionMonitoringSubtitle;
+
+  /// No description provided for @drawerCoinManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin Management'**
+  String get drawerCoinManagement;
+
+  /// No description provided for @drawerCoinManagementSubtitleCrud.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, update, delete'**
+  String get drawerCoinManagementSubtitleCrud;
+
+  /// No description provided for @drawerCoinManagementSubtitleView.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only currency view'**
+  String get drawerCoinManagementSubtitleView;
+
+  /// No description provided for @drawerSectionAdminSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin System'**
+  String get drawerSectionAdminSystem;
+
+  /// No description provided for @drawerSectionFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get drawerSectionFinance;
+
+  /// No description provided for @drawerPaymentConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Configuration'**
+  String get drawerPaymentConfig;
+
+  /// No description provided for @drawerPaymentConfigSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Methods, wallets, activation'**
+  String get drawerPaymentConfigSubtitle;
+
+  /// No description provided for @drawerWithdrawalManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Management'**
+  String get drawerWithdrawalManagement;
+
+  /// No description provided for @drawerWithdrawalManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and process requests'**
+  String get drawerWithdrawalManagementSubtitle;
+
+  /// No description provided for @drawerSectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get drawerSectionAccount;
+
+  /// No description provided for @profileFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get profileFirstName;
+
+  /// No description provided for @profileLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get profileLastName;
+
+  /// No description provided for @ordersPayosUsdtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PayOS to top up VND and buy USDT for trading.'**
+  String get ordersPayosUsdtHint;
+
+  /// No description provided for @priceHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 65000'**
+  String get priceHintExample;
+
+  /// No description provided for @amountHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 0.01'**
+  String get amountHintExample;
+
+  /// No description provided for @maxAmountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'MAX'**
+  String get maxAmountButton;
+
+  /// No description provided for @amountMaxDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount supports up to {max} decimal places'**
+  String amountMaxDecimals(int max);
+
+  /// No description provided for @priceMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must be positive'**
+  String get priceMustBePositive;
+
+  /// No description provided for @priceMaxDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Price supports up to {max} decimal places'**
+  String priceMaxDecimals(int max);
+
+  /// No description provided for @tickerBid.
+  ///
+  /// In en, this message translates to:
+  /// **'Bid'**
+  String get tickerBid;
+
+  /// No description provided for @tickerAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask'**
+  String get tickerAsk;
+
+  /// No description provided for @ticker24hHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'24h High'**
+  String get ticker24hHigh;
+
+  /// No description provided for @ticker24hLow.
+  ///
+  /// In en, this message translates to:
+  /// **'24h Low'**
+  String get ticker24hLow;
+
+  /// No description provided for @tickerVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get tickerVolume;
+
+  /// No description provided for @orderColumnSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get orderColumnSide;
+
+  /// No description provided for @orderColumnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get orderColumnTime;
+
+  /// No description provided for @timeSecondsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s'**
+  String timeSecondsShort(int seconds);
+
+  /// No description provided for @timeMinutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String timeMinutesShort(int minutes);
+
+  /// No description provided for @timeHoursShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h'**
+  String timeHoursShort(int hours);
+
+  /// No description provided for @ordersSelectPairFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a trading pair first'**
+  String get ordersSelectPairFirst;
+
+  /// No description provided for @myOrdersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders'**
+  String get myOrdersEmpty;
+
+  /// No description provided for @ordersMyOrdersWithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders ({count})'**
+  String ordersMyOrdersWithCount(int count);
+
+  /// No description provided for @orderBookColumnSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get orderBookColumnSize;
+
+  /// No description provided for @orderBookColumnCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get orderBookColumnCount;
+
+  /// No description provided for @marketPriceAbbrev.
+  ///
+  /// In en, this message translates to:
+  /// **'MKT'**
+  String get marketPriceAbbrev;
+
+  /// No description provided for @orderFilledQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled'**
+  String get orderFilledQuantity;
 
   /// No description provided for @settingsTheme.
   ///
@@ -5451,46 +5175,328 @@ abstract class AppLocalizations {
   /// **'Seed color'**
   String get settingsSeedColor;
 
-  /// No description provided for @loginEmailHint.
+  /// No description provided for @walletDebugTitle.
   ///
   /// In en, this message translates to:
-  /// **'user@example.com'**
-  String get loginEmailHint;
+  /// **'Wallet Debug'**
+  String get walletDebugTitle;
 
-  /// No description provided for @loginPasswordHint.
+  /// No description provided for @adminUserListRoleAll.
   ///
   /// In en, this message translates to:
-  /// **'Enter your password'**
-  String get loginPasswordHint;
+  /// **'All roles'**
+  String get adminUserListRoleAll;
 
-  /// No description provided for @loginCheckHealth.
+  /// No description provided for @adminUserListRoleTrader.
   ///
   /// In en, this message translates to:
-  /// **'Check connection (health)'**
-  String get loginCheckHealth;
+  /// **'Trader'**
+  String get adminUserListRoleTrader;
 
-  /// No description provided for @loginConnectMetaMask.
+  /// No description provided for @adminUserListRoleVerified.
   ///
   /// In en, this message translates to:
-  /// **'Connect MetaMask'**
-  String get loginConnectMetaMask;
+  /// **'Verified user'**
+  String get adminUserListRoleVerified;
 
-  /// No description provided for @loginConnectTronLink.
+  /// No description provided for @adminUserListRoleMarketMaker.
   ///
   /// In en, this message translates to:
-  /// **'Connect TronLink'**
-  String get loginConnectTronLink;
+  /// **'Market maker'**
+  String get adminUserListRoleMarketMaker;
+
+  /// No description provided for @adminUserListRoleSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support agent'**
+  String get adminUserListRoleSupport;
+
+  /// No description provided for @adminUserListRoleRiskOfficer.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk officer'**
+  String get adminUserListRoleRiskOfficer;
+
+  /// No description provided for @adminUserListRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get adminUserListRoleAdmin;
+
+  /// No description provided for @adminUserListRoleFinanceManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance manager'**
+  String get adminUserListRoleFinanceManager;
+
+  /// No description provided for @adminUserListRoleGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get adminUserListRoleGuest;
+
+  /// No description provided for @adminUserListStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminUserListStatusActive;
+
+  /// No description provided for @adminUserListStatusBanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Banned'**
+  String get adminUserListStatusBanned;
+
+  /// No description provided for @adminUserListStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminUserListStatusPending;
+
+  /// No description provided for @adminUserListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin User List'**
+  String get adminUserListTitle;
+
+  /// No description provided for @adminUserListSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users by name, email or ID'**
+  String get adminUserListSearchHint;
+
+  /// No description provided for @adminUserListRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminUserListRoleLabel;
+
+  /// No description provided for @adminUserListStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminUserListStatusLabel;
+
+  /// No description provided for @adminUserListTotalUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total users: {count}'**
+  String adminUserListTotalUsers(int count);
+
+  /// No description provided for @adminUserListNoUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get adminUserListNoUsersFound;
+
+  /// No description provided for @adminUserListSelectUserPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a user to view details'**
+  String get adminUserListSelectUserPlaceholder;
+
+  /// No description provided for @adminUserDetailNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get adminUserDetailNoteLabel;
+
+  /// No description provided for @adminWalletAdjustSelectUserRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a user'**
+  String get adminWalletAdjustSelectUserRequired;
+
+  /// No description provided for @adminWalletAdjustError.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment failed'**
+  String get adminWalletAdjustError;
+
+  /// No description provided for @adminWalletAdjustUserIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID is required'**
+  String get adminWalletAdjustUserIdRequired;
+
+  /// No description provided for @adminWalletAdjustTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Adjustment'**
+  String get adminWalletAdjustTitle;
+
+  /// No description provided for @adminWalletAdjustDepositWithdrawTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit/Withdraw'**
+  String get adminWalletAdjustDepositWithdrawTab;
+
+  /// No description provided for @adminWalletAdjustHistoryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get adminWalletAdjustHistoryTab;
+
+  /// No description provided for @adminWalletAdjustUseUserMgmt.
+  ///
+  /// In en, this message translates to:
+  /// **'Use User Management'**
+  String get adminWalletAdjustUseUserMgmt;
+
+  /// No description provided for @adminWalletAdjustUseUserMgmtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick user from admin user list'**
+  String get adminWalletAdjustUseUserMgmtSubtitle;
+
+  /// No description provided for @adminWalletAdjustOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get adminWalletAdjustOpen;
+
+  /// No description provided for @adminWalletAdjustOperationType.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation type'**
+  String get adminWalletAdjustOperationType;
+
+  /// No description provided for @adminWalletAdjustInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment Information'**
+  String get adminWalletAdjustInfo;
+
+  /// No description provided for @adminWalletAdjustSelectUserHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter user ID'**
+  String get adminWalletAdjustSelectUserHint;
+
+  /// No description provided for @adminWalletAdjustAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get adminWalletAdjustAmountLabel;
+
+  /// No description provided for @adminWalletAdjustAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter adjustment amount'**
+  String get adminWalletAdjustAmountHint;
+
+  /// No description provided for @adminWalletAdjustAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount is required'**
+  String get adminWalletAdjustAmountRequired;
+
+  /// No description provided for @adminWalletAdjustAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount'**
+  String get adminWalletAdjustAmountInvalid;
+
+  /// No description provided for @adminWalletAdjustAmountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than 0'**
+  String get adminWalletAdjustAmountMustBePositive;
+
+  /// No description provided for @adminWalletAdjustNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get adminWalletAdjustNoteLabel;
+
+  /// No description provided for @adminWalletAdjustReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for adjustment'**
+  String get adminWalletAdjustReasonHint;
+
+  /// No description provided for @adminWalletAdjustDepositTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get adminWalletAdjustDepositTab;
+
+  /// No description provided for @adminWalletAdjustWithdrawTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get adminWalletAdjustWithdrawTab;
+
+  /// No description provided for @adminWalletAdjustProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get adminWalletAdjustProcessing;
+
+  /// No description provided for @adminWalletAdjustDepositBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit to balance'**
+  String get adminWalletAdjustDepositBalance;
+
+  /// No description provided for @adminWalletAdjustWithdrawBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw from balance'**
+  String get adminWalletAdjustWithdrawBalance;
+
+  /// No description provided for @adminWalletHistoryUserIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get adminWalletHistoryUserIdLabel;
+
+  /// No description provided for @adminWalletSearchUserIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by User ID'**
+  String get adminWalletSearchUserIdHint;
+
+  /// No description provided for @adminWalletSearchButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get adminWalletSearchButton;
+
+  /// No description provided for @adminWalletSearchByUserList.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by user list'**
+  String get adminWalletSearchByUserList;
+
+  /// No description provided for @adminWalletNoAdjustmentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustment history'**
+  String get adminWalletNoAdjustmentHistory;
+
+  /// No description provided for @adminWalletTargetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get adminWalletTargetLabel;
+
+  /// No description provided for @adminWalletActorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Actor'**
+  String get adminWalletActorLabel;
 
   /// No description provided for @homeLogoutConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Logout'**
+  /// **'Confirm logout'**
   String get homeLogoutConfirmTitle;
 
   /// No description provided for @homeLogoutConfirmContent.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to logout?'**
+  /// **'Are you sure you want to log out?'**
   String get homeLogoutConfirmContent;
 
   /// No description provided for @homeLogoutCancel.
@@ -5505,203 +5511,47 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get homeLogoutConfirm;
 
+  /// No description provided for @homeFailedToLoadUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load user information'**
+  String get homeFailedToLoadUser;
+
   /// No description provided for @homeGoToLogin.
   ///
   /// In en, this message translates to:
-  /// **'Go to Login'**
+  /// **'Go to login'**
   String get homeGoToLogin;
 
   /// No description provided for @homeAppTitle.
   ///
   /// In en, this message translates to:
-  /// **'Crypto Trading App'**
+  /// **'Home'**
   String get homeAppTitle;
 
   /// No description provided for @homeWelcomeBack.
   ///
   /// In en, this message translates to:
-  /// **'Welcome back,'**
+  /// **'Welcome back'**
   String get homeWelcomeBack;
-
-  /// No description provided for @homeFailedToLoadUser.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load user'**
-  String get homeFailedToLoadUser;
-
-  /// No description provided for @profileFirstName.
-  ///
-  /// In en, this message translates to:
-  /// **'First name'**
-  String get profileFirstName;
-
-  /// No description provided for @profileLastName.
-  ///
-  /// In en, this message translates to:
-  /// **'Last name'**
-  String get profileLastName;
-
-  /// No description provided for @treasuryNoMainWallets.
-  ///
-  /// In en, this message translates to:
-  /// **'No main wallets configured for {chain}. Sweep will use default.'**
-  String treasuryNoMainWallets(String chain);
 
   /// No description provided for @homeCryptoPlatform.
   ///
   /// In en, this message translates to:
-  /// **'Crypto Trading Platform'**
+  /// **'Crypto trading platform'**
   String get homeCryptoPlatform;
 
   /// No description provided for @homeAuthReady.
   ///
   /// In en, this message translates to:
-  /// **'Authentication system is ready!\n\nMarket, Trading, and Wallet modules coming soon.'**
+  /// **'Authentication ready'**
   String get homeAuthReady;
-
-  /// No description provided for @homeMemberSince.
-  ///
-  /// In en, this message translates to:
-  /// **'Member since'**
-  String get homeMemberSince;
 
   /// No description provided for @homeLastUpdated.
   ///
   /// In en, this message translates to:
   /// **'Last updated'**
   String get homeLastUpdated;
-
-  /// No description provided for @adminUserDetailRefresh.
-  ///
-  /// In en, this message translates to:
-  /// **'Refresh'**
-  String get adminUserDetailRefresh;
-
-  /// No description provided for @adminUserDetailTabWallets.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallets'**
-  String get adminUserDetailTabWallets;
-
-  /// No description provided for @adminUserDetailTabAdjust.
-  ///
-  /// In en, this message translates to:
-  /// **'Deposit/Withdraw'**
-  String get adminUserDetailTabAdjust;
-
-  /// No description provided for @adminUserDetailTabOrders.
-  ///
-  /// In en, this message translates to:
-  /// **'Orders'**
-  String get adminUserDetailTabOrders;
-
-  /// No description provided for @adminUserDetailTabOnchain.
-  ///
-  /// In en, this message translates to:
-  /// **'Transactions'**
-  String get adminUserDetailTabOnchain;
-
-  /// No description provided for @adminUserDetailTabSecurity.
-  ///
-  /// In en, this message translates to:
-  /// **'Security changes'**
-  String get adminUserDetailTabSecurity;
-
-  /// No description provided for @adminUserDetailCreatedAtLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Created at'**
-  String get adminUserDetailCreatedAtLabel;
-
-  /// No description provided for @snackbarOk.
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get snackbarOk;
-
-  /// No description provided for @walletDebugTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet Debug Info'**
-  String get walletDebugTitle;
-
-  /// No description provided for @advancedTradingNoData.
-  ///
-  /// In en, this message translates to:
-  /// **'No data'**
-  String get advancedTradingNoData;
-
-  /// No description provided for @advancedTradingMacd.
-  ///
-  /// In en, this message translates to:
-  /// **'MACD'**
-  String get advancedTradingMacd;
-
-  /// No description provided for @advancedTradingSignal.
-  ///
-  /// In en, this message translates to:
-  /// **'Signal'**
-  String get advancedTradingSignal;
-
-  /// No description provided for @advancedTradingHistogram.
-  ///
-  /// In en, this message translates to:
-  /// **'Histogram'**
-  String get advancedTradingHistogram;
-
-  /// No description provided for @advancedTradingZoomIn.
-  ///
-  /// In en, this message translates to:
-  /// **'Zoom In'**
-  String get advancedTradingZoomIn;
-
-  /// No description provided for @advancedTradingZoomOut.
-  ///
-  /// In en, this message translates to:
-  /// **'Zoom Out'**
-  String get advancedTradingZoomOut;
-
-  /// No description provided for @advancedTradingShowIndicators.
-  ///
-  /// In en, this message translates to:
-  /// **'Show Indicators'**
-  String get advancedTradingShowIndicators;
-
-  /// No description provided for @paymentConfigClientId.
-  ///
-  /// In en, this message translates to:
-  /// **'Client ID'**
-  String get paymentConfigClientId;
-
-  /// No description provided for @paymentConfigApiKey.
-  ///
-  /// In en, this message translates to:
-  /// **'API Key'**
-  String get paymentConfigApiKey;
-
-  /// No description provided for @paymentConfigChecksumKey.
-  ///
-  /// In en, this message translates to:
-  /// **'Checksum Key'**
-  String get paymentConfigChecksumKey;
-
-  /// No description provided for @paymentConfigUrlHint.
-  ///
-  /// In en, this message translates to:
-  /// **'https://...'**
-  String get paymentConfigUrlHint;
-
-  /// No description provided for @paymentConfigHotWalletKey.
-  ///
-  /// In en, this message translates to:
-  /// **'Hot Wallet Private Key'**
-  String get paymentConfigHotWalletKey;
-
-  /// No description provided for @paymentConfigMainnet.
-  ///
-  /// In en, this message translates to:
-  /// **'Mainnet'**
-  String get paymentConfigMainnet;
 }
 
 class _AppLocalizationsDelegate

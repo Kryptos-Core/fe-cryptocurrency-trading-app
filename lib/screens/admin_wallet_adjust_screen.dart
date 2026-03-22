@@ -355,8 +355,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context).adminWalletAdjustNoteLabel,
                           hintText: AppLocalizations.of(context).adminWalletAdjustReasonHint,
-                          prefixIcon: Icon(Icons.notes_outlined),
-                          border: OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.notes_outlined),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],

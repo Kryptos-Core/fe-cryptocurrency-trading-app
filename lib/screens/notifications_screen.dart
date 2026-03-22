@@ -120,7 +120,7 @@ class _NotificationTile extends StatelessWidget {
 
     final bgColor = notification.isRead
         ? Colors.transparent
-        : colorScheme.primaryContainer.withOpacity(0.15);
+      : colorScheme.primaryContainer.withValues(alpha: 0.15);
 
     final leading = _typeIcon(notification.type, colorScheme);
     final timeStr = _formatTime(notification.notificationCreatedAt, l10n);
@@ -128,7 +128,7 @@ class _NotificationTile extends StatelessWidget {
     return ListTile(
       tileColor: bgColor,
       leading: CircleAvatar(
-        backgroundColor: leading.$2.withOpacity(0.15),
+        backgroundColor: leading.$2.withValues(alpha: 0.15),
         child: Icon(leading.$1, color: leading.$2, size: 20),
       ),
       title: Text(
@@ -268,7 +268,7 @@ class _NotificationDetailSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),

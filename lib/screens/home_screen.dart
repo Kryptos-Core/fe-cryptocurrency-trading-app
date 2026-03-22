@@ -299,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 16),
                       Text(
                         l10n.homeCryptoPlatform,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         l10n.homeAuthReady,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),

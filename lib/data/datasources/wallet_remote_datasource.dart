@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/data/models/admin_wallet_adjustment_model.dart';
 import 'package:crypto_trading_app/data/models/wallet_balance_model.dart';
 import 'package:crypto_trading_app/data/models/wallet_transaction_model.dart';
@@ -74,7 +75,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   @override
   Future<WalletBalanceModel> getBalance(String currencyId) async {
     try {
-      print(
+      debugPrint(
           '[WalletRemoteDataSource] Fetching balance for currencyId: $currencyId');
 
       final response = await dioClient.dio.get(
@@ -82,8 +83,8 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         queryParameters: {'currencyId': currencyId},
       );
 
-      print('[WalletRemoteDataSource] Response status: ${response.statusCode}');
-      print('[WalletRemoteDataSource] Response data: ${response.data}');
+      debugPrint('[WalletRemoteDataSource] Response status: ${response.statusCode}');
+      debugPrint('[WalletRemoteDataSource] Response data: ${response.data}');
 
       // API returns: { "data": {...}, "statusCode": 200, "message": "Success" }
       final data = response.data;
@@ -95,14 +96,14 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       final balanceData = data['data'] as Map<String, dynamic>?;
       if (balanceData == null) {
-        print(
+        debugPrint(
             '[WalletRemoteDataSource] ERROR: Balance data is null in response');
         throw ServerException(message: 'Balance data not found in response');
       }
 
-      print('[WalletRemoteDataSource] Balance data: $balanceData');
+      debugPrint('[WalletRemoteDataSource] Balance data: $balanceData');
       final balanceModel = WalletBalanceModel.fromJson(balanceData);
-      print(
+      debugPrint(
           '[WalletRemoteDataSource] Successfully parsed balance: available=${balanceModel.available}, frozen=${balanceModel.frozen}');
 
       return balanceModel;
@@ -115,8 +116,8 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     } on ValidationException {
       rethrow;
     } catch (e, stackTrace) {
-      print('[WalletRemoteDataSource] ERROR: $e');
-      print('[WalletRemoteDataSource] Stack trace: $stackTrace');
+      debugPrint('[WalletRemoteDataSource] ERROR: $e');
+      debugPrint('[WalletRemoteDataSource] Stack trace: $stackTrace');
       throw ServerException(
         message: e.toString().replaceAll('Exception: ', ''),
       );

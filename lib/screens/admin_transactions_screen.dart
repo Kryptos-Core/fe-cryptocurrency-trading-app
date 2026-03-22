@@ -220,7 +220,7 @@ class _OrdersTabState extends State<_OrdersTab>
                 l10n: l10n,
                 total: p.ordersTotal,
                 shown: p.orders.length,
-                label: l10n.adminOrdersCountLabel),
+              label: l10n.orders),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => p.fetchOrders(refresh: true),
@@ -374,7 +374,7 @@ class _DepositsTabState extends State<_DepositsTab>
                       l10n: l10n,
                       total: p.depositsTotal,
                       shown: p.deposits.length,
-                      label: l10n.adminDepositsCountLabel),
+                      label: l10n.adminTabDeposits),
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => p.fetchDeposits(refresh: true),
@@ -533,7 +533,7 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
                       l10n: l10n,
                       total: p.withdrawalsTotal,
                       shown: p.withdrawals.length,
-                      label: l10n.adminWithdrawalsCountLabel),
+                      label: l10n.adminTabWithdrawals),
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => p.fetchWithdrawals(refresh: true),

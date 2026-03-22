@@ -34,7 +34,7 @@ class _CreateWalletSheetState extends State<CreateWalletSheet> {
     super.dispose();
   }
 
-  Future<void> _generate(BuildContext context) async {
+  Future<void> _generate() async {
     final provider = context.read<ManagedWalletsProvider>();
     final wallet = await provider.createWallet(
       chain: _selectedChain,
@@ -70,7 +70,7 @@ class _CreateWalletSheetState extends State<CreateWalletSheet> {
               chains: _supportedChains,
               colorScheme: colorScheme,
               onChainChanged: (v) => setState(() => _selectedChain = v ?? _selectedChain),
-              onGenerate: () => _generate(context),
+              onGenerate: _generate,
             ),
     );
   }

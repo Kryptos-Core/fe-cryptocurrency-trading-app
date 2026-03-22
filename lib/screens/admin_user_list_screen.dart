@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'admin_user_detail_screen.dart';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -16,6 +17,7 @@ List<(String, String?)> _roles(AppLocalizations l10n) => [
   (l10n.adminUserListRoleMarketMaker, 'MARKET_MAKER'),
   (l10n.adminUserListRoleSupport, 'SUPPORT_AGENT'),
   (l10n.adminUserListRoleRiskOfficer, 'RISK_OFFICER'),
+  (l10n.adminUserListRoleFinanceManager, 'FINANCE_MANAGER'),
   (l10n.adminUserListRoleAdmin, 'ADMIN'),
 ];
 
@@ -204,68 +206,56 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   }
 
   Widget _buildFilterSection(BuildContext context, AppLocalizations l10n) {
+    const filterPadding =
+        EdgeInsets.symmetric(horizontal: 12, vertical: 10);
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildFilterGroup(
-                label: l10n.adminUserListRoleLabel,
-                chips: _roles(l10n),
-                selected: provider.roleFilter,
-                onSelect: (v) => provider.applyFilters(role: v),
+              AppDropdownField<String?>(
+                value: provider.roleFilter,
+                labelText: l10n.adminUserListRoleLabel,
+                menuMaxHeight: 320,
+                contentPadding: filterPadding,
+                items: _roles(l10n)
+                    .map(
+                      (e) => DropdownMenuItem<String?>(
+                        value: e.$2,
+                        child: Text(
+                          e.$1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => provider.applyFilters(role: v),
               ),
-              const SizedBox(height: 4),
-              _buildFilterGroup(
-                label: l10n.adminUserListStatusLabel,
-                chips: _statuses(l10n),
-                selected: provider.statusFilter,
-                onSelect: (v) => provider.applyFilters(status: v),
+              const SizedBox(height: 10),
+              AppDropdownField<String?>(
+                value: provider.statusFilter,
+                labelText: l10n.adminUserListStatusLabel,
+                menuMaxHeight: 240,
+                contentPadding: filterPadding,
+                items: _statuses(l10n)
+                    .map(
+                      (e) => DropdownMenuItem<String?>(
+                        value: e.$2,
+                        child: Text(
+                          e.$1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => provider.applyFilters(status: v),
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildFilterGroup({
-    required String label,
-    required List<(String, String?)> chips,
-    required String? selected,
-    required void Function(String?) onSelect,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          '$label:',
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
-              ?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 2,
-            children: chips.map((chip) {
-              final isSelected = selected == chip.$2;
-              return FilterChip(
-                label: Text(chip.$1),
-                selected: isSelected,
-                onSelected: (_) => onSelect(chip.$2),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              );
-            }).toList(),
-          ),
-        ),
-      ],
     );
   }
 
@@ -324,7 +314,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                const Icon(Icons.people_outline, size: 64, color: Colors.grey),
                 const SizedBox(height: 12),
                 Text(l10n.adminUserListNoUsersFound,
                     style: const TextStyle(color: Colors.grey)),
@@ -446,11 +436,14 @@ class _UserCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              UserRoleChip(role: user.role),
-              const SizedBox(width: 6),
+              Expanded(
+                child: UserRoleChip(role: user.role),
+              ),
+              const SizedBox(width: 8),
               UserStatusBadge(status: user.status),
             ],
           ),
@@ -486,37 +479,86 @@ class UserRoleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = _roleInfo(role);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style:
-            TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+    final l10n = AppLocalizations.of(context);
+    final label = roleLabel(l10n, role);
+    final color = roleAccentColor(role);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 11,
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
 
-  static (String, Color) _roleInfo(String role) {
+  static String roleLabel(AppLocalizations l10n, String role) {
     switch (role) {
       case 'ADMIN':
-        return ('Admin', Colors.deepOrange);
+        return l10n.adminUserListRoleAdmin;
       case 'RISK_OFFICER':
-        return ('Risk Officer', Colors.purple);
+        return l10n.adminUserListRoleRiskOfficer;
       case 'SUPPORT_AGENT':
-        return ('Support', Colors.blue);
+        return l10n.adminUserListRoleSupport;
       case 'VERIFIED_USER':
-        return ('Verified', Colors.teal);
+        return l10n.adminUserListRoleVerified;
       case 'MARKET_MAKER':
-        return ('Market Maker', Colors.indigo);
+        return l10n.adminUserListRoleMarketMaker;
       case 'TRADER':
-        return ('Trader', Colors.green);
+        return l10n.adminUserListRoleTrader;
+      case 'FINANCE_MANAGER':
+        return l10n.adminUserListRoleFinanceManager;
+      case 'GUEST':
+        return l10n.adminUserListRoleGuest;
       default:
-        return (role, Colors.grey);
+        return _humanizeRoleCode(role);
+    }
+  }
+
+  static String _humanizeRoleCode(String role) {
+    if (role.isEmpty) return role;
+    return role
+        .split('_')
+        .map((part) {
+          if (part.isEmpty) return part;
+          final lower = part.toLowerCase();
+          return '${lower[0].toUpperCase()}${lower.length > 1 ? lower.substring(1) : ''}';
+        })
+        .join(' ');
+  }
+
+  static Color roleAccentColor(String role) {
+    switch (role) {
+      case 'ADMIN':
+        return Colors.deepOrange;
+      case 'RISK_OFFICER':
+        return Colors.purple;
+      case 'SUPPORT_AGENT':
+        return Colors.blue;
+      case 'VERIFIED_USER':
+        return Colors.teal;
+      case 'MARKET_MAKER':
+        return Colors.indigo;
+      case 'TRADER':
+        return Colors.green;
+      case 'FINANCE_MANAGER':
+        return const Color(0xFFF57C00);
+      case 'GUEST':
+        return Colors.blueGrey;
+      default:
+        return Colors.grey;
     }
   }
 }
@@ -527,7 +569,8 @@ class UserStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = _statusInfo(status);
+    final l10n = AppLocalizations.of(context);
+    final (label, color) = _statusInfo(l10n, status);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -542,16 +585,28 @@ class UserStatusBadge extends StatelessWidget {
     );
   }
 
-  static (String, Color) _statusInfo(String status) {
+  static (String, Color) _statusInfo(AppLocalizations l10n, String status) {
     switch (status) {
       case 'ACTIVE':
-        return ('Active', Colors.green);
+        return (l10n.adminUserListStatusActive, Colors.green);
       case 'BANNED':
-        return ('Banned', Colors.red);
+        return (l10n.adminUserListStatusBanned, Colors.red);
       case 'PENDING':
-        return ('Pending', Colors.orange);
+        return (l10n.adminUserListStatusPending, Colors.orange);
       default:
-        return (status, Colors.grey);
+        return (_humanizeStatusCode(status), Colors.grey);
     }
+  }
+
+  static String _humanizeStatusCode(String status) {
+    if (status.isEmpty) return status;
+    return status
+        .split('_')
+        .map((part) {
+          if (part.isEmpty) return part;
+          final lower = part.toLowerCase();
+          return '${lower[0].toUpperCase()}${lower.length > 1 ? lower.substring(1) : ''}';
+        })
+        .join(' ');
   }
 }

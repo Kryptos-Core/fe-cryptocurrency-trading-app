@@ -126,7 +126,7 @@ class _BroadcastNotificationScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withOpacity(0.4),
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -170,9 +170,9 @@ class _BroadcastNotificationScreenState
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: selected
-                                ? color.withOpacity(0.15)
+                              ? color.withValues(alpha: 0.15)
                                 : colorScheme.surfaceContainerHighest
-                                    .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: selected ? color : Colors.transparent,

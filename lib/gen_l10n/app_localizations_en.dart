@@ -93,9 +93,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get dismiss => 'Skip';
-
-  @override
   String get search => 'Search';
 
   @override
@@ -379,10 +376,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradingPair => 'Trading pair';
 
   @override
-  String get ordersPayosUsdtHint =>
-      'PayOS deposits are credited as USDT in your spot wallet (not VND). To buy, pick a pair quoted in USDT (e.g. BTC/USDT). A pair like …/USDC needs USDC balance.';
-
-  @override
   String get recentTrades => 'Recent trades';
 
   @override
@@ -405,105 +398,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderInsufficientQuote => 'Insufficient quote balance. Available';
-
-  @override
-  String get ordersSelectPairFirst => 'Please select a trading pair first.';
-
-  @override
-  String ordersMyOrdersWithCount(int count) {
-    return 'My orders ($count)';
-  }
-
-  @override
-  String get myOrdersEmpty => 'You have no orders yet';
-
-  @override
-  String get amountMustBePositive => 'Amount must be > 0';
-
-  @override
-  String get priceMustBePositive => 'Price must be a positive number';
-
-  @override
-  String amountMaxDecimals(int n) {
-    return 'Amount supports up to $n decimal places';
-  }
-
-  @override
-  String priceMaxDecimals(int n) {
-    return 'Price supports up to $n decimal places';
-  }
-
-  @override
-  String get orderColumnSide => 'Side';
-
-  @override
-  String get orderColumnTime => 'Time';
-
-  @override
-  String get orderBookColumnSize => 'Size';
-
-  @override
-  String get orderBookColumnCount => 'Count';
-
-  @override
-  String get tickerBid => 'Bid';
-
-  @override
-  String get tickerAsk => 'Ask';
-
-  @override
-  String get ticker24hHigh => '24h H';
-
-  @override
-  String get ticker24hLow => '24h L';
-
-  @override
-  String get tickerVolume => 'Vol';
-
-  @override
-  String get marketPriceAbbrev => 'MKT';
-
-  @override
-  String get orderFilledQuantity => 'Filled';
-
-  @override
-  String get maxAmountButton => 'MAX';
-
-  @override
-  String get priceHintExample => 'e.g. 50000.00';
-
-  @override
-  String get amountHintExample => 'e.g. 0.01';
-
-  @override
-  String get orderStatusOpen => 'Open';
-
-  @override
-  String get orderStatusPartial => 'Partial';
-
-  @override
-  String get orderStatusFilled => 'Filled';
-
-  @override
-  String get orderStatusCancelled => 'Cancelled';
-
-  @override
-  String get orderStatusRejected => 'Rejected';
-
-  @override
-  String timeSecondsShort(int count) {
-    return '${count}s';
-  }
-
-  @override
-  String timeMinutesShort(int count) {
-    return '${count}m';
-  }
-
-  @override
-  String timeHoursShort(int count) {
-    return '${count}h';
-  }
 
   @override
   String get syncBinance => 'Sync Binance';
@@ -626,16 +520,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payosNeedFiatTitle => 'Need fiat deposit instead?';
-
-  @override
-  String payosTransitioningBanner(String grace) {
-    return 'Payment method is being updated$grace. Please wait before creating a new transaction.';
-  }
-
-  @override
-  String payosTransitioningGraceMinutes(int minutes) {
-    return ' (~$minutes min)';
-  }
 
   @override
   String get payosNeedFiatDesc =>
@@ -1005,6 +889,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get amountRequired => 'Amount is required';
+
+  @override
+  String get amountMustBePositive => 'Amount must be positive';
 
   @override
   String get depositPreviewLinked =>
@@ -1389,64 +1276,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get drawerSecuritySubtitle =>
       'Approve/reject email & password changes';
-
-  @override
-  String get drawerTransactionMonitoring => 'Transaction monitoring';
-
-  @override
-  String get drawerTransactionMonitoringSubtitle =>
-      'Orders · Deposits · Withdrawals';
-
-  @override
-  String get drawerCoinManagement => 'Coin management';
-
-  @override
-  String get drawerCoinManagementSubtitleCrud => 'CRUD · Status toggle';
-
-  @override
-  String get drawerCoinManagementSubtitleView => 'View coin catalog';
-
-  @override
-  String get drawerPaymentConfig => 'Payment configuration';
-
-  @override
-  String get drawerPaymentConfigSubtitle => 'PayOS · Blockchain · Hot wallet';
-
-  @override
-  String get drawerWithdrawalManagement => 'Withdrawal management';
-
-  @override
-  String get drawerWithdrawalManagementSubtitle => 'Approve · Reject · History';
-
-  @override
-  String get drawerSectionGeneral => 'General';
-
-  @override
-  String get drawerSectionAdministration => 'Administration';
-
-  @override
-  String get drawerSectionAdminUsers => 'Users & security';
-
-  @override
-  String get drawerSectionAdminOps => 'Trading & catalog';
-
-  @override
-  String get drawerSectionAdminSystem => 'System';
-
-  @override
-  String get drawerSectionFinance => 'Payments & finance';
-
-  @override
-  String get drawerSectionAccount => 'Account';
-
-  @override
-  String get adminTabOrders => 'Orders';
-
-  @override
-  String get adminTabDeposits => 'Deposits';
-
-  @override
-  String get adminTabWithdrawals => 'Withdrawals';
 
   @override
   String get authRequiredTitle => 'Sign in required';
@@ -2294,190 +2123,106 @@ class AppLocalizationsEn extends AppLocalizations {
       'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.';
 
   @override
-  String get filterByUserId => 'Filter by User ID...';
+  String get adminCurrenciesTitle => 'Admin - Currencies';
 
   @override
-  String get adminFilterAll => 'All';
+  String get adminCurrenciesCreateTitle => 'Create new coin';
 
   @override
-  String get adminUserLabel => 'User';
+  String get adminCurrenciesDeleteTitle => 'Delete coin';
 
   @override
-  String get adminOrderCodeLabel => 'Order code';
+  String get adminCurrenciesDeleteConfirmMessage =>
+      'Are you sure you want to delete this coin?';
 
   @override
-  String get adminTxHashLabel => 'TX';
-
-  @override
-  String get adminRetryButton => 'Retry';
-
-  @override
-  String get adminOrdersCountLabel => 'orders';
-
-  @override
-  String get adminDepositsCountLabel => 'transactions';
-
-  @override
-  String get adminWithdrawalsCountLabel => 'transactions';
-
-  @override
-  String adminShowingCount(int shown, int total, String label) {
-    return 'Showing $shown / $total $label';
+  String adminCurrenciesEditTitle(String symbol) {
+    return 'Edit $symbol';
   }
 
   @override
-  String get adminOrdersEmpty => 'No orders';
+  String get adminCurrenciesEdit => 'Edit';
 
   @override
-  String get adminDepositsEmpty => 'No deposit transactions';
+  String get adminCurrenciesCancel => 'Cancel';
 
   @override
-  String get adminWithdrawalsEmpty => 'No withdrawal transactions';
+  String get adminCurrenciesCreateAction => 'Create';
 
   @override
-  String get adminOrderPriceLabel => 'Price';
+  String get adminCurrenciesSaveAction => 'Save';
 
   @override
-  String adminOrderListBuyWhat(String base, String quote) {
-    return 'Buy $base (pay with $quote)';
-  }
+  String get adminCurrenciesDeleteAction => 'Delete';
 
   @override
-  String adminOrderListSellWhat(String base, String quote) {
-    return 'Sell $base (receive $quote)';
-  }
+  String get adminCurrenciesHide => 'Hide';
 
   @override
-  String get adminOrderListBuyPriceLabel => 'Buy limit price';
+  String get adminCurrenciesShow => 'Show';
 
   @override
-  String get adminOrderListSellPriceLabel => 'Sell limit price';
+  String get adminCurrenciesTradableLabel => 'Tradable';
 
   @override
-  String get adminOrderListMarketPriceHint => 'At best available price';
+  String get adminCurrenciesActiveLabel => 'Active';
 
   @override
-  String get orderDetailTitle => 'Order Detail';
+  String get adminCurrenciesStatusLabel => 'Status';
 
   @override
-  String get orderDetailOrderId => 'Order ID';
+  String get adminCurrenciesNameInputLabel => 'Name';
 
   @override
-  String get orderDetailUserId => 'User ID';
+  String get adminCurrenciesPrecisionScaleLabel => 'Precision Scale';
 
   @override
-  String get orderDetailPair => 'Trading Pair';
+  String get adminCurrenciesMinWithdrawLabel => 'Min Withdraw';
 
   @override
-  String get orderDetailSide => 'Side';
+  String get adminCurrenciesFieldRequired => 'Required';
 
   @override
-  String get orderDetailType => 'Order Type';
+  String get adminCurrenciesRetryAction => 'Try again';
 
   @override
-  String get orderDetailTypeLimitLabel => 'Limit';
+  String get adminCurrenciesCreateNewCoin => 'Create new coin';
 
   @override
-  String get orderDetailTypeMarketLabel => 'Market';
+  String get adminCurrenciesNoData => 'No data';
 
   @override
-  String get orderDetailAmount => 'Quantity';
+  String get adminCurrenciesSymbolLabel => 'Symbol';
 
   @override
-  String get orderDetailPrice => 'Order Price';
+  String get adminCurrenciesCreateSuccess => 'Coin created successfully!';
 
   @override
-  String get orderDetailAvgPrice => 'Avg. Fill Price';
+  String get adminCurrenciesUpdateSuccess => 'Coin updated successfully!';
 
   @override
-  String get orderDetailFilledAmount => 'Filled Qty';
-
-  @override
-  String get orderDetailFilledPct => 'Fill Rate';
-
-  @override
-  String get orderDetailRemainingAmount => 'Remaining';
-
-  @override
-  String get orderDetailTimeInForce => 'Time in Force';
-
-  @override
-  String get orderDetailCreatedAt => 'Created At';
-
-  @override
-  String get orderDetailUpdatedAt => 'Last Updated';
-
-  @override
-  String get orderDetailCopied => 'Copied!';
-
-  @override
-  String get orderDetailViewUser => 'View User Detail';
-
-  @override
-  String get orderDetailSideBuy => 'Buy';
-
-  @override
-  String get orderDetailSideSell => 'Sell';
-
-  @override
-  String get depositDetailTitle => 'Deposit Detail';
-
-  @override
-  String get depositDetailOrderCode => 'Order Code';
-
-  @override
-  String get depositDetailAmount => 'Amount';
+  String get adminCurrenciesDeleteSuccess => 'Coin deleted successfully!';
 
   @override
   String get depositDetailStatus => 'Status';
 
   @override
+  String get depositDetailOrderCode => 'Order Code';
+
+  @override
+  String get depositDetailCopied => 'Copied';
+
+  @override
+  String get depositDetailCreatedAt => 'Created at';
+
+  @override
+  String get depositDetailUpdatedAt => 'Updated at';
+
+  @override
   String get depositDetailUserId => 'User ID';
 
   @override
-  String get depositDetailCreatedAt => 'Created At';
-
-  @override
-  String get depositDetailUpdatedAt => 'Last Updated';
-
-  @override
-  String get depositDetailCopied => 'Copied!';
-
-  @override
-  String get depositDetailViewUser => 'View User Detail';
-
-  @override
-  String get withdrawalDetailInfoTitle => 'On-Chain Withdrawal Detail';
-
-  @override
-  String get withdrawalDetailUserId => 'User ID';
-
-  @override
-  String get withdrawalDetailAmount => 'Amount';
-
-  @override
-  String get withdrawalDetailChain => 'Network';
-
-  @override
-  String get withdrawalDetailAddress => 'Recipient Address';
-
-  @override
-  String get withdrawalDetailTxHash => 'Transaction Hash';
-
-  @override
-  String get withdrawalDetailStatus => 'Status';
-
-  @override
-  String get withdrawalDetailCreatedAt => 'Created At';
-
-  @override
-  String get withdrawalDetailUpdatedAt => 'Last Updated';
-
-  @override
-  String get withdrawalDetailCopied => 'Copied!';
-
-  @override
-  String get withdrawalDetailViewUser => 'View User Detail';
+  String get depositDetailViewUser => 'View user';
 
   @override
   String get depositStatusPaid => 'Paid';
@@ -2487,6 +2232,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositStatusCancelled => 'Cancelled';
+
+  @override
+  String get withdrawalDetailInfoTitle => 'Withdrawal Information';
+
+  @override
+  String get withdrawalDetailAmount => 'Amount';
+
+  @override
+  String get withdrawalDetailChain => 'Chain';
+
+  @override
+  String get withdrawalDetailStatus => 'Status';
+
+  @override
+  String get withdrawalDetailCopied => 'Copied';
+
+  @override
+  String get withdrawalDetailAddress => 'Address';
+
+  @override
+  String get withdrawalDetailTxHash => 'Transaction Hash';
+
+  @override
+  String get withdrawalDetailCreatedAt => 'Created at';
+
+  @override
+  String get withdrawalDetailUpdatedAt => 'Updated at';
+
+  @override
+  String get withdrawalDetailUserId => 'User ID';
+
+  @override
+  String get withdrawalDetailViewUser => 'View user';
 
   @override
   String get withdrawalStatusCompleted => 'Completed';
@@ -2501,16 +2279,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalStatusFailed => 'Failed';
 
   @override
-  String get withdrawalDetailTitle => 'Withdrawal details';
+  String get withdrawalDetailTitle => 'Withdrawal Details';
 
   @override
-  String get withdrawalNotFound => 'Not found';
+  String get withdrawalNotFound => 'Withdrawal not found';
 
   @override
-  String get withdrawalApprovedSnack => 'Approved';
-
-  @override
-  String get withdrawalRejectedSnack => 'Rejected';
+  String get withdrawalApprovedSnack => 'Withdrawal approved';
 
   @override
   String get withdrawalApproveButton => 'Approve';
@@ -2519,10 +2294,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalRejectButton => 'Reject';
 
   @override
-  String get withdrawalRejectDialogTitle => 'Reject withdrawal request';
+  String get withdrawalRejectDialogTitle => 'Reject withdrawal';
 
   @override
-  String get withdrawalRejectReasonHint => 'Rejection reason (optional)';
+  String get withdrawalRejectReasonHint => 'Reason (optional)';
+
+  @override
+  String get withdrawalRejectedSnack => 'Withdrawal rejected';
+
+  @override
+  String get withdrawalUserInfoTitle => 'User Information';
+
+  @override
+  String get withdrawalBalanceLabel => 'Balance';
+
+  @override
+  String get withdrawalTransactionTitle => 'Transaction Information';
 
   @override
   String get withdrawalNetworkLabel => 'Network';
@@ -2531,25 +2318,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalAmountLabel => 'Amount';
 
   @override
-  String get withdrawalDestinationLabel => 'Destination address';
+  String get withdrawalDestinationLabel => 'Destination';
 
   @override
   String get withdrawalTimeLabel => 'Time';
 
   @override
-  String get withdrawalTxHashLabel => 'TX Hash';
-
-  @override
-  String get withdrawalUserInfoTitle => 'User info';
-
-  @override
-  String get withdrawalTransactionTitle => 'Transaction';
-
-  @override
-  String get withdrawalBalanceLabel => 'Balance';
-
-  @override
-  String get withdrawalStatusLabel => 'Status';
+  String get withdrawalTxHashLabel => 'Tx Hash';
 
   @override
   String get withdrawalStatusRequested => 'Requested';
@@ -2558,201 +2333,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalStatusApproved => 'Approved';
 
   @override
-  String get withdrawalStatusSent => 'Sent on-chain';
+  String get withdrawalStatusSent => 'Sent';
+
+  @override
+  String get withdrawalStatusLabel => 'Status';
 
   @override
   String get withdrawalStatusRejected => 'Rejected';
 
   @override
-  String get withdrawalManagementTabPending => 'Pending';
-
-  @override
-  String get withdrawalManagementTabAll => 'All';
-
-  @override
-  String withdrawalStatsPendingCount(int count) {
-    return '$count pending';
-  }
-
-  @override
-  String get withdrawalApproveAllProcess => 'Process';
-
-  @override
-  String get withdrawalManagementTitle => 'Withdrawal management';
-
-  @override
-  String get withdrawalApproveAllSmallTitle => 'Approve all (small)';
-
-  @override
-  String get withdrawalApproveAllSmallContent =>
-      'Approve all pending withdrawals below the configured threshold.';
-
-  @override
-  String get withdrawalProcessedSnack => 'Processing complete';
-
-  @override
-  String get withdrawalSearchHint => 'Search by email, address, txId...';
-
-  @override
-  String get withdrawalNoRequests => 'No withdrawal requests';
-
-  @override
-  String get adminWalletAdjustTitle => 'Wallet adjustment';
-
-  @override
-  String get adminWalletAdjustDepositWithdrawTab => 'Deposit / Withdraw';
-
-  @override
-  String get adminWalletAdjustHistoryTab => 'History';
-
-  @override
-  String get adminWalletAdjustUseUserMgmt => 'Recommended: User management';
-
-  @override
-  String get adminWalletAdjustUseUserMgmtSubtitle =>
-      'Go to User management → Select user → Deposit/Withdraw for a better experience.';
-
-  @override
-  String get adminWalletAdjustOpen => 'Open';
-
-  @override
-  String get adminWalletAdjustSelectUserHint => 'Select user...';
-
-  @override
-  String get adminWalletAdjustAmountLabel => 'Amount';
-
-  @override
-  String get adminWalletAdjustNoteLabel => 'Note (optional)';
-
-  @override
-  String get adminWalletAdjustAmountRequired => 'Please enter amount';
-
-  @override
-  String get adminWalletAdjustAmountInvalid =>
-      'Invalid amount (max 18 decimal places)';
-
-  @override
-  String get adminWalletAdjustAmountMustBePositive =>
-      'Amount must be greater than 0';
-
-  @override
-  String get adminWalletAdjustSuccessDeposit => 'Deposit successful!';
-
-  @override
-  String get adminWalletAdjustSuccessWithdraw => 'Withdraw successful!';
-
-  @override
-  String get adminWalletAdjustSelectUserRequired => 'Please select a user';
-
-  @override
-  String get adminWalletAdjustUsdtNotFound =>
-      'USDT wallet not found. Please try again later.';
-
-  @override
-  String get adminWalletAdjustError => 'An error occurred. Please try again.';
-
-  @override
-  String get adminWalletAdjustUserIdRequired => 'Please enter User ID';
-
-  @override
-  String get adminWalletAdjustOperationType => 'Operation type';
-
-  @override
-  String get adminWalletAdjustInfo => 'Adjustment info';
-
-  @override
-  String get adminWalletAdjustAmountHint => '0.00';
-
-  @override
-  String get adminWalletAdjustReasonHint => 'Adjustment reason...';
-
-  @override
-  String get adminWalletAdjustDepositTab => 'Deposit';
-
-  @override
-  String get adminWalletAdjustWithdrawTab => 'Withdraw';
-
-  @override
-  String get adminWalletPlatformCash => 'Wallets (Platform Cash)';
-
-  @override
-  String get adminWalletSearchUserIdHint => 'Enter user UUID';
-
-  @override
-  String get adminWalletSearchButton => 'Search';
-
-  @override
-  String get adminWalletSearchByUserList => 'Search via user list';
-
-  @override
-  String get adminWalletNoAdjustmentHistory => 'No adjustment history';
-
-  @override
-  String get adminWalletTargetLabel => 'Recipient';
-
-  @override
-  String get adminWalletActorLabel => 'Performed by';
-
-  @override
-  String get adminWalletPlatformCashInfo =>
-      'USDT — Balance will be deposited/withdrawn to fixed virtual wallet';
-
-  @override
-  String get adminWalletLoading => 'Loading...';
-
-  @override
-  String get adminWalletAdjustProcessing => 'Processing...';
-
-  @override
-  String get adminWalletAdjustDepositBalance => 'Deposit balance';
-
-  @override
-  String get adminWalletAdjustWithdrawBalance => 'Withdraw balance';
-
-  @override
-  String get adminWalletHistoryUserIdLabel => 'User ID';
-
-  @override
-  String get adminUserDetailCreatedAt => 'Created';
-
-  @override
-  String get adminUserDetailNoWallets => 'User has no wallets';
-
-  @override
-  String get adminUserDetailNoAdjustmentHistory => 'No adjustment history';
-
-  @override
-  String get adminUserDetailNoOrders => 'User has no orders';
-
-  @override
-  String get adminUserDetailNoOnchainTx => 'No on-chain transactions';
-
-  @override
-  String get adminUserDetailNoChangeHistory => 'No change history';
-
-  @override
-  String get adminUserDetailByLabel => 'By';
-
-  @override
-  String get adminUserDetailNoteLabel => 'Note';
-
-  @override
-  String get adminUserDetailReviewNoteLabel => 'Review note';
-
-  @override
-  String get adminUserDetailWalletsTitle => 'Wallets (Platform Cash)';
-
-  @override
-  String get adminCurrenciesTitle => 'Coin management';
-
-  @override
-  String get adminCurrenciesSearchHint => 'Search by symbol or name...';
-
-  @override
-  String get adminCurrenciesStatusLabel => 'Status';
-
-  @override
-  String get adminCurrenciesTradingLabel => 'Trading';
+  String get adminCurrenciesSearchHint => 'Search currencies...';
 
   @override
   String get adminCurrenciesFilterAll => 'All';
@@ -2764,7 +2354,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminCurrenciesFilterInactive => 'Inactive';
 
   @override
-  String get adminCurrenciesFilterTradable => 'Trading';
+  String get adminCurrenciesTradingLabel => 'Trading';
+
+  @override
+  String get adminCurrenciesFilterTradable => 'Tradable';
 
   @override
   String get adminCurrenciesFilterPaused => 'Paused';
@@ -2776,108 +2369,377 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminCurrenciesCreateCoin => 'Create coin';
 
   @override
-  String get adminCurrenciesDeleteCoinTitle => 'Delete coin';
-
-  @override
-  String get adminCurrenciesDeleteButton => 'Delete';
-
-  @override
-  String get adminCurrenciesHideButton => 'Hide';
-
-  @override
-  String get adminCurrenciesEditButton => 'Edit';
-
-  @override
-  String get adminCurrenciesTradingTab => 'Trading';
-
-  @override
-  String get adminCurrenciesActiveTab => 'Active';
-
-  @override
-  String get adminCurrenciesCreateButton => 'Create';
-
-  @override
-  String get adminCurrenciesSaveButton => 'Save';
-
-  @override
-  String adminCurrenciesEditTitle(String symbol) {
-    return 'Edit $symbol';
+  String adminCurrenciesDeleteConfirmWithPair(String symbol, String name) {
+    return 'Are you sure you want to delete \"$symbol — $name\"?\nThis action cannot be undone.';
   }
 
   @override
-  String get adminCurrenciesSymbolHint => 'BTC';
-
-  @override
-  String get adminCurrenciesNameHint => 'Bitcoin';
-
-  @override
-  String get adminCurrenciesScaleHint => '8';
-
-  @override
-  String get adminCurrenciesMinAmountHint => '0.001';
-
-  @override
-  String get adminUserListTitle => 'User management';
-
-  @override
-  String get adminUserListSearchHint => 'Search by email or name...';
-
-  @override
-  String get adminUserListRoleLabel => 'Role';
-
-  @override
-  String get adminUserListStatusLabel => 'Status';
-
-  @override
-  String get adminUserListNoUsersFound => 'No users found';
-
-  @override
-  String get adminUserListRoleAll => 'All';
-
-  @override
-  String get adminUserListRoleTrader => 'Trader';
-
-  @override
-  String get adminUserListRoleVerified => 'Verified';
-
-  @override
-  String get adminUserListRoleMarketMaker => 'Market Maker';
-
-  @override
-  String get adminUserListRoleSupport => 'Support';
-
-  @override
-  String get adminUserListRoleRiskOfficer => 'Risk Officer';
-
-  @override
-  String get adminUserListRoleAdmin => 'Admin';
-
-  @override
-  String get adminUserListStatusActive => 'Active';
-
-  @override
-  String get adminUserListStatusBanned => 'Banned';
-
-  @override
-  String get adminUserListStatusPending => 'Pending';
-
-  @override
-  String adminUserListTotalUsers(int count) {
-    return 'Total: $count users';
+  String adminCurrenciesListMeta(String precision, String minWithdraw) {
+    return 'Precision: $precision · Min withdraw: $minWithdraw';
   }
 
   @override
-  String get adminUserListSelectUserPlaceholder =>
-      'Select a user to view details';
+  String get adminCurrenciesTradableBadgeOn => 'Trade';
 
   @override
-  String get profileSubmitRequest => 'Submit request';
+  String get adminCurrenciesTradableBadgeOff => 'Off';
 
   @override
-  String get profileNewEmailLabel => 'New email';
+  String get adminCurrenciesTradingPausedTooltip => 'Trading paused';
 
   @override
-  String get profileNewEmailHint => 'Enter new email';
+  String adminShowingCount(int shown, int total, String label) {
+    return 'Showing $shown of $total $label';
+  }
+
+  @override
+  String get adminRetryButton => 'Retry';
+
+  @override
+  String payosTransitioningBanner(int minutes) {
+    return 'PayOS payment method will be activated in $minutes minute(s)';
+  }
+
+  @override
+  String payosTransitioningGraceMinutes(int minutes) {
+    return 'Activation in $minutes minute(s)';
+  }
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get snackbarOk => 'OK';
+
+  @override
+  String get adminUserDetailTabWallets => 'Wallets';
+
+  @override
+  String get adminUserDetailTabAdjust => 'Adjust';
+
+  @override
+  String get adminUserDetailTabOrders => 'Orders';
+
+  @override
+  String get adminUserDetailTabOnchain => 'On-chain';
+
+  @override
+  String get adminUserDetailTabSecurity => 'Security';
+
+  @override
+  String get adminUserDetailCreatedAtLabel => 'Created at';
+
+  @override
+  String get withdrawalManagementTitle => 'Withdrawal Management';
+
+  @override
+  String get withdrawalManagementTabPending => 'Pending';
+
+  @override
+  String get withdrawalManagementTabAll => 'All';
+
+  @override
+  String get withdrawalApproveAllSmallTitle => 'Approve All';
+
+  @override
+  String get withdrawalApproveAllSmallContent =>
+      'Approve all pending withdrawals?';
+
+  @override
+  String get withdrawalApproveAllProcess => 'Processing...';
+
+  @override
+  String get withdrawalProcessedSnack => 'Withdrawals processed successfully';
+
+  @override
+  String withdrawalStatsPendingCount(int count) {
+    return '$count pending';
+  }
+
+  @override
+  String get adminFilterAll => 'All';
+
+  @override
+  String get withdrawalSearchHint => 'Search by user ID or wallet address...';
+
+  @override
+  String get withdrawalNoRequests => 'No withdrawal requests';
+
+  @override
+  String get drawerTransactionMonitoring => 'Transaction Monitoring';
+
+  @override
+  String get adminTabOrders => 'Orders';
+
+  @override
+  String get adminTabDeposits => 'Deposits';
+
+  @override
+  String get adminTabWithdrawals => 'Withdrawals';
+
+  @override
+  String get orderStatusOpen => 'Open';
+
+  @override
+  String get orderStatusPartial => 'Partially Filled';
+
+  @override
+  String get orderStatusFilled => 'Filled';
+
+  @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderStatusRejected => 'Rejected';
+
+  @override
+  String get filterByUserId => 'Filter by User ID';
+
+  @override
+  String get adminOrdersEmpty => 'No orders';
+
+  @override
+  String adminOrdersCountLabel(int count) {
+    return '$count orders';
+  }
+
+  @override
+  String get adminDepositsEmpty => 'No deposits';
+
+  @override
+  String adminDepositsCountLabel(int count) {
+    return '$count deposits';
+  }
+
+  @override
+  String get adminWithdrawalsEmpty => 'No withdrawals';
+
+  @override
+  String adminWithdrawalsCountLabel(int count) {
+    return '$count withdrawals';
+  }
+
+  @override
+  String get orderDetailTypeLimitLabel => 'Limit';
+
+  @override
+  String get orderDetailTypeMarketLabel => 'Market';
+
+  @override
+  String get adminOrderListBuyPriceLabel => 'Buy Price';
+
+  @override
+  String get adminOrderListSellPriceLabel => 'Sell Price';
+
+  @override
+  String get adminOrderListMarketPriceHint => '(Market Order)';
+
+  @override
+  String get adminUserLabel => 'User';
+
+  @override
+  String get orderDetailAmount => 'Amount';
+
+  @override
+  String get orderDetailPrice => 'Price';
+
+  @override
+  String get adminOrderCodeLabel => 'Order Code';
+
+  @override
+  String get adminTxHashLabel => 'Tx Hash';
+
+  @override
+  String get orderDetailSideBuy => 'Buy';
+
+  @override
+  String get orderDetailSideSell => 'Sell';
+
+  @override
+  String get orderDetailOrderId => 'Order ID';
+
+  @override
+  String get orderDetailCopied => 'Copied';
+
+  @override
+  String get orderDetailPair => 'Pair';
+
+  @override
+  String get orderDetailSide => 'Side';
+
+  @override
+  String get orderDetailType => 'Type';
+
+  @override
+  String get orderDetailTimeInForce => 'Time in force';
+
+  @override
+  String get orderDetailFilledAmount => 'Filled amount';
+
+  @override
+  String get orderDetailAvgPrice => 'Average price';
+
+  @override
+  String get orderDetailRemainingAmount => 'Remaining';
+
+  @override
+  String get orderDetailFilledPct => 'Filled %';
+
+  @override
+  String get orderDetailCreatedAt => 'Created at';
+
+  @override
+  String get orderDetailUpdatedAt => 'Updated at';
+
+  @override
+  String get orderDetailUserId => 'User ID';
+
+  @override
+  String get orderDetailViewUser => 'View user';
+
+  @override
+  String get depositDetailTitle => 'Deposit Details';
+
+  @override
+  String get depositDetailAmount => 'Amount';
+
+  @override
+  String get drawerSectionGeneral => 'General';
+
+  @override
+  String get drawerSectionAdministration => 'Administration';
+
+  @override
+  String get drawerSectionAdminUsers => 'Admin Users';
+
+  @override
+  String get drawerSectionAdminOps => 'Admin Operations';
+
+  @override
+  String get drawerTransactionMonitoringSubtitle =>
+      'Orders, deposits, withdrawals';
+
+  @override
+  String get drawerCoinManagement => 'Coin Management';
+
+  @override
+  String get drawerCoinManagementSubtitleCrud => 'Create, update, delete';
+
+  @override
+  String get drawerCoinManagementSubtitleView => 'Read-only currency view';
+
+  @override
+  String get drawerSectionAdminSystem => 'Admin System';
+
+  @override
+  String get drawerSectionFinance => 'Finance';
+
+  @override
+  String get drawerPaymentConfig => 'Payment Configuration';
+
+  @override
+  String get drawerPaymentConfigSubtitle => 'Methods, wallets, activation';
+
+  @override
+  String get drawerWithdrawalManagement => 'Withdrawal Management';
+
+  @override
+  String get drawerWithdrawalManagementSubtitle =>
+      'Review and process requests';
+
+  @override
+  String get drawerSectionAccount => 'Account';
+
+  @override
+  String get profileFirstName => 'First name';
+
+  @override
+  String get profileLastName => 'Last name';
+
+  @override
+  String get ordersPayosUsdtHint =>
+      'Use PayOS to top up VND and buy USDT for trading.';
+
+  @override
+  String get priceHintExample => 'e.g. 65000';
+
+  @override
+  String get amountHintExample => 'e.g. 0.01';
+
+  @override
+  String get maxAmountButton => 'MAX';
+
+  @override
+  String amountMaxDecimals(int max) {
+    return 'Amount supports up to $max decimal places';
+  }
+
+  @override
+  String get priceMustBePositive => 'Price must be positive';
+
+  @override
+  String priceMaxDecimals(int max) {
+    return 'Price supports up to $max decimal places';
+  }
+
+  @override
+  String get tickerBid => 'Bid';
+
+  @override
+  String get tickerAsk => 'Ask';
+
+  @override
+  String get ticker24hHigh => '24h High';
+
+  @override
+  String get ticker24hLow => '24h Low';
+
+  @override
+  String get tickerVolume => 'Volume';
+
+  @override
+  String get orderColumnSide => 'Side';
+
+  @override
+  String get orderColumnTime => 'Time';
+
+  @override
+  String timeSecondsShort(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String timeMinutesShort(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String timeHoursShort(int hours) {
+    return '${hours}h';
+  }
+
+  @override
+  String get ordersSelectPairFirst => 'Select a trading pair first';
+
+  @override
+  String get myOrdersEmpty => 'No open orders';
+
+  @override
+  String ordersMyOrdersWithCount(int count) {
+    return 'My Orders ($count)';
+  }
+
+  @override
+  String get orderBookColumnSize => 'Size';
+
+  @override
+  String get orderBookColumnCount => 'Count';
+
+  @override
+  String get marketPriceAbbrev => 'MKT';
+
+  @override
+  String get orderFilledQuantity => 'Filled';
 
   @override
   String get settingsTheme => 'Theme';
@@ -2895,25 +2757,171 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSeedColor => 'Seed color';
 
   @override
-  String get loginEmailHint => 'user@example.com';
+  String get walletDebugTitle => 'Wallet Debug';
 
   @override
-  String get loginPasswordHint => 'Enter your password';
+  String get adminUserListRoleAll => 'All roles';
 
   @override
-  String get loginCheckHealth => 'Check connection (health)';
+  String get adminUserListRoleTrader => 'Trader';
 
   @override
-  String get loginConnectMetaMask => 'Connect MetaMask';
+  String get adminUserListRoleVerified => 'Verified user';
 
   @override
-  String get loginConnectTronLink => 'Connect TronLink';
+  String get adminUserListRoleMarketMaker => 'Market maker';
 
   @override
-  String get homeLogoutConfirmTitle => 'Logout';
+  String get adminUserListRoleSupport => 'Support agent';
 
   @override
-  String get homeLogoutConfirmContent => 'Are you sure you want to logout?';
+  String get adminUserListRoleRiskOfficer => 'Risk officer';
+
+  @override
+  String get adminUserListRoleAdmin => 'Admin';
+
+  @override
+  String get adminUserListRoleFinanceManager => 'Finance manager';
+
+  @override
+  String get adminUserListRoleGuest => 'Guest';
+
+  @override
+  String get adminUserListStatusActive => 'Active';
+
+  @override
+  String get adminUserListStatusBanned => 'Banned';
+
+  @override
+  String get adminUserListStatusPending => 'Pending';
+
+  @override
+  String get adminUserListTitle => 'Admin User List';
+
+  @override
+  String get adminUserListSearchHint => 'Search users by name, email or ID';
+
+  @override
+  String get adminUserListRoleLabel => 'Role';
+
+  @override
+  String get adminUserListStatusLabel => 'Status';
+
+  @override
+  String adminUserListTotalUsers(int count) {
+    return 'Total users: $count';
+  }
+
+  @override
+  String get adminUserListNoUsersFound => 'No users found';
+
+  @override
+  String get adminUserListSelectUserPlaceholder =>
+      'Select a user to view details';
+
+  @override
+  String get adminUserDetailNoteLabel => 'Note';
+
+  @override
+  String get adminWalletAdjustSelectUserRequired => 'Please select a user';
+
+  @override
+  String get adminWalletAdjustError => 'Adjustment failed';
+
+  @override
+  String get adminWalletAdjustUserIdRequired => 'User ID is required';
+
+  @override
+  String get adminWalletAdjustTitle => 'Wallet Adjustment';
+
+  @override
+  String get adminWalletAdjustDepositWithdrawTab => 'Deposit/Withdraw';
+
+  @override
+  String get adminWalletAdjustHistoryTab => 'History';
+
+  @override
+  String get adminWalletAdjustUseUserMgmt => 'Use User Management';
+
+  @override
+  String get adminWalletAdjustUseUserMgmtSubtitle =>
+      'Pick user from admin user list';
+
+  @override
+  String get adminWalletAdjustOpen => 'Open';
+
+  @override
+  String get adminWalletAdjustOperationType => 'Operation type';
+
+  @override
+  String get adminWalletAdjustInfo => 'Adjustment Information';
+
+  @override
+  String get adminWalletAdjustSelectUserHint => 'Enter user ID';
+
+  @override
+  String get adminWalletAdjustAmountLabel => 'Amount';
+
+  @override
+  String get adminWalletAdjustAmountHint => 'Enter adjustment amount';
+
+  @override
+  String get adminWalletAdjustAmountRequired => 'Amount is required';
+
+  @override
+  String get adminWalletAdjustAmountInvalid => 'Invalid amount';
+
+  @override
+  String get adminWalletAdjustAmountMustBePositive =>
+      'Amount must be greater than 0';
+
+  @override
+  String get adminWalletAdjustNoteLabel => 'Note';
+
+  @override
+  String get adminWalletAdjustReasonHint => 'Reason for adjustment';
+
+  @override
+  String get adminWalletAdjustDepositTab => 'Deposit';
+
+  @override
+  String get adminWalletAdjustWithdrawTab => 'Withdraw';
+
+  @override
+  String get adminWalletAdjustProcessing => 'Processing...';
+
+  @override
+  String get adminWalletAdjustDepositBalance => 'Deposit to balance';
+
+  @override
+  String get adminWalletAdjustWithdrawBalance => 'Withdraw from balance';
+
+  @override
+  String get adminWalletHistoryUserIdLabel => 'User ID';
+
+  @override
+  String get adminWalletSearchUserIdHint => 'Search by User ID';
+
+  @override
+  String get adminWalletSearchButton => 'Search';
+
+  @override
+  String get adminWalletSearchByUserList => 'Search by user list';
+
+  @override
+  String get adminWalletNoAdjustmentHistory => 'No adjustment history';
+
+  @override
+  String get adminWalletTargetLabel => 'Target';
+
+  @override
+  String get adminWalletActorLabel => 'Actor';
+
+  @override
+  String get homeLogoutConfirmTitle => 'Confirm logout';
+
+  @override
+  String get homeLogoutConfirmContent => 'Are you sure you want to log out?';
 
   @override
   String get homeLogoutCancel => 'Cancel';
@@ -2922,104 +2930,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLogoutConfirm => 'Logout';
 
   @override
-  String get homeGoToLogin => 'Go to Login';
+  String get homeFailedToLoadUser => 'Failed to load user information';
 
   @override
-  String get homeAppTitle => 'Crypto Trading App';
+  String get homeGoToLogin => 'Go to login';
 
   @override
-  String get homeWelcomeBack => 'Welcome back,';
+  String get homeAppTitle => 'Home';
 
   @override
-  String get homeFailedToLoadUser => 'Failed to load user';
+  String get homeWelcomeBack => 'Welcome back';
 
   @override
-  String get profileFirstName => 'First name';
+  String get homeCryptoPlatform => 'Crypto trading platform';
 
   @override
-  String get profileLastName => 'Last name';
-
-  @override
-  String treasuryNoMainWallets(String chain) {
-    return 'No main wallets configured for $chain. Sweep will use default.';
-  }
-
-  @override
-  String get homeCryptoPlatform => 'Crypto Trading Platform';
-
-  @override
-  String get homeAuthReady =>
-      'Authentication system is ready!\n\nMarket, Trading, and Wallet modules coming soon.';
-
-  @override
-  String get homeMemberSince => 'Member since';
+  String get homeAuthReady => 'Authentication ready';
 
   @override
   String get homeLastUpdated => 'Last updated';
-
-  @override
-  String get adminUserDetailRefresh => 'Refresh';
-
-  @override
-  String get adminUserDetailTabWallets => 'Wallets';
-
-  @override
-  String get adminUserDetailTabAdjust => 'Deposit/Withdraw';
-
-  @override
-  String get adminUserDetailTabOrders => 'Orders';
-
-  @override
-  String get adminUserDetailTabOnchain => 'Transactions';
-
-  @override
-  String get adminUserDetailTabSecurity => 'Security changes';
-
-  @override
-  String get adminUserDetailCreatedAtLabel => 'Created at';
-
-  @override
-  String get snackbarOk => 'OK';
-
-  @override
-  String get walletDebugTitle => 'Wallet Debug Info';
-
-  @override
-  String get advancedTradingNoData => 'No data';
-
-  @override
-  String get advancedTradingMacd => 'MACD';
-
-  @override
-  String get advancedTradingSignal => 'Signal';
-
-  @override
-  String get advancedTradingHistogram => 'Histogram';
-
-  @override
-  String get advancedTradingZoomIn => 'Zoom In';
-
-  @override
-  String get advancedTradingZoomOut => 'Zoom Out';
-
-  @override
-  String get advancedTradingShowIndicators => 'Show Indicators';
-
-  @override
-  String get paymentConfigClientId => 'Client ID';
-
-  @override
-  String get paymentConfigApiKey => 'API Key';
-
-  @override
-  String get paymentConfigChecksumKey => 'Checksum Key';
-
-  @override
-  String get paymentConfigUrlHint => 'https://...';
-
-  @override
-  String get paymentConfigHotWalletKey => 'Hot Wallet Private Key';
-
-  @override
-  String get paymentConfigMainnet => 'Mainnet';
 }

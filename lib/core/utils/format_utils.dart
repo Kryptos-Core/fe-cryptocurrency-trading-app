@@ -92,4 +92,45 @@ class FormatUtils {
     }
     return s;
   }
+
+  /// Formats a decimal string from the API for list/detail UI without showing
+  /// long runs of trailing zeros. Caps fractional digits at [maxFractionDigits]
+  /// (e.g. currency [precisionScale]) while keeping thousands separators via
+  /// [formatDecimalAmountDisplay] when the value fits in double.
+  static String formatDecimalAmountForScale(
+    String amountStr,
+    int maxFractionDigits,
+  ) {
+    var raw = amountStr.replaceAll(',', '').trim();
+    if (raw.isEmpty) return amountStr;
+
+    final negative = raw.startsWith('-');
+    if (negative) raw = raw.substring(1);
+
+    final dot = raw.indexOf('.');
+    String intPart;
+    String fracPart;
+    if (dot < 0) {
+      intPart = raw.isEmpty ? '0' : raw;
+      fracPart = '';
+    } else {
+      intPart = raw.substring(0, dot);
+      fracPart = raw.substring(dot + 1);
+    }
+    if (intPart.isEmpty) intPart = '0';
+
+    if (maxFractionDigits >= 0 && fracPart.length > maxFractionDigits) {
+      fracPart = fracPart.substring(0, maxFractionDigits);
+    }
+    fracPart = fracPart.replaceAll(RegExp(r'0+$'), '');
+
+    final core = fracPart.isEmpty ? intPart : '$intPart.$fracPart';
+    final signed = negative ? '-$core' : core;
+
+    final v = double.tryParse(signed);
+    if (v != null) {
+      return formatDecimalAmountDisplay(signed);
+    }
+    return signed;
+  }
 }

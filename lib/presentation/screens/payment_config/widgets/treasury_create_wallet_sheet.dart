@@ -93,7 +93,7 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
                     purpose: _purpose,
                     label: _labelCtrl.text.trim().isEmpty ? null : _labelCtrl.text.trim(),
                   );
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   Navigator.pop(context, ok);
                 },
                 child: Text(l10n.treasuryCreateWalletCta),
