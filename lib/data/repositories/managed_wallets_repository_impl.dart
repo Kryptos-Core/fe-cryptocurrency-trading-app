@@ -15,28 +15,6 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
   ManagedWalletsRepositoryImpl({required Dio dio}) : _dio = dio;
 
   @override
-  Future<Either<Failure, ManagedWallet>> createWallet({
-    required String chain,
-    String? label,
-  }) async {
-    try {
-      final response = await _dio.post(
-        ApiConstants.managedWallets,
-        data: {
-          'chain': chain,
-          if (label != null && label.isNotEmpty) 'label': label,
-        },
-      );
-      final data = _extractDataMap(response.data);
-      return Right(_parseManagedWallet(data));
-    } on DioException catch (e) {
-      return Left(_mapDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, List<ManagedWallet>>> listWallets() async {
     try {
       final response = await _dio.get(ApiConstants.managedWallets);

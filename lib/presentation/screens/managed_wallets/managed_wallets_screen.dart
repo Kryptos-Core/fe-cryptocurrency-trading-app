@@ -6,7 +6,6 @@ import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallet_detail_screen.dart';
-import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/create_wallet_sheet.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/managed_wallet_card.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
@@ -43,20 +42,6 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
     if (mounted && provider.error != null) {
       showAppSnackBar(context, message: provider.error!, type: SnackBarType.error);
       provider.clearError();
-    }
-  }
-
-  Future<void> _openCreateSheet() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => const CreateWalletSheet(),
-    );
-    if (mounted) {
-      context.read<ManagedWalletsProvider>().fetchWallets();
     }
   }
 
@@ -140,7 +125,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                 ),
                 const SizedBox(height: 8),
                 if (provider.wallets.isEmpty)
-                  _EmptyWalletsState(onAdd: _openCreateSheet)
+                  const _EmptyWalletsState()
                 else
                   ...provider.wallets.map(
                     (w) => Padding(
@@ -151,16 +136,11 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 80),
+                const SizedBox(height: 24),
               ],
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCreateSheet,
-        icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context).managedWalletsNewWallet),
       ),
     );
   }
@@ -385,9 +365,7 @@ class _RecommendedChainCard extends StatelessWidget {
 }
 
 class _EmptyWalletsState extends StatelessWidget {
-  final VoidCallback onAdd;
-
-  const _EmptyWalletsState({required this.onAdd});
+  const _EmptyWalletsState();
 
   @override
   Widget build(BuildContext context) {
@@ -404,17 +382,14 @@ class _EmptyWalletsState extends StatelessWidget {
               AppLocalizations.of(context).managedWalletsNoWallets,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 4),
-            Text(
-              AppLocalizations.of(context).managedWalletsNoWalletsDesc,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onAdd,
-              icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context).managedWalletsCreateFirst),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                AppLocalizations.of(context).managedWalletsNoWalletsDesc,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

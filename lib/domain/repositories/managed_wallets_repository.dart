@@ -6,11 +6,6 @@ import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet
 import 'package:crypto_trading_app/domain/entities/managed_wallet/deposit_method.dart';
 
 abstract class ManagedWalletsRepository {
-  Future<Either<Failure, ManagedWallet>> createWallet({
-    required String chain,
-    String? label,
-  });
-
   Future<Either<Failure, List<ManagedWallet>>> listWallets();
 
   Future<Either<Failure, List<ManagedWallet>>> getDepositDefaults();

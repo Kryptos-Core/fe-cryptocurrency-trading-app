@@ -3647,7 +3647,7 @@ abstract class AppLocalizations {
   /// No description provided for @managedWalletsNoWalletsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Generate your first treasury wallet to start accepting deposits.'**
+  /// **'Create Tron operational wallets under Payment configuration → Treasury (purpose DEPOSIT or BOTH), then pick the default deposit address per chain here.'**
   String get managedWalletsNoWalletsDesc;
 
   /// No description provided for @managedWalletsCreateFirst.

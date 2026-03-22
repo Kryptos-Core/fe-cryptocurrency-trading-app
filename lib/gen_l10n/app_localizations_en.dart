@@ -1941,7 +1941,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get managedWalletsNoWalletsDesc =>
-      'Generate your first treasury wallet to start accepting deposits.';
+      'Create Tron operational wallets under Payment configuration → Treasury (purpose DEPOSIT or BOTH), then pick the default deposit address per chain here.';
 
   @override
   String get managedWalletsCreateFirst => 'Create First Wallet';

@@ -721,7 +721,7 @@
   "managedWalletsRecommendedChainLabel": "Recommended Chain",
   "managedWalletsSelectChain": "Select chain",
   "managedWalletsNoWallets": "No wallets yet",
-  "managedWalletsNoWalletsDesc": "Generate your first treasury wallet to start accepting deposits.",
+  "managedWalletsNoWalletsDesc": "Create Tron operational wallets under Payment configuration → Treasury (purpose DEPOSIT or BOTH), then pick the default deposit address per chain here.",
   "managedWalletsCreateFirst": "Create First Wallet",
 
   "walletSetAsDefault": "Wallet set as default deposit address",

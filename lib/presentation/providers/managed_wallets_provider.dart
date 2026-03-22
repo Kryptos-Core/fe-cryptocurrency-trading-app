@@ -79,25 +79,6 @@ class ManagedWalletsProvider extends ChangeNotifier {
     _setLoading(false);
   }
 
-  Future<ManagedWallet?> createWallet({
-    required String chain,
-    String? label,
-  }) async {
-    _setSubmitting(true);
-    ManagedWallet? created;
-    final result = await _repository.createWallet(chain: chain, label: label);
-    result.fold(
-      (f) => _setError(_mapFailureToMessage(f)),
-      (wallet) {
-        _wallets = [wallet, ..._wallets];
-        _error = null;
-        created = wallet;
-      },
-    );
-    _setSubmitting(false);
-    return created;
-  }
-
   Future<void> fetchWalletDetail(String walletId) async {
     _setLoading(true);
     _selectedBalance = null;
@@ -160,28 +141,14 @@ class ManagedWalletsProvider extends ChangeNotifier {
         errorMessage = _mapFailureToMessage(f);
         _setError(errorMessage!);
       },
-      (updated) {
-        _wallets = _wallets.map((w) {
-          if (w.chain == updated.chain) {
-            return ManagedWallet(
-              walletId: w.walletId,
-              userId: w.userId,
-              chain: w.chain,
-              address: w.address,
-              label: w.label,
-              isDefaultDeposit: w.walletId == updated.walletId,
-              defaultSetAt: w.walletId == updated.walletId ? updated.defaultSetAt : null,
-              isActive: w.isActive,
-              createdAt: w.createdAt,
-              updatedAt: w.updatedAt,
-            );
-          }
-          return w;
-        }).toList();
-        _depositDefaults = _wallets.where((w) => w.isDefaultDeposit).toList();
+      (_) {
         _error = null;
       },
     );
+    if (errorMessage == null) {
+      await fetchWallets();
+      await fetchDepositDefaults();
+    }
     _setSubmitting(false);
     return errorMessage;
   }

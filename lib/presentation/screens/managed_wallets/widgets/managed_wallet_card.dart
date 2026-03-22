@@ -17,8 +17,9 @@ class ManagedWalletCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final currentUserId = context.watch<AuthProvider>().currentUser?.id;
-    final showOwnerHint =
-        currentUserId != null && wallet.userId != currentUserId;
+    final showOwnerHint = currentUserId != null &&
+        wallet.userId.isNotEmpty &&
+        wallet.userId != currentUserId;
 
     return Card(
       clipBehavior: Clip.antiAlias,

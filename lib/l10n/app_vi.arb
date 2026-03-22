@@ -622,7 +622,7 @@
   "managedWalletsRecommendedChainLabel": "Chain ưu tiên",
   "managedWalletsSelectChain": "Chọn chain",
   "managedWalletsNoWallets": "Chưa có ví nào",
-  "managedWalletsNoWalletsDesc": "Tạo ví kho quỹ đầu tiên để bắt đầu nhận nạp tiền.",
+  "managedWalletsNoWalletsDesc": "Hãy tạo ví Tron ở Cấu hình thanh toán → Ví vận hành (mục đích DEPOSIT hoặc BOTH), sau đó chọn ví mặc định nhận nạp theo từng chain tại đây.",
   "managedWalletsCreateFirst": "Tạo ví đầu tiên",
 
   "walletSetAsDefault": "Đã đặt làm địa chỉ nạp tiền mặc định",

@@ -1943,7 +1943,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get managedWalletsNoWalletsDesc =>
-      'Tạo ví kho quỹ đầu tiên để bắt đầu nhận nạp tiền.';
+      'Hãy tạo ví Tron ở Cấu hình thanh toán → Ví vận hành (mục đích DEPOSIT hoặc BOTH), sau đó chọn ví mặc định nhận nạp theo từng chain tại đây.';
 
   @override
   String get managedWalletsCreateFirst => 'Tạo ví đầu tiên';
