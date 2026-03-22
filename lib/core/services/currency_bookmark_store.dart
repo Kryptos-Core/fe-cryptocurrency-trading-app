@@ -98,6 +98,12 @@ class CurrencyBookmarkStore {
     await _writeRecent(next);
   }
 
+  Future<void> removeRecent(String currencyId) async {
+    final next =
+        recent.where((e) => e.currencyId != currencyId).toList();
+    await _writeRecent(next);
+  }
+
   Future<void> toggleFavorite(CurrencyModel currency) async {
     final ref =
         CurrencyRef(currencyId: currency.currencyId, symbol: currency.symbol);

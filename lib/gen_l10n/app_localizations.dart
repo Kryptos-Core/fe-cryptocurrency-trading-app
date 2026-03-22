@@ -536,6 +536,18 @@ abstract class AppLocalizations {
   /// **'Wallet'**
   String get wallet;
 
+  /// No description provided for @walletPortfolioCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Total portfolio'**
+  String get walletPortfolioCardTitle;
+
+  /// No description provided for @walletPortfolioEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet data yet. Pull to refresh or check your connection.'**
+  String get walletPortfolioEmptyHint;
+
   /// No description provided for @selectCurrency.
   ///
   /// In en, this message translates to:
@@ -583,6 +595,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No currencies match your search or filter'**
   String get currencyPickerNoMatches;
+
+  /// No description provided for @currencyPickerRemoveRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from recent'**
+  String get currencyPickerRemoveRecent;
 
   /// No description provided for @available.
   ///

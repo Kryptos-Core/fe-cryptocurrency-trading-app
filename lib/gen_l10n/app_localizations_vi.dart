@@ -229,6 +229,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get wallet => 'Ví';
 
   @override
+  String get walletPortfolioCardTitle => 'Tổng danh mục';
+
+  @override
+  String get walletPortfolioEmptyHint =>
+      'Chưa có dữ liệu ví. Kéo để làm mới hoặc kiểm tra kết nối.';
+
+  @override
   String get selectCurrency => 'Chọn tiền tệ';
 
   @override
@@ -252,6 +259,9 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get currencyPickerNoMatches =>
       'Không có tiền tệ phù hợp với tìm kiếm hoặc bộ lọc';
+
+  @override
+  String get currencyPickerRemoveRecent => 'Xóa khỏi gần đây';
 
   @override
   String get available => 'Khả dụng';

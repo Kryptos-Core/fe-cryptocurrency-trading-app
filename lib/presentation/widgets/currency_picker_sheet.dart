@@ -100,6 +100,75 @@ class _CurrencyPickerBodyState extends State<_CurrencyPickerBody> {
     }
   }
 
+  Future<void> _removeRecent(CurrencyRef r) async {
+    await widget.bookmarkStore?.removeRecent(r.currencyId);
+    if (mounted) {
+      setState(_reloadBookmarks);
+    }
+  }
+
+  Widget _recentChip(
+    BuildContext context,
+    ThemeData theme,
+    AppLocalizations l10n,
+    CurrencyRef r,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, right: 4),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ActionChip(
+            label: Text(r.symbol),
+            onPressed: () => _onPickRef(r),
+          ),
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Tooltip(
+              message: l10n.currencyPickerRemoveRecent,
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => _removeRecent(r),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.colorScheme.outline
+                            .withValues(alpha: 0.35),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withValues(alpha: 0.12),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: Center(
+                        child: Icon(
+                          Icons.close,
+                          size: 11,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<CurrencyModel> get _baseList {
     switch (_filterKind) {
       case _filterTradable:
@@ -243,12 +312,9 @@ class _CurrencyPickerBodyState extends State<_CurrencyPickerBody> {
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 8,
-                    runSpacing: 4,
+                    runSpacing: 8,
                     children: _recentRefs.map((r) {
-                      return ActionChip(
-                        label: Text(r.symbol),
-                        onPressed: () => _onPickRef(r),
-                      );
+                      return _recentChip(context, theme, l10n, r);
                     }).toList(),
                   ),
                 ],

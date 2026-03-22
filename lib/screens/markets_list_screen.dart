@@ -227,53 +227,65 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              SizedBox(
-                width: 150,
+              Expanded(
                 child: _BaseFilterDropdown(
                   selectedBaseSymbol: provider.filterBaseSymbol,
                   onSelected: provider.setFilterBaseSymbol,
                 ),
               ),
               const SizedBox(width: 8),
-              SizedBox(
-                width: 150,
+              Expanded(
                 child: _QuoteFilterDropdown(
                   selectedQuoteSymbol: provider.filterQuoteSymbol,
                   onSelected: provider.setFilterQuoteSymbol,
                 ),
               ),
-              const Spacer(),
             ],
           ),
           const SizedBox(height: 8),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 180,
+              Expanded(
+                flex: 2,
                 child: _SortDropdown(
                   selected: provider.sortOption,
                   onSelected: provider.setSortOption,
                 ),
               ),
               const SizedBox(width: 8),
-              FilterChip(
-                label: Text(l10n.marketsFuzzySearch),
-                selected: provider.fuzzySearch,
-                onSelected: provider.setFuzzySearch,
-              ),
-              Text(
-                ' ${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}',
-                style: theme.textTheme.bodyMedium,
-              ),
-              if (provider.hasActiveFilter)
-                TextButton.icon(
-                  onPressed: () {
-                    _searchBarKey.currentState?.clear();
-                    provider.clearSearchAndFilters();
-                  },
-                  icon: const Icon(Icons.filter_alt_off, size: 18),
-                  label: Text(l10n.clearFilters),
+              Expanded(
+                flex: 3,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    FilterChip(
+                      label: Text(l10n.marketsFuzzySearch),
+                      selected: provider.fuzzySearch,
+                      onSelected: provider.setFuzzySearch,
+                    ),
+                    Text(
+                      '${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    if (provider.hasActiveFilter)
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: () {
+                          _searchBarKey.currentState?.clear();
+                          provider.clearSearchAndFilters();
+                        },
+                        icon: const Icon(Icons.filter_alt_off, size: 18),
+                        label: Text(l10n.clearFilters),
+                      ),
+                  ],
                 ),
+              ),
             ],
           ),
         ],

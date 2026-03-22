@@ -229,6 +229,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wallet => 'Wallet';
 
   @override
+  String get walletPortfolioCardTitle => 'Total portfolio';
+
+  @override
+  String get walletPortfolioEmptyHint =>
+      'No wallet data yet. Pull to refresh or check your connection.';
+
+  @override
   String get selectCurrency => 'Select Currency';
 
   @override
@@ -253,6 +260,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get currencyPickerNoMatches =>
       'No currencies match your search or filter';
+
+  @override
+  String get currencyPickerRemoveRecent => 'Remove from recent';
 
   @override
   String get available => 'Available';

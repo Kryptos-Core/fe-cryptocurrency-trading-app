@@ -188,6 +188,79 @@ class _TradingPairPickerBodyState extends State<_TradingPairPickerBody> {
     }
   }
 
+  Future<void> _removeFavoriteRef(TradingPairRef r) async {
+    await widget.bookmarkStore?.removeFavorite(r.pairId);
+    if (mounted) {
+      setState(_reloadBookmarks);
+    }
+  }
+
+  Widget _favoriteChip(
+    ThemeData theme,
+    AppLocalizations l10n,
+    TradingPairRef r,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, right: 4),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ActionChip(
+            label: Text(r.symbol),
+            avatar: Icon(
+              Icons.star,
+              size: 18,
+              color: theme.colorScheme.primary,
+            ),
+            onPressed: () => _onPickRef(r),
+          ),
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Tooltip(
+              message: l10n.tradingPairRemoveFavorite,
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => _removeFavoriteRef(r),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.colorScheme.outline
+                            .withValues(alpha: 0.35),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withValues(alpha: 0.12),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: Center(
+                        child: Icon(
+                          Icons.close,
+                          size: 11,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -286,17 +359,9 @@ class _TradingPairPickerBodyState extends State<_TradingPairPickerBody> {
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 8,
-                    runSpacing: 4,
+                    runSpacing: 8,
                     children: _favoriteRefs.map((r) {
-                      return ActionChip(
-                        label: Text(r.symbol),
-                        avatar: Icon(
-                          Icons.star,
-                          size: 18,
-                          color: theme.colorScheme.primary,
-                        ),
-                        onPressed: () => _onPickRef(r),
-                      );
+                      return _favoriteChip(theme, l10n, r);
                     }).toList(),
                   ),
                   const SizedBox(height: 10),

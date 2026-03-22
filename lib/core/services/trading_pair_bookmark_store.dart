@@ -112,4 +112,9 @@ class TradingPairBookmarkStore {
     }
     await _writeFavorites(current);
   }
+
+  Future<void> removeFavorite(String pairId) async {
+    final next = favorites.where((e) => e.pairId != pairId).toList();
+    await _writeFavorites(next);
+  }
 }

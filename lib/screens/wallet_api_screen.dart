@@ -11,6 +11,7 @@ import 'package:crypto_trading_app/data/models/currency_model.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/currency_bookmark_store.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/currency_picker_sheet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
@@ -37,6 +38,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   bool _isLoadingCurrencies = true;
   String? _currenciesError;
 
+  WalletsProvider? _walletsProviderListener;
+  bool _userLockedCurrencySelection = false;
+  bool _appliedWalletLoadedDefault = false;
+
   final CurrenciesRemoteDataSource _currenciesDataSource =
       sl<CurrenciesRemoteDataSource>();
 
@@ -45,6 +50,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
   @override
   void dispose() {
+    _walletsProviderListener?.removeListener(_onWalletsProviderChanged);
     _txSearchController.dispose();
     super.dispose();
   }
@@ -56,9 +62,35 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     // Portfolio + quy đổi USDT cần GET /dashboard; ví list dùng include_zero=true
     // để mọi role (admin/support/…) vẫn có dòng tổng hợp dù trước đó chỉ gọi /wallets?include_zero=false.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final walletsProvider = context.read<WalletsProvider>();
+      _walletsProviderListener = walletsProvider;
+      walletsProvider.addListener(_onWalletsProviderChanged);
       context.read<DashboardProvider>().refresh(force: true);
-      context.read<WalletsProvider>().fetchWallets(includeZero: true);
+      walletsProvider.fetchWallets(includeZero: true);
     });
+  }
+
+  void _onWalletsProviderChanged() {
+    if (!mounted ||
+        _userLockedCurrencySelection ||
+        _appliedWalletLoadedDefault ||
+        _currencies.isEmpty) {
+      return;
+    }
+    final wallets = _walletsProviderListener?.wallets ?? [];
+    if (wallets.isEmpty) return;
+
+    final id = _defaultSelectedCurrencyId(_currencies, wallets);
+    if (id == null) return;
+
+    _appliedWalletLoadedDefault = true;
+    if (id != _selectedCurrencyId) {
+      setState(() => _selectedCurrencyId = id);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _fetchBalance();
+      });
+    }
   }
 
   Future<void> _loadCurrencies() async {
@@ -70,19 +102,29 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
       final currencies = await _currenciesDataSource.getActiveCurrencies();
 
+      if (!mounted) return;
+
+      final wallets = context.read<WalletsProvider>().wallets;
       setState(() {
         _currencies = currencies;
         _isLoadingCurrencies = false;
 
-        // Select first currency (usually BTC) by default
         if (_currencies.isNotEmpty && _selectedCurrencyId == null) {
-          _selectedCurrencyId = _currencies.first.currencyId;
-          // Fetch balance after selecting currency
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _fetchBalance();
-          });
+          _selectedCurrencyId =
+              _defaultSelectedCurrencyId(_currencies, wallets);
+          if (wallets.isNotEmpty) {
+            _appliedWalletLoadedDefault = true;
+          }
         }
       });
+
+      if (mounted &&
+          _currencies.isNotEmpty &&
+          _selectedCurrencyId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _fetchBalance();
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoadingCurrencies = false;
@@ -135,6 +177,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
       bookmarkStore: store,
     );
     if (!mounted || picked == null) return;
+    _userLockedCurrencySelection = true;
     setState(() => _selectedCurrencyId = picked.currencyId);
     _fetchBalance();
   }
@@ -312,39 +355,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildBalanceRow(
-                        context,
-                        l10n.available,
-                        provider.walletBalance!.available,
-                        Theme.of(context).colorScheme.primary,
-                        Icons.account_balance_wallet,
-                      ),
-                      const Divider(height: 32),
-                      _buildBalanceRow(
-                        context,
-                        l10n.frozen,
-                        provider.walletBalance!.frozen,
-                        Theme.of(context).colorScheme.tertiary,
-                        Icons.lock,
-                      ),
-                      const Divider(height: 32),
-                      _buildBalanceRow(
-                        context,
-                        l10n.total,
-                        provider.walletBalance!.total,
-                        Theme.of(context).colorScheme.secondary,
-                        Icons.account_balance,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               _buildRecentTransactionsSection(context, provider, l10n),
             ],
           ),
@@ -402,6 +412,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
         Row(
           children: [
             Expanded(
+              flex: 3,
               child: TextField(
                 controller: _txSearchController,
                 onChanged: (_) => setState(() {}),
@@ -416,20 +427,34 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            DropdownButton<WalletTransactionAction?>(
-              value: _txFilterType,
-              hint: Text(l10n.filterByType),
-              items: [
-                DropdownMenuItem(value: null, child: Text(l10n.allTypes)),
-                ...WalletTransactionAction.values.map((a) => DropdownMenuItem(
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: AppDropdownField<WalletTransactionAction?>(
+                value: _txFilterType,
+                labelText: l10n.filterByType,
+                hintText: l10n.allTypes,
+                menuMaxHeight: MediaQuery.sizeOf(context).height * 0.4,
+                items: [
+                  DropdownMenuItem<WalletTransactionAction?>(
+                    value: null,
+                    child: Text(l10n.allTypes),
+                  ),
+                  ...WalletTransactionAction.values.map(
+                    (a) => DropdownMenuItem<WalletTransactionAction?>(
                       value: a,
-                      child: Text(a.name),
-                    )),
-              ],
-              onChanged: (v) {
-                setState(() => _txFilterType = v);
-              },
+                      child: Text(
+                        a.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+                onChanged: (v) {
+                  setState(() => _txFilterType = v);
+                },
+              ),
             ),
           ],
         ),
@@ -444,36 +469,45 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 140,
+                    Expanded(
+                      flex: 3,
                       child: Text(
                         l10n.date,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 90,
-                      child: Text(
-                        l10n.type,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                     Expanded(
+                      flex: 2,
                       child: Text(
-                        l10n.amount,
+                        l10n.type,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 80,
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        l10n.amount,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
                       child: Text(
                         l10n.reference,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -498,17 +532,18 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                       ),
                       child: Row(
                         children: [
-                          SizedBox(
-                            width: 140,
+                          Expanded(
+                            flex: 3,
                             child: Text(
                               _formatTxDate(tx.timestamp),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall,
                             ),
                           ),
-                          SizedBox(
-                            width: 100,
+                          Expanded(
+                            flex: 2,
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   _getRefTypeIcon(tx.refType),
@@ -516,28 +551,37 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                                   color: color,
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  _getRefTypeLabel(context, tx.refType),
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w500,
+                                Expanded(
+                                  child: Text(
+                                    _getRefTypeLabel(context, tx.refType),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           Expanded(
+                            flex: 2,
                             child: Text(
                               _formatAmountForDisplay(tx.amount),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: color,
                               ),
                             ),
                           ),
-                          SizedBox(
-                            width: 80,
+                          Expanded(
+                            flex: 2,
                             child: Text(
                               '#${tx.refId}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall,
                             ),
                           ),
@@ -560,40 +604,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                     ),
                   ),
                 ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBalanceRow(BuildContext context, String label, String amount,
-      Color color, IconData icon) {
-    final theme = Theme.of(context);
-    final displayAmount = _formatAmountForDisplay(amount);
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 32),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                displayAmount,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
             ],
           ),
         ),
@@ -661,6 +671,25 @@ bool _walletHasNonZeroBalance(Wallet w) {
   return a != 0 || f != 0 || t != 0;
 }
 
+/// Ưu tiên ví có số dư (theo thứ tự GET /wallets), sau đó USDT, cuối cùng coin đầu danh sách active.
+String? _defaultSelectedCurrencyId(
+  List<CurrencyModel> currencies,
+  List<Wallet> wallets,
+) {
+  if (currencies.isEmpty) return null;
+  final active = currencies.map((c) => c.currencyId).toSet();
+  for (final w in wallets) {
+    final id = w.currency.currencyId;
+    if (active.contains(id) && _walletHasNonZeroBalance(w)) {
+      return id;
+    }
+  }
+  for (final c in currencies) {
+    if (c.symbol.toUpperCase() == 'USDT') return c.currencyId;
+  }
+  return currencies.first.currencyId;
+}
+
 /// Tổng quan danh mục + tổng quy USDT — **luôn** hiển thị cho mọi role đã đăng nhập.
 ///
 /// Nguồn dòng coin: ưu tiên [WalletsProvider] (GET /wallets, `include_zero=true`);
@@ -692,6 +721,7 @@ class _PortfolioOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final fmt = NumberFormat('#,##0.########');
     final rows = _rowsForDisplay();
 
@@ -705,22 +735,48 @@ class _PortfolioOverview extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.pie_chart_outline,
-                    color: theme.colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Tổng danh mục',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Center(
+                    child: Icon(
+                      Icons.pie_chart_outline,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    l10n.walletPortfolioCardTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '≈ ${NumberFormat('#,##0.##').format(totalUsdt)} USDT',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -728,7 +784,7 @@ class _PortfolioOverview extends StatelessWidget {
             const SizedBox(height: 12),
             if (rows.isEmpty)
               Text(
-                'Chưa có dữ liệu ví. Kéo để làm mới hoặc kiểm tra kết nối.',
+                l10n.walletPortfolioEmptyHint,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -751,6 +807,7 @@ class _CoinBalanceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final available = double.tryParse(wallet.available) ?? 0;
     final frozen = double.tryParse(wallet.frozen) ?? 0;
     final total = double.tryParse(wallet.total) ?? 0;
@@ -781,17 +838,23 @@ class _CoinBalanceRow extends StatelessWidget {
           const SizedBox(width: 12),
           // Currency name
           Expanded(
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   wallet.currency.symbol,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 if (frozen > 0)
                   Text(
-                    'Đóng băng: ${fmt.format(frozen)}',
+                    '${l10n.frozen}: ${fmt.format(frozen)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.tertiary,
                     ),
@@ -800,24 +863,33 @@ class _CoinBalanceRow extends StatelessWidget {
             ),
           ),
           // Available + Total
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                fmt.format(total),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Khả dụng: ${fmt.format(available)}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  fmt.format(total),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
+                Text(
+                  '${l10n.available}: ${fmt.format(available)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 }
+

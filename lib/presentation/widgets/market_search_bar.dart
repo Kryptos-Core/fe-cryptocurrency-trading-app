@@ -34,8 +34,22 @@ class MarketSearchBarState extends State<MarketSearchBar> {
   @override
   void didUpdateWidget(covariant MarketSearchBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialValue == '' && _controller.text.isNotEmpty) {
-      _controller.clear();
+    // Only react when the parent actually changed [initialValue]. Parents that
+    // pass a constant '' (e.g. bottom sheets) rebuild after setState; treating
+    // every rebuild as "reset to empty" cleared the field and wiped debounced
+    // search results (see currency / trading-pair pickers).
+    if (widget.initialValue == oldWidget.initialValue) return;
+    _debounce?.cancel();
+    if (widget.initialValue.isEmpty) {
+      if (_controller.text.isNotEmpty) {
+        _controller.clear();
+      }
+    } else if (widget.initialValue != _controller.text) {
+      _controller.value = TextEditingValue(
+        text: widget.initialValue,
+        selection:
+            TextSelection.collapsed(offset: widget.initialValue.length),
+      );
     }
   }
 
