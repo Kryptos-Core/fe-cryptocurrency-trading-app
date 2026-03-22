@@ -13,6 +13,7 @@ import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/t
 /// Payment Method Config Screen — accessible only to ADMIN and FINANCE_MANAGER.
 /// Allows dynamic management of PayOS credentials, blockchain hot wallet keys,
 /// and network settings without restarting the server.
+/// The Treasury ops tab lists `/treasury` transaction wallets (Fund/Sweep), not `/managed-wallets`.
 class PaymentConfigScreen extends StatefulWidget {
   const PaymentConfigScreen({super.key});
 

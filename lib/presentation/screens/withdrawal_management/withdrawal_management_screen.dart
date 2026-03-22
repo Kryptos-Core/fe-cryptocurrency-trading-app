@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_detail_screen.dart';
+import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 class WithdrawalManagementScreen extends StatefulWidget {
   const WithdrawalManagementScreen({super.key});
@@ -197,13 +198,13 @@ class _FilterBar extends StatelessWidget {
     (l10n.withdrawalStatusFailed, 'FAILED'),
   ];
 
-  static const _chains = [
-    ('Tất cả', null),
-    ('TRON Nile', 'TRON_NILE'),
-    ('TRON Shasta', 'TRON_SHASTA'),
-    ('ETH Sepolia', 'ETH_SEPOLIA'),
-    ('Solana Devnet', 'SOLANA_DEVNET'),
-  ];
+  static List<(String, String?)> _chains(AppLocalizations l10n) => [
+        (l10n.adminFilterAll, null),
+        ('TRON Nile', 'TRON_NILE'),
+        ('TRON Shasta', 'TRON_SHASTA'),
+        ('ETH Sepolia', 'ETH_SEPOLIA'),
+        ('Solana Devnet', 'SOLANA_DEVNET'),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -227,69 +228,59 @@ class _FilterBar extends StatelessWidget {
           const SizedBox(height: 10),
           Consumer<WithdrawalManagementProvider>(
             builder: (_, p, __) {
+              final statusItems = _statuses(l10n);
+              final chainItems = _chains(l10n);
+              final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
+
               return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    l10n.status,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: _statuses(l10n).map((s) {
-                      final sel = p.filterStatus == s.$2;
-                      return FilterChip(
-                        label: Text(s.$1),
-                        selected: sel,
-                        visualDensity: VisualDensity.compact,
-                        onSelected: (_) {
-                          p.loadWithdrawals(
-                            status: s.$2,
-                            chain: p.filterChain,
-                            search: p.filterSearch,
-                            dateFrom: p.filterDateFrom,
-                            dateTo: p.filterDateTo,
-                            page: 1,
-                          );
-                        },
+                  AppDropdownField<String?>(
+                    value: p.filterStatus,
+                    labelText: l10n.status,
+                    menuMaxHeight: menuHeight,
+                    items: statusItems
+                        .map(
+                          (s) => DropdownMenuItem<String?>(
+                            value: s.$2,
+                            child: Text(s.$1, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      p.loadWithdrawals(
+                        status: v,
+                        chain: p.filterChain,
+                        search: p.filterSearch,
+                        dateFrom: p.filterDateFrom,
+                        dateTo: p.filterDateTo,
+                        page: 1,
                       );
-                    }).toList(),
+                    },
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    l10n.withdrawalNetworkLabel,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: _chains.map((c) {
-                      final sel = p.filterChain == c.$2;
-                      return FilterChip(
-                        label: Text(c.$1),
-                        selected: sel,
-                        visualDensity: VisualDensity.compact,
-                        onSelected: (_) {
-                          p.loadWithdrawals(
-                            status: p.filterStatus,
-                            chain: c.$2,
-                            search: p.filterSearch,
-                            dateFrom: p.filterDateFrom,
-                            dateTo: p.filterDateTo,
-                            page: 1,
-                          );
-                        },
+                  AppDropdownField<String?>(
+                    value: p.filterChain,
+                    labelText: l10n.withdrawalNetworkLabel,
+                    menuMaxHeight: menuHeight,
+                    items: chainItems
+                        .map(
+                          (c) => DropdownMenuItem<String?>(
+                            value: c.$2,
+                            child: Text(c.$1, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      p.loadWithdrawals(
+                        status: p.filterStatus,
+                        chain: v,
+                        search: p.filterSearch,
+                        dateFrom: p.filterDateFrom,
+                        dateTo: p.filterDateTo,
+                        page: 1,
                       );
-                    }).toList(),
+                    },
                   ),
                 ],
               );

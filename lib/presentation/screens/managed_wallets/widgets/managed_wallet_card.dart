@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 
 class ManagedWalletCard extends StatelessWidget {
   final ManagedWallet wallet;
@@ -14,6 +16,9 @@ class ManagedWalletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final currentUserId = context.watch<AuthProvider>().currentUser?.id;
+    final showOwnerHint =
+        currentUserId != null && wallet.userId != currentUserId;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -39,6 +44,18 @@ class ManagedWalletCard extends StatelessWidget {
                         ],
                       ],
                     ),
+                    if (showOwnerHint) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        AppLocalizations.of(context).managedWalletOwnerHint(
+                          _shortUserId(wallet.userId),
+                        ),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: colorScheme.outline,
+                              fontFamily: 'monospace',
+                            ),
+                      ),
+                    ],
                     const SizedBox(height: 6),
                     Text(
                       wallet.displayLabel,
@@ -80,6 +97,11 @@ class ManagedWalletCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _shortUserId(String id) {
+    if (id.length <= 14) return id;
+    return '${id.substring(0, 8)}…${id.substring(id.length - 4)}';
   }
 
   void _copyAddress(BuildContext context) {

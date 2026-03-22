@@ -1602,10 +1602,23 @@ class AppLocalizationsVi extends AppLocalizations {
       'Tiền sẽ được quy đổi sang USDT và cộng vào Ví Tiền';
 
   @override
-  String get treasuryTitle => 'Quản lý kho quỹ';
+  String get treasuryTitle => 'Nạp tiền & ví quản lý';
 
   @override
-  String get treasuryManageSubtitle => 'Quản lý ví công ty & cài đặt nạp tiền';
+  String get treasuryManageSubtitle =>
+      'Địa chỉ nạp mặc định, chain ưu tiên và ví công ty cho luồng hiển thị cho người dùng.';
+
+  @override
+  String get treasuryToolbarTooltip =>
+      'Nạp tiền & ví quản lý — địa chỉ nạp mặc định và chain ưu tiên';
+
+  @override
+  String get treasuryManagedScopeBanner =>
+      'Danh sách này dùng cho địa chỉ nạp mặc định và ví do risk quản lý. Ví nóng Fund/Sweep nằm ở Cấu hình thanh toán → Ví vận hành (Fund/Sweep).';
+
+  @override
+  String get treasuryOpsScopeBanner =>
+      'Đây là ví vận hành thanh toán (cấp vốn/gom về). Địa chỉ nạp cho người dùng được cấu hình ở màn «Nạp tiền & ví quản lý» (biểu tượng kho quỹ trên thanh công cụ).';
 
   @override
   String get paymentConfigTitle => 'Cấu hình thanh toán';
@@ -1614,7 +1627,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Phương thức';
 
   @override
-  String get paymentConfigTreasuryWalletsTab => 'Ví Treasury';
+  String get paymentConfigTreasuryWalletsTab => 'Ví vận hành (Fund/Sweep)';
 
   @override
   String get paymentConfigHistoryTab => 'Lịch sử';
@@ -1873,6 +1886,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasurySearchHint => 'Tìm tx hash / id / address';
+
+  @override
+  String get treasuryHistoryIdLabel => 'ID';
+
+  @override
+  String get treasuryHistoryTxHash => 'Tx hash';
+
+  @override
+  String get treasuryHistoryFrom => 'Gửi từ';
+
+  @override
+  String get treasuryHistoryTo => 'Đến';
 
   @override
   String get treasuryWalletCreatedSuccess => 'Đã tạo ví giao dịch';
@@ -2699,6 +2724,28 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get drawerWithdrawalManagementSubtitle => 'Duyệt và xử lý yêu cầu';
+
+  @override
+  String get drawerManagedWalletsTitle => 'Nạp tiền & ví quản lý';
+
+  @override
+  String get drawerManagedWalletsSubtitle =>
+      'Địa chỉ nạp mặc định, chain ưu tiên, ví công ty';
+
+  @override
+  String get drawerBlockchainHubTitle => 'Trung tâm on-chain';
+
+  @override
+  String get drawerBlockchainHubSubtitle =>
+      'Nạp/rút on-chain, công cụ blockchain';
+
+  @override
+  String get drawerSectionTreasuryDeposits => 'Kho quỹ & nạp tiền';
+
+  @override
+  String managedWalletOwnerHint(String userIdShort) {
+    return 'Chủ ví: $userIdShort';
+  }
 
   @override
   String get drawerSectionAccount => 'Tài khoản';

@@ -112,6 +112,8 @@ class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
+              const _TreasuryOpsScopeBanner(),
+              const SizedBox(height: 12),
               _TreasuryOpsGuideCard(),
               const SizedBox(height: 12),
               _TreasuryWalletFilterRow(provider: provider),
@@ -186,6 +188,38 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TreasuryOpsScopeBanner extends StatelessWidget {
+  const _TreasuryOpsScopeBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.account_balance_wallet_outlined, size: 18, color: colorScheme.tertiary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.treasuryOpsScopeBanner,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.35),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

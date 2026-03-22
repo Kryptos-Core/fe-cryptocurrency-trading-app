@@ -10,8 +10,8 @@ import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/managed_wallet_card.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
-/// Treasury Management screen — only accessible to RISK_OFFICER.
-/// Provides: deposit defaults overview, recommended chain control, wallet list.
+/// User-facing deposit & managed wallets (`/managed-wallets`).
+/// Not the same data as Payment configuration → operational transaction wallets (`/treasury`).
 class ManagedWalletsScreen extends StatefulWidget {
   const ManagedWalletsScreen({super.key});
 
@@ -109,6 +109,8 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                const _ManagedScopeBanner(),
+                const SizedBox(height: 16),
                 _DepositDefaultsCard(
                   depositDefaults: provider.depositDefaults,
                   allChains: _supportedChains,
@@ -159,6 +161,48 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
         onPressed: _openCreateSheet,
         icon: const Icon(Icons.add),
         label: Text(AppLocalizations.of(context).managedWalletsNewWallet),
+      ),
+    );
+  }
+}
+
+class _ManagedScopeBanner extends StatelessWidget {
+  const _ManagedScopeBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.help_outline, size: 18, color: colorScheme.secondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.treasuryManageSubtitle,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.treasuryManagedScopeBanner,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.35),
+          ),
+        ],
       ),
     );
   }

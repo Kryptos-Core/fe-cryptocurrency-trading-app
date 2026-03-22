@@ -1599,11 +1599,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Funds will be converted to USDT and credited to your Cash Wallet';
 
   @override
-  String get treasuryTitle => 'Treasury Management';
+  String get treasuryTitle => 'User deposits & managed wallets';
 
   @override
   String get treasuryManageSubtitle =>
-      'Manage company wallets & deposit settings';
+      'Default deposit addresses, priority chain, and company wallets for user-facing flows.';
+
+  @override
+  String get treasuryToolbarTooltip =>
+      'User deposits & managed wallets — default addresses and priority chain';
+
+  @override
+  String get treasuryManagedScopeBanner =>
+      'This list is for deposit defaults and risk-managed wallets. Operational hot wallets used for Fund/Sweep are in Payment configuration → Payment ops (Fund/Sweep).';
+
+  @override
+  String get treasuryOpsScopeBanner =>
+      'These wallets are for payment operations (fund from main, sweep back). User-facing deposit defaults are configured under User deposits & managed wallets (treasury icon on the toolbar).';
 
   @override
   String get paymentConfigTitle => 'Payment Configuration';
@@ -1612,7 +1624,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Methods';
 
   @override
-  String get paymentConfigTreasuryWalletsTab => 'Treasury Wallets';
+  String get paymentConfigTreasuryWalletsTab => 'Payment ops (Fund/Sweep)';
 
   @override
   String get paymentConfigHistoryTab => 'History';
@@ -1872,6 +1884,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasurySearchHint => 'Search tx hash / id / address';
+
+  @override
+  String get treasuryHistoryIdLabel => 'ID';
+
+  @override
+  String get treasuryHistoryTxHash => 'Tx hash';
+
+  @override
+  String get treasuryHistoryFrom => 'From';
+
+  @override
+  String get treasuryHistoryTo => 'To';
 
   @override
   String get treasuryWalletCreatedSuccess => 'Transaction wallet created';
@@ -2700,6 +2724,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get drawerWithdrawalManagementSubtitle =>
       'Review and process requests';
+
+  @override
+  String get drawerManagedWalletsTitle => 'User deposits & managed wallets';
+
+  @override
+  String get drawerManagedWalletsSubtitle =>
+      'Default deposit addresses, priority chain, company wallets';
+
+  @override
+  String get drawerBlockchainHubTitle => 'Blockchain hub';
+
+  @override
+  String get drawerBlockchainHubSubtitle =>
+      'On-chain deposits, withdrawals, tools';
+
+  @override
+  String get drawerSectionTreasuryDeposits => 'Treasury & deposits';
+
+  @override
+  String managedWalletOwnerHint(String userIdShort) {
+    return 'Owner: $userIdShort';
+  }
 
   @override
   String get drawerSectionAccount => 'Account';

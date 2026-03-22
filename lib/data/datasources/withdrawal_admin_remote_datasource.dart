@@ -4,6 +4,13 @@ import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
 import 'package:dio/dio.dart';
 
+int _asInt(dynamic value, [int fallback = 0]) {
+  if (value == null) return fallback;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString()) ?? fallback;
+}
+
 abstract class WithdrawalAdminRemoteDataSource {
   Future<Map<String, dynamic>> listWithdrawals({
     String? userId,
@@ -54,15 +61,39 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
       );
       final raw = response.data;
       if (raw is Map<String, dynamic>) {
-        final data = raw['data'] as List<dynamic>? ?? [];
+        final dataField = raw['data'];
+        final List<dynamic> listRaw;
+        final int total;
+        final int pageNum;
+        final int limitNum;
+
+        if (dataField is List<dynamic>) {
+          listRaw = dataField;
+          total = _asInt(raw['total']);
+          pageNum = _asInt(raw['page'], page);
+          limitNum = _asInt(raw['limit'], limit);
+        } else if (dataField is Map<String, dynamic>) {
+          final inner = dataField;
+          final innerList = inner['data'];
+          listRaw = innerList is List<dynamic> ? innerList : <dynamic>[];
+          total = _asInt(inner['total']);
+          pageNum = _asInt(inner['page'], page);
+          limitNum = _asInt(inner['limit'], limit);
+        } else {
+          listRaw = <dynamic>[];
+          total = 0;
+          pageNum = page;
+          limitNum = limit;
+        }
+
         return {
-          'data': data
+          'data': listRaw
               .whereType<Map<String, dynamic>>()
               .map(AdminWithdrawalModel.fromJson)
               .toList(),
-          'total': raw['total'] as int? ?? 0,
-          'page': raw['page'] as int? ?? page,
-          'limit': raw['limit'] as int? ?? limit,
+          'total': total,
+          'page': pageNum,
+          'limit': limitNum,
         };
       }
       return {'data': <AdminWithdrawalModel>[], 'total': 0, 'page': page, 'limit': limit};

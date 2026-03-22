@@ -3035,14 +3035,32 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Treasury Management'**
+  /// **'User deposits & managed wallets'**
   String get treasuryTitle;
 
   /// No description provided for @treasuryManageSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage company wallets & deposit settings'**
+  /// **'Default deposit addresses, priority chain, and company wallets for user-facing flows.'**
   String get treasuryManageSubtitle;
+
+  /// No description provided for @treasuryToolbarTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'User deposits & managed wallets — default addresses and priority chain'**
+  String get treasuryToolbarTooltip;
+
+  /// No description provided for @treasuryManagedScopeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This list is for deposit defaults and risk-managed wallets. Operational hot wallets used for Fund/Sweep are in Payment configuration → Payment ops (Fund/Sweep).'**
+  String get treasuryManagedScopeBanner;
+
+  /// No description provided for @treasuryOpsScopeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'These wallets are for payment operations (fund from main, sweep back). User-facing deposit defaults are configured under User deposits & managed wallets (treasury icon on the toolbar).'**
+  String get treasuryOpsScopeBanner;
 
   /// No description provided for @paymentConfigTitle.
   ///
@@ -3059,7 +3077,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentConfigTreasuryWalletsTab.
   ///
   /// In en, this message translates to:
-  /// **'Treasury Wallets'**
+  /// **'Payment ops (Fund/Sweep)'**
   String get paymentConfigTreasuryWalletsTab;
 
   /// No description provided for @paymentConfigHistoryTab.
@@ -3529,6 +3547,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search tx hash / id / address'**
   String get treasurySearchHint;
+
+  /// No description provided for @treasuryHistoryIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ID'**
+  String get treasuryHistoryIdLabel;
+
+  /// No description provided for @treasuryHistoryTxHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Tx hash'**
+  String get treasuryHistoryTxHash;
+
+  /// No description provided for @treasuryHistoryFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get treasuryHistoryFrom;
+
+  /// No description provided for @treasuryHistoryTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get treasuryHistoryTo;
 
   /// No description provided for @treasuryWalletCreatedSuccess.
   ///
@@ -5084,6 +5126,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review and process requests'**
   String get drawerWithdrawalManagementSubtitle;
+
+  /// No description provided for @drawerManagedWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User deposits & managed wallets'**
+  String get drawerManagedWalletsTitle;
+
+  /// No description provided for @drawerManagedWalletsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default deposit addresses, priority chain, company wallets'**
+  String get drawerManagedWalletsSubtitle;
+
+  /// No description provided for @drawerBlockchainHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockchain hub'**
+  String get drawerBlockchainHubTitle;
+
+  /// No description provided for @drawerBlockchainHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain deposits, withdrawals, tools'**
+  String get drawerBlockchainHubSubtitle;
+
+  /// No description provided for @drawerSectionTreasuryDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury & deposits'**
+  String get drawerSectionTreasuryDeposits;
+
+  /// No description provided for @managedWalletOwnerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner: {userIdShort}'**
+  String managedWalletOwnerHint(String userIdShort);
 
   /// No description provided for @drawerSectionAccount.
   ///

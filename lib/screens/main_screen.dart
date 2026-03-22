@@ -259,7 +259,7 @@ class _MainScreenState extends State<MainScreen> {
                 if (!auth.canManageWallets) return const SizedBox.shrink();
                 return IconButton(
                   icon: const Icon(Icons.account_balance_outlined),
-                  tooltip: l10n.treasuryTitle,
+                  tooltip: l10n.treasuryToolbarTooltip,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -480,6 +480,40 @@ class _MainScreenState extends State<MainScreen> {
                   );
                 },
               ),
+              Consumer<AuthProvider>(
+                builder: (_, auth, __) {
+                  final staffHub = auth.isAdmin ||
+                      auth.canManageWallets ||
+                      auth.canManagePaymentConfigs;
+                  if (!staffHub) return const SizedBox.shrink();
+                  return ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    leading: Icon(
+                      Icons.account_tree_outlined,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    title: Text(l10n.drawerBlockchainHubTitle),
+                    subtitle: Text(
+                      l10n.drawerBlockchainHubSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BlockchainHubScreen(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
               ListTile(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -503,7 +537,10 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
                   final showFinance = auth.canManagePaymentConfigs;
-                  if (!showAdmin && !showFinance) {
+                  final showManagedStandalone = auth.canManageWallets &&
+                      !showFinance &&
+                      !showAdmin;
+                  if (!showAdmin && !showFinance && !showManagedStandalone) {
                     return const SizedBox.shrink();
                   }
                   return const Divider(height: 1);
@@ -515,7 +552,10 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
                   final showFinance = auth.canManagePaymentConfigs;
-                  if (!showAdmin && !showFinance) {
+                  final showManagedStandalone = auth.canManageWallets &&
+                      !showFinance &&
+                      !showAdmin;
+                  if (!showAdmin && !showFinance && !showManagedStandalone) {
                     return const SizedBox.shrink();
                   }
                   final cs = Theme.of(context).colorScheme;
@@ -523,6 +563,20 @@ class _MainScreenState extends State<MainScreen> {
                       .textTheme
                       .bodySmall
                       ?.copyWith(color: cs.onSurfaceVariant);
+
+                  void openManagedWallets() {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                          value: context.read<ManagedWalletsProvider>(),
+                          child: const ManagedWalletsScreen(),
+                        ),
+                      ),
+                    );
+                  }
 
                   return Column(
                     mainAxisSize: MainAxisSize.min,
@@ -585,6 +639,22 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             _DrawerSubsectionHeader(
                                 l10n.drawerSectionAdminOps),
+                            if (auth.canManageWallets && !auth.canManagePaymentConfigs)
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 2),
+                                leading: Icon(
+                                  Icons.account_balance_outlined,
+                                  size: 22,
+                                  color: cs.primary,
+                                ),
+                                title: Text(l10n.drawerManagedWalletsTitle),
+                                subtitle: Text(
+                                  l10n.drawerManagedWalletsSubtitle,
+                                  style: subtitleStyle,
+                                ),
+                                onTap: openManagedWallets,
+                              ),
                             ListTile(
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 2),
@@ -694,6 +764,22 @@ class _MainScreenState extends State<MainScreen> {
                           title: l10n.drawerSectionFinance,
                           topPadding: showAdmin ? 12 : 0,
                           children: [
+                            if (auth.canManageWallets)
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 4),
+                                leading: Icon(
+                                  Icons.account_balance_outlined,
+                                  size: 22,
+                                  color: cs.primary,
+                                ),
+                                title: Text(l10n.drawerManagedWalletsTitle),
+                                subtitle: Text(
+                                  l10n.drawerManagedWalletsSubtitle,
+                                  style: subtitleStyle,
+                                ),
+                                onTap: openManagedWallets,
+                              ),
                             ListTile(
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
@@ -745,6 +831,28 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                 );
                               },
+                            ),
+                          ],
+                        ),
+                      if (showManagedStandalone)
+                        _DrawerManagementCard(
+                          title: l10n.drawerSectionTreasuryDeposits,
+                          topPadding: showAdmin || showFinance ? 12 : 0,
+                          children: [
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              leading: Icon(
+                                Icons.account_balance_outlined,
+                                size: 22,
+                                color: cs.primary,
+                              ),
+                              title: Text(l10n.drawerManagedWalletsTitle),
+                              subtitle: Text(
+                                l10n.drawerManagedWalletsSubtitle,
+                                style: subtitleStyle,
+                              ),
+                              onTap: openManagedWallets,
                             ),
                           ],
                         ),
