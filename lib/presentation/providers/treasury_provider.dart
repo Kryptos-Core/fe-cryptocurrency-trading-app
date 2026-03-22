@@ -28,6 +28,9 @@ class TreasuryProvider extends ChangeNotifier {
   String? _historyStatus;
   String? _historyQuery;
   Timer? _realtimeRefreshDebounce;
+  /// Wallets with an in-flight Fund/Sweep: maps walletId → operationId from API (nullable if unknown).
+  final Map<String, String?> _pendingOnChainByWallet = {};
+  final Map<String, Timer> _pendingWalletClearTimers = {};
 
   List<TreasuryWalletModel> get wallets => _wallets;
   List<TreasuryMainWalletModel> get mainWallets => _mainWallets;
@@ -45,6 +48,77 @@ class TreasuryProvider extends ChangeNotifier {
   String? get historyType => _historyType;
   String? get historyStatus => _historyStatus;
   String? get historyQuery => _historyQuery;
+
+  TreasuryOperationModel? _findPendingOperationForWallet(String walletId) {
+    for (final op in _operations) {
+      final s = op.status.toUpperCase();
+      if (s != 'PENDING' && s != 'PROCESSING') continue;
+      if (op.fromWalletId == walletId || op.toWalletId == walletId) {
+        return op;
+      }
+    }
+    return null;
+  }
+
+  /// True while a Fund/Sweep is queued or processing for this wallet (client and/or server).
+  bool isWalletPendingOnChain(String walletId) {
+    if (_pendingOnChainByWallet.containsKey(walletId)) return true;
+    return _findPendingOperationForWallet(walletId) != null;
+  }
+
+  /// Best-known operation id for UI (tooltip); null if only "pending" without id yet.
+  String? pendingOnChainOperationIdForWallet(String walletId) {
+    final local = _pendingOnChainByWallet[walletId];
+    if (local != null && local.isNotEmpty) return local;
+    return _findPendingOperationForWallet(walletId)?.operationId;
+  }
+
+  void _trackPendingOnChain(String walletId, String? operationId) {
+    _pendingOnChainByWallet[walletId] =
+        (operationId != null && operationId.isNotEmpty) ? operationId : null;
+    _pendingWalletClearTimers[walletId]?.cancel();
+    _pendingWalletClearTimers[walletId] = Timer(const Duration(minutes: 3), () {
+      _pendingOnChainByWallet.remove(walletId);
+      _pendingWalletClearTimers.remove(walletId);
+      notifyListeners();
+    });
+    notifyListeners();
+  }
+
+  void _prunePendingIfOperationTerminalInList() {
+    var changed = false;
+    for (final walletId in _pendingOnChainByWallet.keys.toList()) {
+      final oid = _pendingOnChainByWallet[walletId];
+      if (oid == null || oid.isEmpty) continue;
+      TreasuryOperationModel? match;
+      for (final o in _operations) {
+        if (o.operationId == oid) {
+          match = o;
+          break;
+        }
+      }
+      if (match != null) {
+        final st = match.status.toUpperCase();
+        if (st == 'COMPLETED' || st == 'FAILED') {
+          _pendingOnChainByWallet.remove(walletId);
+          _pendingWalletClearTimers[walletId]?.cancel();
+          _pendingWalletClearTimers.remove(walletId);
+          changed = true;
+        }
+      }
+    }
+    if (changed) notifyListeners();
+  }
+
+  void _clearOnChainPendingState() {
+    for (final t in _pendingWalletClearTimers.values) {
+      t.cancel();
+    }
+    _pendingWalletClearTimers.clear();
+    if (_pendingOnChainByWallet.isEmpty) return;
+    _pendingOnChainByWallet.clear();
+    notifyListeners();
+  }
 
   void setWalletFilters({String? chain, String? purpose}) {
     _walletChain = chain;
@@ -117,6 +191,7 @@ class TreasuryProvider extends ChangeNotifier {
         q: _historyQuery,
       );
       _transactions = txResult.items;
+      _prunePendingIfOperationTerminalInList();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -153,8 +228,11 @@ class TreasuryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _dataSource.sweepWallet(walletId, mainWalletId: mainWalletId);
-      await loadHistory();
+      final result =
+          await _dataSource.sweepWallet(walletId, mainWalletId: mainWalletId);
+      final opId = _parseOperationId(result);
+      _trackPendingOnChain(walletId, opId);
+      await refreshAll();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -174,8 +252,11 @@ class TreasuryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _dataSource.fundWallet(walletId: walletId, amount: amount);
-      await loadHistory();
+      final result =
+          await _dataSource.fundWallet(walletId: walletId, amount: amount);
+      final opId = _parseOperationId(result);
+      _trackPendingOnChain(walletId, opId);
+      await refreshAll();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -194,19 +275,44 @@ class TreasuryProvider extends ChangeNotifier {
   }
 
   void handleRealtimeEvent(Map<String, dynamic> event) {
-    final opStatus = (event['status'] ?? event['operation_status'] ?? '').toString().toUpperCase();
-    final eventName = (event['event'] ?? '').toString().toLowerCase();
-    final isTerminalStatus = opStatus == 'COMPLETED' || opStatus == 'FAILED';
-    final isRelevantEvent = eventName.contains('operation.completed') || eventName.contains('operation.failed');
+    final nested = event['payload'];
+    final nestedMap =
+        nested is Map ? Map<String, dynamic>.from(nested) : null;
 
-    if (!isTerminalStatus && !isRelevantEvent) {
+    final opStatus = (event['status'] ??
+            event['operation_status'] ??
+            nestedMap?['status'] ??
+            nestedMap?['operation_status'] ??
+            '')
+        .toString()
+        .toUpperCase();
+    final eventName = (event['event'] ?? nestedMap?['event'] ?? '')
+        .toString()
+        .toLowerCase();
+    final isTerminalStatus = opStatus == 'COMPLETED' || opStatus == 'FAILED';
+    final isOpTerminalEvent = eventName.contains('operation.completed') ||
+        eventName.contains('operation.failed');
+    final isWalletCreated = eventName == 'wallet.created' ||
+        eventName.contains('wallet.created');
+
+    if (!isTerminalStatus && !isOpTerminalEvent && !isWalletCreated) {
       return;
     }
 
     _realtimeRefreshDebounce?.cancel();
     _realtimeRefreshDebounce = Timer(const Duration(milliseconds: 350), () async {
       await refreshAll();
+      if (isOpTerminalEvent || isTerminalStatus) {
+        _clearOnChainPendingState();
+      }
     });
+  }
+
+  static String? _parseOperationId(Map<String, dynamic> body) {
+    final raw = body['operationId'] ?? body['operation_id'];
+    if (raw == null) return null;
+    final s = raw.toString();
+    return s.isEmpty ? null : s;
   }
 
   void clearError() {
@@ -217,6 +323,10 @@ class TreasuryProvider extends ChangeNotifier {
   @override
   void dispose() {
     _realtimeRefreshDebounce?.cancel();
+    for (final t in _pendingWalletClearTimers.values) {
+      t.cancel();
+    }
+    _pendingWalletClearTimers.clear();
     super.dispose();
   }
 }

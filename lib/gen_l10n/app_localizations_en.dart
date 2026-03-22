@@ -1805,7 +1805,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasurySweepMeaning =>
-      'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity.';
+      'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity. About 0.1 TRX is left on TRON wallets for fees/bandwidth.';
 
   @override
   String get treasuryFundMeaning =>
@@ -1844,7 +1844,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryFundTooltip => 'Fund this wallet from the main wallet';
 
   @override
-  String get treasurySweepQueued => 'Sweep enqueued';
+  String get treasurySweepQueued =>
+      'Sweep request received. This card\'s balance will update when the on-chain transfer completes.';
 
   @override
   String get treasurySweepFailed => 'Sweep failed';
@@ -1865,25 +1866,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryConfirmAction => 'Confirm';
 
   @override
-  String get treasuryFundQueued => 'Fund enqueued';
+  String get treasuryFundQueued =>
+      'Fund request received. This card\'s balance will update when the on-chain transfer completes.';
+
+  @override
+  String get treasuryWalletPendingOnChainBadge => 'Processing on-chain…';
+
+  @override
+  String get treasuryQueuedBalanceHint =>
+      'Balance shown is unchanged until the chain confirms.';
+
+  @override
+  String get treasuryPendingOnChainTooltipGeneric =>
+      'A Fund or Sweep is processing on-chain. The balance on this card has not updated yet.';
+
+  @override
+  String treasuryPendingOnChainTooltipWithId(String operationId) {
+    return 'Operation $operationId is pending on-chain. The balance will not reflect new funds until it completes.';
+  }
 
   @override
   String get treasuryFundFailed => 'Fund failed';
 
   @override
-  String get treasuryOperationsTitle => 'Operations';
+  String get treasuryOperationsTitle => 'Treasury operations';
 
   @override
-  String get treasuryNoOperations => 'No operations';
+  String get treasuryNoOperations => 'No operations yet';
 
   @override
-  String get treasuryTransactionsTitle => 'Transactions';
+  String get treasuryTransactionsTitle => 'On-chain transactions';
 
   @override
-  String get treasuryNoTransactions => 'No transactions';
+  String get treasuryNoTransactions => 'No transactions yet';
 
   @override
-  String get treasurySearchHint => 'Search tx hash / id / address';
+  String get treasurySearchHint => 'Tx hash, operation id, address…';
+
+  @override
+  String get treasuryHistorySearchLabel => 'Search';
 
   @override
   String get treasuryHistoryIdLabel => 'ID';
@@ -1896,6 +1917,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryHistoryTo => 'To';
+
+  @override
+  String get treasuryHistoryTypeFund => 'Fund';
+
+  @override
+  String get treasuryHistoryTypeSweep => 'Sweep';
+
+  @override
+  String get treasuryHistoryStatusPending => 'Pending';
+
+  @override
+  String get treasuryHistoryStatusProcessing => 'Processing';
+
+  @override
+  String get treasuryHistoryStatusConfirming => 'Confirming';
+
+  @override
+  String get treasuryHistoryStatusCompleted => 'Completed';
+
+  @override
+  String get treasuryHistoryStatusFailed => 'Failed';
 
   @override
   String get treasuryWalletCreatedSuccess => 'Transaction wallet created';

@@ -1808,7 +1808,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasurySweepMeaning =>
-      'Sweep: gom tài sản từ ví đang chọn về ví trung tâm (main wallet) để tập trung thanh khoản.';
+      'Sweep: gom tài sản từ ví đang chọn về ví trung tâm (main wallet) để tập trung thanh khoản. Trên TRON, hệ thống giữ lại khoảng 0,1 TRX trên ví để trả phí/băng thông.';
 
   @override
   String get treasuryFundMeaning =>
@@ -1846,7 +1846,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryFundTooltip => 'Nạp tiền từ ví chính vào ví này';
 
   @override
-  String get treasurySweepQueued => 'Đã enqueue sweep';
+  String get treasurySweepQueued =>
+      'Đã nhận yêu cầu gom về. Số dư trên thẻ sẽ cập nhật khi giao dịch trên chuỗi hoàn tất.';
 
   @override
   String get treasurySweepFailed => 'Sweep thất bại';
@@ -1867,28 +1868,48 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryConfirmAction => 'Xác nhận';
 
   @override
-  String get treasuryFundQueued => 'Đã enqueue fund';
+  String get treasuryFundQueued =>
+      'Đã nhận yêu cầu cấp vốn. Số dư trên thẻ sẽ cập nhật khi giao dịch trên chuỗi hoàn tất.';
+
+  @override
+  String get treasuryWalletPendingOnChainBadge => 'Đang xử lý trên chuỗi…';
+
+  @override
+  String get treasuryQueuedBalanceHint =>
+      'Số dư trên thẻ vẫn là số cũ — chưa có tiền mới cho đến khi chuỗi xác nhận.';
+
+  @override
+  String get treasuryPendingOnChainTooltipGeneric =>
+      'Lệnh Fund/Sweep đang chạy trên chuỗi. Số dư hiển thị chưa phản ánh giao dịch mới.';
+
+  @override
+  String treasuryPendingOnChainTooltipWithId(String operationId) {
+    return 'Lệnh $operationId đang PENDING/PROCESSING trên chuỗi. Số dư ví chưa đổi cho đến khi hoàn tất.';
+  }
 
   @override
   String get treasuryFundFailed => 'Fund thất bại';
 
   @override
-  String get treasuryOperationsTitle => 'Operations';
+  String get treasuryOperationsTitle => 'Lệnh vận hành (Fund / Sweep)';
 
   @override
-  String get treasuryNoOperations => 'Không có operation';
+  String get treasuryNoOperations => 'Chưa có lệnh nào';
 
   @override
-  String get treasuryTransactionsTitle => 'Transactions';
+  String get treasuryTransactionsTitle => 'Giao dịch on-chain';
 
   @override
-  String get treasuryNoTransactions => 'Không có transaction';
+  String get treasuryNoTransactions => 'Chưa có giao dịch';
 
   @override
-  String get treasurySearchHint => 'Tìm tx hash / id / address';
+  String get treasurySearchHint => 'Tx hash, mã lệnh, địa chỉ…';
 
   @override
-  String get treasuryHistoryIdLabel => 'ID';
+  String get treasuryHistorySearchLabel => 'Tìm kiếm';
+
+  @override
+  String get treasuryHistoryIdLabel => 'Mã lệnh';
 
   @override
   String get treasuryHistoryTxHash => 'Tx hash';
@@ -1898,6 +1919,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryHistoryTo => 'Đến';
+
+  @override
+  String get treasuryHistoryTypeFund => 'Cấp vốn';
+
+  @override
+  String get treasuryHistoryTypeSweep => 'Gom về';
+
+  @override
+  String get treasuryHistoryStatusPending => 'Đang chờ';
+
+  @override
+  String get treasuryHistoryStatusProcessing => 'Đang xử lý';
+
+  @override
+  String get treasuryHistoryStatusConfirming => 'Đang xác nhận chuỗi';
+
+  @override
+  String get treasuryHistoryStatusCompleted => 'Hoàn tất';
+
+  @override
+  String get treasuryHistoryStatusFailed => 'Thất bại';
 
   @override
   String get treasuryWalletCreatedSuccess => 'Đã tạo ví giao dịch';

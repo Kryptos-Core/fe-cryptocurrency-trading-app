@@ -8,6 +8,34 @@ import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
+String _treasuryHistoryTypeLabel(AppLocalizations l10n, String type) {
+  switch (type.toUpperCase()) {
+    case 'FUND':
+      return l10n.treasuryHistoryTypeFund;
+    case 'SWEEP':
+      return l10n.treasuryHistoryTypeSweep;
+    default:
+      return type;
+  }
+}
+
+String _treasuryHistoryStatusLabel(AppLocalizations l10n, String status) {
+  switch (status.toUpperCase()) {
+    case 'PENDING':
+      return l10n.treasuryHistoryStatusPending;
+    case 'PROCESSING':
+      return l10n.treasuryHistoryStatusProcessing;
+    case 'CONFIRMING':
+      return l10n.treasuryHistoryStatusConfirming;
+    case 'COMPLETED':
+      return l10n.treasuryHistoryStatusCompleted;
+    case 'FAILED':
+      return l10n.treasuryHistoryStatusFailed;
+    default:
+      return status;
+  }
+}
+
 class TreasuryHistoryTabView extends StatefulWidget {
   const TreasuryHistoryTabView({super.key});
 
@@ -223,7 +251,7 @@ class _TreasuryOperationTile extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _TypeChip(label: op.type),
+                          _TypeChip(l10n: l10n, typeCode: op.type),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -259,7 +287,7 @@ class _TreasuryOperationTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _StatusChip(status: op.status),
+            _StatusChip(l10n: l10n, status: op.status),
             if (op.failureReason != null && op.failureReason!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -327,7 +355,7 @@ class _TreasuryTransactionTile extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _TypeChip(label: tx.type),
+                          _TypeChip(l10n: l10n, typeCode: tx.type),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -363,7 +391,7 @@ class _TreasuryTransactionTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _StatusChip(status: tx.status),
+            _StatusChip(l10n: l10n, status: tx.status),
             const SizedBox(height: 8),
             _IdRow(label: l10n.treasuryHistoryIdLabel, value: tx.txId, onCopy: onCopy),
             const SizedBox(height: 6),
@@ -390,25 +418,30 @@ class _TreasuryTransactionTile extends StatelessWidget {
 }
 
 class _TypeChip extends StatelessWidget {
-  final String label;
+  final AppLocalizations l10n;
+  final String typeCode;
 
-  const _TypeChip({required this.label});
+  const _TypeChip({required this.l10n, required this.typeCode});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w800,
-          color: theme.colorScheme.primary,
-          letterSpacing: 0.5,
+    final label = _treasuryHistoryTypeLabel(l10n, typeCode);
+    return Tooltip(
+      message: typeCode,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: theme.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: theme.colorScheme.primary,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
@@ -416,15 +449,17 @@ class _TypeChip extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
+  final AppLocalizations l10n;
   final String status;
 
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.l10n, required this.status});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final s = status.toUpperCase();
+    final label = _treasuryHistoryStatusLabel(l10n, status);
     late Color bg;
     late Color fg;
     IconData icon;
@@ -454,25 +489,28 @@ class _StatusChip extends StatelessWidget {
         fg = scheme.onSurfaceVariant;
         icon = Icons.help_outline;
     }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: fg),
-          const SizedBox(width: 6),
-          Text(
-            status,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: fg,
-              fontWeight: FontWeight.w700,
+    return Tooltip(
+      message: status,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: fg),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: fg,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -677,8 +715,8 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
                     value: null,
                     child: Text(l10n.treasuryFilterAll),
                   ),
-                  const DropdownMenuItem(value: 'SWEEP', child: Text('SWEEP')),
-                  const DropdownMenuItem(value: 'FUND', child: Text('FUND')),
+                  DropdownMenuItem(value: 'SWEEP', child: Text(l10n.treasuryHistoryTypeSweep)),
+                  DropdownMenuItem(value: 'FUND', child: Text(l10n.treasuryHistoryTypeFund)),
                 ],
                 onChanged: (value) async {
                   provider.setHistoryFilters(
@@ -697,7 +735,8 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
         TextField(
           controller: searchCtrl,
           decoration: InputDecoration(
-            labelText: l10n.treasurySearchHint,
+            labelText: l10n.treasuryHistorySearchLabel,
+            hintText: l10n.treasurySearchHint,
             border: const OutlineInputBorder(),
             suffixIcon: IconButton(
               icon: const Icon(Icons.search),

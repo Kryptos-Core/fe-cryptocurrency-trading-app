@@ -3395,7 +3395,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasurySweepMeaning.
   ///
   /// In en, this message translates to:
-  /// **'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity.'**
+  /// **'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity. About 0.1 TRX is left on TRON wallets for fees/bandwidth.'**
   String get treasurySweepMeaning;
 
   /// No description provided for @treasuryFundMeaning.
@@ -3467,7 +3467,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasurySweepQueued.
   ///
   /// In en, this message translates to:
-  /// **'Sweep enqueued'**
+  /// **'Sweep request received. This card\'s balance will update when the on-chain transfer completes.'**
   String get treasurySweepQueued;
 
   /// No description provided for @treasurySweepFailed.
@@ -3509,8 +3509,32 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryFundQueued.
   ///
   /// In en, this message translates to:
-  /// **'Fund enqueued'**
+  /// **'Fund request received. This card\'s balance will update when the on-chain transfer completes.'**
   String get treasuryFundQueued;
+
+  /// No description provided for @treasuryWalletPendingOnChainBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing on-chain…'**
+  String get treasuryWalletPendingOnChainBadge;
+
+  /// No description provided for @treasuryQueuedBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance shown is unchanged until the chain confirms.'**
+  String get treasuryQueuedBalanceHint;
+
+  /// No description provided for @treasuryPendingOnChainTooltipGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'A Fund or Sweep is processing on-chain. The balance on this card has not updated yet.'**
+  String get treasuryPendingOnChainTooltipGeneric;
+
+  /// No description provided for @treasuryPendingOnChainTooltipWithId.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation {operationId} is pending on-chain. The balance will not reflect new funds until it completes.'**
+  String treasuryPendingOnChainTooltipWithId(String operationId);
 
   /// No description provided for @treasuryFundFailed.
   ///
@@ -3521,32 +3545,38 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryOperationsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Operations'**
+  /// **'Treasury operations'**
   String get treasuryOperationsTitle;
 
   /// No description provided for @treasuryNoOperations.
   ///
   /// In en, this message translates to:
-  /// **'No operations'**
+  /// **'No operations yet'**
   String get treasuryNoOperations;
 
   /// No description provided for @treasuryTransactionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Transactions'**
+  /// **'On-chain transactions'**
   String get treasuryTransactionsTitle;
 
   /// No description provided for @treasuryNoTransactions.
   ///
   /// In en, this message translates to:
-  /// **'No transactions'**
+  /// **'No transactions yet'**
   String get treasuryNoTransactions;
 
   /// No description provided for @treasurySearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search tx hash / id / address'**
+  /// **'Tx hash, operation id, address…'**
   String get treasurySearchHint;
+
+  /// No description provided for @treasuryHistorySearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get treasuryHistorySearchLabel;
 
   /// No description provided for @treasuryHistoryIdLabel.
   ///
@@ -3571,6 +3601,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To'**
   String get treasuryHistoryTo;
+
+  /// No description provided for @treasuryHistoryTypeFund.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund'**
+  String get treasuryHistoryTypeFund;
+
+  /// No description provided for @treasuryHistoryTypeSweep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep'**
+  String get treasuryHistoryTypeSweep;
+
+  /// No description provided for @treasuryHistoryStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get treasuryHistoryStatusPending;
+
+  /// No description provided for @treasuryHistoryStatusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get treasuryHistoryStatusProcessing;
+
+  /// No description provided for @treasuryHistoryStatusConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get treasuryHistoryStatusConfirming;
+
+  /// No description provided for @treasuryHistoryStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get treasuryHistoryStatusCompleted;
+
+  /// No description provided for @treasuryHistoryStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get treasuryHistoryStatusFailed;
 
   /// No description provided for @treasuryWalletCreatedSuccess.
   ///

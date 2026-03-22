@@ -24,7 +24,6 @@ import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/screens/market_maker/market_maker_hub_screen.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_management_screen.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
@@ -274,18 +273,6 @@ class _MainScreenState extends State<MainScreen> {
                 );
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.account_tree_outlined),
-              tooltip: l10n.onchainTooltip,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BlockchainHubScreen(),
-                  ),
-                );
-              },
-            ),
           ],
           // Notification bell — visible for all authenticated users
           if (isAuthenticated)
@@ -474,40 +461,6 @@ class _MainScreenState extends State<MainScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const MarketMakerHubScreen(),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              Consumer<AuthProvider>(
-                builder: (_, auth, __) {
-                  final staffHub = auth.isAdmin ||
-                      auth.canManageWallets ||
-                      auth.canManagePaymentConfigs;
-                  if (!staffHub) return const SizedBox.shrink();
-                  return ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    leading: Icon(
-                      Icons.account_tree_outlined,
-                      size: 22,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    title: Text(l10n.drawerBlockchainHubTitle),
-                    subtitle: Text(
-                      l10n.drawerBlockchainHubSubtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const BlockchainHubScreen(),
                         ),
                       );
                     },

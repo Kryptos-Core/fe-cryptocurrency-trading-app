@@ -16,6 +16,55 @@ String _formatBalance(String? balance) {
   return NumberFormat('#,###.##').format(parsed);
 }
 
+String _treasuryOnChainPendingTooltip(AppLocalizations l10n, String? operationId) {
+  if (operationId != null && operationId.isNotEmpty) {
+    return l10n.treasuryPendingOnChainTooltipWithId(operationId);
+  }
+  return l10n.treasuryPendingOnChainTooltipGeneric;
+}
+
+void _showTreasuryQueuedSnackBar(
+  BuildContext context, {
+  required bool ok,
+  required String primaryQueued,
+  required String primaryFailed,
+  String? errorMessage,
+}) {
+  if (!context.mounted) return;
+  final messenger = ScaffoldMessenger.of(context);
+  if (!ok) {
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(errorMessage ?? primaryFailed),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+  final l10n = AppLocalizations.of(context);
+  messenger.showSnackBar(
+    SnackBar(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(primaryQueued),
+          const SizedBox(height: 6),
+          Text(
+            l10n.treasuryQueuedBalanceHint,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white.withValues(alpha: 0.92),
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.green,
+      duration: const Duration(seconds: 5),
+    ),
+  );
+}
+
 Future<String?> _showSweepDialog(
   BuildContext context,
   TreasuryWalletModel wallet,
@@ -108,7 +157,7 @@ class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
       builder: (context, provider, _) {
         final wallets = provider.wallets;
         return RefreshIndicator(
-          onRefresh: provider.loadWallets,
+          onRefresh: provider.refreshAll,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
@@ -133,7 +182,15 @@ class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
                   ),
                 )
               else
-                ...wallets.map((wallet) => _TreasuryWalletCard(wallet: wallet)),
+                ...wallets.map(
+                  (wallet) => _TreasuryWalletCard(
+                    wallet: wallet,
+                    showOnChainPending:
+                        provider.isWalletPendingOnChain(wallet.walletId),
+                    pendingOperationId:
+                        provider.pendingOnChainOperationIdForWallet(wallet.walletId),
+                  ),
+                ),
             ],
           ),
         );
@@ -268,8 +325,14 @@ class _TreasuryOpsGuideCard extends StatelessWidget {
 
 class _TreasuryWalletCard extends StatelessWidget {
   final TreasuryWalletModel wallet;
+  final bool showOnChainPending;
+  final String? pendingOperationId;
 
-  const _TreasuryWalletCard({required this.wallet});
+  const _TreasuryWalletCard({
+    required this.wallet,
+    this.showOnChainPending = false,
+    this.pendingOperationId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +397,32 @@ class _TreasuryWalletCard extends StatelessWidget {
             Text(
               '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
             ),
+            if (showOnChainPending) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Tooltip(
+                  message: _treasuryOnChainPendingTooltip(l10n, pendingOperationId),
+                  child: Chip(
+                    avatar: Icon(
+                      Icons.sync,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                    label: Text(
+                      l10n.treasuryWalletPendingOnChainBadge,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .tertiaryContainer
+                        .withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             Row(
               children: [
@@ -349,11 +438,12 @@ class _TreasuryWalletCard extends StatelessWidget {
                           mainWalletId: mainWalletId.isEmpty ? null : mainWalletId,
                         );
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(ok ? l10n.treasurySweepQueued : (provider.error ?? l10n.treasurySweepFailed)),
-                            backgroundColor: ok ? Colors.green : Colors.red,
-                          ),
+                        _showTreasuryQueuedSnackBar(
+                          context,
+                          ok: ok,
+                          primaryQueued: l10n.treasurySweepQueued,
+                          primaryFailed: l10n.treasurySweepFailed,
+                          errorMessage: provider.error,
                         );
                       },
                       icon: const Icon(Icons.call_made, size: 16),
@@ -418,11 +508,12 @@ class _TreasuryWalletCard extends StatelessWidget {
                       if (parsedAmount.isEmpty) return;
                       final ok = await provider.fundWallet(walletId: wallet.walletId, amount: parsedAmount);
                       if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(ok ? l10n.treasuryFundQueued : (provider.error ?? l10n.treasuryFundFailed)),
-                          backgroundColor: ok ? Colors.green : Colors.red,
-                        ),
+                      _showTreasuryQueuedSnackBar(
+                        context,
+                        ok: ok,
+                        primaryQueued: l10n.treasuryFundQueued,
+                        primaryFailed: l10n.treasuryFundFailed,
+                        errorMessage: provider.error,
                       );
                     },
                     icon: const Icon(Icons.south_west, size: 16),
