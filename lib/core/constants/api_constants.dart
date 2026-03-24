@@ -198,6 +198,29 @@ class ApiConstants {
   static const String blockchainSubmitDeposit = '$blockchain/deposit/submit';
   static const String blockchainRequestWithdrawal = '$blockchain/withdraw/request';
   static const String blockchainTransactions = '$blockchain/transactions';
+
+  /// Fiat (bank) withdrawal — USDT to VN bank (manual payout)
+  static const String fiatWithdrawalsBanks = '/fiat-withdrawals/banks';
+  static const String fiatWithdrawalsBankAccounts = '/fiat-withdrawals/bank-accounts';
+  static const String fiatWithdrawalsResolveBankHolder =
+      '/fiat-withdrawals/bank-accounts/resolve-holder';
+  static const String fiatWithdrawalsRequests = '/fiat-withdrawals/requests';
+  static const String fiatWithdrawalsAdminBankAccounts =
+      '/fiat-withdrawals/admin/bank-accounts';
+  static String fiatWithdrawalsAdminBankAccount(String id) =>
+      '/fiat-withdrawals/admin/bank-accounts/$id';
+  static String fiatWithdrawalsAdminBankAccountVerify(String id) =>
+      '/fiat-withdrawals/admin/bank-accounts/$id/verify';
+  static String fiatWithdrawalsAdminBankAccountReject(String id) =>
+      '/fiat-withdrawals/admin/bank-accounts/$id/reject';
+  static const String fiatWithdrawalsAdminRequests =
+      '/fiat-withdrawals/admin/requests';
+  static String fiatWithdrawalsAdminRequest(String id) =>
+      '/fiat-withdrawals/admin/requests/$id';
+  static String fiatWithdrawalsAdminRequestComplete(String id) =>
+      '/fiat-withdrawals/admin/requests/$id/complete';
+  static String fiatWithdrawalsAdminRequestReject(String id) =>
+      '/fiat-withdrawals/admin/requests/$id/reject';
   
   // Managed Wallets Endpoints (Treasury / Finance Manager — RISK_OFFICER)
   static const String managedWallets = '/managed-wallets';

@@ -26,6 +26,7 @@ import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/screens/market_maker/market_maker_hub_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/payment_config_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_management_screen.dart';
+import 'package:crypto_trading_app/presentation/screens/fiat_withdrawals/fiat_withdrawals_admin_screen.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
@@ -781,6 +782,30 @@ class _MainScreenState extends State<MainScreen> {
                                   MaterialPageRoute(
                                     builder: (_) =>
                                         const WithdrawalManagementScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              leading: Icon(
+                                Icons.savings_outlined,
+                                size: 22,
+                                color: cs.primary,
+                              ),
+                              title: Text(l10n.drawerFiatWithdrawalAdmin),
+                              subtitle: Text(
+                                l10n.drawerFiatWithdrawalAdminSubtitle,
+                                style: subtitleStyle,
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const FiatWithdrawalsAdminScreen(),
                                   ),
                                 );
                               },

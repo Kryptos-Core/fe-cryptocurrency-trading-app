@@ -1226,6 +1226,126 @@ abstract class AppLocalizations {
   /// **'Open On-chain Wallet Flow'**
   String get openOnchainWalletFlow;
 
+  /// No description provided for @fiatWithdrawBankTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw to bank (USDT)'**
+  String get fiatWithdrawBankTitle;
+
+  /// No description provided for @fiatWithdrawBankSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a Vietnamese bank account, then request withdrawal. Requires verified user role.'**
+  String get fiatWithdrawBankSubtitle;
+
+  /// No description provided for @fiatWithdrawToBankShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank withdraw'**
+  String get fiatWithdrawToBankShort;
+
+  /// No description provided for @fiatWithdrawBankCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get fiatWithdrawBankCode;
+
+  /// No description provided for @fiatWithdrawAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number'**
+  String get fiatWithdrawAccountNumber;
+
+  /// No description provided for @fiatWithdrawHolderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account holder name'**
+  String get fiatWithdrawHolderName;
+
+  /// No description provided for @fiatWithdrawSaveBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit bank for review'**
+  String get fiatWithdrawSaveBank;
+
+  /// No description provided for @fiatWithdrawMyBanks.
+  ///
+  /// In en, this message translates to:
+  /// **'My bank accounts'**
+  String get fiatWithdrawMyBanks;
+
+  /// No description provided for @fiatWithdrawAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (USDT)'**
+  String get fiatWithdrawAmount;
+
+  /// No description provided for @fiatWithdrawSubmitRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit withdrawal'**
+  String get fiatWithdrawSubmitRequest;
+
+  /// No description provided for @fiatWithdrawMyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'My requests'**
+  String get fiatWithdrawMyRequests;
+
+  /// No description provided for @fiatWithdrawAdminTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiat bank withdrawals'**
+  String get fiatWithdrawAdminTitle;
+
+  /// No description provided for @fiatWithdrawAdminBanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank accounts'**
+  String get fiatWithdrawAdminBanks;
+
+  /// No description provided for @fiatWithdrawAdminRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal requests'**
+  String get fiatWithdrawAdminRequests;
+
+  /// No description provided for @fiatWithdrawVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get fiatWithdrawVerify;
+
+  /// No description provided for @fiatWithdrawReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get fiatWithdrawReject;
+
+  /// No description provided for @fiatWithdrawComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete transfer'**
+  String get fiatWithdrawComplete;
+
+  /// No description provided for @fiatWithdrawTransferRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer reference'**
+  String get fiatWithdrawTransferRef;
+
+  /// No description provided for @drawerFiatWithdrawalAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiat bank (admin)'**
+  String get drawerFiatWithdrawalAdmin;
+
+  /// No description provided for @drawerFiatWithdrawalAdminSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify bank accounts & approve USDT payouts'**
+  String get drawerFiatWithdrawalAdminSubtitle;
+
   /// No description provided for @onchainWalletsTitle.
   ///
   /// In en, this message translates to:

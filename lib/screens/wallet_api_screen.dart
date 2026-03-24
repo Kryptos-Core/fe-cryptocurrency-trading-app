@@ -15,6 +15,7 @@ import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart'
 import 'package:crypto_trading_app/presentation/widgets/currency_picker_sheet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
+import 'package:crypto_trading_app/screens/fiat_bank_withdrawal_screen.dart';
 
 String _formatAmountForDisplay(String amountStr) =>
     FormatUtils.formatDecimalAmountDisplay(amountStr);
@@ -305,6 +306,25 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const FiatBankWithdrawalScreen(),
+                        ),
+                      );
+                      if (context.mounted) _refreshAll();
+                    },
+                    icon: const Icon(Icons.payments_outlined),
+                    label: Text(l10n.fiatWithdrawToBankShort),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),

@@ -583,6 +583,68 @@ class AppLocalizationsVi extends AppLocalizations {
   String get openOnchainWalletFlow => 'Mở luồng ví On-chain';
 
   @override
+  String get fiatWithdrawBankTitle => 'Rút USDT về ngân hàng';
+
+  @override
+  String get fiatWithdrawBankSubtitle =>
+      'Liên kết STK ngân hàng VN, sau đó tạo yêu cầu rút. Cần tài khoản VERIFIED_USER.';
+
+  @override
+  String get fiatWithdrawToBankShort => 'Rút về NH';
+
+  @override
+  String get fiatWithdrawBankCode => 'Ngân hàng';
+
+  @override
+  String get fiatWithdrawAccountNumber => 'Số tài khoản';
+
+  @override
+  String get fiatWithdrawHolderName => 'Tên chủ tài khoản';
+
+  @override
+  String get fiatWithdrawSaveBank => 'Gửi duyệt STK';
+
+  @override
+  String get fiatWithdrawMyBanks => 'Tài khoản ngân hàng của tôi';
+
+  @override
+  String get fiatWithdrawAmount => 'Số tiền (USDT)';
+
+  @override
+  String get fiatWithdrawSubmitRequest => 'Gửi yêu cầu rút';
+
+  @override
+  String get fiatWithdrawMyRequests => 'Yêu cầu của tôi';
+
+  @override
+  String get fiatWithdrawAdminTitle => 'Rút tiền ngân hàng (admin)';
+
+  @override
+  String get fiatWithdrawAdminBanks => 'Tài khoản NH';
+
+  @override
+  String get fiatWithdrawAdminRequests => 'Yêu cầu rút';
+
+  @override
+  String get fiatWithdrawVerify => 'Xác minh';
+
+  @override
+  String get fiatWithdrawReject => 'Từ chối';
+
+  @override
+  String get fiatWithdrawComplete => 'Hoàn tất CK';
+
+  @override
+  String get fiatWithdrawTransferRef => 'Mã tham chiếu CK';
+
+  @override
+  String get drawerFiatWithdrawalAdmin => 'Rút NH (admin)';
+
+  @override
+  String get drawerFiatWithdrawalAdminSubtitle =>
+      'Duyệt STK & rút USDT thủ công';
+
+  @override
   String get onchainWalletsTitle => 'Ví On-chain';
 
   @override

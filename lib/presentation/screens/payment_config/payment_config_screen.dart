@@ -98,7 +98,9 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
 
     final treasuryProvider = context.read<TreasuryProvider>();
     if (_tabIndex == 1) {
-      await treasuryProvider.loadWallets();
+      // Must reload operations too so TreasuryProvider can clear optimistic
+      // pending state when sweep/fund is already COMPLETED (prune runs in loadHistory).
+      await treasuryProvider.refreshAll();
       return;
     }
 

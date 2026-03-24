@@ -583,6 +583,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openOnchainWalletFlow => 'Open On-chain Wallet Flow';
 
   @override
+  String get fiatWithdrawBankTitle => 'Withdraw to bank (USDT)';
+
+  @override
+  String get fiatWithdrawBankSubtitle =>
+      'Link a Vietnamese bank account, then request withdrawal. Requires verified user role.';
+
+  @override
+  String get fiatWithdrawToBankShort => 'Bank withdraw';
+
+  @override
+  String get fiatWithdrawBankCode => 'Bank';
+
+  @override
+  String get fiatWithdrawAccountNumber => 'Account number';
+
+  @override
+  String get fiatWithdrawHolderName => 'Account holder name';
+
+  @override
+  String get fiatWithdrawSaveBank => 'Submit bank for review';
+
+  @override
+  String get fiatWithdrawMyBanks => 'My bank accounts';
+
+  @override
+  String get fiatWithdrawAmount => 'Amount (USDT)';
+
+  @override
+  String get fiatWithdrawSubmitRequest => 'Submit withdrawal';
+
+  @override
+  String get fiatWithdrawMyRequests => 'My requests';
+
+  @override
+  String get fiatWithdrawAdminTitle => 'Fiat bank withdrawals';
+
+  @override
+  String get fiatWithdrawAdminBanks => 'Bank accounts';
+
+  @override
+  String get fiatWithdrawAdminRequests => 'Withdrawal requests';
+
+  @override
+  String get fiatWithdrawVerify => 'Verify';
+
+  @override
+  String get fiatWithdrawReject => 'Reject';
+
+  @override
+  String get fiatWithdrawComplete => 'Complete transfer';
+
+  @override
+  String get fiatWithdrawTransferRef => 'Transfer reference';
+
+  @override
+  String get drawerFiatWithdrawalAdmin => 'Fiat bank (admin)';
+
+  @override
+  String get drawerFiatWithdrawalAdminSubtitle =>
+      'Verify bank accounts & approve USDT payouts';
+
+  @override
   String get onchainWalletsTitle => 'On-chain Wallets';
 
   @override
