@@ -13,7 +13,6 @@ import 'admin_user_detail_screen.dart';
 List<(String, String?)> _roles(AppLocalizations l10n) => [
   (l10n.adminUserListRoleAll, null),
   (l10n.adminUserListRoleTrader, 'TRADER'),
-  (l10n.adminUserListRoleVerified, 'VERIFIED_USER'),
   (l10n.adminUserListRoleMarketMaker, 'MARKET_MAKER'),
   (l10n.adminUserListRoleSupport, 'SUPPORT_AGENT'),
   (l10n.adminUserListRoleRiskOfficer, 'RISK_OFFICER'),
@@ -512,8 +511,6 @@ class UserRoleChip extends StatelessWidget {
         return l10n.adminUserListRoleRiskOfficer;
       case 'SUPPORT_AGENT':
         return l10n.adminUserListRoleSupport;
-      case 'VERIFIED_USER':
-        return l10n.adminUserListRoleVerified;
       case 'MARKET_MAKER':
         return l10n.adminUserListRoleMarketMaker;
       case 'TRADER':
@@ -547,8 +544,6 @@ class UserRoleChip extends StatelessWidget {
         return Colors.purple;
       case 'SUPPORT_AGENT':
         return Colors.blue;
-      case 'VERIFIED_USER':
-        return Colors.teal;
       case 'MARKET_MAKER':
         return Colors.indigo;
       case 'TRADER':
@@ -556,7 +551,8 @@ class UserRoleChip extends StatelessWidget {
       case 'FINANCE_MANAGER':
         return const Color(0xFFF57C00);
       case 'GUEST':
-        return Colors.blueGrey;
+      case 'VERIFIED_USER':
+        return Colors.green;
       default:
         return Colors.grey;
     }

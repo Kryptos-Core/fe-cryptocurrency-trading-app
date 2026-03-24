@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
@@ -41,8 +42,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               _buildPortfolioCard(l10n),
               const SizedBox(height: 16),
-              _buildBankProvidersHealthCard(context, l10n),
-              const SizedBox(height: 24),
+              Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  if (!auth.canViewOpsDashboard) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildBankProvidersHealthCard(context, l10n),
+                      const SizedBox(height: 24),
+                    ],
+                  );
+                },
+              ),
               _buildSectionHeader(
                 title: l10n.dashboardTopMarkets,
                 seeAllLabel: l10n.dashboardSeeAll,

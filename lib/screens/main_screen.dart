@@ -137,7 +137,6 @@ class _MainScreenState extends State<MainScreen> {
 
   // Public tabs always rendered — no auth required.
   // Auth-gated tabs are replaced with _AuthRequiredTab when user is a guest.
-  // Wallet tab (incl. Tổng danh mục): visible for ALL authenticated roles (trader, admin, support, risk, finance, market maker).
   List<Widget> _buildScreens(bool isAuthenticated) => [
         const DashboardScreen(),
         const MarketsListScreen(),
@@ -146,11 +145,11 @@ class _MainScreenState extends State<MainScreen> {
       ];
 
   List<String> _tabTitles(AppLocalizations l10n) => [
-    l10n.dashboard,
-    l10n.markets,
-    l10n.wallets,
-    l10n.profile,
-  ];
+        l10n.dashboard,
+        l10n.markets,
+        l10n.wallets,
+        l10n.profile,
+      ];
 
   /// Handle bottom nav tab tap with smart refresh logic.
   void _onTabTap(int index) {

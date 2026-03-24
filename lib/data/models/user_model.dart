@@ -12,6 +12,7 @@ class UserModel {
   final String role;
   final String? avatarUrl;
   final bool twoFaEnabled;
+  final bool identityVerified;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -25,6 +26,7 @@ class UserModel {
     this.role = 'TRADER',
     this.avatarUrl,
     this.twoFaEnabled = false,
+    this.identityVerified = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -41,6 +43,7 @@ class UserModel {
       role: role,
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
+      identityVerified: identityVerified,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -64,6 +67,9 @@ class UserModel {
     final avatarUrl = json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
     final twoFaEnabledRaw = json['two_fa_enabled'] ?? json['twoFaEnabled'] ?? 0;
     final twoFaEnabled = twoFaEnabledRaw == true || twoFaEnabledRaw == 1 || twoFaEnabledRaw == '1';
+    final idvRaw = json['identity_verified'] ?? json['identityVerified'] ?? 0;
+    final identityVerified =
+        idvRaw == true || idvRaw == 1 || idvRaw == '1';
     
     // Parse createdAt - handle both ISO 8601 string and snake_case key
     final createdAtStr = json['createdAt'] as String? ?? json['created_at'] as String?;
@@ -87,6 +93,7 @@ class UserModel {
       role: role,
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
+      identityVerified: identityVerified,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -104,6 +111,7 @@ class UserModel {
       'role': role,
       if (avatarUrl != null) 'avatarUrl': avatarUrl,
       'twoFaEnabled': twoFaEnabled,
+      'identityVerified': identityVerified,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

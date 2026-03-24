@@ -22,6 +22,7 @@ class AuthProvider extends ChangeNotifier {
   User? _currentUser;
   UserRole _role = UserRole.trader;
   List<String> _permissions = [];
+  bool _identityVerified = false;
   bool _isAuthenticated = false;
 
   /// True for one broadcast cycle when a 403 is received from the server.
@@ -46,6 +47,14 @@ class AuthProvider extends ChangeNotifier {
   bool get isRiskOfficer => _role == UserRole.riskOfficer;
   bool get isMarketMaker => _role == UserRole.marketMaker;
   bool get isFinanceManager => _role == UserRole.financeManager;
+
+  /// Đã xác minh định danh (CCCD/Passport) — từ JWT; đăng nhập lại sau khi admin cập nhật DB.
+  bool get isIdentityVerified => _identityVerified;
+
+  /// Tổng quan + monitoring (dashboard) — admin, risk, finance, support.
+  bool get canViewOpsDashboard =>
+      isAdmin || isRiskOfficer || isFinanceManager || isSupportAgent;
+
   bool get canAccessMarketMakerHub =>
       isMarketMaker || hasPermission('market_maker:dashboard');
   bool get canSyncExchange => isAdmin && hasPermission('exchange:sync');
@@ -88,6 +97,7 @@ class AuthProvider extends ChangeNotifier {
 
     _role = UserRole.fromString(claims['role'] as String?);
     _permissions = _parsePermissions(claims['permissions']);
+    _identityVerified = _parseIdentityVerified(claims);
     _isAuthenticated = true;
     notifyListeners();
 
@@ -103,6 +113,7 @@ class AuthProvider extends ChangeNotifier {
       (_) {}, // silent: token is valid but profile fetch failed — not critical
       (user) {
         _currentUser = user;
+        _identityVerified = user.identityVerified;
         notifyListeners();
       },
     );
@@ -139,6 +150,7 @@ class AuthProvider extends ChangeNotifier {
     _currentUser = null;
     _role = UserRole.trader;
     _permissions = [];
+    _identityVerified = false;
     _isAuthenticated = false;
     notifyListeners();
   }
@@ -146,6 +158,7 @@ class AuthProvider extends ChangeNotifier {
   /// Cập nhật currentUser sau khi sửa hồ sơ hoặc avatar (đồng bộ drawer và UI).
   void updateCurrentUser(User user) {
     _currentUser = user;
+    _identityVerified = user.identityVerified;
     notifyListeners();
   }
 
@@ -175,6 +188,7 @@ class AuthProvider extends ChangeNotifier {
       claims['role'] as String? ?? authResponse.user.role,
     );
     _permissions = _parsePermissions(claims['permissions']);
+    _identityVerified = _parseIdentityVerified(claims);
     _isAuthenticated = true;
     notifyListeners();
     return const Right(null);
@@ -198,5 +212,13 @@ class AuthProvider extends ChangeNotifier {
   List<String> _parsePermissions(dynamic raw) {
     if (raw is List) return raw.map((e) => e.toString()).toList();
     return [];
+  }
+
+  bool _parseIdentityVerified(Map<String, dynamic> claims) {
+    final v = claims['identityVerified'] ?? claims['identity_verified'];
+    if (v == true || v == 1 || v == '1' || v == 'true') return true;
+    final role = (claims['role'] as String?)?.toUpperCase();
+    if (role == 'VERIFIED_USER') return true;
+    return false;
   }
 }

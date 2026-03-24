@@ -13,6 +13,8 @@ class User {
   final String role;
   final String? avatarUrl;
   final bool twoFaEnabled;
+  /// Đã xác minh định danh (CCCD/Passport) — khớp BE users.identity_verified.
+  final bool identityVerified;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -26,6 +28,7 @@ class User {
     this.role = 'TRADER',
     this.avatarUrl,
     this.twoFaEnabled = false,
+    this.identityVerified = false,
     required this.createdAt,
     required this.updatedAt,
   }) : status = status ?? (isActive ? 'ACTIVE' : 'BANNED');
@@ -57,6 +60,7 @@ class User {
     String? role,
     String? avatarUrl,
     bool? twoFaEnabled,
+    bool? identityVerified,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -70,6 +74,7 @@ class User {
       role: role ?? this.role,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       twoFaEnabled: twoFaEnabled ?? this.twoFaEnabled,
+      identityVerified: identityVerified ?? this.identityVerified,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
