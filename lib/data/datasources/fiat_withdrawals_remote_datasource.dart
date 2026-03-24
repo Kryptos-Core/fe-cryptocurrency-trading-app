@@ -7,15 +7,17 @@ abstract class FiatWithdrawalsRemoteDataSource {
   /// GET /fiat-withdrawals/providers/health — public, no lookup quota.
   Future<Map<String, dynamic>> getBankProvidersHealth();
 
+  Future<Map<String, dynamic>> getIntegrationSettings();
+
+  Future<Map<String, dynamic>> casGrantToken({String language = 'vi'});
+
+  Future<Map<String, dynamic>> casCompleteLink(String publicToken);
+
   Future<List<Map<String, dynamic>>> getBanks();
   Future<Map<String, dynamic>> createBankAccount({
     required String bankCode,
     required String accountNumber,
     required String accountHolderName,
-  });
-  Future<Map<String, dynamic>> resolveBankAccountHolder({
-    required String bankCode,
-    required String accountNumber,
   });
   Future<List<Map<String, dynamic>>> getMyBankAccounts();
   Future<Map<String, dynamic>> createWithdrawalRequest({
@@ -77,6 +79,54 @@ class FiatWithdrawalsRemoteDataSourceImpl implements FiatWithdrawalsRemoteDataSo
   }
 
   @override
+  Future<Map<String, dynamic>> getIntegrationSettings() async {
+    try {
+      final res = await dioClient.dio.get(ApiConstants.fiatWithdrawalsIntegrationSettings);
+      final data = _unwrapData(res.data);
+      if (data is! Map<String, dynamic>) {
+        return {'bankAdapter': 'cas'};
+      }
+      return data;
+    } on DioException catch (e) {
+      throw ServerException(message: _err(e));
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> casGrantToken({String language = 'vi'}) async {
+    try {
+      final res = await dioClient.dio.post(
+        ApiConstants.fiatWithdrawalsCasGrantToken,
+        data: {'language': language},
+      );
+      final data = _unwrapData(res.data);
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException('Invalid CAS grant response');
+      }
+      return data;
+    } on DioException catch (e) {
+      throw ServerException(message: _err(e));
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> casCompleteLink(String publicToken) async {
+    try {
+      final res = await dioClient.dio.post(
+        ApiConstants.fiatWithdrawalsCasCompleteLink,
+        data: {'publicToken': publicToken.trim()},
+      );
+      final data = _unwrapData(res.data);
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException('Invalid CAS complete-link response');
+      }
+      return data;
+    } on DioException catch (e) {
+      throw ServerException(message: _err(e));
+    }
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> getBanks() async {
     try {
       final res = await dioClient.dio.get(ApiConstants.fiatWithdrawalsBanks);
@@ -108,29 +158,6 @@ class FiatWithdrawalsRemoteDataSourceImpl implements FiatWithdrawalsRemoteDataSo
       final data = _unwrapData(res.data);
       if (data is! Map<String, dynamic>) {
         throw const FormatException('Invalid create bank response');
-      }
-      return data;
-    } on DioException catch (e) {
-      throw ServerException(message: _err(e));
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> resolveBankAccountHolder({
-    required String bankCode,
-    required String accountNumber,
-  }) async {
-    try {
-      final res = await dioClient.dio.get(
-        ApiConstants.fiatWithdrawalsResolveBankHolder,
-        queryParameters: {
-          'bankCode': bankCode,
-          'accountNumber': accountNumber,
-        },
-      );
-      final data = _unwrapData(res.data);
-      if (data is! Map<String, dynamic>) {
-        throw const FormatException('Invalid resolve bank holder response');
       }
       return data;
     } on DioException catch (e) {

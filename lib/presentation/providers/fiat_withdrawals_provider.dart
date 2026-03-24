@@ -12,6 +12,7 @@ class FiatWithdrawalsProvider extends ChangeNotifier {
   List<Map<String, dynamic>> banks = [];
   List<Map<String, dynamic>> myBankAccounts = [];
   List<Map<String, dynamic>> myRequests = [];
+  Map<String, dynamic>? integration;
 
   void _setErr(String? e) {
     errorMessage = e;
@@ -29,6 +30,38 @@ class FiatWithdrawalsProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setErr(e.toString());
+    }
+  }
+
+  Future<void> loadIntegrationSettings() async {
+    try {
+      integration = await dataSource.getIntegrationSettings();
+      notifyListeners();
+    } catch (e) {
+      integration = {'bankAdapter': 'cas', 'casConfigIncomplete': true};
+      _setErr(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>?> casGrantToken({String language = 'vi'}) async {
+    try {
+      errorMessage = null;
+      return await dataSource.casGrantToken(language: language);
+    } catch (e) {
+      _setErr(e.toString());
+      return null;
+    }
+  }
+
+  Future<bool> casCompleteLink(String publicToken) async {
+    try {
+      errorMessage = null;
+      await dataSource.casCompleteLink(publicToken);
+      await refreshMyData();
+      return true;
+    } catch (e) {
+      _setErr(e.toString());
+      return false;
     }
   }
 
@@ -65,23 +98,6 @@ class FiatWithdrawalsProvider extends ChangeNotifier {
     } catch (e) {
       _setErr(e.toString());
       return false;
-    }
-  }
-
-  Future<String?> resolveAccountHolderName({
-    required String bankCode,
-    required String accountNumber,
-  }) async {
-    try {
-      final data = await dataSource.resolveBankAccountHolder(
-        bankCode: bankCode,
-        accountNumber: accountNumber,
-      );
-      final name = data['accountHolderName']?.toString().trim();
-      if (name == null || name.isEmpty) return null;
-      return name;
-    } catch (_) {
-      return null;
     }
   }
 

@@ -201,11 +201,13 @@ class ApiConstants {
 
   /// Fiat (bank) withdrawal — USDT to VN bank (manual payout)
   static const String fiatWithdrawalsBanks = '/fiat-withdrawals/banks';
-  /// Public health probe: bank provider chain (no lookup quota).
+  static const String fiatWithdrawalsIntegrationSettings =
+      '/fiat-withdrawals/integration-settings';
+  static const String fiatWithdrawalsCasGrantToken = '/fiat-withdrawals/cas/grant-token';
+  static const String fiatWithdrawalsCasCompleteLink = '/fiat-withdrawals/cas/complete-link';
+  /// Public health probe: Cas/BankHub (no lookup quota).
   static const String fiatWithdrawalsProvidersHealth = '/fiat-withdrawals/providers/health';
   static const String fiatWithdrawalsBankAccounts = '/fiat-withdrawals/bank-accounts';
-  static const String fiatWithdrawalsResolveBankHolder =
-      '/fiat-withdrawals/bank-accounts/resolve-holder';
   static const String fiatWithdrawalsRequests = '/fiat-withdrawals/requests';
   static const String fiatWithdrawalsAdminBankAccounts =
       '/fiat-withdrawals/admin/bank-accounts';

@@ -1,13 +1,14 @@
 import 'dart:math';
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/fiat_withdrawals_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 /// Rút USDT về tài khoản ngân hàng VN (MVP — manual payout).
+/// Liên kết STK qua Cas.so / BankHub (grant + identity).
 class FiatBankWithdrawalScreen extends StatefulWidget {
   const FiatBankWithdrawalScreen({super.key});
 
@@ -16,98 +17,63 @@ class FiatBankWithdrawalScreen extends StatefulWidget {
 }
 
 class _FiatBankWithdrawalScreenState extends State<FiatBankWithdrawalScreen> {
-  final _acctCtrl = TextEditingController();
-  final _holderCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
-  String? _selectedBankCode;
+  final _casPublicCtrl = TextEditingController();
   String? _selectedVerifiedBankId;
-  Timer? _holderLookupDebounce;
-  bool _isResolvingHolder = false;
-  String? _holderLookupError;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final p = context.read<FiatWithdrawalsProvider>();
-      p.loadBanks();
-      p.refreshMyData();
+      await Future.wait([
+        p.loadIntegrationSettings(),
+        p.loadBanks(),
+        p.refreshMyData(),
+      ]);
     });
   }
 
   @override
   void dispose() {
-    _holderLookupDebounce?.cancel();
-    _acctCtrl.dispose();
-    _holderCtrl.dispose();
     _amountCtrl.dispose();
+    _casPublicCtrl.dispose();
     super.dispose();
   }
 
   String _newIdempotencyKey() =>
       '${DateTime.now().toUtc().millisecondsSinceEpoch}_${Random().nextInt(1 << 30)}';
 
-  void _scheduleResolveHolder({bool immediate = false}) {
-    _holderLookupDebounce?.cancel();
-    if (immediate) {
-      _resolveHolder();
-      return;
-    }
-    _holderLookupDebounce = Timer(const Duration(milliseconds: 500), _resolveHolder);
-  }
-
-  Future<void> _resolveHolder() async {
-    final bankCode = _selectedBankCode;
-    final accountNumber = _acctCtrl.text.replaceAll(RegExp(r'\s+'), '');
-
-    if (bankCode == null || bankCode.isEmpty || accountNumber.length < 6) {
-      if (!mounted) return;
-      setState(() {
-        _isResolvingHolder = false;
-        _holderLookupError = null;
-        _holderCtrl.clear();
-      });
-      return;
-    }
-
-    setState(() {
-      _isResolvingHolder = true;
-      _holderLookupError = null;
-      _holderCtrl.clear();
-    });
-
-    final provider = context.read<FiatWithdrawalsProvider>();
-    final requestedBankCode = bankCode;
-    final requestedAccountNumber = accountNumber;
-
-    final holderName = await provider.resolveAccountHolderName(
-      bankCode: requestedBankCode,
-      accountNumber: requestedAccountNumber,
-    );
-
+  Future<void> _openCasGrantLink(FiatWithdrawalsProvider p) async {
+    final r = await p.casGrantToken(language: 'vi');
     if (!mounted) return;
-    final currentAccount = _acctCtrl.text.replaceAll(RegExp(r'\s+'), '');
-    if (_selectedBankCode != requestedBankCode || currentAccount != requestedAccountNumber) {
-      return;
-    }
-
-    setState(() {
-      _isResolvingHolder = false;
-      if (holderName == null || holderName.isEmpty) {
-        _holderLookupError =
-            'Không truy xuất được tên chủ tài khoản. Vui lòng kiểm tra lại ngân hàng/số tài khoản.';
-        _holderCtrl.clear();
-      } else {
-        _holderLookupError = null;
-        _holderCtrl.text = holderName;
+    if (r == null) return;
+    final link = r['linkUrl']?.toString();
+    if (link != null && link.isNotEmpty) {
+      final uri = Uri.parse(link);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không mở được liên kết Cas trên thiết bị này.')),
+        );
       }
-    });
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'API không trả linkUrl — xem payload trong Console Cas hoặc dán publicToken sau redirect.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = context.watch<FiatWithdrawalsProvider>();
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -115,8 +81,11 @@ class _FiatBankWithdrawalScreenState extends State<FiatBankWithdrawalScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await p.loadBanks();
-          await p.refreshMyData();
+          await Future.wait([
+            p.loadIntegrationSettings(),
+            p.loadBanks(),
+            p.refreshMyData(),
+          ]);
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -124,19 +93,19 @@ class _FiatBankWithdrawalScreenState extends State<FiatBankWithdrawalScreen> {
             Text(
               l10n.fiatWithdrawBankSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: scheme.onSurfaceVariant,
                   ),
             ),
             if (p.errorMessage != null) ...[
               const SizedBox(height: 12),
               Material(
-                color: Theme.of(context).colorScheme.errorContainer,
+                color: scheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(
                     p.errorMessage!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+                    style: TextStyle(color: scheme.onErrorContainer),
                   ),
                 ),
               ),
@@ -144,80 +113,63 @@ class _FiatBankWithdrawalScreenState extends State<FiatBankWithdrawalScreen> {
             const SizedBox(height: 20),
             Text(l10n.fiatWithdrawSaveBank, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            AppDropdownField<String>(
-              value: _selectedBankCode,
-              labelText: l10n.fiatWithdrawBankCode,
-              menuMaxHeight: 320,
-              items: p.banks
-                  .map((b) => DropdownMenuItem<String>(
-                        value: b['code'] as String?,
-                        child: Text('${b['code']} — ${b['name']}', overflow: TextOverflow.ellipsis),
-                      ))
-                  .where((x) => x.value != null)
-                  .cast<DropdownMenuItem<String>>()
-                  .toList(),
-              onChanged: (v) {
-                setState(() => _selectedBankCode = v);
-                _scheduleResolveHolder(immediate: true);
-              },
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _acctCtrl,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => _scheduleResolveHolder(),
-              decoration: InputDecoration(
-                labelText: l10n.fiatWithdrawAccountNumber,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _holderCtrl,
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: l10n.fiatWithdrawHolderName,
-                border: const OutlineInputBorder(),
-                suffixIcon: _isResolvingHolder
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : null,
-                helperText: _holderLookupError,
-                helperStyle: TextStyle(
-                  color: _holderLookupError == null ? null : Theme.of(context).colorScheme.error,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Cas.so / BankHub',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Liên kết tài khoản qua Cas để hệ thống lấy số tài khoản và tên chủ tài khoản (dev & prod chỉ khác base URL / key trên server).',
+                      style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                    ),
+                    if (p.integration?['casConfigIncomplete'] == true) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Thiếu biến môi trường CAS_* trên backend (CAS_BANKHUB_BASE_URL, CAS_CLIENT_ID, …).',
+                        style: TextStyle(color: scheme.error, fontSize: 13),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    FilledButton.tonal(
+                      onPressed: p.isLoading ? null : () => _openCasGrantLink(p),
+                      child: const Text('Bước 1: Mở liên kết Cas'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _casPublicCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'publicToken',
+                        hintText: 'Dán sau khi redirect / hoàn tất trên Cas',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: p.isLoading
+                          ? null
+                          : () async {
+                              final t = _casPublicCtrl.text.trim();
+                              if (t.isEmpty) return;
+                              final ok = await p.casCompleteLink(t);
+                              if (!context.mounted) return;
+                              if (ok) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Đã lưu tài khoản (chờ duyệt).')),
+                                );
+                                _casPublicCtrl.clear();
+                              }
+                            },
+                      child: const Text('Bước 2: Hoàn tất & lưu STK'),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: p.isLoading
-                  ? null
-                  : () async {
-                      final code = _selectedBankCode;
-                      if (code == null || code.isEmpty) return;
-                      final holderName = _holderCtrl.text.trim();
-                      if (holderName.isEmpty) return;
-                      final ok = await p.submitBank(
-                        bankCode: code,
-                        accountNumber: _acctCtrl.text.trim(),
-                        accountHolderName: holderName,
-                      );
-                      if (!context.mounted) return;
-                      if (ok) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('OK')),
-                        );
-                        _acctCtrl.clear();
-                        _holderCtrl.clear();
-                      }
-                    },
-              child: Text(l10n.fiatWithdrawSaveBank),
             ),
             const Divider(height: 40),
             Text(l10n.fiatWithdrawMyBanks, style: Theme.of(context).textTheme.titleMedium),
