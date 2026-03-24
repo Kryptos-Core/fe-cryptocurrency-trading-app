@@ -541,6 +541,13 @@
   "dashboardNoFundedWallets": "No funded wallets yet.\nDeposit or trade to see balances here.",
   "dashboardWallets": "Wallets",
   "dashboardActive": "Active",
+  "dashboardBankProvidersHealthTitle": "Bank payout APIs",
+  "dashboardBankProvidersHealthAllOperational": "All providers operational",
+  "dashboardBankProvidersHealthDegraded": "Some providers unavailable",
+  "dashboardBankProvidersHealthCouldNotCheck": "Health check failed",
+  "dashboardBankProvidersHealthLoading": "Checking providers…",
+  "dashboardBankProvidersHealthMs": "{ms} ms",
+  "@dashboardBankProvidersHealthMs": { "placeholders": { "ms": { "type": "int" } } },
 
   "securityRequestsTitle": "Security change requests",
   "securityRequestApproved": "Request approved",

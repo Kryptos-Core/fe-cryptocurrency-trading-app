@@ -1486,6 +1486,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardActive => 'Active';
 
   @override
+  String get dashboardBankProvidersHealthTitle => 'Bank payout APIs';
+
+  @override
+  String get dashboardBankProvidersHealthAllOperational =>
+      'All providers operational';
+
+  @override
+  String get dashboardBankProvidersHealthDegraded =>
+      'Some providers unavailable';
+
+  @override
+  String get dashboardBankProvidersHealthCouldNotCheck => 'Health check failed';
+
+  @override
+  String get dashboardBankProvidersHealthLoading => 'Checking providers…';
+
+  @override
+  String dashboardBankProvidersHealthMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
   String get securityRequestsTitle => 'Security change requests';
 
   @override

@@ -1490,6 +1490,29 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dashboardActive => 'Đang hoạt động';
 
   @override
+  String get dashboardBankProvidersHealthTitle => 'API ngân hàng (rút fiat)';
+
+  @override
+  String get dashboardBankProvidersHealthAllOperational =>
+      'Mọi provider hoạt động bình thường';
+
+  @override
+  String get dashboardBankProvidersHealthDegraded =>
+      'Một số provider không khả dụng';
+
+  @override
+  String get dashboardBankProvidersHealthCouldNotCheck =>
+      'Không kiểm tra được health';
+
+  @override
+  String get dashboardBankProvidersHealthLoading => 'Đang kiểm tra provider…';
+
+  @override
+  String dashboardBankProvidersHealthMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
   String get securityRequestsTitle => 'Yêu cầu thay đổi bảo mật';
 
   @override

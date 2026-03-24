@@ -2828,6 +2828,42 @@ abstract class AppLocalizations {
   /// **'Active'**
   String get dashboardActive;
 
+  /// No description provided for @dashboardBankProvidersHealthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank payout APIs'**
+  String get dashboardBankProvidersHealthTitle;
+
+  /// No description provided for @dashboardBankProvidersHealthAllOperational.
+  ///
+  /// In en, this message translates to:
+  /// **'All providers operational'**
+  String get dashboardBankProvidersHealthAllOperational;
+
+  /// No description provided for @dashboardBankProvidersHealthDegraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Some providers unavailable'**
+  String get dashboardBankProvidersHealthDegraded;
+
+  /// No description provided for @dashboardBankProvidersHealthCouldNotCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Health check failed'**
+  String get dashboardBankProvidersHealthCouldNotCheck;
+
+  /// No description provided for @dashboardBankProvidersHealthLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking providers…'**
+  String get dashboardBankProvidersHealthLoading;
+
+  /// No description provided for @dashboardBankProvidersHealthMs.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String dashboardBankProvidersHealthMs(int ms);
+
   /// No description provided for @securityRequestsTitle.
   ///
   /// In en, this message translates to:

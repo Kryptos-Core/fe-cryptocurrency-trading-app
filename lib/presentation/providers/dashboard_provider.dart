@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/data/datasources/dashboard_remote_datasource.dart';
+import 'package:crypto_trading_app/data/datasources/fiat_withdrawals_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/dashboard_summary_model.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 
@@ -24,6 +25,7 @@ const _kStaleDuration = Duration(seconds: 30);
 ///   - Reacts to 'dashboard_tickers' (updates ticker map, recalculates portfolio)
 class DashboardProvider extends ChangeNotifier {
   final DashboardRemoteDataSource _datasource;
+  final FiatWithdrawalsRemoteDataSource _fiatWithdrawalsRemote;
   final IWebSocketService _wsService;
   final TokenService _tokenService;
   final Logger _logger = Logger();
@@ -39,6 +41,11 @@ class DashboardProvider extends ChangeNotifier {
   bool _isDisposed = false;
   String? _error;
   DateTime? _lastUpdated;
+
+  /// GET /fiat-withdrawals/providers/health (internal ops probe on dashboard).
+  Map<String, dynamic>? _bankProvidersHealth;
+  bool _bankProvidersHealthLoading = false;
+  String? _bankProvidersHealthError;
 
   StreamSubscription<WebSocketMessage>? _wsAuthSubscription;
   StreamSubscription<List<TickerData>>? _wsDashboardSubscription;
@@ -61,6 +68,10 @@ class DashboardProvider extends ChangeNotifier {
 
   int get walletCount => _summary.walletCount;
   int get activeWalletCount => _summary.activeWalletCount;
+
+  Map<String, dynamic>? get bankProvidersHealth => _bankProvidersHealth;
+  bool get bankProvidersHealthLoading => _bankProvidersHealthLoading;
+  String? get bankProvidersHealthError => _bankProvidersHealthError;
 
   /// Top market pairs (from REST snapshot, scales included).
   List<MarketPair> get topMarkets =>
@@ -99,16 +110,21 @@ class DashboardProvider extends ChangeNotifier {
 
   DashboardProvider({
     required DashboardRemoteDataSource datasource,
+    required FiatWithdrawalsRemoteDataSource fiatWithdrawalsRemote,
     required IWebSocketService wsService,
     required TokenService tokenService,
   })  : _datasource = datasource,
+        _fiatWithdrawalsRemote = fiatWithdrawalsRemote,
         _wsService = wsService,
         _tokenService = tokenService;
 
   /// Called from DashboardScreen.initState().
   /// Fetches initial REST data and sets up WS live updates.
   Future<void> init() async {
-    await _fetchInitialData();
+    await Future.wait([
+      _fetchInitialData(),
+      _probeBankProvidersHealth(),
+    ]);
     _subscribeToWsStream();
     _ensureWsConnected();
   }
@@ -117,7 +133,10 @@ class DashboardProvider extends ChangeNotifier {
   /// Called on tab focus from MainScreen.
   Future<void> refresh({bool force = false}) async {
     if (!force && !_isStale) return;
-    await _fetchInitialData();
+    await Future.wait([
+      _fetchInitialData(),
+      _probeBankProvidersHealth(),
+    ]);
     // Re-join dashboard room if WS is already connected
     if (_wsService.isConnected) {
       _wsService.joinDashboard();
@@ -136,6 +155,23 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   // ── Private ────────────────────────────────────────────────────────────────
+
+  Future<void> _probeBankProvidersHealth() async {
+    if (_bankProvidersHealthLoading) return;
+    _bankProvidersHealthLoading = true;
+    _bankProvidersHealthError = null;
+    _notify();
+    try {
+      _bankProvidersHealth = await _fiatWithdrawalsRemote.getBankProvidersHealth();
+    } catch (e, st) {
+      _logger.w('[DashboardProvider] bank providers health probe failed: $e\n$st');
+      _bankProvidersHealth = null;
+      _bankProvidersHealthError = e.toString();
+    } finally {
+      _bankProvidersHealthLoading = false;
+      _notify();
+    }
+  }
 
   Future<void> _fetchInitialData() async {
     if (_isLoading) return;

@@ -482,6 +482,13 @@
   "dashboardNoFundedWallets": "Chưa có ví nào có số dư.\nNạp tiền hoặc giao dịch để xem số dư tại đây.",
   "dashboardWallets": "Ví",
   "dashboardActive": "Đang hoạt động",
+  "dashboardBankProvidersHealthTitle": "API ngân hàng (rút fiat)",
+  "dashboardBankProvidersHealthAllOperational": "Mọi provider hoạt động bình thường",
+  "dashboardBankProvidersHealthDegraded": "Một số provider không khả dụng",
+  "dashboardBankProvidersHealthCouldNotCheck": "Không kiểm tra được health",
+  "dashboardBankProvidersHealthLoading": "Đang kiểm tra provider…",
+  "dashboardBankProvidersHealthMs": "{ms} ms",
+  "@dashboardBankProvidersHealthMs": { "placeholders": { "ms": { "type": "int" } } },
 
   "securityRequestsTitle": "Yêu cầu thay đổi bảo mật",
   "securityRequestApproved": "Yêu cầu đã được duyệt",

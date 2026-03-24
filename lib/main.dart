@@ -140,6 +140,7 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<DashboardProvider>(
           create: (_) => DashboardProvider(
             datasource: di.sl(),
+            fiatWithdrawalsRemote: di.sl(),
             wsService: di.sl(),
             tokenService: di.sl(),
           ),

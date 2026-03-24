@@ -4,6 +4,9 @@ import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:dio/dio.dart';
 
 abstract class FiatWithdrawalsRemoteDataSource {
+  /// GET /fiat-withdrawals/providers/health — public, no lookup quota.
+  Future<Map<String, dynamic>> getBankProvidersHealth();
+
   Future<List<Map<String, dynamic>>> getBanks();
   Future<Map<String, dynamic>> createBankAccount({
     required String bankCode,
@@ -58,6 +61,20 @@ class FiatWithdrawalsRemoteDataSourceImpl implements FiatWithdrawalsRemoteDataSo
       e.response?.data is Map && (e.response!.data as Map)['message'] != null
           ? (e.response!.data as Map)['message'].toString()
           : e.message ?? 'Request failed';
+
+  @override
+  Future<Map<String, dynamic>> getBankProvidersHealth() async {
+    try {
+      final res = await dioClient.dio.get(ApiConstants.fiatWithdrawalsProvidersHealth);
+      final data = _unwrapData(res.data);
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException('Invalid bank providers health response');
+      }
+      return data;
+    } on DioException catch (e) {
+      throw ServerException(message: _err(e));
+    }
+  }
 
   @override
   Future<List<Map<String, dynamic>>> getBanks() async {
