@@ -43,7 +43,13 @@ class FcmService {
       return null;
     }
 
-    await Firebase.initializeApp();
+    try {
+      await Firebase.initializeApp();
+    } catch (e, st) {
+      _logger.w('Skip Firebase init in draft mode: $e');
+      _logger.d(st.toString());
+      return null;
+    }
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 

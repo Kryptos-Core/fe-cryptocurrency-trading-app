@@ -6,16 +6,38 @@ import '../constants/api_constants.dart';
 /// Dio Client Factory
 /// Following Dependency Inversion Principle (DIP)
 /// High-level modules should not depend on low-level modules
+/// Singleton Pattern: Ensures only one instance of the HTTP client exists.
 class DioClient {
+  // --- Singleton Pattern Implementation ---
+  static DioClient? _instance;
+
+  static DioClient get instance {
+    _instance ??= DioClient._internal();
+    return _instance!;
+  }
+
+  factory DioClient({Dio? dio, TokenService? tokenService}) {
+    if (_instance == null) {
+      _instance = DioClient._internal(dio: dio, tokenService: tokenService);
+    } else {
+      // Update tokenService if provided later
+      if (tokenService != null) {
+        _instance!.tokenService = tokenService;
+      }
+    }
+    return _instance!;
+  }
+  // ----------------------------------------
+
   /// Global 403-Forbidden callback.
   /// Set by [AuthProvider] after it is created so the interceptor can
   /// notify the UI without a hard dependency on the Provider tree.
   static void Function()? onForbidden;
   final Dio _dio;
   final Logger _logger = Logger();
-  final TokenService? tokenService;
+  TokenService? tokenService;
 
-  DioClient({Dio? dio, this.tokenService})
+  DioClient._internal({Dio? dio, this.tokenService})
       : _dio = dio ??
             Dio(BaseOptions(
               baseUrl: ApiConstants.baseUrl,
