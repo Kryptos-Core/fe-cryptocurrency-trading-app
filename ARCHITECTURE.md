@@ -57,7 +57,7 @@ Giao dịch & thị trường: `markets_list_screen`, `market_detail_screen`, `a
 
 Ví & nạp: `wallets_overview_screen`, `wallet_detail_screen`, `deposits_screen`, `wallet_api_screen`, …
 
-**Ví / WalletConnect:** **Đăng nhập** — `wallet_connect_auth_login_dialog.dart` + **Reown AppKit** (`reown_appkit`, `reown_wallet_auth_config.dart`) trên **Android/iOS**; **desktop native** dùng QR legacy do BE; **web** — extension + tùy chọn QR BE. **Liên kết ví (đã JWT)** — `link_wallet_dialog.dart`, `wc_qr_session_card`, `wc_deeplink_launcher`, `wc_session_poller`, `blockchain_provider`, `blockchainWc*` trong `api_constants.dart` (QR từ BE + `qr_flutter`). Tron trên web: TronLink. Toàn bộ API và env: `be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`.
+**Ví / WalletConnect:** **Đăng nhập** — `wallet_connect_auth_login_dialog.dart`: **Android/iOS** — Reown AppKit (`reown_appkit`, `reown_wallet_auth_config.dart`) → `/auth/wallet-verify`. **Desktop native** — QR từ **`POST /auth/wallet/wc/init`** (server **SignClient** + relay khi có project id; `relayPairing`, poll `status`, auto verify khi có signature). **Web** — extension + tùy chọn QR server như desktop. **Liên kết ví (đã JWT)** — `link_wallet_dialog.dart`, `wc_qr_session_card`, `wc_deeplink_launcher`, `wc_session_poller`, `blockchain_provider`, `blockchainWc*` / `api_constants.dart` (QR từ **`/blockchain/wallets/wc/*`** + `qr_flutter`). Tron (web): TronLink. `BASE_URL`, Project ID và luồng tóm tắt: [README.md](README.md) (mục Backend / Wallet).
 
 Admin / vận hành: `admin_user_list_screen`, `admin_user_detail_screen`, `admin_transactions_screen`, `admin_currencies_screen`, `admin_wallet_adjust_screen`, `security_requests_review_screen`, `broadcast_notification_screen`, …
 
@@ -74,5 +74,5 @@ ARB trong `lib/l10n/`; chạy `flutter gen-l10n`. Locale lưu `SharedPreferences
 
 ## Tài liệu thêm
 
-- [README.md](README.md) — cài đặt, chạy, backend kèm theo
+- [README.md](README.md) — cài đặt, chạy, backend kèm theo, Wallet / đăng nhập ví
 - [scripts/README-FLUTTER.md](scripts/README-FLUTTER.md) — script cài Flutter trên Windows

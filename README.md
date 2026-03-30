@@ -66,7 +66,7 @@ Trong session `flutter run`: `r` hot reload, `R` hot restart, `q` thoát.
 
 ## Backend
 
-Backend NestJS là **`be-cryptocurrency-trading-app`** (cùng workspace). Khởi chạy tối thiểu:
+API NestJS chạy từ thư mục backend **cùng workspace** (lệnh mẫu dưới đây giả định tên thư mục là `be-cryptocurrency-trading-app`). Khởi chạy tối thiểu:
 
 ```bash
 cd ../be-cryptocurrency-trading-app
@@ -80,7 +80,7 @@ npm run start:dev
 
 Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
-**Wallet / đăng nhập ví:** đặt **`WALLETCONNECT_PROJECT_ID`** (hoặc `REOWN_PROJECT_ID`) trong `.env` FE; **cùng Project ID** trong `.env` BE. Chi tiết luồng (Reown mobile, QR legacy, API): [`be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md).
+**Wallet / đăng nhập ví:** Trong `.env` đặt `WALLETCONNECT_PROJECT_ID` hoặc `REOWN_PROJECT_ID` (Reown Cloud) — **bắt buộc** cho Reown AppKit trên **Android/iOS**. Trên **desktop**, QR đăng nhập gọi `POST .../auth/wallet/wc/init` và poll `GET .../auth/wallet/wc/status/:sessionId` (prefix đầy đủ theo `BASE_URL`); khi phản hồi có `relayPairing: true`, ví quét qua relay thật. Server API cần **cùng** Project ID và khai báo biến trong whitelist `env.validation.ts` của backend để SignClient hoạt động. Chi tiết biến: [`.env.example`](.env.example).
 
 ## Kiến trúc mã nguồn
 
