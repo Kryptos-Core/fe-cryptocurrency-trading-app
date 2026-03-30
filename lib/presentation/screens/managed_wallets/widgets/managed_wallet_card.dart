@@ -25,6 +25,8 @@ class ManagedWalletCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        mouseCursor:
+            onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -80,6 +82,7 @@ class ManagedWalletCard extends StatelessWidget {
                         ),
                         InkWell(
                           onTap: () => _copyAddress(context),
+                          mouseCursor: SystemMouseCursors.click,
                           borderRadius: BorderRadius.circular(4),
                           child: Padding(
                             padding: const EdgeInsets.all(4),

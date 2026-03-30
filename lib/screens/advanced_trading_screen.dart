@@ -442,16 +442,19 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
             ListTile(
               leading: const Icon(Icons.zoom_in),
               title: const Text('Zoom In'),
+              mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.zoom_out),
               title: const Text('Zoom Out'),
+              mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.show_chart),
               title: const Text('Show Indicators'),
+              mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),
           ],

@@ -141,6 +141,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
       children: [
         InkWell(
           onTap: () => setState(() => _expanded = !_expanded),
+          mouseCursor: SystemMouseCursors.click,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(

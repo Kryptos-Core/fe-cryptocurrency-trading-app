@@ -255,6 +255,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                       // User picker
                       InkWell(
                         onTap: _pickUser,
+                        mouseCursor: SystemMouseCursors.click,
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.all(12),
@@ -482,6 +483,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                           : null,
                       onTap: () =>
                           setState(() => _selectedCurrency = c),
+                      mouseCursor: SystemMouseCursors.click,
                     );
                   },
                 ),

@@ -205,6 +205,7 @@ class _MainScreenState extends State<MainScreen> {
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return InkWell(
+      mouseCursor: SystemMouseCursors.click,
       onTap: () => _onTabTap(index),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
@@ -424,6 +425,7 @@ class _MainScreenState extends State<MainScreen> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 title: Text(l10n.currencies),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -455,6 +457,7 @@ class _MainScreenState extends State<MainScreen> {
                                 Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
+                    mouseCursor: SystemMouseCursors.click,
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -476,6 +479,7 @@ class _MainScreenState extends State<MainScreen> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 title: Text(l10n.drawerSettings),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -579,6 +583,7 @@ class _MainScreenState extends State<MainScreen> {
                                   l10n.drawerSecuritySubtitle,
                                   style: subtitleStyle,
                                 ),
+                                mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
                                   Navigator.push(
@@ -606,6 +611,7 @@ class _MainScreenState extends State<MainScreen> {
                                   l10n.drawerManagedWalletsSubtitle,
                                   style: subtitleStyle,
                                 ),
+                                mouseCursor: SystemMouseCursors.click,
                                 onTap: openManagedWallets,
                               ),
                             ListTile(
@@ -621,6 +627,7 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerTransactionMonitoringSubtitle,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
@@ -647,6 +654,7 @@ class _MainScreenState extends State<MainScreen> {
                                     : l10n.drawerCoinManagementSubtitleView,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
@@ -674,6 +682,7 @@ class _MainScreenState extends State<MainScreen> {
                                   l10n.drawerBroadcastSubtitle,
                                   style: subtitleStyle,
                                 ),
+                                mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
                                   Navigator.push(
@@ -698,6 +707,7 @@ class _MainScreenState extends State<MainScreen> {
                                   l10n.drawerAdminArea,
                                   style: subtitleStyle,
                                 ),
+                                mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -731,6 +741,7 @@ class _MainScreenState extends State<MainScreen> {
                                   l10n.drawerManagedWalletsSubtitle,
                                   style: subtitleStyle,
                                 ),
+                                mouseCursor: SystemMouseCursors.click,
                                 onTap: openManagedWallets,
                               ),
                             ListTile(
@@ -746,6 +757,7 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerPaymentConfigSubtitle,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
@@ -774,6 +786,7 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerWithdrawalManagementSubtitle,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
@@ -798,6 +811,7 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerFiatWithdrawalAdminSubtitle,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
@@ -829,6 +843,7 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerManagedWalletsSubtitle,
                                 style: subtitleStyle,
                               ),
+                              mouseCursor: SystemMouseCursors.click,
                               onTap: openManagedWallets,
                             ),
                           ],
@@ -852,6 +867,7 @@ class _MainScreenState extends State<MainScreen> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 title: Text(l10n.aboutTitle),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -871,6 +887,7 @@ class _MainScreenState extends State<MainScreen> {
                     l10n.logout,
                     style: const TextStyle(color: Colors.redAccent),
                   ),
+                  mouseCursor: SystemMouseCursors.click,
                   onTap: () {
                     Navigator.pop(context);
                     context.read<AuthProvider>().logout();
@@ -886,6 +903,7 @@ class _MainScreenState extends State<MainScreen> {
                     style: const TextStyle(
                         color: Colors.indigo, fontWeight: FontWeight.w600),
                   ),
+                  mouseCursor: SystemMouseCursors.click,
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -1181,6 +1199,7 @@ class _TradeFab extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkResponse(
+          mouseCursor: SystemMouseCursors.click,
           onTap: onTap,
           customBorder: const CircleBorder(),
           radius: 32,

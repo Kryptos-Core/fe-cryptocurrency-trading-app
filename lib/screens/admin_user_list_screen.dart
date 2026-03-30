@@ -400,6 +400,7 @@ class _UserCard extends StatelessWidget {
 
     return ListTile(
       onTap: onTap,
+      mouseCursor: SystemMouseCursors.click,
       selected: isSelected,
       selectedTileColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
       leading: CircleAvatar(

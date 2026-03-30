@@ -1191,6 +1191,7 @@ class _CurrencyPickerTile extends StatelessWidget {
     final hasBalance = currentWallet?.hasBalance == true;
     return InkWell(
       onTap: onTap,
+      mouseCursor: SystemMouseCursors.click,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1454,6 +1455,7 @@ class _CurrencyListTile extends StatelessWidget {
       trailing:
           isSelected ? Icon(Icons.check, color: colorScheme.primary) : null,
       onTap: onTap,
+      mouseCursor: SystemMouseCursors.click,
       selected: isSelected,
       selectedTileColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
     );

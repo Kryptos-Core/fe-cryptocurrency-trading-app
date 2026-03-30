@@ -238,6 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               return Tooltip(
                                 message: preset.name,
                                 child: InkWell(
+                                  mouseCursor: SystemMouseCursors.click,
                                   onTap: () =>
                                       themeProvider.setSeedColor(preset.seed),
                                   borderRadius: BorderRadius.circular(24),
@@ -449,6 +450,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(AppLocalizations.of(context).aboutAppTileTitle),
                     subtitle: Text(AppLocalizations.of(context).aboutAppTileSubtitle),
                     trailing: const Icon(Icons.chevron_right),
+                    mouseCursor: SystemMouseCursors.click,
                     onTap: () {
                       Navigator.push(
                         context,

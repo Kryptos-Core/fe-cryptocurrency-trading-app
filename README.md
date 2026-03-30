@@ -82,6 +82,8 @@ Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
 Backend cần **`WALLETCONNECT_PROJECT_ID`** (Reown Cloud) để luồng WC đầy đủ — xem [`be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md).
 
+**Flutter:** không cần SDK WC (`walletconnect_flutter_v2` đã deprecated; `reown_appkit` không bắt buộc) — BE quản lý session; app chỉ **QR** (`qr_flutter`) + REST/poll. Tron trên web: **TronLink** (non-EVM).
+
 ## Kiến trúc mã nguồn
 
 ```

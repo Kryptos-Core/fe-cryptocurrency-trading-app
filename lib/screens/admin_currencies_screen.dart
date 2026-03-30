@@ -534,6 +534,7 @@ class _CurrencyRow extends StatelessWidget {
             child: canManage
                 ? InkWell(
                     onTap: () => onToggleTradable?.call(!currency.isTradable),
+                    mouseCursor: SystemMouseCursors.click,
                     borderRadius: BorderRadius.circular(4),
                     child: _TradableBadge(
                       isTradable: currency.isTradable,

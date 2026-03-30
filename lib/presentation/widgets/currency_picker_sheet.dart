@@ -131,6 +131,7 @@ class _CurrencyPickerBodyState extends State<_CurrencyPickerBody> {
                 type: MaterialType.transparency,
                 child: InkWell(
                   customBorder: const CircleBorder(),
+                  mouseCursor: SystemMouseCursors.click,
                   onTap: () => _removeRecent(r),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -392,6 +393,7 @@ class _CurrencyPickerBodyState extends State<_CurrencyPickerBody> {
                                   onPressed: () => _toggleFavorite(c),
                                 )
                               : null,
+                          mouseCursor: SystemMouseCursors.click,
                           onTap: () => _pick(c),
                         );
                       },

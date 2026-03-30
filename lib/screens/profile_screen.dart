@@ -516,9 +516,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             // User Avatar (tap to change)
-            GestureDetector(
-              onTap: _pickAndUploadAvatar,
-              child: CircleAvatar(
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: _pickAndUploadAvatar,
+                child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                 backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
@@ -536,6 +538,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       )
                     : null,
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -648,6 +651,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text(l10n.profileChangeEmail),
                 subtitle: Text(l10n.profileOtpAdminReviewRequired),
                 trailing: const Icon(Icons.chevron_right),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: _requestEmailChange,
               ),
               ListTile(
@@ -655,6 +659,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text(l10n.profileChangePassword),
                 subtitle: Text(l10n.profileChangePasswordDirect),
                 trailing: const Icon(Icons.chevron_right),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: _requestPasswordChange,
               ),
             ] else
@@ -663,6 +668,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text(l10n.profileEnable2faFirstTitle),
                 subtitle: Text(l10n.profileEnable2faFirstDesc),
                 trailing: const Icon(Icons.chevron_right),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -678,6 +684,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Text(l10n.settings),
               subtitle: Text(l10n.appSettingsPreferences),
               trailing: const Icon(Icons.chevron_right),
+              mouseCursor: SystemMouseCursors.click,
               onTap: () {
                 Navigator.push(
                   context,
@@ -692,6 +699,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Text(l10n.aboutTitle),
               subtitle: Text(l10n.aboutAppTileSubtitle),
               trailing: const Icon(Icons.chevron_right),
+              mouseCursor: SystemMouseCursors.click,
               onTap: () {
                 Navigator.push(
                   context,
@@ -705,6 +713,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
               title: Text(l10n.logout, style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+              mouseCursor: SystemMouseCursors.click,
               onTap: _handleLogout,
             ),
           ],

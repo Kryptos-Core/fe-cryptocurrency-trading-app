@@ -168,8 +168,15 @@ class MarketsProvider extends ChangeNotifier {
         // If no tickers in response, keep existing _allTickers; UI may call fetchTickersForPairs for visible pairs (avoids slow GET /markets/tickers/all timeout).
 
         _total = paginatedResult.total;
-        _hasMore = _markets.length < _total && markets.length == _pageSize;
-        if (markets.length == _pageSize && _hasMore) {
+        final fullPage = markets.length == _pageSize;
+        // When BE omits total or sends total=0, _markets.length < _total is false and pagination stops.
+        // If we got a full page, assume more until a short page or total catches up.
+        if (_total > 0) {
+          _hasMore = fullPage && _markets.length < _total;
+        } else {
+          _hasMore = fullPage;
+        }
+        if (fullPage && _hasMore) {
           _currentPage++;
         }
 
@@ -261,6 +268,7 @@ class MarketsProvider extends ChangeNotifier {
     final tickersByPairId = <String, MarketTicker>{};
     var total = _total;
     var lastPage = 0;
+    var lastPageCount = 0;
 
     for (var k = 1; k <= pagesLoaded; k++) {
       final result = await _marketsRepository.getMarkets(
@@ -291,6 +299,7 @@ class MarketsProvider extends ChangeNotifier {
           combined.addAll(paginatedResult.markets);
           total = paginatedResult.total;
           lastPage = k;
+          lastPageCount = paginatedResult.markets.length;
           for (final t in paginatedResult.tickers ?? []) {
             if (t.pairId.isNotEmpty) tickersByPairId[t.pairId] = t;
           }
@@ -303,7 +312,11 @@ class MarketsProvider extends ChangeNotifier {
     _markets = combined;
     _total = total;
     _currentPage = lastPage + 1;
-    _hasMore = _markets.length < _total;
+    if (total > 0) {
+      _hasMore = _markets.length < total;
+    } else {
+      _hasMore = lastPageCount >= _pageSize;
+    }
     _allTickers = tickersByPairId.values.toList();
     _applyLocalSort();
 
@@ -319,8 +332,8 @@ class MarketsProvider extends ChangeNotifier {
       return;
     }
 
-    // Check if we've already loaded all data
-    if (_markets.length >= _total) {
+    // Check if we've already loaded all data (skip when total is unknown/zero from BE)
+    if (_total > 0 && _markets.length >= _total) {
       _hasMore = false;
       notifyListeners();
       return;

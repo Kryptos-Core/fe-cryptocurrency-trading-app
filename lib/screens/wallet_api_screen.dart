@@ -240,6 +240,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   child: InkWell(
                     key: const Key('wallet_currency_picker'),
                     borderRadius: BorderRadius.circular(8),
+                    mouseCursor: SystemMouseCursors.click,
                     onTap: () => _openCurrencyPicker(context),
                     child: InputDecorator(
                       decoration: InputDecoration(

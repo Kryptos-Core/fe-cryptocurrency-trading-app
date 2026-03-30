@@ -381,6 +381,7 @@ class _TreasuryWalletCard extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: () => _copyAddress(context),
+                  mouseCursor: SystemMouseCursors.click,
                   borderRadius: BorderRadius.circular(4),
                   child: Padding(
                     padding: const EdgeInsets.all(4),

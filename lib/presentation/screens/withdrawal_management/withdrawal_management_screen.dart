@@ -467,6 +467,7 @@ class _WithdrawalTile extends StatelessWidget {
         ],
       ),
       isThreeLine: true,
+      mouseCursor: SystemMouseCursors.click,
       onTap: onTap,
     );
   }

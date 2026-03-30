@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Pointer for interactive controls (web/desktop); disabled uses [SystemMouseCursors.basic].
+MouseCursor _clickOrBasic(Set<WidgetState> states) {
+  if (states.contains(WidgetState.disabled)) {
+    return SystemMouseCursors.basic;
+  }
+  return SystemMouseCursors.click;
+}
+
+final WidgetStateProperty<MouseCursor> _clickCursor =
+    WidgetStateProperty.resolveWith(_clickOrBasic);
+
 const String _seedColorKey = 'app_seed_color';
 const String _themeModeKey = 'app_theme_mode';
 
@@ -29,6 +40,22 @@ class ThemeProvider extends ChangeNotifier {
   ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: _seedColor),
+      ).copyWith(
+        iconButtonTheme: IconButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
       );
 
   ThemeData get darkTheme => ThemeData(
@@ -36,6 +63,22 @@ class ThemeProvider extends ChangeNotifier {
         colorScheme: ColorScheme.fromSeed(
           seedColor: _seedColor,
           brightness: Brightness.dark,
+        ),
+      ).copyWith(
+        iconButtonTheme: IconButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: ButtonStyle(mouseCursor: _clickCursor),
         ),
       );
 

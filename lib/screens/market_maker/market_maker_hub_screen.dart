@@ -35,6 +35,7 @@ class MarketMakerHubScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 11),
             ),
             trailing: const Icon(Icons.chevron_right),
+            mouseCursor: SystemMouseCursors.click,
             onTap: () {
               Navigator.push(
                 context,
@@ -81,6 +82,7 @@ class MarketMakerHubScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 11),
             ),
             trailing: const Icon(Icons.chevron_right),
+            mouseCursor: SystemMouseCursors.click,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

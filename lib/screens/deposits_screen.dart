@@ -461,6 +461,10 @@ class _DepositsScreenState extends State<DepositsScreen> {
                                         deposit.checkoutUrl,
                                       )
                                     : null,
+                                mouseCursor: isPending &&
+                                        deposit.checkoutUrl.isNotEmpty
+                                    ? SystemMouseCursors.click
+                                    : SystemMouseCursors.basic,
                                 title: Text(
                                   '${FormatUtils.formatFiatIntegerDisplay(deposit.amount)} VND',
                                 ),

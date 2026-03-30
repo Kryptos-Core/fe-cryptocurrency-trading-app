@@ -271,6 +271,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               child: InkWell(
                 key: const Key('trading_pair_picker'),
                 borderRadius: BorderRadius.circular(8),
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () => _openTradingPairPicker(
                   context,
                   marketsProvider,
@@ -1494,6 +1495,7 @@ class _OrderBookTable extends StatelessWidget {
                     onPriceTap != null
                         ? InkWell(
                             onTap: () => onPriceTap!(l.price),
+                            mouseCursor: SystemMouseCursors.click,
                             child: Padding(
                                 padding: cellPadding,
                                 child: _cell(

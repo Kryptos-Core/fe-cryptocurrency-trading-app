@@ -163,6 +163,7 @@ class _NotificationTile extends StatelessWidget {
           ],
         ],
       ),
+      mouseCursor: SystemMouseCursors.click,
       onTap: onTap,
     );
   }

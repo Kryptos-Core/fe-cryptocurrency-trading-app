@@ -267,7 +267,9 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                       onSelected: provider.setFuzzySearch,
                     ),
                     Text(
-                      '${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}',
+                      provider.total > 0
+                          ? '${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}'
+                          : '${provider.markets.length} ${l10n.marketsResultSuffix}',
                       style: theme.textTheme.bodyMedium,
                     ),
                     if (provider.hasActiveFilter)

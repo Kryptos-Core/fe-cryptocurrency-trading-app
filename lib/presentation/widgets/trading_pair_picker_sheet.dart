@@ -223,6 +223,7 @@ class _TradingPairPickerBodyState extends State<_TradingPairPickerBody> {
                 type: MaterialType.transparency,
                 child: InkWell(
                   customBorder: const CircleBorder(),
+                  mouseCursor: SystemMouseCursors.click,
                   onTap: () => _removeFavoriteRef(r),
                   child: DecoratedBox(
                     decoration: BoxDecoration(

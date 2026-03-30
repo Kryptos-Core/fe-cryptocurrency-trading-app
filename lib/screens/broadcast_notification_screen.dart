@@ -164,6 +164,7 @@ class _BroadcastNotificationScreenState
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(10),
+                        mouseCursor: SystemMouseCursors.click,
                         onTap: () => setState(() => _selectedType = value),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),

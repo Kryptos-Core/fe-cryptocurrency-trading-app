@@ -1030,6 +1030,7 @@ class _DepositTile extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right, size: 18),
       isThreeLine: true,
+      mouseCursor: SystemMouseCursors.click,
       onTap: () => _DepositDetailSheet.show(context, deposit),
     );
   }
@@ -1104,6 +1105,7 @@ class _WithdrawalTile extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right, size: 18),
       isThreeLine: true,
+      mouseCursor: SystemMouseCursors.click,
       onTap: () => _WithdrawalDetailSheet.show(context, tx),
     );
   }
