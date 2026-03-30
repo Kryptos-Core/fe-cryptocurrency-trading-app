@@ -19,6 +19,8 @@ class WcQrSessionCard extends StatefulWidget {
   final WcSessionStatus status;
   final VoidCallback? onExpired;
   final VoidCallback? onRefresh;
+  /// Override hint under QR (e.g. đăng nhập vs liên kết ví)
+  final String? qrFooterText;
 
   const WcQrSessionCard({
     super.key,
@@ -26,6 +28,7 @@ class WcQrSessionCard extends StatefulWidget {
     required this.status,
     this.onExpired,
     this.onRefresh,
+    this.qrFooterText,
   });
 
   @override
@@ -210,7 +213,8 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Mở Trust Wallet hoặc MetaMask Mobile → Scan QR',
+                  widget.qrFooterText ??
+                      'Mở Trust Wallet hoặc MetaMask Mobile → Scan QR',
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),

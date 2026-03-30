@@ -1,17 +1,54 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/utils/wallet_web_extension_auth.dart';
 import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
-    if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
-import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
-    if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
+import 'package:crypto_trading_app/presentation/widgets/wallet_connect_auth_login_dialog.dart';
 
 enum _WalletType { metamask, tronlink }
+
+/// Windows / macOS / Linux native: không gọi `metamask://` — OS mở Microsoft Store
+/// vì không có handler. MetaMask desktop dùng dialog WalletConnect public (`/auth/wallet/wc/*`).
+bool _isDesktopNative() {
+  if (kIsWeb) return false;
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.windows:
+    case TargetPlatform.linux:
+    case TargetPlatform.macOS:
+      return true;
+    default:
+      return false;
+  }
+}
+
+Future<void> _showDesktopWalletLoginHint(
+  BuildContext context,
+  _WalletType walletType,
+) async {
+  final isMetaMask = walletType == _WalletType.metamask;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(isMetaMask ? 'MetaMask trên desktop' : 'TronLink trên desktop'),
+      content: Text(
+        isMetaMask
+            ? 'Dùng nút «WalletConnect (QR)» trên desktop: app sẽ mở '
+                'QR đăng nhập (Reown hoặc luồng server legacy). Hoặc chạy bản web Chrome với extension MetaMask, '
+                'hoặc đăng nhập email.'
+            : 'Tron không phải EVM; TronLink chỉ hoạt động qua extension trên Chrome. '
+                'Trên desktop native không có TronLink như MetaMask mobile.\n\n'
+                'Hãy dùng bản web trên Chrome hoặc đăng nhập bằng email.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Đã hiểu'),
+        ),
+      ],
+    ),
+  );
+}
 
 /// Flow đăng nhập/đăng ký bằng ví dùng chung cho LoginScreen và RegisterScreen.
 /// Tái sử dụng bridge web hiện có: metaMaskGetAddressOnWeb, metaMaskSignOnWeb, tronLinkGetAddressOnWeb, tronLinkSignOnWeb.
@@ -31,6 +68,16 @@ class WalletAuthHandler {
         onSuccess: onSuccess,
       );
 
+  /// Đăng nhập / đăng ký qua WalletConnect (endpoint public), mọi nền tảng.
+  static Future<void> openWalletConnectQrLogin(
+    BuildContext context, {
+    required VoidCallback onSuccess,
+  }) async {
+    if (!context.mounted) return;
+    final ok = await showWalletConnectAuthLoginDialog(context: context);
+    if (ok == true && context.mounted) onSuccess();
+  }
+
   /// Kết nối TronLink và đăng nhập/đăng ký.
   static Future<void> connectTronLink(
     BuildContext context, {
@@ -44,6 +91,22 @@ class WalletAuthHandler {
         onSuccess: onSuccess,
       );
 
+  /// Flutter Web: MetaMask hoặc TronLink extension — `/auth/wallet-nonce` + ký + `/auth/wallet-verify`
+  /// (không cần QR / dán chữ ký). Dùng làm luồng chính trên web thay cho Reown khi chưa thêm SDK.
+  /// Ủy quyền sang [loginWithWebBrowserExtension] (logic tách file tránh vòng import với dialog WC).
+  static Future<bool> signInWithWebExtension(
+    BuildContext context, {
+    required bool metaMask,
+    required AuthRemoteDataSource datasource,
+    required VoidCallback onSuccess,
+  }) =>
+      loginWithWebBrowserExtension(
+        context,
+        metaMask: metaMask,
+        datasource: datasource,
+        onSuccess: onSuccess,
+      );
+
   static Future<void> _handleWalletAuth(
     BuildContext context, {
     required _WalletType walletType,
@@ -52,141 +115,55 @@ class WalletAuthHandler {
   }) async {
     if (!context.mounted) return;
 
-    // Bước 1: Lấy địa chỉ từ ví
-    String? address;
-    final chain = walletType == _WalletType.metamask
-        ? BlockchainNetwork.ethSepolia
-        : BlockchainNetwork.tronNile;
-
     if (kIsWeb) {
+      await loginWithWebBrowserExtension(
+        context,
+        metaMask: walletType == _WalletType.metamask,
+        datasource: datasource,
+        onSuccess: onSuccess,
+      );
+      return;
+    }
+
+    if (_isDesktopNative()) {
       if (walletType == _WalletType.metamask) {
-        address = await metaMaskGetAddressOnWeb();
-      } else {
-        address = await tronLinkGetAddressOnWeb();
+        final ok = await showWalletConnectAuthLoginDialog(context: context);
+        if (ok == true && context.mounted) onSuccess();
+        return;
       }
+      if (context.mounted) {
+        await _showDesktopWalletLoginHint(context, walletType);
+      }
+      return;
     } else {
-      // Mobile/Desktop: deep-link rồi yêu cầu nhập thủ công (không hỗ trợ auto)
+      // Android / iOS: thử mở app ví (có thể cài MetaMask / TronLink mobile)
       final deepLink = walletType == _WalletType.metamask
           ? 'metamask://'
           : 'tronlinkoutside://';
-      await launchUrl(
-        Uri.parse(deepLink),
+      final uri = Uri.parse(deepLink);
+      final opened = await launchUrl(
+        uri,
         mode: LaunchMode.externalApplication,
       );
-      if (context.mounted) {
+      if (!context.mounted) return;
+      if (opened) {
         showAppSnackBar(
           context,
           message: walletType == _WalletType.metamask
-              ? 'Mở MetaMask để xác nhận, sau đó quay lại ứng dụng.'
-              : 'Mở TronLink để xác nhận, sau đó quay lại ứng dụng.',
+              ? 'Mở MetaMask trên điện thoại, sau đó quay lại ứng dụng.'
+              : 'Mở TronLink trên điện thoại, sau đó quay lại ứng dụng.',
           type: SnackBarType.info,
         );
-      }
-      return;
-    }
-
-    if (address == null || address.isEmpty) {
-      if (context.mounted) {
-        final walletName =
-            walletType == _WalletType.metamask ? 'MetaMask' : 'TronLink';
+      } else {
         showAppSnackBar(
           context,
-          message:
-              '$walletName không phát hiện được. Hãy cài đặt extension và kết nối với trang này.',
+          message: walletType == _WalletType.metamask
+              ? 'Không mở được MetaMask. Cài app hoặc dùng bản web Chrome.'
+              : 'Không mở được TronLink. Cài app hoặc dùng Chrome (extension).',
           type: SnackBarType.error,
         );
       }
       return;
     }
-
-    // Bước 2: Lấy nonce từ BE
-    WalletNonceResponse nonceResponse;
-    try {
-      nonceResponse = await datasource.walletNonce(
-        chain: chain.apiValue,
-        address: address,
-      );
-    } catch (e) {
-      if (context.mounted) {
-        showAppSnackBar(
-          context,
-          message: 'Không thể lấy nonce: ${e.toString()}',
-          type: SnackBarType.error,
-        );
-      }
-      return;
-    }
-
-    // Bước 3: Ký message bằng ví
-    String? signature;
-    if (walletType == _WalletType.metamask) {
-      final result = await metaMaskSignOnWeb(
-        message: nonceResponse.message,
-        expectedAddress: address,
-      );
-      if (result.accountMismatch && context.mounted) {
-        showAppSnackBar(
-          context,
-          message:
-              'Sai địa chỉ MetaMask. Đang kết nối: ${result.connectedAddress}',
-          type: SnackBarType.warning,
-        );
-        return;
-      }
-      signature = result.signature;
-      if (signature == null && context.mounted) {
-        showAppSnackBar(
-          context,
-          message: result.message,
-          type: SnackBarType.error,
-        );
-        return;
-      }
-    } else {
-      final result = await tronLinkSignOnWeb(
-        message: nonceResponse.message,
-        expectedAddress: address,
-      );
-      if (result.accountMismatch && context.mounted) {
-        showAppSnackBar(
-          context,
-          message:
-              'Sai địa chỉ TronLink. Đang kết nối: ${result.connectedAddress}',
-          type: SnackBarType.warning,
-        );
-        return;
-      }
-      signature = result.signature;
-      if (signature == null && context.mounted) {
-        showAppSnackBar(
-          context,
-          message: result.message,
-          type: SnackBarType.error,
-        );
-        return;
-      }
-    }
-
-    if (!context.mounted) return;
-
-    // Bước 4: Xác thực với BE
-    final authProvider = context.read<AuthProvider>();
-    final authResult = await authProvider.loginWithWallet(
-      chain: chain.apiValue,
-      address: address,
-      signature: signature!,
-    );
-
-    if (!context.mounted) return;
-    authResult.fold(
-      (failure) {
-        showAppSnackBar(
-          context,
-          message: 'Xác thực thất bại: ${failure.message}',
-          type: SnackBarType.error,
-        );
-      },
-      (_) => onSuccess(),
-    );
   }
 }

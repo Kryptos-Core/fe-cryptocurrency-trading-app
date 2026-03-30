@@ -1163,5 +1163,28 @@
   "homeWelcomeBack": "Chào mừng trở lại",
   "homeCryptoPlatform": "Nền tảng giao dịch tiền mã hóa",
   "homeAuthReady": "Xác thực sẵn sàng",
-  "homeLastUpdated": "Cập nhật lần cuối"
+  "homeLastUpdated": "Cập nhật lần cuối",
+
+  "wcLoginTitleWeb": "Đăng nhập bằng ví (Web)",
+  "wcLoginTitleNative": "Đăng nhập WalletConnect",
+  "wcReownDesktopUnsupportedBody": "WalletConnect (Reown AppKit) trên bản desktop (Windows, Linux, macOS) chưa dùng được: SDK cần webview_flutter và hiện chỉ có implementation cho Android/iOS. Dùng mục «Nâng cao: QR từ server (legacy)» bên dưới, hoặc đăng nhập bằng ví trên điện thoại.",
+  "wcReownMissingProjectId": "Thiếu WALLETCONNECT_PROJECT_ID (hoặc REOWN_PROJECT_ID) trong .env",
+  "wcReownInitFailed": "Không khởi tạo Reown: {error}",
+  "@wcReownInitFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "wcReownSessionNoEvmAddress": "Session không có địa chỉ EVM (eip155). Chọn ví EVM / Sepolia.",
+  "wcReownNoSignature": "Ví không trả về chữ ký.",
+  "wcReownLoginError": "Lỗi đăng nhập WC: {error}",
+  "@wcReownLoginError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "wcReownQrDescription": "WalletConnect (Reown): QR do SDK tạo — kết nối MetaMask mobile hoặc ví khác. Sau khi kết nối, app sẽ xin ký message đăng nhập (Sepolia).",
+  "wcReownOpenQrButton": "Mở QR WalletConnect (Reown)",
+  "wcAdvancedLegacyQrTitle": "Nâng cao: QR từ server (legacy)",
+  "wcAdvancedLegacyQrSubtitle": "Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*"
 }

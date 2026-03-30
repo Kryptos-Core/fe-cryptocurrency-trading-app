@@ -3223,4 +3223,49 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get homeLastUpdated => 'Cập nhật lần cuối';
+
+  @override
+  String get wcLoginTitleWeb => 'Đăng nhập bằng ví (Web)';
+
+  @override
+  String get wcLoginTitleNative => 'Đăng nhập WalletConnect';
+
+  @override
+  String get wcReownDesktopUnsupportedBody =>
+      'WalletConnect (Reown AppKit) trên bản desktop (Windows, Linux, macOS) chưa dùng được: SDK cần webview_flutter và hiện chỉ có implementation cho Android/iOS. Dùng mục «Nâng cao: QR từ server (legacy)» bên dưới, hoặc đăng nhập bằng ví trên điện thoại.';
+
+  @override
+  String get wcReownMissingProjectId =>
+      'Thiếu WALLETCONNECT_PROJECT_ID (hoặc REOWN_PROJECT_ID) trong .env';
+
+  @override
+  String wcReownInitFailed(String error) {
+    return 'Không khởi tạo Reown: $error';
+  }
+
+  @override
+  String get wcReownSessionNoEvmAddress =>
+      'Session không có địa chỉ EVM (eip155). Chọn ví EVM / Sepolia.';
+
+  @override
+  String get wcReownNoSignature => 'Ví không trả về chữ ký.';
+
+  @override
+  String wcReownLoginError(String error) {
+    return 'Lỗi đăng nhập WC: $error';
+  }
+
+  @override
+  String get wcReownQrDescription =>
+      'WalletConnect (Reown): QR do SDK tạo — kết nối MetaMask mobile hoặc ví khác. Sau khi kết nối, app sẽ xin ký message đăng nhập (Sepolia).';
+
+  @override
+  String get wcReownOpenQrButton => 'Mở QR WalletConnect (Reown)';
+
+  @override
+  String get wcAdvancedLegacyQrTitle => 'Nâng cao: QR từ server (legacy)';
+
+  @override
+  String get wcAdvancedLegacyQrSubtitle =>
+      'Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*';
 }

@@ -10,7 +10,7 @@ import 'package:crypto_trading_app/screens/main_screen.dart';
 import 'package:crypto_trading_app/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 
-/// Nút kết nối ví — dùng chung cho MetaMask và TronLink
+/// Nút kết nối ví — dùng chung cho WalletConnect và TronLink
 class _WalletLoginButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -341,15 +341,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // MetaMask button
                   _WalletLoginButton(
-                    label: 'Connect MetaMask',
-                    icon: Icons.account_balance_wallet_outlined,
-                    color: const Color(0xFFE2761B),
+                    label: 'WalletConnect (QR)',
+                    icon: Icons.qr_code_2,
+                    color: const Color(0xFF5B8DEF),
                     disabled: _isLoading,
-                    onPressed: () => WalletAuthHandler.connectMetaMask(
+                    onPressed: () => WalletAuthHandler.openWalletConnectQrLogin(
                       context,
-                      datasource: sl<AuthRemoteDataSource>(),
                       onSuccess: _onWalletAuthSuccess,
                     ),
                   ),

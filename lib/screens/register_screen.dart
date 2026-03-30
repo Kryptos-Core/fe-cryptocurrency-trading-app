@@ -440,6 +440,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 8),
 
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading
+                          ? null
+                          : () => WalletAuthHandler.openWalletConnectQrLogin(
+                                context,
+                                onSuccess: _onWalletAuthSuccess,
+                              ),
+                      icon: const Icon(Icons.qr_code_2,
+                          color: Color(0xFF5B8DEF), size: 20),
+                      label: const Text('WalletConnect (QR)'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFF5B8DEF)),
+                        foregroundColor: const Color(0xFF5B8DEF),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
                   // TronLink register
                   SizedBox(
                     width: double.infinity,

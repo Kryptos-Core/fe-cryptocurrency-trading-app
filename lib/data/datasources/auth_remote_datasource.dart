@@ -3,6 +3,7 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/data/models/auth_response_model.dart';
 import 'package:crypto_trading_app/data/models/user_model.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 
 String _messageFromDioResponse(dynamic data, String fallback) {
   if (data is Map) {
@@ -53,6 +54,20 @@ abstract class AuthRemoteDataSource {
     required String signature,
   });
 
+  /// POST /auth/wallet/wc/init — không JWT.
+  Future<WcAuthInitResult> walletWcAuthInit({required String chain});
+
+  /// GET /auth/wallet/wc/status/:sessionId
+  Future<WcAuthStatusResult> walletWcAuthStatus(String sessionId);
+
+  /// POST /auth/wallet/wc/verify — cùng payload user/token như wallet-verify.
+  Future<AuthResponseModel> walletWcAuthVerify({
+    required String sessionId,
+    required String chain,
+    required String address,
+    required String signature,
+  });
+
   /// Send OTP to current user's verified email for 2FA action.
   Future<void> send2faOtp(String token);
 
@@ -93,6 +108,71 @@ class WalletNonceResponse {
     return WalletNonceResponse(
       message: json['message'] as String,
       expiresIn: json['expiresIn'] as int,
+    );
+  }
+}
+
+/// POST /auth/wallet/wc/init
+class WcAuthInitResult {
+  final String sessionId;
+  final String wcUri;
+  final String message;
+  final int expiresIn;
+  final String caip2Chain;
+
+  const WcAuthInitResult({
+    required this.sessionId,
+    required this.wcUri,
+    required this.message,
+    required this.expiresIn,
+    required this.caip2Chain,
+  });
+
+  factory WcAuthInitResult.fromJson(Map<String, dynamic> json) {
+    return WcAuthInitResult(
+      sessionId: json['sessionId'] as String,
+      wcUri: json['wcUri'] as String,
+      message: json['message'] as String,
+      expiresIn: (json['expiresIn'] as num?)?.toInt() ?? 300,
+      caip2Chain: json['caip2Chain'] as String? ?? '',
+    );
+  }
+}
+
+/// GET /auth/wallet/wc/status/:sessionId
+class WcAuthStatusResult {
+  final String sessionId;
+  final WcSessionStatus status;
+  final String? address;
+  final int? expiresAtMs;
+  final String? message;
+  final String? wcUri;
+
+  const WcAuthStatusResult({
+    required this.sessionId,
+    required this.status,
+    this.address,
+    this.expiresAtMs,
+    this.message,
+    this.wcUri,
+  });
+
+  factory WcAuthStatusResult.fromJson(Map<String, dynamic> json) {
+    final raw = json['status'] as String? ?? 'pending';
+    final exp = json['expiresAt'];
+    int? expiresAtMs;
+    if (exp is int) {
+      expiresAtMs = exp;
+    } else if (exp is num) {
+      expiresAtMs = exp.toInt();
+    }
+    return WcAuthStatusResult(
+      sessionId: json['sessionId'] as String,
+      status: WcSessionStatusX.fromApiValue(raw),
+      address: json['address'] as String?,
+      expiresAtMs: expiresAtMs,
+      message: json['message'] as String?,
+      wcUri: json['wcUri'] as String?,
     );
   }
 }
@@ -343,6 +423,134 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         message: 'Cannot reach server. Check connection.',
       );
     } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  Map<String, dynamic> _unwrapDataMap(Map<String, dynamic>? raw) {
+    if (raw == null) throw ServerException(message: 'Invalid response');
+    final inner = raw['data'];
+    if (inner is Map<String, dynamic>) return inner;
+    return raw;
+  }
+
+  @override
+  Future<WcAuthInitResult> walletWcAuthInit({required String chain}) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authWalletWcInit,
+        data: {'chain': chain},
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        final data = _unwrapDataMap(raw);
+        return WcAuthInitResult.fromJson(data);
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'WC auth init failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message =
+            e.response!.data['message'] ?? 'WC auth init failed';
+        if (e.response!.statusCode == 400) {
+          throw ValidationException(message: message);
+        }
+        throw ServerException(message: message);
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      if (e is ServerException ||
+          e is ValidationException ||
+          e is NetworkException) {
+        rethrow;
+      }
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<WcAuthStatusResult> walletWcAuthStatus(String sessionId) async {
+    try {
+      final response = await dio.get(
+        ApiConstants.authWalletWcStatus(sessionId),
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        final data = _unwrapDataMap(raw);
+        return WcAuthStatusResult.fromJson(data);
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'WC auth status failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw ServerException(
+          message: e.response!.data['message'] ?? 'WC auth status failed',
+        );
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<AuthResponseModel> walletWcAuthVerify({
+    required String sessionId,
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authWalletWcVerify,
+        data: {
+          'sessionId': sessionId,
+          'chain': chain,
+          'address': address,
+          'signature': signature,
+        },
+      );
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        if (raw == null) throw ServerException(message: 'Invalid response');
+        final data = raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw;
+        return AuthResponseModel(
+          accessToken: data['accessToken'] as String,
+          refreshToken: data['refreshToken'] as String?,
+          user: UserModel.fromJson(data['user'] as Map<String, dynamic>),
+        );
+      }
+      throw AuthenticationException(
+        message: response.data['message'] ?? 'WC auth verify failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message =
+            e.response!.data['message'] ?? 'WC auth verify failed';
+        if (e.response!.statusCode == 401 || e.response!.statusCode == 400) {
+          throw AuthenticationException(message: message);
+        }
+        throw ServerException(message: message);
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      if (e is AuthenticationException ||
+          e is ValidationException ||
+          e is ServerException ||
+          e is NetworkException) {
+        rethrow;
+      }
       throw ServerException(message: e.toString());
     }
   }

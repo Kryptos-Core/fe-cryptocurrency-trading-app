@@ -144,6 +144,22 @@ class AuthProvider extends ChangeNotifier {
     return result.fold(Left.new, (r) async => _applyAuthResponse(r));
   }
 
+  /// Hoàn tất đăng nhập sau flow public WalletConnect (POST /auth/wallet/wc/verify).
+  Future<Either<Failure, void>> completeWalletConnectAuthLogin({
+    required String sessionId,
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    final result = await _authRepository.verifyWalletWcAuth(
+      sessionId: sessionId,
+      chain: chain,
+      address: address,
+      signature: signature,
+    );
+    return result.fold(Left.new, (r) async => _applyAuthResponse(r));
+  }
+
   /// Clear all auth state and stored tokens.
   Future<void> logout() async {
     await _tokenService.clearTokens();

@@ -63,6 +63,11 @@ class ApiConstants {
   static const String authLogin = '/auth/login';
   static const String authWalletNonce = '/auth/wallet-nonce';
   static const String authWalletVerify = '/auth/wallet-verify';
+  /// Public WalletConnect login (no JWT): init → poll status → verify signature
+  static const String authWalletWcInit = '/auth/wallet/wc/init';
+  static String authWalletWcStatus(String sessionId) =>
+      '/auth/wallet/wc/status/${Uri.encodeComponent(sessionId)}';
+  static const String authWalletWcVerify = '/auth/wallet/wc/verify';
   static const String auth2faSendOtp = '/auth/2fa/send-otp';
   static const String auth2faValidateOtp = '/auth/2fa/validate-otp';
   static const String auth2faEnable = '/auth/2fa/enable';

@@ -90,7 +90,11 @@ class DioClient {
     return InterceptorsWrapper(
       onRequest: (options, handler) async {
         final path = options.path;
-        if (path.contains('/auth/login') || path.contains('/auth/register')) {
+        if (path.contains('/auth/login') ||
+            path.contains('/auth/register') ||
+            path.contains('/auth/wallet-nonce') ||
+            path.contains('/auth/wallet-verify') ||
+            path.contains('/auth/wallet/wc/')) {
           return handler.next(options);
         }
         if (tokenService != null) {

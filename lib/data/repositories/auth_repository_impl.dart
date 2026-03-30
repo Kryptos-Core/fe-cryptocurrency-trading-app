@@ -28,6 +28,24 @@ abstract class AuthRepository {
     required String signature,
   });
 
+  /// Khởi tạo phiên WalletConnect đăng nhập công khai (POST /auth/wallet/wc/init).
+  Future<Either<Failure, WcAuthInitResult>> walletWcAuthInit({
+    required String chain,
+  });
+
+  /// Poll trạng thái phiên WC đăng nhập.
+  Future<Either<Failure, WcAuthStatusResult>> walletWcAuthStatus(
+    String sessionId,
+  );
+
+  /// Hoàn tất đăng nhập WC (POST /auth/wallet/wc/verify).
+  Future<Either<Failure, AuthResponse>> verifyWalletWcAuth({
+    required String sessionId,
+    required String chain,
+    required String address,
+    required String signature,
+  });
+
   /// Cập nhật hồ sơ cơ bản (first/last name) — không cần duyệt
   Future<Either<Failure, User>> updateProfileBasic({
     required String token,
@@ -200,6 +218,72 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final authResponseModel = await remoteDataSource.walletVerify(
+        chain: chain,
+        address: address,
+        signature: signature,
+      );
+      return Right(AuthResponse(
+        accessToken: authResponseModel.accessToken,
+        refreshToken: authResponseModel.refreshToken,
+        user: authResponseModel.user.toEntity(),
+      ));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WcAuthInitResult>> walletWcAuthInit({
+    required String chain,
+  }) async {
+    try {
+      final r = await remoteDataSource.walletWcAuthInit(chain: chain);
+      return Right(r);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WcAuthStatusResult>> walletWcAuthStatus(
+    String sessionId,
+  ) async {
+    try {
+      final r = await remoteDataSource.walletWcAuthStatus(sessionId);
+      return Right(r);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> verifyWalletWcAuth({
+    required String sessionId,
+    required String chain,
+    required String address,
+    required String signature,
+  }) async {
+    try {
+      final authResponseModel = await remoteDataSource.walletWcAuthVerify(
+        sessionId: sessionId,
         chain: chain,
         address: address,
         signature: signature,
