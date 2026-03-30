@@ -62,6 +62,11 @@ class _WalletConnectAuthLoginDialogState
   Timer? _pollTimer;
   bool _webExtensionBusy = false;
 
+  /// Backend trả address + signature (SignClient Sepolia) — ẩn form dán tay.
+  bool _pollHasServerSignature = false;
+  bool _wcAutoVerifyBusy = false;
+  String? _wcAutoVerifyDedupeKey;
+
   ReownAppKitModal? _reownModal;
   bool _reownInitializing = false;
   String? _reownInitError;
@@ -302,8 +307,26 @@ class _WalletConnectAuthLoginDialogState
 
   void _startPoll() {
     _stopPoll();
-    final sid = _init?.sessionId;
-    if (sid == null) return;
+    final i = _init;
+    if (i == null) return;
+    final sid = i.sessionId;
+
+    if (!i.relayPairing) {
+      final exp = _expiresAt;
+      if (exp != null) {
+        final ms = exp.difference(DateTime.now()).inMilliseconds;
+        if (ms <= 0) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _onSessionExpiredUi());
+        } else {
+          _pollTimer = Timer(Duration(milliseconds: ms), () {
+            if (mounted) _onSessionExpiredUi();
+          });
+        }
+      }
+      return;
+    }
+
     _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       final r = await _repo.walletWcAuthStatus(sid);
       if (!mounted) return;
@@ -312,13 +335,21 @@ class _WalletConnectAuthLoginDialogState
           /* lỗi poll tạm — thử lại ở chu kỳ sau */
         },
         (data) {
+          final hadAutoCreds = (data.signature ?? '').trim().isNotEmpty &&
+              (data.address ?? '').trim().isNotEmpty;
           setState(() {
             _status = data.status;
+            _pollHasServerSignature = hadAutoCreds;
             if (data.expiresAtMs != null) {
               _expiresAt =
                   DateTime.fromMillisecondsSinceEpoch(data.expiresAtMs!);
             }
           });
+          if (data.status == WcSessionStatus.signed && hadAutoCreds) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _maybeAutoVerifyAfterPoll(data);
+            });
+          }
           if (data.status == WcSessionStatus.expired ||
               data.status == WcSessionStatus.failed) {
             _stopPoll();
@@ -335,6 +366,9 @@ class _WalletConnectAuthLoginDialogState
       _init = null;
       _expiresAt = null;
       _status = WcSessionStatus.pending;
+      _pollHasServerSignature = false;
+      _wcAutoVerifyBusy = false;
+      _wcAutoVerifyDedupeKey = null;
     });
     _stopPoll();
     final r = await _repo.walletWcAuthInit(chain: _chain.apiValue);
@@ -379,6 +413,49 @@ class _WalletConnectAuthLoginDialogState
     } finally {
       if (mounted) setState(() => _webExtensionBusy = false);
     }
+  }
+
+  Future<void> _maybeAutoVerifyAfterPoll(WcAuthStatusResult data) async {
+    if (!mounted || _wcAutoVerifyBusy) return;
+    if (data.status != WcSessionStatus.signed) return;
+    final addr = data.address?.trim() ?? '';
+    final sig = data.signature?.trim() ?? '';
+    if (addr.isEmpty || sig.isEmpty) return;
+    final dedupe = '${data.sessionId}|$addr|$sig';
+    if (_wcAutoVerifyDedupeKey == dedupe) return;
+    _wcAutoVerifyDedupeKey = dedupe;
+
+    setState(() => _wcAutoVerifyBusy = true);
+    _stopPoll();
+    _addressCtrl.text = addr;
+    _signatureCtrl.text = sig;
+
+    final auth = context.read<AuthProvider>();
+    final result = await auth.completeWalletConnectAuthLogin(
+      sessionId: data.sessionId,
+      chain: _chain.apiValue,
+      address: addr,
+      signature: sig,
+    );
+    if (!mounted) return;
+    setState(() => _wcAutoVerifyBusy = false);
+    result.fold(
+      (f) {
+        showAppSnackBar(
+          context,
+          message: f.message,
+          type: SnackBarType.error,
+        );
+        setState(() {
+          _wcAutoVerifyDedupeKey = null;
+          _pollHasServerSignature = false;
+        });
+        _startPoll();
+      },
+      (_) {
+        Navigator.of(context).pop(true);
+      },
+    );
   }
 
   Future<void> _verify() async {
@@ -429,8 +506,9 @@ class _WalletConnectAuthLoginDialogState
           kIsWeb
               ? 'Luồng server: QR + message từ `/auth/wallet/wc/init`, '
                   'ký đúng message, gửi `/auth/wallet/wc/verify`.'
-              : 'Không cần tài khoản trước. Quét QR bằng ví trên điện thoại, '
-                  'ký đúng message do server trả về, rồi dán địa chỉ và chữ ký bên dưới.',
+              : 'Backend có project id: quét QR, ký message trên điện thoại — server lấy chữ ký và app tự hoàn tất. '
+                  'MetaMask có thể kết nối WC ở Ethereum Mainnet; vẫn ký đúng message Sepolia hiển thị bên dưới. '
+                  'Solana hoặc thiếu cấu hình: dán địa chỉ và chữ ký sau khi ký.',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -481,18 +559,52 @@ class _WalletConnectAuthLoginDialogState
         ],
         if (proposal != null) ...[
           const SizedBox(height: 20),
-          WcQrSessionCard(
-            session: proposal,
-            status: _status,
-            qrFooterText:
-                'Quét QR bằng ví (MetaMask / Trust / Phantom…). '
-                'Ký đúng message hiển thị bên dưới.',
-            onExpired: _onSessionExpiredUi,
-            onRefresh: _createSession,
-          ),
-          if (_showDeepLinks) ...[
-            const SizedBox(height: 12),
-            WcDeepLinkLauncher(session: proposal),
+          if (!_init!.relayPairing) ...[
+            Material(
+              color: theme.colorScheme.errorContainer.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Server chưa bật relay WalletConnect (thiếu project id trên backend). '
+                        'QR hiện tại không kết nối ví — đừng quét. Thêm WALLETCONNECT_PROJECT_ID '
+                        'hoặc REOWN_PROJECT_ID vào file .env của Nest (cùng project Reown Cloud như app), '
+                        'khởi động lại API, rồi tạo QR mới. Trong lúc chờ: ký message bằng ví khác '
+                        '(ví dụ extension) và dán địa chỉ + chữ ký bên dưới.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (_init!.relayPairing) ...[
+            WcQrSessionCard(
+              session: proposal,
+              status: _status,
+              qrFooterText:
+                  'Quét QR bằng ví (MetaMask / Trust / Phantom…). '
+                  'Ký đúng message hiển thị bên dưới.',
+              onExpired: _onSessionExpiredUi,
+              onRefresh: _createSession,
+            ),
+            if (_showDeepLinks) ...[
+              const SizedBox(height: 12),
+              WcDeepLinkLauncher(session: proposal),
+            ],
           ],
           const SizedBox(height: 16),
           Text(
@@ -523,39 +635,58 @@ class _WalletConnectAuthLoginDialogState
               label: const Text('Copy message'),
             ),
           ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _addressCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Địa chỉ ví đã ký',
-              border: OutlineInputBorder(),
-              hintText: '0x… hoặc địa chỉ Solana',
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _signatureCtrl,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Chữ ký (signature)',
-              border: OutlineInputBorder(),
-              alignLabelWithHint: true,
-            ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _verifying ? null : _verify,
-            child: _verifying
-                ? const SizedBox(
-                    height: 22,
-                    width: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+          if (_pollHasServerSignature && _wcAutoVerifyBusy) ...[
+            const SizedBox(height: 24),
+            Center(
+              child: Column(
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Đang hoàn tất đăng nhập…',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                  )
-                : const Text('Xác thực & đăng nhập'),
-          ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (!_pollHasServerSignature) ...[
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _addressCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Địa chỉ ví đã ký',
+                border: OutlineInputBorder(),
+                hintText: '0x… hoặc địa chỉ Solana',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _signatureCtrl,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Chữ ký (signature)',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _verifying ? null : _verify,
+              child: _verifying
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Xác thực & đăng nhập'),
+            ),
+          ],
         ],
       ],
     );

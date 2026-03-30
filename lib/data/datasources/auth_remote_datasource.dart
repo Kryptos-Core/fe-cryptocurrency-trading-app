@@ -119,6 +119,8 @@ class WcAuthInitResult {
   final String message;
   final int expiresIn;
   final String caip2Chain;
+  /// BE dùng SignClient + relay thật (Sepolia + có project id trên server).
+  final bool relayPairing;
 
   const WcAuthInitResult({
     required this.sessionId,
@@ -126,6 +128,7 @@ class WcAuthInitResult {
     required this.message,
     required this.expiresIn,
     required this.caip2Chain,
+    this.relayPairing = false,
   });
 
   factory WcAuthInitResult.fromJson(Map<String, dynamic> json) {
@@ -135,6 +138,7 @@ class WcAuthInitResult {
       message: json['message'] as String,
       expiresIn: (json['expiresIn'] as num?)?.toInt() ?? 300,
       caip2Chain: json['caip2Chain'] as String? ?? '',
+      relayPairing: json['relayPairing'] == true,
     );
   }
 }
@@ -144,6 +148,7 @@ class WcAuthStatusResult {
   final String sessionId;
   final WcSessionStatus status;
   final String? address;
+  final String? signature;
   final int? expiresAtMs;
   final String? message;
   final String? wcUri;
@@ -152,6 +157,7 @@ class WcAuthStatusResult {
     required this.sessionId,
     required this.status,
     this.address,
+    this.signature,
     this.expiresAtMs,
     this.message,
     this.wcUri,
@@ -170,6 +176,7 @@ class WcAuthStatusResult {
       sessionId: json['sessionId'] as String,
       status: WcSessionStatusX.fromApiValue(raw),
       address: json['address'] as String?,
+      signature: json['signature'] as String?,
       expiresAtMs: expiresAtMs,
       message: json['message'] as String?,
       wcUri: json['wcUri'] as String?,
