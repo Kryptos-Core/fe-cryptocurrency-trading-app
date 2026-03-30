@@ -8,6 +8,8 @@ import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 
 class BlockchainRepositoryImpl implements BlockchainRepository {
@@ -242,6 +244,82 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       );
       final list = _extractDataList(response.data);
       return Right(list.map(_parseOnchainTransaction).toList());
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  // ============ WalletConnect v2 ============
+
+  @override
+  Future<Either<Failure, WcSessionProposal>> initWcSession(
+    BlockchainNetwork chain,
+  ) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.blockchainWcInit,
+        data: {'chain': chain.apiValue},
+      );
+      final data = _extractDataMap(response.data);
+      return Right(WcSessionProposal.fromJson({
+        ...data,
+        'chain': chain.apiValue,
+      }));
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+    String sessionId,
+  ) async {
+    try {
+      final response = await _dio.get(
+        ApiConstants.blockchainWcStatus(sessionId),
+      );
+      final data = _extractDataMap(response.data);
+      final statusStr = data['status']?.toString() ?? 'pending';
+      return Right(WcSessionStatusX.fromApiValue(statusStr));
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, VerifyLinkResponse>> submitWcSignature({
+    required String sessionId,
+    required String address,
+    required String signature,
+    required BlockchainNetwork chain,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.blockchainWcSubmit,
+        data: {
+          'sessionId': sessionId,
+          'address': address,
+          'signature': signature,
+          'chain': chain.apiValue,
+        },
+      );
+      final data = _extractDataMap(response.data);
+      return Right(
+        VerifyLinkResponse(
+          linkId: data['linkId']?.toString() ?? '',
+          chain: BlockchainNetworkX.fromApiValue(
+            data['chain']?.toString() ?? chain.apiValue,
+          ),
+          address: data['address']?.toString() ?? address,
+          status: data['status']?.toString() ?? 'VERIFIED',
+        ),
+      );
     } on DioException catch (e) {
       return Left(_mapDioError(e));
     } catch (e) {

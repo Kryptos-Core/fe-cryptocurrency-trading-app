@@ -1,21 +1,18 @@
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide Order;
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 
-/**
- * Facade Pattern
- *
- * Purpose: Provides a simplified interface for the complex trading workflow involving
- * multiple repositories (Markets, Orders, Wallet).
- * The UI layer only needs to call placeMarketOrder() without managing the underlying dependencies manually.
- */
+/// Facade Pattern
+///
+/// Simplified entry for trading flows (Markets, Orders, Wallet).
+/// Callers use [placeMarketOrder] without wiring repositories themselves.
 class TradingFacade {
   final OrdersRepository _ordersRepository;
   final MarketsRepository _marketsRepository;
-  final WalletRepository _walletRepository;
+  final WalletRepository _walletRepository; // ignore: unused_field — reserved for balance checks
 
   TradingFacade(
     this._ordersRepository,
@@ -37,7 +34,7 @@ class TradingFacade {
     return marketsResult.fold(
       (failure) => Left(failure), // Forward failure
       (markets) async {
-         if (markets.data.isEmpty) {
+         if (markets.markets.isEmpty) {
              return const Left(ServerFailure(message: 'Market not found'));
          }
          

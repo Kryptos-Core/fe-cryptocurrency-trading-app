@@ -4,6 +4,8 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 
 abstract class BlockchainRepository {
   Future<Either<Failure, DepositAddressResponse>> getDepositAddress(
@@ -46,4 +48,28 @@ abstract class BlockchainRepository {
   Future<Either<Failure, List<OnchainTransaction>>> getTransactions({
     int limit = 50,
   });
+
+  // ============ WalletConnect v2 ============
+
+  /// Bước 1: Tạo WalletConnect session URI
+  /// FE dùng [WcSessionProposal.wcUri] để hiển thị QR hoặc deep link
+  Future<Either<Failure, WcSessionProposal>> initWcSession(
+    BlockchainNetwork chain,
+  );
+
+  /// Bước 2: Poll trạng thái WC session (mỗi 2 giây)
+  /// Khi status = [WcSessionStatus.signed], FE cần submit signature
+  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+    String sessionId,
+  );
+
+  /// Bước 3: Submit signature từ WC SDK sau khi user ký
+  /// BE verify on-chain và tạo linked_wallet record
+  Future<Either<Failure, VerifyLinkResponse>> submitWcSignature({
+    required String sessionId,
+    required String address,
+    required String signature,
+    required BlockchainNetwork chain,
+  });
 }
+

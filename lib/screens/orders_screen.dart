@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/order.dart';
 import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
@@ -110,6 +111,12 @@ String _truncateToScale(String raw, int scale) {
   return _trimTrailingZeros(isNegative ? '-$combined' : combined);
 }
 
+/// Giá last từ ticker → ô đặt lệnh: theo [MarketPair.priceScale], bỏ số 0 thập phân thừa.
+String _formatLastPriceForOrderInput(String raw, MarketPair? market) {
+  final scale = market?.priceScale ?? 8;
+  return _truncateToScale(raw, scale);
+}
+
 int _countDecimals(String raw) {
   final sanitized = raw.replaceAll(',', '').trim();
   if (!sanitized.contains('.')) return 0;
@@ -151,6 +158,7 @@ const _kSectionSpacing = 20.0;
 class _OrdersScreenState extends State<OrdersScreen> {
   final _priceController = TextEditingController();
   final _amountController = TextEditingController();
+  final _orderDecimalFormatter = AmountInputFormatter();
   String _side = 'BUY';
   String _orderType = 'LIMIT';
   MarketPair? _selectedMarket;
@@ -404,6 +412,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     child: TextField(
                       key: const Key('orders_price_field'),
                       controller: _priceController,
+                      inputFormatters: [_orderDecimalFormatter],
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       style: theme.textTheme.bodyLarge,
@@ -431,7 +440,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 color: colorScheme.primary, width: 1.5),
                           ),
                           hintText: marketsProvider.ticker != null
-                              ? marketsProvider.ticker!.lastPrice
+                              ? AmountInputFormatter.valueFromPlainDecimal(
+                                      _formatLastPriceForOrderInput(
+                                          marketsProvider.ticker!.lastPrice,
+                                          _selectedMarket))
+                                  .text
                               : l10n.priceHintExample,
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 14),
@@ -445,8 +458,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   const SizedBox(width: 10),
                   if (marketsProvider.ticker != null)
                     FilledButton.tonalIcon(
-                      onPressed: () => _priceController.text =
-                          marketsProvider.ticker!.lastPrice,
+                      onPressed: () => _priceController.value =
+                          AmountInputFormatter.valueFromPlainDecimal(
+                              _formatLastPriceForOrderInput(
+                                  marketsProvider.ticker!.lastPrice,
+                                  _selectedMarket)),
                       icon: const Icon(Icons.touch_app, size: 18),
                       label: Text(l10n.lastPrice),
                       style: FilledButton.styleFrom(
@@ -463,6 +479,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             TextField(
               key: const Key('orders_amount_field'),
               controller: _amountController,
+              inputFormatters: [_orderDecimalFormatter],
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               style: theme.textTheme.bodyLarge,
@@ -510,11 +527,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         available, amountScale);
                                     if (maxSell.isEmpty) return;
 
-                                    _amountController.text = maxSell;
-                                    _amountController.selection =
-                                        TextSelection.collapsed(
-                                      offset: _amountController.text.length,
-                                    );
+                                    _amountController.value =
+                                        AmountInputFormatter
+                                            .valueFromPlainDecimal(maxSell);
                                   },
                                   child: Text(l10n.maxAmountButton),
                                 ),
@@ -1156,7 +1171,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
 
     final pairId = _selectedMarket!.pairId;
-    final amount = _amountController.text.trim();
+    final amount = parseAmountInput(_amountController.text.trim());
 
     if (!_hasEnoughBalanceForOrder(provider)) {
       _showInsufficientBalanceMessage(context, provider);
@@ -1169,7 +1184,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
       pairId: pairId,
       side: _side,
       type: _orderType,
-      price: _orderType == 'LIMIT' ? _priceController.text.trim() : null,
+      price: _orderType == 'LIMIT'
+          ? parseAmountInput(_priceController.text.trim())
+          : null,
       amount: amount,
       idempotencyKey: idempotencyKey,
     );
@@ -1272,8 +1289,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       levels: provider.orderBookBids,
                       isBid: true,
                       onPriceTap: _orderType == 'LIMIT'
-                          ? (price) =>
-                              setState(() => _priceController.text = price)
+                          ? (price) => setState(() => _priceController.value =
+                              AmountInputFormatter.valueFromPlainDecimal(
+                                  price))
                           : null,
                     ),
                   ),
@@ -1284,8 +1302,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       levels: provider.orderBookAsks,
                       isBid: false,
                       onPriceTap: _orderType == 'LIMIT'
-                          ? (price) =>
-                              setState(() => _priceController.text = price)
+                          ? (price) => setState(() => _priceController.value =
+                              AmountInputFormatter.valueFromPlainDecimal(
+                                  price))
                           : null,
                     ),
                   ),

@@ -62,6 +62,9 @@ class AdminTransactionsProvider extends ChangeNotifier {
   String? get ordersFilterStatus => _orders.filterStatus;
   String? get ordersFilterPair => _orders.filterPair;
 
+  bool _reconcileMatchingLoading = false;
+  bool get isReconcileMatchingLoading => _reconcileMatchingLoading;
+
   // ── Deposits section ──────────────────────────────────────────────────────
 
   final _deposits = _SectionState<Map<String, dynamic>>();
@@ -143,6 +146,39 @@ class AdminTransactionsProvider extends ChangeNotifier {
   }
 
   Future<void> loadMoreOrders() => fetchOrders();
+
+  /// POST /orders/admin/reconcile-matching/:pairId — ops recovery (requires matching:reconcile).
+  Future<OrdersMatchingReconcileResult> reconcileOrdersMatching(
+      String pairId) async {
+    final id = pairId.trim();
+    if (id.isEmpty) {
+      throw ArgumentError('pairId empty');
+    }
+    _reconcileMatchingLoading = true;
+    notifyListeners();
+    try {
+      final resp = await _dioClient.dio.post(
+        ApiConstants.ordersAdminReconcileMatching(id),
+      );
+      final data = resp.data;
+      if (data is! Map) {
+        throw StateError('Invalid reconcile response');
+      }
+      final envelope = Map<String, dynamic>.from(data);
+      final inner = envelope['data'];
+      final payload = inner is Map<String, dynamic>
+          ? inner
+          : inner is Map
+              ? Map<String, dynamic>.from(inner)
+              : envelope;
+      return OrdersMatchingReconcileResult.fromJson(payload);
+    } on DioException catch (e) {
+      throw Exception(_errorMsg(e));
+    } finally {
+      _reconcileMatchingLoading = false;
+      _safeNotify();
+    }
+  }
 
   // ── Deposits methods ──────────────────────────────────────────────────────
 
@@ -276,4 +312,41 @@ class AdminTransactionsProvider extends ChangeNotifier {
       e.response?.data?['message']?.toString() ??
       e.message ??
       'Đã có lỗi xảy ra';
+}
+
+/// Response from POST /orders/admin/reconcile-matching/:pairId
+class OrdersMatchingReconcileResult {
+  final String pairId;
+  final int tradesExecuted;
+  final int matchRuns;
+  final int openOrdersRemaining;
+  final String stoppedReason;
+
+  const OrdersMatchingReconcileResult({
+    required this.pairId,
+    required this.tradesExecuted,
+    required this.matchRuns,
+    required this.openOrdersRemaining,
+    required this.stoppedReason,
+  });
+
+  factory OrdersMatchingReconcileResult.fromJson(Map<String, dynamic> j) {
+    int n(String a, [String? b]) {
+      final v = j[a] ?? (b != null ? j[b] : null);
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse(v?.toString() ?? '') ?? 0;
+    }
+
+    String s(String a, [String? b]) =>
+        j[a]?.toString() ?? (b != null ? j[b]?.toString() : null) ?? '';
+
+    return OrdersMatchingReconcileResult(
+      pairId: s('pairId', 'pair_id'),
+      tradesExecuted: n('tradesExecuted', 'trades_executed'),
+      matchRuns: n('matchRuns', 'match_runs'),
+      openOrdersRemaining: n('openOrdersRemaining', 'open_orders_remaining'),
+      stoppedReason: s('stoppedReason', 'stopped_reason'),
+    );
+  }
 }

@@ -13,6 +13,19 @@ import 'package:crypto_trading_app/presentation/providers/admin_users_provider.d
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'admin_user_detail_screen.dart';
 
+String _adminReconcileStoppedReasonLabel(AppLocalizations l10n, String code) {
+  switch (code) {
+    case 'all_matched':
+      return l10n.adminReconcileReasonAllMatched;
+    case 'no_progress':
+      return l10n.adminReconcileReasonNoProgress;
+    case 'max_rounds':
+      return l10n.adminReconcileReasonMaxRounds;
+    default:
+      return code;
+  }
+}
+
 class AdminTransactionsScreen extends StatefulWidget {
   const AdminTransactionsScreen({super.key});
 
@@ -84,6 +97,7 @@ class _OrdersTabState extends State<_OrdersTab>
 
   final _scroll = ScrollController();
   final _userController = TextEditingController();
+  final _pairController = TextEditingController();
   Timer? _debounce;
 
   String? _selectedStatus;
@@ -112,17 +126,83 @@ class _OrdersTabState extends State<_OrdersTab>
   void dispose() {
     _scroll.dispose();
     _userController.dispose();
+    _pairController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
-  void _onUserSearch(String v) {
+  void _applyOrderFiltersFromFields() {
+    final pair = _pairController.text.trim();
+    context.read<AdminTransactionsProvider>().applyOrderFilters(
+          userId: _userController.text.trim(),
+          status: _selectedStatus,
+          pairId: pair.isEmpty ? null : pair,
+        );
+  }
+
+  void _onUserSearch(String _) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), _applyOrderFiltersFromFields);
+  }
+
+  void _onPairFilter(String _) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      context
-          .read<AdminTransactionsProvider>()
-          .applyOrderFilters(userId: v.trim(), status: _selectedStatus);
+      if (mounted) setState(() {});
+      _applyOrderFiltersFromFields();
     });
+  }
+
+  Future<void> _onReconcileMatchingPressed(
+      BuildContext context, AppLocalizations l10n) async {
+    final pairId = _pairController.text.trim();
+    if (pairId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.adminReconcileMatchingPairRequired)),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.adminReconcileMatchingConfirmTitle),
+        content: Text(l10n.adminReconcileMatchingConfirmMessage(pairId)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.adminReconcileMatchingCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.adminReconcileMatchingRun),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final provider = context.read<AdminTransactionsProvider>();
+    try {
+      final r = await provider.reconcileOrdersMatching(pairId);
+      if (!context.mounted) return;
+      final reasonLabel = _adminReconcileStoppedReasonLabel(l10n, r.stoppedReason);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.adminReconcileMatchingSuccess(
+            r.tradesExecuted,
+            r.openOrdersRemaining,
+            reasonLabel,
+          )),
+        ),
+      );
+      await provider.fetchOrders(refresh: true);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
   @override
@@ -138,60 +218,113 @@ class _OrdersTabState extends State<_OrdersTab>
   }
 
   Widget _buildFilterBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Column(
-        children: [
-          TextField(
-            controller: _userController,
-            onChanged: _onUserSearch,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context).filterByUserId,
-              prefixIcon: const Icon(Icons.person_search_outlined),
-              isDense: true,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              suffixIcon: _userController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _userController.clear();
-                        context
-                            .read<AdminTransactionsProvider>()
-                            .applyOrderFilters(status: _selectedStatus);
-                      },
-                    )
-                  : null,
-            ),
-          ),
-          const SizedBox(height: 6),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _orderStatuses(AppLocalizations.of(context)).map((s) {
-                final sel = _selectedStatus == s.$2;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: FilterChip(
-                    label: Text(s.$1),
-                    selected: sel,
-                    visualDensity: VisualDensity.compact,
-                    onSelected: (_) {
-                      setState(() => _selectedStatus = s.$2);
-                      context.read<AdminTransactionsProvider>().applyOrderFilters(
-                            userId: _userController.text.trim(),
-                            status: s.$2,
-                          );
-                    },
+    final l10n = AppLocalizations.of(context);
+    return Consumer<AdminTransactionsProvider>(
+      builder: (context, provider, _) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+          child: Column(
+            children: [
+              TextField(
+                controller: _userController,
+                onChanged: _onUserSearch,
+                decoration: InputDecoration(
+                  hintText: l10n.filterByUserId,
+                  prefixIcon: const Icon(Icons.person_search_outlined),
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  suffixIcon: _userController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _userController.clear();
+                            _applyOrderFiltersFromFields();
+                          },
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _pairController,
+                      onChanged: _onPairFilter,
+                      decoration: InputDecoration(
+                        hintText: l10n.adminPairIdFilterHint,
+                        prefixIcon:
+                            const Icon(Icons.currency_exchange_outlined),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        suffixIcon: _pairController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _pairController.clear();
+                                  setState(() {});
+                                  _applyOrderFiltersFromFields();
+                                },
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
+                  const SizedBox(width: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: provider.isReconcileMatchingLoading
+                        ? null
+                        : () => _onReconcileMatchingPressed(context, l10n),
+                    icon: provider.isReconcileMatchingLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.sync_alt, size: 20),
+                    label: Text(
+                      l10n.adminReconcileMatchingButton,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _orderStatuses(l10n).map((s) {
+                    final sel = _selectedStatus == s.$2;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: FilterChip(
+                        label: Text(s.$1),
+                        selected: sel,
+                        visualDensity: VisualDensity.compact,
+                        onSelected: (_) {
+                          setState(() => _selectedStatus = s.$2);
+                          _applyOrderFiltersFromFields();
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -587,8 +720,6 @@ class _OrderTile extends StatelessWidget {
     final orderType = order['type']?.toString() ?? '';
     final priceStr = price?.toString() ?? '';
     final hasPrice = priceStr.isNotEmpty;
-    final userId = order['user_id']?.toString() ?? order['userId']?.toString() ?? '';
-    final createdAt = _parseDate(order['created_at'] ?? order['createdAt']);
     final (statusColor, statusLabel) = _statusInfo(l10n, status);
 
     final pairIdRaw = order['pair_id']?.toString() ?? order['pairId']?.toString() ?? '';
@@ -618,13 +749,6 @@ class _OrderTile extends StatelessWidget {
                 if (quote.isNotEmpty) quote,
               ].join(' '));
 
-    final metaParts = <String>[
-      if (userId.isNotEmpty)
-        '${l10n.adminUserLabel}: ${_truncate(userId, 22)}',
-      if (createdAt != null)
-        DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal()),
-    ];
-
     return Material(
       color: cs.surfaceContainerLow.withValues(alpha: 0.85),
       elevation: 0,
@@ -635,6 +759,7 @@ class _OrderTile extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        mouseCursor: SystemMouseCursors.click,
         onTap: () => _OrderDetailSheet.show(context, order),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
@@ -716,14 +841,42 @@ class _OrderTile extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (metaParts.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        metaParts.join(' · '),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                          height: 1.25,
-                        ),
+                    if (pairIdRaw.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: SelectableText(
+                              '${l10n.adminOrderPairIdLabel}: $pairIdRaw',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontFamily: 'monospace',
+                                color: cs.onSurfaceVariant,
+                                height: 1.25,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: l10n.adminOrderPairIdCopyTooltip,
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              Icons.copy_rounded,
+                              size: 20,
+                              color: cs.onSurfaceVariant,
+                            ),
+                            onPressed: () async {
+                              await Clipboard.setData(
+                                ClipboardData(text: pairIdRaw),
+                              );
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.adminOrderPairIdCopied),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ],
@@ -1736,12 +1889,16 @@ class _InfoRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: valueWidget ??
-                Text(
-                  value!,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.end,
-                ),
+            child: valueWidget != null
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: valueWidget,
+                  )
+                : Text(
+                    value!,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    textAlign: TextAlign.end,
+                  ),
           ),
         ],
       ),

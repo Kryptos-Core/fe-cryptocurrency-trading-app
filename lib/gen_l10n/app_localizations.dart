@@ -5067,6 +5067,90 @@ abstract class AppLocalizations {
   /// **'Filter by User ID'**
   String get filterByUserId;
 
+  /// No description provided for @adminPairIdFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'pair_id (UUID) or symbol e.g. OG/USDT — filter & reconcile'**
+  String get adminPairIdFilterHint;
+
+  /// No description provided for @adminReconcileMatchingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-run matching'**
+  String get adminReconcileMatchingButton;
+
+  /// No description provided for @adminReconcileMatchingPairRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter pair_id (UUID) or symbol BASE/QUOTE.'**
+  String get adminReconcileMatchingPairRequired;
+
+  /// No description provided for @adminOrderPairIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'pair_id'**
+  String get adminOrderPairIdLabel;
+
+  /// No description provided for @adminOrderPairIdCopyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy pair_id for reconcile field'**
+  String get adminOrderPairIdCopyTooltip;
+
+  /// No description provided for @adminOrderPairIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'pair_id copied'**
+  String get adminOrderPairIdCopied;
+
+  /// No description provided for @adminReconcileMatchingConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-run order matching?'**
+  String get adminReconcileMatchingConfirmTitle;
+
+  /// No description provided for @adminReconcileMatchingConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry matching for all open orders on this pair: {pairId}'**
+  String adminReconcileMatchingConfirmMessage(String pairId);
+
+  /// No description provided for @adminReconcileMatchingRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get adminReconcileMatchingRun;
+
+  /// No description provided for @adminReconcileMatchingCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminReconcileMatchingCancel;
+
+  /// No description provided for @adminReconcileMatchingSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconcile done. Trades: {trades}, still open: {open}, outcome: {reason}'**
+  String adminReconcileMatchingSuccess(int trades, int open, String reason);
+
+  /// No description provided for @adminReconcileReasonAllMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'all matched'**
+  String get adminReconcileReasonAllMatched;
+
+  /// No description provided for @adminReconcileReasonNoProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'no further matches'**
+  String get adminReconcileReasonNoProgress;
+
+  /// No description provided for @adminReconcileReasonMaxRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'stopped (safety limit)'**
+  String get adminReconcileReasonMaxRounds;
+
   /// No description provided for @adminOrdersEmpty.
   ///
   /// In en, this message translates to:

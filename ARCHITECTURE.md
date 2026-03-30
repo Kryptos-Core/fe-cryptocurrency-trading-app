@@ -57,6 +57,8 @@ Giao dịch & thị trường: `markets_list_screen`, `market_detail_screen`, `a
 
 Ví & nạp: `wallets_overview_screen`, `wallet_detail_screen`, `deposits_screen`, `wallet_api_screen`, …
 
+**Liên kết ví (WalletConnect v2):** dialog `lib/presentation/screens/blockchain/widgets/link_wallet_dialog.dart` (WC-first), kèm `wc_qr_session_card`, `wc_deeplink_launcher`, `wc_session_poller`; state/API qua `blockchain_provider` và các endpoint `blockchainWc*` trong `api_constants.dart`. Backend: `be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`.
+
 Admin / vận hành: `admin_user_list_screen`, `admin_user_detail_screen`, `admin_transactions_screen`, `admin_currencies_screen`, `admin_wallet_adjust_screen`, `security_requests_review_screen`, `broadcast_notification_screen`, …
 
 Market maker: `market_maker/market_maker_hub_screen`, `market_maker_config_screen`.
@@ -73,4 +75,5 @@ ARB trong `lib/l10n/`; chạy `flutter gen-l10n`. Locale lưu `SharedPreferences
 ## Tài liệu thêm
 
 - [README.md](README.md) — cài đặt, chạy, backend kèm theo
+- [WalletConnect v2 (BE)](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md) — API và env `WALLETCONNECT_*`
 - [scripts/README-FLUTTER.md](scripts/README-FLUTTER.md) — script cài Flutter trên Windows

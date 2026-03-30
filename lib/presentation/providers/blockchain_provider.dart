@@ -4,6 +4,8 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 
 class BlockchainProvider extends ChangeNotifier {
@@ -20,6 +22,11 @@ class BlockchainProvider extends ChangeNotifier {
   bool _isFetchingDepositAddress = false;
   String? _error;
 
+  // ============ WalletConnect Session State ============
+  WcSessionProposal? _activeWcSession;
+  WcSessionStatus _wcSessionStatus = WcSessionStatus.idle;
+  bool _isInitializingWcSession = false;
+
   List<LinkedWallet> get linkedWallets => _linkedWallets;
   List<OnchainTransaction> get recentTransactions => _recentTransactions;
   Map<BlockchainNetwork, DepositAddressResponse> get depositAddresses =>
@@ -28,6 +35,11 @@ class BlockchainProvider extends ChangeNotifier {
   bool get isSubmitting => _isSubmitting;
   bool get isFetchingDepositAddress => _isFetchingDepositAddress;
   String? get error => _error;
+
+  // WalletConnect getters
+  WcSessionProposal? get activeWcSession => _activeWcSession;
+  WcSessionStatus get wcSessionStatus => _wcSessionStatus;
+  bool get isInitializingWcSession => _isInitializingWcSession;
 
   DepositAddressResponse? depositAddressFor(BlockchainNetwork chain) =>
       _depositAddresses[chain];
@@ -279,6 +291,100 @@ class BlockchainProvider extends ChangeNotifier {
     );
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+  // ============ WalletConnect v2 Methods ============
+
+  /// Bước 1: Tạo WC session — FE hiển thị QR/deep link
+  Future<WcSessionProposal?> initiateWcSession({
+    required BlockchainNetwork chain,
+  }) async {
+    _isInitializingWcSession = true;
+    _wcSessionStatus = WcSessionStatus.pending;
+    _activeWcSession = null;
+    _error = null;
+    notifyListeners();
+
+    final result = await _blockchainRepository.initWcSession(chain);
+    WcSessionProposal? proposal;
+
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+        _wcSessionStatus = WcSessionStatus.failed;
+      },
+      (session) {
+        _activeWcSession = session;
+        proposal = session;
+        _wcSessionStatus = WcSessionStatus.pending;
+      },
+    );
+
+    _isInitializingWcSession = false;
+    notifyListeners();
+    return proposal;
+  }
+
+  /// Bước 2: Poll trạng thái từ BE
+  Future<WcSessionStatus> pollWcSessionStatus(String sessionId) async {
+    final result =
+        await _blockchainRepository.getWcSessionStatus(sessionId);
+
+    result.fold(
+      (failure) => _wcSessionStatus = WcSessionStatus.failed,
+      (status) => _wcSessionStatus = status,
+    );
+
+    notifyListeners();
+    return _wcSessionStatus;
+  }
+
+  /// Bước 3: Submit signature sau khi WC signing hoàn tất
+  Future<bool> submitWcSignature({
+    required String sessionId,
+    required String address,
+    required String signature,
+    required BlockchainNetwork chain,
+  }) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _blockchainRepository.submitWcSignature(
+      sessionId: sessionId,
+      address: address,
+      signature: signature,
+      chain: chain,
+    );
+
+    var success = false;
+    result.fold(
+      (failure) {
+        _error = _mapFailureToMessage(failure);
+        _wcSessionStatus = WcSessionStatus.failed;
+      },
+      (_) {
+        success = true;
+        _wcSessionStatus = WcSessionStatus.signed;
+      },
+    );
+
+    if (success) {
+      clearWcSession();
+      await fetchLinkedWallets();
+    }
+
+    _isSubmitting = false;
+    notifyListeners();
+    return success;
+  }
+
+  /// Reset WC session state
+  void clearWcSession() {
+    _activeWcSession = null;
+    _wcSessionStatus = WcSessionStatus.idle;
+    _isInitializingWcSession = false;
     notifyListeners();
   }
 

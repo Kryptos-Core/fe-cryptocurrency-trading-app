@@ -2700,6 +2700,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterByUserId => 'Filter by User ID';
 
   @override
+  String get adminPairIdFilterHint =>
+      'pair_id (UUID) or symbol e.g. OG/USDT — filter & reconcile';
+
+  @override
+  String get adminReconcileMatchingButton => 'Re-run matching';
+
+  @override
+  String get adminReconcileMatchingPairRequired =>
+      'Enter pair_id (UUID) or symbol BASE/QUOTE.';
+
+  @override
+  String get adminOrderPairIdLabel => 'pair_id';
+
+  @override
+  String get adminOrderPairIdCopyTooltip => 'Copy pair_id for reconcile field';
+
+  @override
+  String get adminOrderPairIdCopied => 'pair_id copied';
+
+  @override
+  String get adminReconcileMatchingConfirmTitle => 'Re-run order matching?';
+
+  @override
+  String adminReconcileMatchingConfirmMessage(String pairId) {
+    return 'Retry matching for all open orders on this pair: $pairId';
+  }
+
+  @override
+  String get adminReconcileMatchingRun => 'Run';
+
+  @override
+  String get adminReconcileMatchingCancel => 'Cancel';
+
+  @override
+  String adminReconcileMatchingSuccess(int trades, int open, String reason) {
+    return 'Reconcile done. Trades: $trades, still open: $open, outcome: $reason';
+  }
+
+  @override
+  String get adminReconcileReasonAllMatched => 'all matched';
+
+  @override
+  String get adminReconcileReasonNoProgress => 'no further matches';
+
+  @override
+  String get adminReconcileReasonMaxRounds => 'stopped (safety limit)';
+
+  @override
   String get adminOrdersEmpty => 'No orders';
 
   @override

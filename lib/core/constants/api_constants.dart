@@ -94,6 +94,10 @@ class ApiConstants {
 
   // Admin Transaction Monitor Endpoints
   static const String ordersAdminAll = '/orders/admin/all';
+  static String ordersAdminReconcileMatching(String pairIdOrSymbol) {
+    final t = pairIdOrSymbol.trim();
+    return '/orders/admin/reconcile-matching/${Uri.encodeComponent(t)}';
+  }
   static const String depositsAdminAll = '/deposits/admin/all';
   static const String blockchainAdminWithdrawals = '/blockchain/admin/withdrawals';
   static const String blockchainAdminWithdrawalStats = '/blockchain/admin/withdrawals/stats';
@@ -198,6 +202,17 @@ class ApiConstants {
   static const String blockchainSubmitDeposit = '$blockchain/deposit/submit';
   static const String blockchainRequestWithdrawal = '$blockchain/withdraw/request';
   static const String blockchainTransactions = '$blockchain/transactions';
+
+  // ============ WalletConnect v2 Endpoints ============
+  /// POST — Tạo WC session URI (trả về wcUri, sessionId)
+  static const String blockchainWcInit = '$blockchain/wallets/wc/init';
+
+  /// GET — Poll trạng thái WC session
+  static String blockchainWcStatus(String sessionId) =>
+      '$blockchain/wallets/wc/status/$sessionId';
+
+  /// POST — Submit signature sau khi WC signing hoàn tất
+  static const String blockchainWcSubmit = '$blockchain/wallets/wc/submit';
 
   /// Fiat (bank) withdrawal — USDT to VN bank (manual payout)
   static const String fiatWithdrawalsBanks = '/fiat-withdrawals/banks';

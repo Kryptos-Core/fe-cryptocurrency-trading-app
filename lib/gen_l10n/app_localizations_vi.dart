@@ -2703,6 +2703,54 @@ class AppLocalizationsVi extends AppLocalizations {
   String get filterByUserId => 'Lọc theo ID người dùng';
 
   @override
+  String get adminPairIdFilterHint =>
+      'pair_id (UUID) hoặc ký hiệu OG/USDT — lọc & khớp lại';
+
+  @override
+  String get adminReconcileMatchingButton => 'Khớp lại lệnh';
+
+  @override
+  String get adminReconcileMatchingPairRequired =>
+      'Nhập pair_id (UUID) hoặc ký hiệu BASE/QUOTE.';
+
+  @override
+  String get adminOrderPairIdLabel => 'pair_id';
+
+  @override
+  String get adminOrderPairIdCopyTooltip => 'Sao chép pair_id vào ô khớp lại';
+
+  @override
+  String get adminOrderPairIdCopied => 'Đã sao chép pair_id';
+
+  @override
+  String get adminReconcileMatchingConfirmTitle => 'Chạy khớp lại lệnh?';
+
+  @override
+  String adminReconcileMatchingConfirmMessage(String pairId) {
+    return 'Thử khớp lại mọi lệnh đang mở trên cặp: $pairId';
+  }
+
+  @override
+  String get adminReconcileMatchingRun => 'Chạy';
+
+  @override
+  String get adminReconcileMatchingCancel => 'Hủy';
+
+  @override
+  String adminReconcileMatchingSuccess(int trades, int open, String reason) {
+    return 'Hoàn tất. Giao dịch khớp: $trades, còn mở: $open, kết quả: $reason';
+  }
+
+  @override
+  String get adminReconcileReasonAllMatched => 'đã khớp hết';
+
+  @override
+  String get adminReconcileReasonNoProgress => 'không còn khớp được';
+
+  @override
+  String get adminReconcileReasonMaxRounds => 'dừng (giới hạn an toàn)';
+
+  @override
   String get adminOrdersEmpty => 'Không có lệnh';
 
   @override

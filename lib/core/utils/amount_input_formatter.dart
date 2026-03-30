@@ -56,6 +56,27 @@ class AmountInputFormatter extends TextInputFormatter {
       selection: TextSelection.collapsed(offset: newOffset),
     );
   }
+
+  /// Chuỗi thập phân thuần (không dấu phẩy nghìn) → [TextEditingValue] đã format.
+  ///
+  /// Dùng khi gán [TextEditingController.value] từ ticker / MAX / sổ lệnh.
+  static TextEditingValue valueFromPlainDecimal(String plain) {
+    final trimmed = plain.replaceAll(',', '').trim();
+    if (trimmed.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+    final formatter = AmountInputFormatter();
+    return formatter.formatEditUpdate(
+      const TextEditingValue(),
+      TextEditingValue(
+        text: trimmed,
+        selection: TextSelection.collapsed(offset: trimmed.length),
+      ),
+    );
+  }
 }
 
 /// Strips thousands separators from formatted amount for parsing/API.

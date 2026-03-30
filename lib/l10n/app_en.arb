@@ -1033,6 +1033,32 @@
   "orderStatusCancelled": "Cancelled",
   "orderStatusRejected": "Rejected",
   "filterByUserId": "Filter by User ID",
+  "adminPairIdFilterHint": "pair_id (UUID) or symbol e.g. OG/USDT — filter & reconcile",
+  "adminReconcileMatchingButton": "Re-run matching",
+  "adminReconcileMatchingPairRequired": "Enter pair_id (UUID) or symbol BASE/QUOTE.",
+  "adminOrderPairIdLabel": "pair_id",
+  "adminOrderPairIdCopyTooltip": "Copy pair_id for reconcile field",
+  "adminOrderPairIdCopied": "pair_id copied",
+  "adminReconcileMatchingConfirmTitle": "Re-run order matching?",
+  "adminReconcileMatchingConfirmMessage": "Retry matching for all open orders on this pair: {pairId}",
+  "@adminReconcileMatchingConfirmMessage": {
+    "placeholders": {
+      "pairId": { "type": "String" }
+    }
+  },
+  "adminReconcileMatchingRun": "Run",
+  "adminReconcileMatchingCancel": "Cancel",
+  "adminReconcileMatchingSuccess": "Reconcile done. Trades: {trades}, still open: {open}, outcome: {reason}",
+  "@adminReconcileMatchingSuccess": {
+    "placeholders": {
+      "trades": { "type": "int" },
+      "open": { "type": "int" },
+      "reason": { "type": "String" }
+    }
+  },
+  "adminReconcileReasonAllMatched": "all matched",
+  "adminReconcileReasonNoProgress": "no further matches",
+  "adminReconcileReasonMaxRounds": "stopped (safety limit)",
   "adminOrdersEmpty": "No orders",
   "adminOrdersCountLabel": "{count} orders",
   "@adminOrdersCountLabel": {

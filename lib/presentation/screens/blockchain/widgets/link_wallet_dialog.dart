@@ -1,427 +1,521 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/services/wallet_signing/wallet_service.dart';
-import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
-import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/windows_extension_precheck_card.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/platform_notice_card.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wallet_challenge_section.dart';
+import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
+    if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
+import 'wc_qr_session_card.dart';
+import 'wc_deeplink_launcher.dart';
+import 'wc_session_poller.dart';
 
-class LinkWalletDialog extends StatelessWidget {
+/// LinkWalletDialog — WalletConnect v2 First
+///
+/// Chiến lược (Strategy Pattern):
+///  - Native (Windows/Mobile): WalletConnect QR Code
+///  - Web với window.ethereum detected: Tab chọn WC hoặc Extension
+///  - TronLink: giữ extension web flow (xử lý riêng)
+///
+/// Flow:
+///  1. User chọn network (ETH Sepolia...)
+///  2. App gọi BE /wc/init → nhận wcUri
+///  3. Hiển thị QR / deep link
+///  4. Poller kiểm tra status mỗi 2s
+///  5. Khi status = signed → auto complete → wallet được liên kết
+class LinkWalletDialog extends StatefulWidget {
   const LinkWalletDialog({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return kIsWeb
-        ? const WebLinkWalletDialog()
-        : const NativeLinkWalletDialog();
+  State<LinkWalletDialog> createState() => _LinkWalletDialogState();
+}
+
+class _LinkWalletDialogState extends State<LinkWalletDialog>
+    with SingleTickerProviderStateMixin {
+  BlockchainNetwork _selectedChain = BlockchainNetwork.ethSepolia;
+  WcSessionProposal? _session;
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isCompleted = false;
+
+  /// Chỉ hiện tab Extension khi chạy trên Web và có window.ethereum
+  bool get _showExtensionTab => kIsWeb;
+
+  /// Chỉ hiện deep link button khi chạy trên mobile native
+  bool get _showDeepLink {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
   }
-}
 
-class WebLinkWalletDialog extends _PlatformLinkWalletDialog {
-  const WebLinkWalletDialog({super.key});
+  bool get _hasPendingSession =>
+      _session != null && !_session!.isExpired && !_isCompleted;
 
-  @override
-  bool get isWebDialog => true;
+  bool get _isEvmChain =>
+      _selectedChain == BlockchainNetwork.ethSepolia ||
+      _selectedChain == BlockchainNetwork.solanaDevnet;
 
-  @override
-  String get dialogTitle => 'Link Wallet (Web)';
+  Future<void> _initiateWcSession() async {
+    if (!_isEvmChain) {
+      setState(() {
+        _errorMessage =
+            'WalletConnect chỉ hỗ trợ EVM chains (ETH Sepolia). '
+            'Với Tron, hãy dùng extension TronLink trên Chrome.';
+      });
+      return;
+    }
 
-  @override
-  double get dialogWidth => 640;
-}
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _session = null;
+    });
 
-class NativeLinkWalletDialog extends _PlatformLinkWalletDialog {
-  const NativeLinkWalletDialog({super.key});
+    final provider = context.read<BlockchainProvider>();
+    final proposal = await provider.initiateWcSession(chain: _selectedChain);
 
-  @override
-  bool get isWebDialog => false;
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      if (proposal != null) {
+        _session = proposal;
+      } else {
+        _errorMessage =
+            provider.error ?? 'Không thể tạo phiên WalletConnect. Thử lại.';
+      }
+    });
+  }
 
-  @override
-  String get dialogTitle => 'Link Wallet';
+  void _handleSessionExpired() {
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = 'Session đã hết hạn. Vui lòng tạo QR Code mới.';
+      _session = null;
+    });
+    context.read<BlockchainProvider>().clearWcSession();
+  }
 
-  @override
-  double get dialogWidth => 500;
-}
-
-abstract class _PlatformLinkWalletDialog extends StatefulWidget {
-  const _PlatformLinkWalletDialog({super.key});
-
-  bool get isWebDialog;
-  String get dialogTitle;
-  double get dialogWidth;
-
-  @override
-  State<_PlatformLinkWalletDialog> createState() =>
-      _PlatformLinkWalletDialogState();
-}
-
-class _PlatformLinkWalletDialogState extends State<_PlatformLinkWalletDialog> {
-  final _extensionPrecheckService = sl<WalletExtensionPrecheckService>();
-  final _windowsPrecheckKey = GlobalKey<WindowsExtensionPrecheckCardState>();
-  final _formKey = GlobalKey<FormState>();
-  final _addressController = TextEditingController();
-  final _labelController = TextEditingController();
-  final _signatureController = TextEditingController();
-
-  BlockchainNetwork _selectedNetwork = BlockchainNetwork.ethSepolia;
-  bool _testMode = false;
-  String? _challengeMessage;
-  String? _suggestedConnectedAddress;
-  bool _windowsExtensionPrechecked = false;
-
-  bool get _requiresWindowsExtensionPrecheck {
-    return _extensionPrecheckService.requiresPrecheck(
-      network: _selectedNetwork,
-      isWebDialog: widget.isWebDialog,
-      isTestMode: _testMode,
-      isWeb: kIsWeb,
-      platform: defaultTargetPlatform,
-    );
+  void _handleSessionSigned() {
+    if (!mounted) return;
+    setState(() => _isCompleted = true);
+    // Auto-close sau 1.5s
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) Navigator.of(context).pop(true);
+    });
   }
 
   @override
   void dispose() {
-    _addressController.dispose();
-    _labelController.dispose();
-    _signatureController.dispose();
+    context.read<BlockchainProvider>().clearWcSession();
     super.dispose();
-  }
-
-  Future<void> _requestChallenge() async {
-    if (!_formKey.currentState!.validate()) return;
-    final l10n = AppLocalizations.of(context);
-
-    final provider = context.read<BlockchainProvider>();
-    final response = await provider.initiateWalletLink(
-      chain: _selectedNetwork,
-      address: _addressController.text.trim(),
-      label: _labelController.text.trim().isEmpty
-          ? null
-          : _labelController.text.trim(),
-    );
-
-    if (!mounted) return;
-
-    if (response == null) {
-      showAppSnackBar(
-        context,
-        message: provider.error ?? l10n.failedToRequestChallenge,
-        type: SnackBarType.error,
-      );
-      return;
-    }
-
-    setState(() {
-      _challengeMessage = response.message;
-      _signatureController.clear();
-      _suggestedConnectedAddress = null;
-    });
-
-    showAppSnackBar(
-      context,
-      message: l10n.challengeReceived(response.expiresIn),
-      type: SnackBarType.info,
-    );
-  }
-
-  Future<void> _signWithWallet() async {
-    if (_challengeMessage == null) return;
-    final l10n = AppLocalizations.of(context);
-
-    if (_testMode) {
-      await Clipboard.setData(ClipboardData(text: _challengeMessage!));
-      if (!mounted) return;
-      showAppSnackBar(
-        context,
-        message: l10n.manualModeCopied,
-        type: SnackBarType.info,
-      );
-      return;
-    }
-
-    if (_requiresWindowsExtensionPrecheck) {
-      if (!_windowsExtensionPrechecked) {
-        final ready =
-            await _windowsPrecheckKey.currentState?.runPrecheckFlow() ?? false;
-        if (!ready || !mounted) return;
-      }
-
-      await Clipboard.setData(ClipboardData(text: _challengeMessage!));
-      if (!mounted) return;
-
-      showAppSnackBar(
-        context,
-        message: l10n.walletExtensionPrecheckSuccess,
-        type: SnackBarType.success,
-      );
-      return;
-    }
-
-    final walletServiceFactory = sl<WalletServiceFactory>();
-    final walletService = walletServiceFactory.forNetwork(
-      _selectedNetwork,
-      testMode: _testMode,
-    );
-
-    final result = await walletService.signMessage(
-      WalletSignRequest(
-        network: _selectedNetwork,
-        address: _addressController.text.trim(),
-        message: _challengeMessage!,
-      ),
-    );
-
-    if (!mounted) return;
-
-    if (result.signature != null && result.signature!.isNotEmpty) {
-      _signatureController.text = result.signature!;
-    }
-
-    setState(() {
-      _suggestedConnectedAddress = result.suggestedAddress;
-    });
-
-    if (!mounted) return;
-    showAppSnackBar(
-      context,
-      message: result.message,
-      type: result.openedExternalWallet
-          ? SnackBarType.success
-          : SnackBarType.warning,
-    );
-  }
-
-  Future<void> _verify() async {
-    final signature = _signatureController.text.trim();
-    final l10n = AppLocalizations.of(context);
-    if (_challengeMessage == null) {
-      showAppSnackBar(
-        context,
-        message: l10n.requestChallengeFirst,
-        type: SnackBarType.warning,
-      );
-      return;
-    }
-    if (signature.isEmpty) {
-      showAppSnackBar(
-        context,
-        message: l10n.signatureRequired,
-        type: SnackBarType.warning,
-      );
-      return;
-    }
-
-    final provider = context.read<BlockchainProvider>();
-    final ok = await provider.verifyWalletLink(
-      chain: _selectedNetwork,
-      address: _addressController.text.trim(),
-      signature: signature,
-    );
-
-    if (!mounted) return;
-
-    if (ok) {
-      showAppSnackBar(
-        context,
-        message: l10n.walletLinkedSuccess,
-        type: SnackBarType.success,
-      );
-      Navigator.of(context).pop();
-    } else {
-      showAppSnackBar(
-        context,
-        message: provider.error ?? l10n.verifyFailed,
-        type: SnackBarType.error,
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.isWebDialog
-          ? AppLocalizations.of(context).linkWalletWeb
-          : AppLocalizations.of(context).linkWallet),
-      content: SizedBox(
-        width: widget.dialogWidth,
-        child: Consumer<BlockchainProvider>(
-          builder: (context, provider, _) {
-            final l10n = AppLocalizations.of(context);
-            return SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppDropdownField<BlockchainNetwork>(
-                      value: _selectedNetwork,
-                      menuMaxHeight: 300,
-                      labelText: l10n.networkLabel,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 15),
-                      items: BlockchainNetwork.values
-                          .map(
-                            (network) => DropdownMenuItem(
-                              value: network,
-                              child: Text(
-                                network.label,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: provider.isSubmitting
-                          ? null
-                          : (value) {
-                              if (value != null) {
-                                setState(() {
-                                  _selectedNetwork = value;
-                                  _challengeMessage = null;
-                                  _signatureController.clear();
-                                  _suggestedConnectedAddress = null;
-                                  _windowsExtensionPrechecked = false;
-                                });
-                              }
-                            },
-                    ),
-                    const SizedBox(height: 10),
-                    PlatformNoticeCard(isWebDialog: widget.isWebDialog),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _addressController,
-                      enabled: !provider.isSubmitting,
-                      decoration: InputDecoration(
-                        labelText: l10n.walletAddressLabel,
-                        border: const OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return l10n.walletAddressRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    if (_suggestedConnectedAddress != null &&
-                        _suggestedConnectedAddress!.isNotEmpty &&
-                        _suggestedConnectedAddress!.toLowerCase() !=
-                            _addressController.text.trim().toLowerCase()) ...[
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: OutlinedButton.icon(
-                          icon:
-                              const Icon(Icons.account_balance_wallet_outlined),
-                          label: Text(l10n.useConnectedAccount(
-                              _suggestedConnectedAddress!)),
-                          onPressed: provider.isSubmitting
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _addressController.text =
-                                        _suggestedConnectedAddress!;
-                                    _challengeMessage = null;
-                                    _signatureController.clear();
-                                    _suggestedConnectedAddress = null;
-                                  });
+    final theme = Theme.of(context);
 
-                                  showAppSnackBar(
-                                    context,
-                                    message: AppLocalizations.of(context)
-                                        .walletAddressUpdatedMetamask,
-                                    type: SnackBarType.info,
-                                  );
-                                },
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _labelController,
-                      enabled: !provider.isSubmitting,
-                      decoration: InputDecoration(
-                        labelText: l10n.labelOptional,
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SwitchListTile.adaptive(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l10n.enableTestMode),
-                      value: _testMode,
-                      onChanged: provider.isSubmitting
-                          ? null
-                          : (value) {
-                              setState(() {
-                                _testMode = value;
-                                _windowsExtensionPrechecked = false;
-                              });
-                            },
-                    ),
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed:
-                            provider.isSubmitting ? null : _requestChallenge,
-                        icon: const Icon(Icons.key),
-                        label: Text(
-                          provider.isSubmitting
-                              ? l10n.requestingChallenge
-                              : l10n.requestChallengeStep,
-                        ),
-                      ),
-                    ),
-                    if (_challengeMessage != null) ...[
-                      const SizedBox(height: 12),
-                      WalletChallengeSection(
-                        challengeMessage: _challengeMessage!,
-                        testMode: _testMode,
-                        isWebDialog: widget.isWebDialog,
-                        isSubmitting: provider.isSubmitting,
-                        network: _selectedNetwork,
-                        onSignPressed: _signWithWallet,
-                        signatureController: _signatureController,
-                        showWindowsPrecheck: _requiresWindowsExtensionPrecheck,
-                        windowsPrechecked: _windowsExtensionPrechecked,
-                        extensionPrecheckService: _extensionPrecheckService,
-                        windowsPrecheckKey: _windowsPrecheckKey,
-                        onWindowsPrecheckChanged: (value) {
-                          setState(() {
-                            _windowsExtensionPrechecked = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ],
-                ),
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Header ──
+            _buildHeader(theme),
+
+            // ── Body ──
+            Flexible(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                child: _buildBody(theme),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(AppLocalizations.of(context).close),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 20, 16, 16),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primary.withOpacity(0.12),
+            theme.colorScheme.secondary.withOpacity(0.06),
+          ],
         ),
-        Consumer<BlockchainProvider>(
-          builder: (context, provider, _) => FilledButton(
-            onPressed: provider.isSubmitting ? null : _verify,
-            child: Text(provider.isSubmitting
-                ? AppLocalizations.of(context).verifyingLink
-                : AppLocalizations.of(context).verifyLinkStep),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.account_balance_wallet,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Liên kết ví điện tử',
+                  style: theme.textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Kết nối bằng WalletConnect • Bảo mật cao',
+                  style: theme.textTheme.bodySmall!.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            icon: const Icon(Icons.close),
+            tooltip: 'Đóng',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(ThemeData theme) {
+    // ── Completed ──
+    if (_isCompleted) {
+      return _buildCompletedState(theme);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── Network Selector ──
+        if (!_hasPendingSession) _buildNetworkSelector(theme),
+
+        if (!_hasPendingSession) const SizedBox(height: 20),
+
+        // ── Error ──
+        if (_errorMessage != null) ...[
+          _buildErrorBanner(theme),
+          const SizedBox(height: 16),
+        ],
+
+        // ── Loading ──
+        if (_isLoading) ...[
+          const Center(
+            child: Column(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 12),
+                Text('Đang tạo phiên kết nối...'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+
+        // ── Active WC Session ──
+        if (_hasPendingSession && _session != null)
+          _buildWcSessionView(theme),
+
+        // ── Connect Button ──
+        if (!_hasPendingSession && !_isLoading)
+          _buildConnectButton(theme),
+
+        // ── Extension fallback (Web only) ──
+        if (_showExtensionTab && !_hasPendingSession && !_isLoading) ...[
+          const SizedBox(height: 16),
+          _buildExtensionFallback(theme),
+        ],
+
+        const SizedBox(height: 8),
+
+        // ── Info Footer ──
+        _buildInfoFooter(theme),
+      ],
+    );
+  }
+
+  Widget _buildCompletedState(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 72),
+          const SizedBox(height: 16),
+          Text(
+            'Liên kết thành công!',
+            style: theme.textTheme.titleLarge!.copyWith(
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ví đã được thêm vào danh sách liên kết.',
+            style: theme.textTheme.bodyMedium!.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNetworkSelector(ThemeData theme) {
+    // Chỉ hiện EVM chains cho WC
+    final wcChains = [
+      BlockchainNetwork.ethSepolia,
+      BlockchainNetwork.solanaDevnet,
+    ];
+    final tronChains = [
+      BlockchainNetwork.tronNile,
+      BlockchainNetwork.tronShasta,
+    ];
+    final allChains = [
+      ...wcChains,
+      if (_showExtensionTab) ...tronChains,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Chọn blockchain',
+          style: theme.textTheme.labelLarge!.copyWith(
+            fontWeight: FontWeight.w600,
           ),
         ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: allChains.map((chain) {
+            final isSelected = _selectedChain == chain;
+            final isTron = tronChains.contains(chain);
+            return ChoiceChip(
+              label: Text(chain.label),
+              selected: isSelected,
+              onSelected: (_) => setState(() => _selectedChain = chain),
+              avatar: isTron
+                  ? const Icon(Icons.extension, size: 16)
+                  : const Icon(Icons.qr_code, size: 16),
+              tooltip: isTron ? 'Dùng TronLink Extension (Chrome)' : 'WalletConnect',
+            );
+          }).toList(),
+        ),
+        // Warning khi chọn Tron (chỉ hỗ trợ qua extension web)
+        if (tronChains.contains(_selectedChain))
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline,
+                    size: 14,
+                    color: theme.colorScheme.primary.withOpacity(0.7)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'TronLink được xử lý qua Chrome Extension — chỉ khả dụng trên Web.',
+                    style: theme.textTheme.bodySmall!.copyWith(
+                      color: theme.colorScheme.primary.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
+    );
+  }
+
+  Widget _buildWcSessionView(ThemeData theme) {
+    return Consumer<BlockchainProvider>(
+      builder: (ctx, provider, _) {
+        return WcSessionPoller(
+          sessionId: _session!.sessionId,
+          onSigned: _handleSessionSigned,
+          onExpired: _handleSessionExpired,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // QR Card
+              WcQrSessionCard(
+                session: _session!,
+                status: provider.wcSessionStatus,
+                onExpired: _handleSessionExpired,
+                onRefresh: () {
+                  setState(() => _session = null);
+                  _initiateWcSession();
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Deep link button (mobile only)
+              if (_showDeepLink) ...[
+                WcDeepLinkLauncher(session: _session!),
+                const SizedBox(height: 12),
+              ],
+
+              // Cancel button
+              TextButton(
+                onPressed: () {
+                  setState(() => _session = null);
+                  provider.clearWcSession();
+                },
+                child: const Text('Huỷ và chọn lại'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildConnectButton(ThemeData theme) {
+    final isTron = _selectedChain == BlockchainNetwork.tronNile ||
+        _selectedChain == BlockchainNetwork.tronShasta;
+
+    if (isTron && !_showExtensionTab) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        ),
+        child: Text(
+          'Tron chỉ hỗ trợ qua TronLink Extension trên Chrome. '
+          'Vui lòng truy cập trang web trên Chrome để liên kết ví Tron.',
+          style: theme.textTheme.bodySmall!.copyWith(color: Colors.orange),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return ElevatedButton.icon(
+      onPressed: _initiateWcSession,
+      icon: const Icon(Icons.qr_code),
+      label: const Text('Tạo QR Code kết nối'),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildExtensionFallback(ThemeData theme) {
+    final isTron = _selectedChain == BlockchainNetwork.tronNile ||
+        _selectedChain == BlockchainNetwork.tronShasta;
+
+    if (!isTron) return const SizedBox.shrink();
+
+    return OutlinedButton.icon(
+      onPressed: () async {
+        // Trigger TronLink web signing (giữ lại flow cũ cho Tron trên web)
+        final result = await tronLinkSignOnWeb(
+          message: 'TronLink liên kết ví',
+          expectedAddress: '',
+        );
+        if (!mounted) return;
+        if (result.signature != null) {
+          // Verify signature qua flow cũ
+          final provider = context.read<BlockchainProvider>();
+          final address = result.connectedAddress ?? '';
+          if (address.isNotEmpty) {
+            await provider.verifyWalletLink(
+              chain: _selectedChain,
+              address: address,
+              signature: result.signature!,
+            );
+            if (!mounted) return;
+            if (provider.error == null) {
+              Navigator.of(context).pop(true);
+            }
+          }
+        } else {
+          setState(() {
+            _errorMessage =
+                result.message.isNotEmpty ? result.message : 'TronLink signing thất bại.';
+          });
+        }
+      },
+      icon: const Icon(Icons.extension),
+      label: const Text('Ký bằng TronLink Extension'),
+    );
+  }
+
+  Widget _buildErrorBanner(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.errorContainer.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: theme.colorScheme.error.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline,
+              color: theme.colorScheme.error, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: theme.textTheme.bodySmall!.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 14),
+            onPressed: () => setState(() => _errorMessage = null),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            color: theme.colorScheme.error,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoFooter(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Icon(Icons.shield_outlined,
+              size: 14,
+              color: theme.colorScheme.onSurface.withOpacity(0.4)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Private key không bao giờ rời khỏi ví của bạn.',
+              style: theme.textTheme.bodySmall!.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.4),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

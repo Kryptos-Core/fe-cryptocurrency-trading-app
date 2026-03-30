@@ -933,6 +933,32 @@
   "orderStatusCancelled": "Đã hủy",
   "orderStatusRejected": "Đã từ chối",
   "filterByUserId": "Lọc theo ID người dùng",
+  "adminPairIdFilterHint": "pair_id (UUID) hoặc ký hiệu OG/USDT — lọc & khớp lại",
+  "adminReconcileMatchingButton": "Khớp lại lệnh",
+  "adminReconcileMatchingPairRequired": "Nhập pair_id (UUID) hoặc ký hiệu BASE/QUOTE.",
+  "adminOrderPairIdLabel": "pair_id",
+  "adminOrderPairIdCopyTooltip": "Sao chép pair_id vào ô khớp lại",
+  "adminOrderPairIdCopied": "Đã sao chép pair_id",
+  "adminReconcileMatchingConfirmTitle": "Chạy khớp lại lệnh?",
+  "adminReconcileMatchingConfirmMessage": "Thử khớp lại mọi lệnh đang mở trên cặp: {pairId}",
+  "@adminReconcileMatchingConfirmMessage": {
+    "placeholders": {
+      "pairId": { "type": "String" }
+    }
+  },
+  "adminReconcileMatchingRun": "Chạy",
+  "adminReconcileMatchingCancel": "Hủy",
+  "adminReconcileMatchingSuccess": "Hoàn tất. Giao dịch khớp: {trades}, còn mở: {open}, kết quả: {reason}",
+  "@adminReconcileMatchingSuccess": {
+    "placeholders": {
+      "trades": { "type": "int" },
+      "open": { "type": "int" },
+      "reason": { "type": "String" }
+    }
+  },
+  "adminReconcileReasonAllMatched": "đã khớp hết",
+  "adminReconcileReasonNoProgress": "không còn khớp được",
+  "adminReconcileReasonMaxRounds": "dừng (giới hạn an toàn)",
   "adminOrdersEmpty": "Không có lệnh",
   "adminOrdersCountLabel": "{count} lệnh",
   "@adminOrdersCountLabel": {

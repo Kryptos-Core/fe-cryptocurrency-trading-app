@@ -80,6 +80,8 @@ npm run start:dev
 
 Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
+Backend cần **`WALLETCONNECT_PROJECT_ID`** (Reown Cloud) để luồng WC đầy đủ — xem [`be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md).
+
 ## Kiến trúc mã nguồn
 
 ```

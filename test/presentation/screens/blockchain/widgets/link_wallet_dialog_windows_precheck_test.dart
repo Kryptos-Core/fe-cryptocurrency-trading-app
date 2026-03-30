@@ -3,19 +3,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
-import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/link_wallet_dialog.dart';
 
+/// Fake repository để test UI — tất cả WC methods trả về stub hợp lệ
 class _FakeBlockchainRepository implements BlockchainRepository {
   const _FakeBlockchainRepository();
+
+  @override
+  Future<Either<Failure, WcSessionProposal>> initWcSession(
+    BlockchainNetwork chain,
+  ) async {
+    return Right(WcSessionProposal(
+      sessionId: 'test-session-id',
+      wcUri: 'wc:abc123@2?relay-protocol=irn&symKey=xyz',
+      expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+      chain: chain,
+      caip2Chain: 'eip155:11155111',
+    ));
+  }
+
+  @override
+  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+    String sessionId,
+  ) async {
+    return const Right(WcSessionStatus.pending);
+  }
+
+  @override
+  Future<Either<Failure, VerifyLinkResponse>> submitWcSignature({
+    required String sessionId,
+    required String address,
+    required String signature,
+    required BlockchainNetwork chain,
+  }) async {
+    throw UnimplementedError();
+  }
 
   @override
   Future<Either<Failure, RequestLinkResponse>> requestLink({
@@ -23,12 +54,7 @@ class _FakeBlockchainRepository implements BlockchainRepository {
     required String address,
     String? label,
   }) async {
-    return const Right(
-      RequestLinkResponse(
-        message: 'challenge-for-test',
-        expiresIn: 300,
-      ),
-    );
+    throw UnimplementedError();
   }
 
   @override
@@ -116,68 +142,30 @@ Widget _buildTestApp() {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('LinkWalletDialog Windows precheck', () {
-    setUp(() async {
-      await sl.reset();
-      sl.registerLazySingleton<WalletExtensionPrecheckService>(
-        () => WalletExtensionPrecheckService(
-          openExternalUrl: (_) async => true,
-        ),
-      );
-    });
+  group('LinkWalletDialog — WalletConnect QR Flow', () {
+    testWidgets(
+        'hiển thị QR code session sau khi nhấn nút kết nối ví',
+        (tester) async {
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
 
-    tearDown(() async {
-      await sl.reset();
+      // Dialog mở, hiển thị nút "Kết nối ví" hoặc cở chọn network
+      expect(find.byType(LinkWalletDialog), findsOneWidget);
     });
 
     testWidgets(
-        'shows windows precheck block for ETH after requesting challenge',
+        'không có Windows extension precheck nào trong WC flow',
         (tester) async {
       await tester.pumpWidget(_buildTestApp());
-
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        '0xabc123',
-      );
-
-      await tester.tap(find.text('1) Request Challenge'));
       await tester.pumpAndSettle();
 
-      expect(
-        find.text(
-            'Windows pre-check: confirm extension is installed before signing.'),
-        findsOneWidget,
-      );
-      expect(find.text('Check extension in browser'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 6));
-      await tester.pumpAndSettle();
-    },
-        variant: const TargetPlatformVariant(
-            <TargetPlatform>{TargetPlatform.windows}));
-
-    testWidgets('hides windows precheck block in test mode', (tester) async {
-      await tester.pumpWidget(_buildTestApp());
-
-      await tester
-          .tap(find.text('Enable test mode (manual signature fallback)'));
-      await tester.pumpAndSettle();
-
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        '0xabc123',
-      );
-
-      await tester.tap(find.text('1) Request Challenge'));
-      await tester.pumpAndSettle();
-
+      // Windows precheck card đã bị xoá — không còn tồn tại
+      expect(find.text('Check extension in browser'), findsNothing);
       expect(
         find.text(
             'Windows pre-check: confirm extension is installed before signing.'),
         findsNothing,
       );
-      expect(find.text('Check extension in browser'), findsNothing);
-      await tester.pump(const Duration(seconds: 6));
-      await tester.pumpAndSettle();
     },
         variant: const TargetPlatformVariant(
             <TargetPlatform>{TargetPlatform.windows}));
