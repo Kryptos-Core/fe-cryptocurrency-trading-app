@@ -161,7 +161,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           showAppSnackBar(context, message: f.message, type: SnackBarType.error);
         },
         (_) {
-          auth.updateCurrentUser(user.copyWith(twoFaEnabled: enable));
+          auth.updateCurrentUser(
+            user.copyWith(
+              twoFaEnabled: enable,
+              emailVerified: enable ? true : user.emailVerified,
+            ),
+          );
           showAppSnackBar(
             context,
             message: enable

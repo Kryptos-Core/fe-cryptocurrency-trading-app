@@ -1,6 +1,6 @@
 /// UserRole enum matching the backend RBAC role definitions.
 /// Mirrors: src/common/enums/index.ts → UserRole
-/// Không có GUEST (chưa đăng nhập); không có VERIFIED_USER (dùng users.identity_verified).
+/// Không có GUEST (khách = chưa JWT); không có VERIFIED_USER (KYC: identityVerified; tích xanh email: emailVerified).
 enum UserRole {
   trader,
   admin,

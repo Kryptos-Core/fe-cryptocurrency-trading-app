@@ -24,6 +24,7 @@ class AuthProvider extends ChangeNotifier {
   UserRole _role = UserRole.trader;
   List<String> _permissions = [];
   bool _identityVerified = false;
+  bool _emailVerifiedFromJwt = false;
   bool _isAuthenticated = false;
 
   /// True for one broadcast cycle when a 403 is received from the server.
@@ -51,6 +52,10 @@ class AuthProvider extends ChangeNotifier {
 
   /// Đã xác minh định danh (CCCD/Passport) — từ JWT; đăng nhập lại sau khi admin cập nhật DB.
   bool get isIdentityVerified => _identityVerified;
+
+  /// Đã xác minh inbox qua OTP (JWT hoặc user từ API). Khách (chưa đăng nhập) luôn false.
+  bool get isEmailVerified =>
+      _currentUser?.emailVerified ?? _emailVerifiedFromJwt;
 
   /// Email thật (không phải placeholder `@*.wallet` từ đăng nhập ví) — cần để nhận OTP qua mail.
   bool get hasRealEmailForOtp {
@@ -106,6 +111,7 @@ class AuthProvider extends ChangeNotifier {
     _role = UserRole.fromString(claims['role'] as String?);
     _permissions = _parsePermissions(claims['permissions']);
     _identityVerified = _parseIdentityVerified(claims);
+    _emailVerifiedFromJwt = _parseEmailVerified(claims);
     _isAuthenticated = true;
     notifyListeners();
 
@@ -122,6 +128,7 @@ class AuthProvider extends ChangeNotifier {
       (user) {
         _currentUser = user;
         _identityVerified = user.identityVerified;
+        _emailVerifiedFromJwt = user.emailVerified;
         notifyListeners();
       },
     );
@@ -175,6 +182,7 @@ class AuthProvider extends ChangeNotifier {
     _role = UserRole.trader;
     _permissions = [];
     _identityVerified = false;
+    _emailVerifiedFromJwt = false;
     _isAuthenticated = false;
     notifyListeners();
   }
@@ -183,6 +191,7 @@ class AuthProvider extends ChangeNotifier {
   void updateCurrentUser(User user) {
     _currentUser = user;
     _identityVerified = user.identityVerified;
+    _emailVerifiedFromJwt = user.emailVerified;
     notifyListeners();
   }
 
@@ -213,6 +222,7 @@ class AuthProvider extends ChangeNotifier {
     );
     _permissions = _parsePermissions(claims['permissions']);
     _identityVerified = _parseIdentityVerified(claims);
+    _emailVerifiedFromJwt = _parseEmailVerified(claims);
     _isAuthenticated = true;
     notifyListeners();
     return const Right(null);
@@ -243,6 +253,12 @@ class AuthProvider extends ChangeNotifier {
     if (v == true || v == 1 || v == '1' || v == 'true') return true;
     final role = (claims['role'] as String?)?.toUpperCase();
     if (role == 'VERIFIED_USER') return true;
+    return false;
+  }
+
+  bool _parseEmailVerified(Map<String, dynamic> claims) {
+    final v = claims['emailVerified'] ?? claims['email_verified'];
+    if (v == true || v == 1 || v == '1' || v == 'true') return true;
     return false;
   }
 }

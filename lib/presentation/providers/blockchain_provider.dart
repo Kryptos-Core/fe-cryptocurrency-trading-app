@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_link_session_poll_result.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
@@ -26,6 +27,7 @@ class BlockchainProvider extends ChangeNotifier {
   WcSessionProposal? _activeWcSession;
   WcSessionStatus _wcSessionStatus = WcSessionStatus.idle;
   bool _isInitializingWcSession = false;
+  bool _wcPollSubmitInProgress = false;
 
   List<LinkedWallet> get linkedWallets => _linkedWallets;
   List<OnchainTransaction> get recentTransactions => _recentTransactions;
@@ -326,26 +328,59 @@ class BlockchainProvider extends ChangeNotifier {
     return proposal;
   }
 
-  /// Bước 2: Poll trạng thái từ BE
+  /// Bước 2: Poll trạng thái từ BE; khi BE đã [WcSessionStatus.signed] + address/signature thì gọi submit.
   Future<WcSessionStatus> pollWcSessionStatus(String sessionId) async {
-    final result =
-        await _blockchainRepository.getWcSessionStatus(sessionId);
+    final result = await _blockchainRepository.getWcSessionStatus(sessionId);
 
-    result.fold(
-      (failure) => _wcSessionStatus = WcSessionStatus.failed,
-      (status) => _wcSessionStatus = status,
+    return result.fold<Future<WcSessionStatus>>(
+      (failure) async {
+        _wcSessionStatus = WcSessionStatus.failed;
+        notifyListeners();
+        return _wcSessionStatus;
+      },
+      (WcLinkSessionPollResult poll) async {
+        _wcSessionStatus = poll.status;
+        notifyListeners();
+
+        if (poll.status == WcSessionStatus.signed &&
+            poll.address != null &&
+            poll.signature != null &&
+            _activeWcSession != null &&
+            !_wcPollSubmitInProgress) {
+          _wcPollSubmitInProgress = true;
+          try {
+            final ok = await submitWcSignature(
+              sessionId: sessionId,
+              address: poll.address!,
+              signature: poll.signature!,
+              chain: _activeWcSession!.chain,
+              clearWcSessionAfter: false,
+            );
+            if (ok) {
+              _wcSessionStatus = WcSessionStatus.signed;
+              notifyListeners();
+              return WcSessionStatus.signed;
+            }
+            _wcSessionStatus = WcSessionStatus.failed;
+            notifyListeners();
+            return WcSessionStatus.failed;
+          } finally {
+            _wcPollSubmitInProgress = false;
+          }
+        }
+
+        return poll.status;
+      },
     );
-
-    notifyListeners();
-    return _wcSessionStatus;
   }
 
-  /// Bước 3: Submit signature sau khi WC signing hoàn tất
+  /// Bước 3: Submit signature sau khi WC signing hoàn tất (hoặc sau poll khi BE đã ký server-side).
   Future<bool> submitWcSignature({
     required String sessionId,
     required String address,
     required String signature,
     required BlockchainNetwork chain,
+    bool clearWcSessionAfter = true,
   }) async {
     _isSubmitting = true;
     _error = null;
@@ -371,8 +406,10 @@ class BlockchainProvider extends ChangeNotifier {
     );
 
     if (success) {
-      clearWcSession();
       await fetchLinkedWallets();
+      if (clearWcSessionAfter) {
+        clearWcSession();
+      }
     }
 
     _isSubmitting = false;
@@ -385,6 +422,7 @@ class BlockchainProvider extends ChangeNotifier {
     _activeWcSession = null;
     _wcSessionStatus = WcSessionStatus.idle;
     _isInitializingWcSession = false;
+    _wcPollSubmitInProgress = false;
     notifyListeners();
   }
 

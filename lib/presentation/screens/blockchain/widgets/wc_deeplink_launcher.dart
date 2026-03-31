@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// WcDeepLinkLauncher
 ///
@@ -61,11 +62,11 @@ class _WcDeepLinkLauncherState extends State<WcDeepLinkLauncher> {
     await _tryLaunch(storeUrl);
   }
 
-  String get _storePrefix {
+  String _storeName(AppLocalizations l10n) {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'Google Play';
+      return l10n.wcStoreGooglePlay;
     }
-    return 'App Store';
+    return l10n.wcStoreAppStore;
   }
 
   String get _trustWalletStoreUrl {
@@ -90,13 +91,15 @@ class _WcDeepLinkLauncherState extends State<WcDeepLinkLauncher> {
     }
 
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final storeLabel = _storeName(l10n);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Mở bằng ví trên điện thoại',
+          l10n.wcOpenWalletOnPhone,
           style: theme.textTheme.titleSmall!.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -105,13 +108,14 @@ class _WcDeepLinkLauncherState extends State<WcDeepLinkLauncher> {
 
         // Trust Wallet
         _WalletDeepLinkButton(
+          l10n: l10n,
           name: 'Trust Wallet',
           iconColor: const Color(0xFF3375BB),
           icon: Icons.account_balance_wallet,
           onPressed: _isLaunching ? null : _launchTrustWallet,
           failed: _trustWalletFailed,
           storeUrl: _trustWalletStoreUrl,
-          storeName: _storePrefix,
+          storeName: storeLabel,
           onOpenStore: _openStore,
         ),
 
@@ -119,13 +123,14 @@ class _WcDeepLinkLauncherState extends State<WcDeepLinkLauncher> {
 
         // MetaMask
         _WalletDeepLinkButton(
+          l10n: l10n,
           name: 'MetaMask',
           iconColor: const Color(0xFFE8820C),
           icon: Icons.account_balance_wallet_outlined,
           onPressed: _isLaunching ? null : _launchMetaMask,
           failed: _metaMaskFailed,
           storeUrl: _metaMaskStoreUrl,
-          storeName: _storePrefix,
+          storeName: storeLabel,
           onOpenStore: _openStore,
         ),
       ],
@@ -134,6 +139,7 @@ class _WcDeepLinkLauncherState extends State<WcDeepLinkLauncher> {
 }
 
 class _WalletDeepLinkButton extends StatelessWidget {
+  final AppLocalizations l10n;
   final String name;
   final Color iconColor;
   final IconData icon;
@@ -144,6 +150,7 @@ class _WalletDeepLinkButton extends StatelessWidget {
   final Future<void> Function(String) onOpenStore;
 
   const _WalletDeepLinkButton({
+    required this.l10n,
     required this.name,
     required this.iconColor,
     required this.icon,
@@ -170,7 +177,7 @@ class _WalletDeepLinkButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '$name chưa được cài đặt',
+              l10n.wcWalletNotInstalled(name),
               style: theme.textTheme.bodySmall!.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.orange,
@@ -180,7 +187,7 @@ class _WalletDeepLinkButton extends StatelessWidget {
             TextButton.icon(
               onPressed: () => onOpenStore(storeUrl),
               icon: const Icon(Icons.download, size: 14),
-              label: Text('Tải xuống từ $storeName'),
+              label: Text(l10n.wcDownloadFromStore(storeName)),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -197,7 +204,7 @@ class _WalletDeepLinkButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, color: iconColor, size: 20),
-      label: Text('Mở $name'),
+      label: Text(l10n.wcOpenWalletNamed(name)),
       style: ElevatedButton.styleFrom(
         backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,

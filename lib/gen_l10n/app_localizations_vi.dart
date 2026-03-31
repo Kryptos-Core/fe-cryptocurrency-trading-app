@@ -1213,6 +1213,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get profileSecurityRequiresApproval => 'Bảo mật (cần xét duyệt)';
 
   @override
+  String get profileEmailVerifiedTooltip => 'Đã xác minh email bằng OTP';
+
+  @override
+  String get profileEmailVerifiedLabel => 'Verified';
+
+  @override
   String get profileChangeEmail => 'Đổi email';
 
   @override
@@ -3434,4 +3440,134 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get wcAdvancedLegacyQrSubtitle =>
       'Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*';
+
+  @override
+  String get wcLinkDialogTitle => 'Liên kết ví điện tử';
+
+  @override
+  String get wcLinkDialogSubtitle => 'Kết nối bằng WalletConnect • Bảo mật cao';
+
+  @override
+  String get wcQrScanHintEvm =>
+      'Mở Trust Wallet hoặc MetaMask Mobile → Scan QR';
+
+  @override
+  String get wcQrScanHintSolana =>
+      'Solana: mở Phantom hoặc Solflare Mobile → Scan QR (MetaMask chủ yếu cho Ethereum; WC Solana cần ví hỗ trợ Solana).';
+
+  @override
+  String get wcQrCopyUri => 'Copy URI';
+
+  @override
+  String get wcQrUriCopied => 'Đã copy WalletConnect URI';
+
+  @override
+  String get wcQrWalletLinkedCard => 'Ví đã được liên kết thành công!';
+
+  @override
+  String get wcSessionExpiredFiveMin => 'Session đã hết hạn (5 phút)';
+
+  @override
+  String get wcQrCreateNew => 'Tạo QR mới';
+
+  @override
+  String get wcStatusIdle => 'Chờ khởi tạo';
+
+  @override
+  String get wcStatusPending => 'Chờ scan QR';
+
+  @override
+  String get wcStatusConnected => 'Ví đã kết nối, đang chờ ký…';
+
+  @override
+  String get wcStatusSigned => 'Đã ký thành công!';
+
+  @override
+  String get wcStatusExpired => 'Session hết hạn';
+
+  @override
+  String get wcStatusFailed => 'Có lỗi xảy ra';
+
+  @override
+  String get wcLinkChooseBlockchain => 'Chọn blockchain';
+
+  @override
+  String get wcTooltipTronlinkChrome => 'Dùng TronLink Extension (Chrome)';
+
+  @override
+  String get wcTooltipWalletConnect => 'WalletConnect';
+
+  @override
+  String get wcTronChromeExtensionWebOnly =>
+      'TronLink được xử lý qua Chrome Extension — chỉ khả dụng trên Web.';
+
+  @override
+  String get wcTronChromeOnlyLong =>
+      'Tron chỉ hỗ trợ qua TronLink Extension trên Chrome. Vui lòng truy cập trang web trên Chrome để liên kết ví Tron.';
+
+  @override
+  String get wcCreateQrButton => 'Tạo QR Code kết nối';
+
+  @override
+  String get wcCancelReselect => 'Huỷ và chọn lại';
+
+  @override
+  String get wcPrivateKeyStaysInWallet =>
+      'Private key không bao giờ rời khỏi ví của bạn.';
+
+  @override
+  String get wcCreatingSession => 'Đang tạo phiên kết nối…';
+
+  @override
+  String get wcSessionCreateFailed =>
+      'Không thể tạo phiên WalletConnect. Thử lại.';
+
+  @override
+  String get wcSessionExpiredNewQr =>
+      'Session đã hết hạn. Vui lòng tạo QR Code mới.';
+
+  @override
+  String get wcSessionWcFailedRetry =>
+      'WalletConnect thất bại (kết nối hoặc ký). Hãy tạo QR mới hoặc thử lại.';
+
+  @override
+  String get wcWcSupportsEvmSolanaTron =>
+      'WalletConnect hỗ trợ ETH Sepolia và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.';
+
+  @override
+  String get wcSignWithTronlinkExtension => 'Ký bằng TronLink Extension';
+
+  @override
+  String get wcTronlinkSignFailed => 'TronLink signing thất bại.';
+
+  @override
+  String get wcTronlinkSignMessage => 'TronLink liên kết ví';
+
+  @override
+  String get wcOpenWalletOnPhone => 'Mở bằng ví trên điện thoại';
+
+  @override
+  String wcWalletNotInstalled(String name) {
+    return '$name chưa được cài đặt';
+  }
+
+  @override
+  String wcDownloadFromStore(String store) {
+    return 'Tải xuống từ $store';
+  }
+
+  @override
+  String wcOpenWalletNamed(String name) {
+    return 'Mở $name';
+  }
+
+  @override
+  String get wcStoreGooglePlay => 'Google Play';
+
+  @override
+  String get wcStoreAppStore => 'App Store';
+
+  @override
+  String get wcLinkedWalletAddedToList =>
+      'Ví đã được thêm vào danh sách liên kết.';
 }

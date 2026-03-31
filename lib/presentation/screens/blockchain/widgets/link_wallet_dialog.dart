@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
@@ -56,11 +57,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       _selectedChain == BlockchainNetwork.solanaDevnet;
 
   Future<void> _initiateWcSession() async {
+    final l10n = AppLocalizations.of(context);
     if (!_isEvmChain) {
       setState(() {
-        _errorMessage =
-            'WalletConnect chỉ hỗ trợ EVM chains (ETH Sepolia). '
-            'Với Tron, hãy dùng extension TronLink trên Chrome.';
+        _errorMessage = l10n.wcWcSupportsEvmSolanaTron;
       });
       return;
     }
@@ -80,16 +80,26 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       if (proposal != null) {
         _session = proposal;
       } else {
-        _errorMessage =
-            provider.error ?? 'Không thể tạo phiên WalletConnect. Thử lại.';
+        _errorMessage = provider.error ?? l10n.wcSessionCreateFailed;
       }
     });
   }
 
   void _handleSessionExpired() {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     setState(() {
-      _errorMessage = 'Session đã hết hạn. Vui lòng tạo QR Code mới.';
+      _errorMessage = l10n.wcSessionExpiredNewQr;
+      _session = null;
+    });
+    context.read<BlockchainProvider>().clearWcSession();
+  }
+
+  void _handleSessionFailed() {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    setState(() {
+      _errorMessage = l10n.wcSessionWcFailedRetry;
       _session = null;
     });
     context.read<BlockchainProvider>().clearWcSession();
@@ -113,6 +123,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -122,14 +133,14 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           mainAxisSize: MainAxisSize.min,
           children: [
             // ── Header ──
-            _buildHeader(theme),
+            _buildHeader(theme, l10n),
 
             // ── Body ──
             Flexible(
               child: SingleChildScrollView(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                child: _buildBody(theme),
+                child: _buildBody(theme, l10n),
               ),
             ),
           ],
@@ -138,7 +149,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 16, 16),
       decoration: BoxDecoration(
@@ -172,13 +183,13 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Liên kết ví điện tử',
+                  l10n.wcLinkDialogTitle,
                   style: theme.textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Kết nối bằng WalletConnect • Bảo mật cao',
+                  l10n.wcLinkDialogSubtitle,
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
@@ -189,24 +200,24 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           IconButton(
             onPressed: () => Navigator.of(context).pop(false),
             icon: const Icon(Icons.close),
-            tooltip: 'Đóng',
+            tooltip: l10n.close,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBody(ThemeData theme) {
+  Widget _buildBody(ThemeData theme, AppLocalizations l10n) {
     // ── Completed ──
     if (_isCompleted) {
-      return _buildCompletedState(theme);
+      return _buildCompletedState(theme, l10n);
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ── Network Selector ──
-        if (!_hasPendingSession) _buildNetworkSelector(theme),
+        if (!_hasPendingSession) _buildNetworkSelector(theme, l10n),
 
         if (!_hasPendingSession) const SizedBox(height: 20),
 
@@ -218,12 +229,12 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
 
         // ── Loading ──
         if (_isLoading) ...[
-          const Center(
+          Center(
             child: Column(
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 12),
-                Text('Đang tạo phiên kết nối...'),
+                const CircularProgressIndicator(),
+                const SizedBox(height: 12),
+                Text(l10n.wcCreatingSession),
               ],
             ),
           ),
@@ -232,27 +243,27 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
 
         // ── Active WC Session ──
         if (_hasPendingSession && _session != null)
-          _buildWcSessionView(theme),
+          _buildWcSessionView(theme, l10n),
 
         // ── Connect Button ──
         if (!_hasPendingSession && !_isLoading)
-          _buildConnectButton(theme),
+          _buildConnectButton(theme, l10n),
 
         // ── Extension fallback (Web only) ──
         if (_showExtensionTab && !_hasPendingSession && !_isLoading) ...[
           const SizedBox(height: 16),
-          _buildExtensionFallback(theme),
+          _buildExtensionFallback(theme, l10n),
         ],
 
         const SizedBox(height: 8),
 
         // ── Info Footer ──
-        _buildInfoFooter(theme),
+        _buildInfoFooter(theme, l10n),
       ],
     );
   }
 
-  Widget _buildCompletedState(ThemeData theme) {
+  Widget _buildCompletedState(ThemeData theme, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Column(
@@ -260,7 +271,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           const Icon(Icons.check_circle, color: Colors.green, size: 72),
           const SizedBox(height: 16),
           Text(
-            'Liên kết thành công!',
+            l10n.walletLinkedSuccess,
             style: theme.textTheme.titleLarge!.copyWith(
               color: Colors.green,
               fontWeight: FontWeight.bold,
@@ -268,7 +279,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           ),
           const SizedBox(height: 8),
           Text(
-            'Ví đã được thêm vào danh sách liên kết.',
+            l10n.wcLinkedWalletAddedToList,
             style: theme.textTheme.bodyMedium!.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.6),
             ),
@@ -279,7 +290,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildNetworkSelector(ThemeData theme) {
+  Widget _buildNetworkSelector(ThemeData theme, AppLocalizations l10n) {
     // Chỉ hiện EVM chains cho WC
     final wcChains = [
       BlockchainNetwork.ethSepolia,
@@ -298,7 +309,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Chọn blockchain',
+          l10n.wcLinkChooseBlockchain,
           style: theme.textTheme.labelLarge!.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -317,7 +328,9 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
               avatar: isTron
                   ? const Icon(Icons.extension, size: 16)
                   : const Icon(Icons.qr_code, size: 16),
-              tooltip: isTron ? 'Dùng TronLink Extension (Chrome)' : 'WalletConnect',
+              tooltip: isTron
+                  ? l10n.wcTooltipTronlinkChrome
+                  : l10n.wcTooltipWalletConnect,
             );
           }).toList(),
         ),
@@ -333,7 +346,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'TronLink được xử lý qua Chrome Extension — chỉ khả dụng trên Web.',
+                    l10n.wcTronChromeExtensionWebOnly,
                     style: theme.textTheme.bodySmall!.copyWith(
                       color: theme.colorScheme.primary.withOpacity(0.7),
                     ),
@@ -346,13 +359,14 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildWcSessionView(ThemeData theme) {
+  Widget _buildWcSessionView(ThemeData theme, AppLocalizations l10n) {
     return Consumer<BlockchainProvider>(
       builder: (ctx, provider, _) {
         return WcSessionPoller(
           sessionId: _session!.sessionId,
           onSigned: _handleSessionSigned,
           onExpired: _handleSessionExpired,
+          onFailed: _handleSessionFailed,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -380,7 +394,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                   setState(() => _session = null);
                   provider.clearWcSession();
                 },
-                child: const Text('Huỷ và chọn lại'),
+                child: Text(l10n.wcCancelReselect),
               ),
             ],
           ),
@@ -389,7 +403,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildConnectButton(ThemeData theme) {
+  Widget _buildConnectButton(ThemeData theme, AppLocalizations l10n) {
     final isTron = _selectedChain == BlockchainNetwork.tronNile ||
         _selectedChain == BlockchainNetwork.tronShasta;
 
@@ -402,8 +416,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           border: Border.all(color: Colors.orange.withOpacity(0.3)),
         ),
         child: Text(
-          'Tron chỉ hỗ trợ qua TronLink Extension trên Chrome. '
-          'Vui lòng truy cập trang web trên Chrome để liên kết ví Tron.',
+          l10n.wcTronChromeOnlyLong,
           style: theme.textTheme.bodySmall!.copyWith(color: Colors.orange),
           textAlign: TextAlign.center,
         ),
@@ -413,7 +426,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     return ElevatedButton.icon(
       onPressed: _initiateWcSession,
       icon: const Icon(Icons.qr_code),
-      label: const Text('Tạo QR Code kết nối'),
+      label: Text(l10n.wcCreateQrButton),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -421,7 +434,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildExtensionFallback(ThemeData theme) {
+  Widget _buildExtensionFallback(ThemeData theme, AppLocalizations l10n) {
     final isTron = _selectedChain == BlockchainNetwork.tronNile ||
         _selectedChain == BlockchainNetwork.tronShasta;
 
@@ -431,7 +444,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       onPressed: () async {
         // Trigger TronLink web signing (giữ lại flow cũ cho Tron trên web)
         final result = await tronLinkSignOnWeb(
-          message: 'TronLink liên kết ví',
+          message: l10n.wcTronlinkSignMessage,
           expectedAddress: '',
         );
         if (!mounted) return;
@@ -453,12 +466,12 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         } else {
           setState(() {
             _errorMessage =
-                result.message.isNotEmpty ? result.message : 'TronLink signing thất bại.';
+                result.message.isNotEmpty ? result.message : l10n.wcTronlinkSignFailed;
           });
         }
       },
       icon: const Icon(Icons.extension),
-      label: const Text('Ký bằng TronLink Extension'),
+      label: Text(l10n.wcSignWithTronlinkExtension),
     );
   }
 
@@ -497,7 +510,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildInfoFooter(ThemeData theme) {
+  Widget _buildInfoFooter(ThemeData theme, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Row(
@@ -508,7 +521,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              'Private key không bao giờ rời khỏi ví của bạn.',
+              l10n.wcPrivateKeyStaysInWallet,
               style: theme.textTheme.bodySmall!.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.4),
               ),

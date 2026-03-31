@@ -82,6 +82,10 @@ Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
 **Wallet / đăng nhập ví:** Trong `.env` đặt `WALLETCONNECT_PROJECT_ID` hoặc `REOWN_PROJECT_ID` (Reown Cloud) — **bắt buộc** cho Reown AppKit trên **Android/iOS**. Trên **desktop**, QR đăng nhập gọi `POST .../auth/wallet/wc/init` và poll `GET .../auth/wallet/wc/status/:sessionId` (prefix đầy đủ theo `BASE_URL`); khi phản hồi có `relayPairing: true`, ví quét qua relay thật. Server API cần **cùng** Project ID và khai báo biến trong whitelist `env.validation.ts` của backend để SignClient hoạt động. Chi tiết biến: [`.env.example`](.env.example).
 
+## Khách (Guest) và tích xanh xác minh email
+
+**Guest** trên app là trạng thái **chưa đăng nhập** (không JWT); đây không phải một giá trị `role` lưu trên server. **Tích xanh** (`Icons.verified`) dưới/cạnh avatar trên màn Hồ sơ và drawer khi người dùng có `email_verified` trên backend (đã chứng minh inbox qua OTP — ví dụ bật 2FA hoặc xác minh email liên hệ cho tài khoản ví). Khác với cờ định danh KYC (`identity_verified`).
+
 ## Kiến trúc mã nguồn
 
 ```

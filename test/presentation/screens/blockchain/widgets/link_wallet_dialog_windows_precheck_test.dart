@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_link_session_poll_result.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
@@ -32,10 +33,12 @@ class _FakeBlockchainRepository implements BlockchainRepository {
   }
 
   @override
-  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+  Future<Either<Failure, WcLinkSessionPollResult>> getWcSessionStatus(
     String sessionId,
   ) async {
-    return const Right(WcSessionStatus.pending);
+    return const Right(
+      WcLinkSessionPollResult(status: WcSessionStatus.pending),
+    );
   }
 
   @override

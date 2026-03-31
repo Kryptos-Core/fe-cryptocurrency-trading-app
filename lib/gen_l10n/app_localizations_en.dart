@@ -1213,6 +1213,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSecurityRequiresApproval => 'Security (requires approval)';
 
   @override
+  String get profileEmailVerifiedTooltip => 'Email verified with OTP';
+
+  @override
+  String get profileEmailVerifiedLabel => 'Verified';
+
+  @override
   String get profileChangeEmail => 'Change email';
 
   @override
@@ -3433,4 +3439,135 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get wcAdvancedLegacyQrSubtitle =>
       'Only if you need compatibility with the Nest /auth/wallet/wc/* flow';
+
+  @override
+  String get wcLinkDialogTitle => 'Link digital wallet';
+
+  @override
+  String get wcLinkDialogSubtitle =>
+      'Connect via WalletConnect • High security';
+
+  @override
+  String get wcQrScanHintEvm =>
+      'Open Trust Wallet or MetaMask Mobile → Scan QR';
+
+  @override
+  String get wcQrScanHintSolana =>
+      'Solana: open Phantom or Solflare Mobile → Scan QR (MetaMask is mainly for Ethereum; WalletConnect on Solana needs a Solana-capable wallet).';
+
+  @override
+  String get wcQrCopyUri => 'Copy URI';
+
+  @override
+  String get wcQrUriCopied => 'WalletConnect URI copied';
+
+  @override
+  String get wcQrWalletLinkedCard => 'Wallet linked successfully!';
+
+  @override
+  String get wcSessionExpiredFiveMin => 'Session expired (5 minutes)';
+
+  @override
+  String get wcQrCreateNew => 'Create new QR';
+
+  @override
+  String get wcStatusIdle => 'Awaiting…';
+
+  @override
+  String get wcStatusPending => 'Waiting for QR scan';
+
+  @override
+  String get wcStatusConnected => 'Wallet connected, waiting for signature…';
+
+  @override
+  String get wcStatusSigned => 'Signed successfully!';
+
+  @override
+  String get wcStatusExpired => 'Session expired';
+
+  @override
+  String get wcStatusFailed => 'Something went wrong';
+
+  @override
+  String get wcLinkChooseBlockchain => 'Choose blockchain';
+
+  @override
+  String get wcTooltipTronlinkChrome => 'Use TronLink extension (Chrome)';
+
+  @override
+  String get wcTooltipWalletConnect => 'WalletConnect';
+
+  @override
+  String get wcTronChromeExtensionWebOnly =>
+      'TronLink is handled via Chrome extension — only available on web.';
+
+  @override
+  String get wcTronChromeOnlyLong =>
+      'Tron is only supported via TronLink extension on Chrome. Please open the site in Chrome to link your Tron wallet.';
+
+  @override
+  String get wcCreateQrButton => 'Generate connection QR';
+
+  @override
+  String get wcCancelReselect => 'Cancel and choose again';
+
+  @override
+  String get wcPrivateKeyStaysInWallet =>
+      'Your private key never leaves your wallet.';
+
+  @override
+  String get wcCreatingSession => 'Creating connection…';
+
+  @override
+  String get wcSessionCreateFailed =>
+      'Could not create WalletConnect session. Try again.';
+
+  @override
+  String get wcSessionExpiredNewQr =>
+      'Session expired. Please create a new QR code.';
+
+  @override
+  String get wcSessionWcFailedRetry =>
+      'WalletConnect failed (connection or signing). Create a new QR code or try again.';
+
+  @override
+  String get wcWcSupportsEvmSolanaTron =>
+      'WalletConnect supports Ethereum Sepolia and Solana Devnet. For Tron, use the TronLink extension on Chrome.';
+
+  @override
+  String get wcSignWithTronlinkExtension => 'Sign with TronLink extension';
+
+  @override
+  String get wcTronlinkSignFailed => 'TronLink signing failed.';
+
+  @override
+  String get wcTronlinkSignMessage => 'TronLink link wallet';
+
+  @override
+  String get wcOpenWalletOnPhone => 'Open with wallet on phone';
+
+  @override
+  String wcWalletNotInstalled(String name) {
+    return '$name is not installed';
+  }
+
+  @override
+  String wcDownloadFromStore(String store) {
+    return 'Download from $store';
+  }
+
+  @override
+  String wcOpenWalletNamed(String name) {
+    return 'Open $name';
+  }
+
+  @override
+  String get wcStoreGooglePlay => 'Google Play';
+
+  @override
+  String get wcStoreAppStore => 'App Store';
+
+  @override
+  String get wcLinkedWalletAddedToList =>
+      'The wallet has been added to your linked list.';
 }

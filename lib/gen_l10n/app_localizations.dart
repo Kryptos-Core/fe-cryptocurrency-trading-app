@@ -2318,6 +2318,18 @@ abstract class AppLocalizations {
   /// **'Security (requires approval)'**
   String get profileSecurityRequiresApproval;
 
+  /// No description provided for @profileEmailVerifiedTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified with OTP'**
+  String get profileEmailVerifiedTooltip;
+
+  /// No description provided for @profileEmailVerifiedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get profileEmailVerifiedLabel;
+
   /// No description provided for @profileChangeEmail.
   ///
   /// In en, this message translates to:
@@ -6405,6 +6417,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only if you need compatibility with the Nest /auth/wallet/wc/* flow'**
   String get wcAdvancedLegacyQrSubtitle;
+
+  /// No description provided for @wcLinkDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link digital wallet'**
+  String get wcLinkDialogTitle;
+
+  /// No description provided for @wcLinkDialogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via WalletConnect • High security'**
+  String get wcLinkDialogSubtitle;
+
+  /// No description provided for @wcQrScanHintEvm.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Trust Wallet or MetaMask Mobile → Scan QR'**
+  String get wcQrScanHintEvm;
+
+  /// No description provided for @wcQrScanHintSolana.
+  ///
+  /// In en, this message translates to:
+  /// **'Solana: open Phantom or Solflare Mobile → Scan QR (MetaMask is mainly for Ethereum; WalletConnect on Solana needs a Solana-capable wallet).'**
+  String get wcQrScanHintSolana;
+
+  /// No description provided for @wcQrCopyUri.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy URI'**
+  String get wcQrCopyUri;
+
+  /// No description provided for @wcQrUriCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect URI copied'**
+  String get wcQrUriCopied;
+
+  /// No description provided for @wcQrWalletLinkedCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet linked successfully!'**
+  String get wcQrWalletLinkedCard;
+
+  /// No description provided for @wcSessionExpiredFiveMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired (5 minutes)'**
+  String get wcSessionExpiredFiveMin;
+
+  /// No description provided for @wcQrCreateNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new QR'**
+  String get wcQrCreateNew;
+
+  /// No description provided for @wcStatusIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting…'**
+  String get wcStatusIdle;
+
+  /// No description provided for @wcStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for QR scan'**
+  String get wcStatusPending;
+
+  /// No description provided for @wcStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet connected, waiting for signature…'**
+  String get wcStatusConnected;
+
+  /// No description provided for @wcStatusSigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed successfully!'**
+  String get wcStatusSigned;
+
+  /// No description provided for @wcStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired'**
+  String get wcStatusExpired;
+
+  /// No description provided for @wcStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get wcStatusFailed;
+
+  /// No description provided for @wcLinkChooseBlockchain.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose blockchain'**
+  String get wcLinkChooseBlockchain;
+
+  /// No description provided for @wcTooltipTronlinkChrome.
+  ///
+  /// In en, this message translates to:
+  /// **'Use TronLink extension (Chrome)'**
+  String get wcTooltipTronlinkChrome;
+
+  /// No description provided for @wcTooltipWalletConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect'**
+  String get wcTooltipWalletConnect;
+
+  /// No description provided for @wcTronChromeExtensionWebOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink is handled via Chrome extension — only available on web.'**
+  String get wcTronChromeExtensionWebOnly;
+
+  /// No description provided for @wcTronChromeOnlyLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Tron is only supported via TronLink extension on Chrome. Please open the site in Chrome to link your Tron wallet.'**
+  String get wcTronChromeOnlyLong;
+
+  /// No description provided for @wcCreateQrButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate connection QR'**
+  String get wcCreateQrButton;
+
+  /// No description provided for @wcCancelReselect.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and choose again'**
+  String get wcCancelReselect;
+
+  /// No description provided for @wcPrivateKeyStaysInWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your private key never leaves your wallet.'**
+  String get wcPrivateKeyStaysInWallet;
+
+  /// No description provided for @wcCreatingSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating connection…'**
+  String get wcCreatingSession;
+
+  /// No description provided for @wcSessionCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create WalletConnect session. Try again.'**
+  String get wcSessionCreateFailed;
+
+  /// No description provided for @wcSessionExpiredNewQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please create a new QR code.'**
+  String get wcSessionExpiredNewQr;
+
+  /// No description provided for @wcSessionWcFailedRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect failed (connection or signing). Create a new QR code or try again.'**
+  String get wcSessionWcFailedRetry;
+
+  /// No description provided for @wcWcSupportsEvmSolanaTron.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect supports Ethereum Sepolia and Solana Devnet. For Tron, use the TronLink extension on Chrome.'**
+  String get wcWcSupportsEvmSolanaTron;
+
+  /// No description provided for @wcSignWithTronlinkExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign with TronLink extension'**
+  String get wcSignWithTronlinkExtension;
+
+  /// No description provided for @wcTronlinkSignFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink signing failed.'**
+  String get wcTronlinkSignFailed;
+
+  /// No description provided for @wcTronlinkSignMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink link wallet'**
+  String get wcTronlinkSignMessage;
+
+  /// No description provided for @wcOpenWalletOnPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Open with wallet on phone'**
+  String get wcOpenWalletOnPhone;
+
+  /// No description provided for @wcWalletNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is not installed'**
+  String wcWalletNotInstalled(String name);
+
+  /// No description provided for @wcDownloadFromStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Download from {store}'**
+  String wcDownloadFromStore(String store);
+
+  /// No description provided for @wcOpenWalletNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {name}'**
+  String wcOpenWalletNamed(String name);
+
+  /// No description provided for @wcStoreGooglePlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play'**
+  String get wcStoreGooglePlay;
+
+  /// No description provided for @wcStoreAppStore.
+  ///
+  /// In en, this message translates to:
+  /// **'App Store'**
+  String get wcStoreAppStore;
+
+  /// No description provided for @wcLinkedWalletAddedToList.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet has been added to your linked list.'**
+  String get wcLinkedWalletAddedToList;
 }
 
 class _AppLocalizationsDelegate

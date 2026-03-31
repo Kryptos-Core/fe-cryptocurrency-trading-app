@@ -394,6 +394,8 @@
   "profileUpdated": "Đã cập nhật hồ sơ",
   "profileAvatarUpdated": "Đã cập nhật ảnh đại diện",
   "profileSecurityRequiresApproval": "Bảo mật (cần xét duyệt)",
+  "profileEmailVerifiedTooltip": "Đã xác minh email bằng OTP",
+  "profileEmailVerifiedLabel": "Verified",
   "profileChangeEmail": "Đổi email",
   "profileChangePassword": "Đổi mật khẩu",
   "profileChangePasswordDirect": "Đổi trực tiếp, không cần xét duyệt",
@@ -1266,5 +1268,59 @@
   "wcReownQrDescription": "WalletConnect (Reown): QR do SDK tạo — kết nối MetaMask mobile hoặc ví khác. Sau khi kết nối, app sẽ xin ký message đăng nhập (Sepolia).",
   "wcReownOpenQrButton": "Mở QR WalletConnect (Reown)",
   "wcAdvancedLegacyQrTitle": "Nâng cao: QR từ server (legacy)",
-  "wcAdvancedLegacyQrSubtitle": "Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*"
+  "wcAdvancedLegacyQrSubtitle": "Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*",
+
+  "wcLinkDialogTitle": "Liên kết ví điện tử",
+  "wcLinkDialogSubtitle": "Kết nối bằng WalletConnect • Bảo mật cao",
+  "wcQrScanHintEvm": "Mở Trust Wallet hoặc MetaMask Mobile → Scan QR",
+  "wcQrScanHintSolana": "Solana: mở Phantom hoặc Solflare Mobile → Scan QR (MetaMask chủ yếu cho Ethereum; WC Solana cần ví hỗ trợ Solana).",
+  "wcQrCopyUri": "Copy URI",
+  "wcQrUriCopied": "Đã copy WalletConnect URI",
+  "wcQrWalletLinkedCard": "Ví đã được liên kết thành công!",
+  "wcSessionExpiredFiveMin": "Session đã hết hạn (5 phút)",
+  "wcQrCreateNew": "Tạo QR mới",
+  "wcStatusIdle": "Chờ khởi tạo",
+  "wcStatusPending": "Chờ scan QR",
+  "wcStatusConnected": "Ví đã kết nối, đang chờ ký…",
+  "wcStatusSigned": "Đã ký thành công!",
+  "wcStatusExpired": "Session hết hạn",
+  "wcStatusFailed": "Có lỗi xảy ra",
+  "wcLinkChooseBlockchain": "Chọn blockchain",
+  "wcTooltipTronlinkChrome": "Dùng TronLink Extension (Chrome)",
+  "wcTooltipWalletConnect": "WalletConnect",
+  "wcTronChromeExtensionWebOnly": "TronLink được xử lý qua Chrome Extension — chỉ khả dụng trên Web.",
+  "wcTronChromeOnlyLong": "Tron chỉ hỗ trợ qua TronLink Extension trên Chrome. Vui lòng truy cập trang web trên Chrome để liên kết ví Tron.",
+  "wcCreateQrButton": "Tạo QR Code kết nối",
+  "wcCancelReselect": "Huỷ và chọn lại",
+  "wcPrivateKeyStaysInWallet": "Private key không bao giờ rời khỏi ví của bạn.",
+  "wcCreatingSession": "Đang tạo phiên kết nối…",
+  "wcSessionCreateFailed": "Không thể tạo phiên WalletConnect. Thử lại.",
+  "wcSessionExpiredNewQr": "Session đã hết hạn. Vui lòng tạo QR Code mới.",
+  "wcSessionWcFailedRetry": "WalletConnect thất bại (kết nối hoặc ký). Hãy tạo QR mới hoặc thử lại.",
+  "wcWcSupportsEvmSolanaTron": "WalletConnect hỗ trợ ETH Sepolia và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.",
+  "wcSignWithTronlinkExtension": "Ký bằng TronLink Extension",
+  "wcTronlinkSignFailed": "TronLink signing thất bại.",
+  "wcTronlinkSignMessage": "TronLink liên kết ví",
+  "wcOpenWalletOnPhone": "Mở bằng ví trên điện thoại",
+  "wcWalletNotInstalled": "{name} chưa được cài đặt",
+  "@wcWalletNotInstalled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "wcDownloadFromStore": "Tải xuống từ {store}",
+  "@wcDownloadFromStore": {
+    "placeholders": {
+      "store": { "type": "String" }
+    }
+  },
+  "wcOpenWalletNamed": "Mở {name}",
+  "@wcOpenWalletNamed": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "wcStoreGooglePlay": "Google Play",
+  "wcStoreAppStore": "App Store",
+  "wcLinkedWalletAddedToList": "Ví đã được thêm vào danh sách liên kết."
 }

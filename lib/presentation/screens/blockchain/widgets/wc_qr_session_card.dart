@@ -2,8 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'wc_session_status_l10n.dart';
 
 /// WcQrSessionCard
 ///
@@ -118,6 +121,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isExpired = widget.status == WcSessionStatus.expired ||
         _remaining == Duration.zero;
     final isSigned = widget.status == WcSessionStatus.signed;
@@ -152,7 +156,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  widget.status.displayLabel,
+                  widget.status.label(l10n),
                   style: theme.textTheme.bodyMedium!.copyWith(
                     color: statusColor,
                     fontWeight: FontWeight.w600,
@@ -214,7 +218,9 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                 const SizedBox(height: 16),
                 Text(
                   widget.qrFooterText ??
-                      'Mở Trust Wallet hoặc MetaMask Mobile → Scan QR',
+                      (widget.session.chain == BlockchainNetwork.solanaDevnet
+                          ? l10n.wcQrScanHintSolana
+                          : l10n.wcQrScanHintEvm),
                   style: theme.textTheme.bodySmall!.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
@@ -227,12 +233,11 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                     Clipboard.setData(
                         ClipboardData(text: widget.session.wcUri));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Đã copy WalletConnect URI')),
+                      SnackBar(content: Text(l10n.wcQrUriCopied)),
                     );
                   },
                   icon: const Icon(Icons.copy, size: 14),
-                  label: const Text('Copy URI'),
+                  label: Text(l10n.wcQrCopyUri),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
@@ -250,7 +255,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                     color: Colors.green, size: 64),
                 const SizedBox(height: 12),
                 Text(
-                  'Ví đã được liên kết thành công!',
+                  l10n.wcQrWalletLinkedCard,
                   style: theme.textTheme.titleMedium!.copyWith(
                     color: Colors.green,
                     fontWeight: FontWeight.bold,
@@ -266,7 +271,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                 const Icon(Icons.timer_off, color: Colors.red, size: 48),
                 const SizedBox(height: 12),
                 Text(
-                  'Session đã hết hạn (5 phút)',
+                  l10n.wcSessionExpiredFiveMin,
                   style: theme.textTheme.bodyMedium!.copyWith(
                     color: Colors.red,
                   ),
@@ -275,7 +280,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                 ElevatedButton.icon(
                   onPressed: widget.onRefresh,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Tạo QR mới'),
+                  label: Text(l10n.wcQrCreateNew),
                 ),
               ],
             ),

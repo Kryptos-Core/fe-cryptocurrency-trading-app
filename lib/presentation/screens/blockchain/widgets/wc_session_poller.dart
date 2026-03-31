@@ -8,13 +8,14 @@ import 'package:crypto_trading_app/presentation/providers/blockchain_provider.da
 ///
 /// Widget vô hình — poll BE mỗi 2 giây để kiểm tra trạng thái WC session.
 /// Khi status = signed → gọi [onSigned] để trigger submit signature flow.
-/// Khi status = expired → gọi [onExpired].
+/// Khi status = expired → [onExpired]. Khi failed → [onFailed] (khác hết hạn).
 ///
 /// Pattern: Observer Pattern — lắng nghe thay đổi từ BE
 class WcSessionPoller extends StatefulWidget {
   final String sessionId;
   final VoidCallback? onSigned;
   final VoidCallback? onExpired;
+  final VoidCallback? onFailed;
   final Widget child;
 
   const WcSessionPoller({
@@ -23,6 +24,7 @@ class WcSessionPoller extends StatefulWidget {
     required this.child,
     this.onSigned,
     this.onExpired,
+    this.onFailed,
   });
 
   @override
@@ -61,8 +63,10 @@ class _WcSessionPollerState extends State<WcSessionPoller> {
         if (status == WcSessionStatus.signed) {
           _stopPolling();
           widget.onSigned?.call();
-        } else if (status == WcSessionStatus.expired ||
-            status == WcSessionStatus.failed) {
+        } else if (status == WcSessionStatus.failed) {
+          _stopPolling();
+          widget.onFailed?.call();
+        } else if (status == WcSessionStatus.expired) {
           _stopPolling();
           widget.onExpired?.call();
         }

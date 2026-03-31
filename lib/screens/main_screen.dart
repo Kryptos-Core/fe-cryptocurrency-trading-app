@@ -392,23 +392,50 @@ class _MainScreenState extends State<MainScreen> {
                     auth.currentUser?.email ?? '',
                     style: const TextStyle(color: Colors.white70),
                   ),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.white24,
-                    backgroundImage: auth.currentUser?.avatarUrl != null &&
-                            auth.currentUser!.avatarUrl!.isNotEmpty
-                        ? NetworkImage(auth.currentUser!.avatarUrl!)
-                        : null,
-                    child: auth.currentUser?.avatarUrl == null ||
-                            auth.currentUser!.avatarUrl!.isEmpty
-                        ? Text(
-                            (auth.currentUser?.fullName.isNotEmpty == true
-                                    ? auth.currentUser!.fullName[0]
-                                    : '?')
-                                .toUpperCase(),
-                            style: const TextStyle(
-                                fontSize: 28, color: Colors.white),
-                          )
-                        : null,
+                  currentAccountPicture: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.white24,
+                        backgroundImage: auth.currentUser?.avatarUrl != null &&
+                                auth.currentUser!.avatarUrl!.isNotEmpty
+                            ? NetworkImage(auth.currentUser!.avatarUrl!)
+                            : null,
+                        child: auth.currentUser?.avatarUrl == null ||
+                                auth.currentUser!.avatarUrl!.isEmpty
+                            ? Text(
+                                (auth.currentUser?.fullName.isNotEmpty == true
+                                        ? auth.currentUser!.fullName[0]
+                                        : '?')
+                                    .toUpperCase(),
+                                style: const TextStyle(
+                                    fontSize: 28, color: Colors.white),
+                              )
+                            : null,
+                      ),
+                      if (auth.isEmailVerified)
+                        Positioned(
+                          right: -2,
+                          bottom: -2,
+                          child: Tooltip(
+                            message:
+                                AppLocalizations.of(context).profileEmailVerifiedTooltip,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.verified,
+                                size: 14,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

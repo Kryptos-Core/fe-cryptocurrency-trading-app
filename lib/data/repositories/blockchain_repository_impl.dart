@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_link_session_poll_result.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
@@ -275,7 +276,7 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
   }
 
   @override
-  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+  Future<Either<Failure, WcLinkSessionPollResult>> getWcSessionStatus(
     String sessionId,
   ) async {
     try {
@@ -284,7 +285,13 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       );
       final data = _extractDataMap(response.data);
       final statusStr = data['status']?.toString() ?? 'pending';
-      return Right(WcSessionStatusX.fromApiValue(statusStr));
+      return Right(
+        WcLinkSessionPollResult(
+          status: WcSessionStatusX.fromApiValue(statusStr),
+          address: data['address']?.toString(),
+          signature: data['signature']?.toString(),
+        ),
+      );
     } on DioException catch (e) {
       return Left(_mapDioError(e));
     } catch (e) {

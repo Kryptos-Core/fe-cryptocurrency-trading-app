@@ -4,8 +4,8 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.da
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/wc_link_session_poll_result.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 
 abstract class BlockchainRepository {
   Future<Either<Failure, DepositAddressResponse>> getDepositAddress(
@@ -57,9 +57,9 @@ abstract class BlockchainRepository {
     BlockchainNetwork chain,
   );
 
-  /// Bước 2: Poll trạng thái WC session (mỗi 2 giây)
-  /// Khi status = [WcSessionStatus.signed], FE cần submit signature
-  Future<Either<Failure, WcSessionStatus>> getWcSessionStatus(
+  /// Bước 2: Poll trạng thái WC session (mỗi 2 giây).
+  /// Khi status = signed và có [WcLinkSessionPollResult.address]/signature, provider gọi submit.
+  Future<Either<Failure, WcLinkSessionPollResult>> getWcSessionStatus(
     String sessionId,
   );
 

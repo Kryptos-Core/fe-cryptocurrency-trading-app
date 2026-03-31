@@ -15,6 +15,9 @@ class User {
   final bool twoFaEnabled;
   /// Đã xác minh định danh (CCCD/Passport) — khớp BE users.identity_verified.
   final bool identityVerified;
+
+  /// Đã xác minh inbox qua OTP (2FA hoặc luồng email liên hệ ví) — khớp BE users.email_verified.
+  final bool emailVerified;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -29,6 +32,7 @@ class User {
     this.avatarUrl,
     this.twoFaEnabled = false,
     this.identityVerified = false,
+    this.emailVerified = false,
     required this.createdAt,
     required this.updatedAt,
   }) : status = status ?? (isActive ? 'ACTIVE' : 'BANNED');
@@ -61,6 +65,7 @@ class User {
     String? avatarUrl,
     bool? twoFaEnabled,
     bool? identityVerified,
+    bool? emailVerified,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -75,6 +80,7 @@ class User {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       twoFaEnabled: twoFaEnabled ?? this.twoFaEnabled,
       identityVerified: identityVerified ?? this.identityVerified,
+      emailVerified: emailVerified ?? this.emailVerified,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -13,6 +13,7 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_contact_email_verification_dialog.dart';
+import 'package:crypto_trading_app/presentation/widgets/user_email_verified_mark.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 
@@ -33,7 +34,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Settings updates this screen without a full refetch.
   User _mergeProfileWithAuth(User local, User? auth) {
     if (auth == null || auth.id != local.id) return local;
-    return local.copyWith(twoFaEnabled: auth.twoFaEnabled);
+    final emailVerified = context.read<AuthProvider>().isEmailVerified;
+    return local.copyWith(
+      twoFaEnabled: auth.twoFaEnabled,
+      emailVerified: emailVerified,
+    );
   }
 
   @override
@@ -579,6 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
+            UserEmailVerifiedMark(verified: user.emailVerified),
             const SizedBox(height: 8),
             Text(
               l10n.profileTapToChangeAvatar,

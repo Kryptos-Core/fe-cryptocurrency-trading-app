@@ -13,6 +13,7 @@ class UserModel {
   final String? avatarUrl;
   final bool twoFaEnabled;
   final bool identityVerified;
+  final bool emailVerified;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +28,7 @@ class UserModel {
     this.avatarUrl,
     this.twoFaEnabled = false,
     this.identityVerified = false,
+    this.emailVerified = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -44,6 +46,7 @@ class UserModel {
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
       identityVerified: identityVerified,
+      emailVerified: emailVerified,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -70,7 +73,10 @@ class UserModel {
     final idvRaw = json['identity_verified'] ?? json['identityVerified'] ?? 0;
     final identityVerified =
         idvRaw == true || idvRaw == 1 || idvRaw == '1';
-    
+    final evRaw = json['email_verified'] ?? json['emailVerified'] ?? 0;
+    final emailVerified =
+        evRaw == true || evRaw == 1 || evRaw == '1';
+
     // Parse createdAt - handle both ISO 8601 string and snake_case key
     final createdAtStr = json['createdAt'] as String? ?? json['created_at'] as String?;
     final createdAt = createdAtStr != null 
@@ -94,6 +100,7 @@ class UserModel {
       avatarUrl: avatarUrl,
       twoFaEnabled: twoFaEnabled,
       identityVerified: identityVerified,
+      emailVerified: emailVerified,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -112,6 +119,7 @@ class UserModel {
       if (avatarUrl != null) 'avatarUrl': avatarUrl,
       'twoFaEnabled': twoFaEnabled,
       'identityVerified': identityVerified,
+      'emailVerified': emailVerified,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
