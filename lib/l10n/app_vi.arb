@@ -412,6 +412,14 @@
   "otpEnterCodeHint": "Nhập OTP 6 chữ số",
   "otpVerify": "Xác minh",
   "otpRequiredEnable2faFirst": "Vui lòng bật 2FA trong Cài đặt trước khi đổi email hoặc mật khẩu.",
+  "contactEmailRequiredForOtpShort": "Hãy thêm email thật trong Hồ sơ → Bảo mật trước khi dùng OTP qua mail.",
+  "contactEmailRequiredForOtpBody": "Đăng nhập bằng ví đang dùng email tạm cho đến khi bạn xác minh email thật. Chọn Đổi email, nhập địa chỉ, bấm Gửi mã, rồi nhập OTP được gửi tới hộp thư đó.",
+  "contactEmailGoToProfile": "Mở Hồ sơ",
+  "contactEmailVerifyDialogTitle": "Xác minh email liên hệ",
+  "contactEmailVerifyDialogSubtitle": "Nhập email thật của bạn. Hệ thống sẽ gửi mã 6 chữ số tới địa chỉ đó.",
+  "contactEmailSendCode": "Gửi mã",
+  "contactEmailVerifySave": "Xác minh và lưu",
+  "contactEmailUpdatedSuccess": "Đã cập nhật email liên hệ.",
   "aboutTitle": "Giới thiệu",
   "aboutOpenInBrowser": "Mở trong trình duyệt",
   "aboutPolicyGuideHint": "Chính sách, thông tin ứng dụng và hướng dẫn sử dụng có trong trang web.",
@@ -1020,6 +1028,78 @@
   "drawerSectionFinance": "Tài chính",
   "drawerPaymentConfig": "Cấu hình thanh toán",
   "drawerPaymentConfigSubtitle": "Phương thức, ví, kích hoạt",
+  "drawerTreasuryMainWalletsTitle": "Ví Hot Wallet Hệ Thống",
+  "drawerTreasuryMainWalletsSubtitle": "Quản lý khóa, duyệt, MFA",
+  "treasuryMainWalletsTitle": "Quản lý Hot Wallet Hệ Thống",
+  "treasuryMainWalletsTabActive": "Ví đang hoạt động",
+  "treasuryMainWalletsTabPending": "Chờ duyệt",
+  "treasuryMainWalletsEmptyActive": "Chưa có ví chính đang hoạt động.",
+  "treasuryMainWalletsEmptyPending": "Không có ví nào đang chờ duyệt.",
+  "treasuryMainWalletChipDefault": "Mặc định",
+  "treasuryMainWalletLabelNone": "Không có",
+  "treasuryMainWalletTooltipSetDefault": "Đặt làm mặc định",
+  "treasuryMainWalletTooltipApprove": "Duyệt",
+  "treasuryMainWalletTooltipReject": "Từ chối",
+  "treasuryMainWalletUnknownTime": "Không rõ",
+  "treasuryMainWalletCardSubtitle": "Số dư: {balance} {symbol}\nNhãn: {label}",
+  "@treasuryMainWalletCardSubtitle": {
+    "placeholders": {
+      "balance": { "type": "String" },
+      "symbol": { "type": "String" },
+      "label": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletPendingSubtitle": "Thêm lúc: {dateTime}",
+  "@treasuryMainWalletPendingSubtitle": {
+    "placeholders": {
+      "dateTime": { "type": "String" }
+    }
+  },
+  "treasuryChainTronNile": "TRON — Testnet Nile",
+  "treasuryChainTronMainnet": "TRON — Mainnet",
+  "treasuryChainBscTestnet": "BNB Smart Chain — Testnet",
+  "treasuryChainBscMainnet": "BNB Smart Chain — Mainnet",
+  "treasuryChainSolanaDevnet": "Solana — Devnet",
+  "treasuryChainSolanaMainnet": "Solana — Mainnet",
+  "treasuryChainTronShasta": "TRON — Testnet Shasta",
+  "treasuryChainEthSepolia": "Ethereum — Sepolia",
+  "treasuryChainEthMainnet": "Ethereum — Mainnet",
+  "treasuryImportWalletDialogTitle": "Nhập ví chính ({chainName})",
+  "@treasuryImportWalletDialogTitle": {
+    "placeholders": {
+      "chainName": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletLabelOptional": "Nhãn (tuỳ chọn)",
+  "treasuryImportWalletPrivateKey": "Khóa bí mật",
+  "treasuryImportWalletMfaCode": "Mã MFA",
+  "treasuryImportWalletSendOtp": "Gửi OTP",
+  "treasuryImportWalletImport": "Nhập ví",
+  "treasuryImportWalletMfaSentSnack": "Đã gửi mã MFA tới email của bạn.",
+  "treasuryImportWalletMfaFailedSnack": "Gửi MFA thất bại: {error}",
+  "@treasuryImportWalletMfaFailedSnack": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletRequiredSnack": "Cần nhập khóa bí mật và mã MFA.",
+  "treasuryImportWalletOtpStepHint": "Nhấn Gửi OTP, nhập mã trong email, rồi Xác nhận mã. Chỉ sau khi mã đúng bạn mới nhập nhãn và khóa bí mật.",
+  "treasuryImportWalletConfirmOtp": "Xác nhận mã",
+  "treasuryImportWalletOtpEmpty": "Nhập mã OTP trong email.",
+  "treasuryImportWalletOtpVerifyFailed": "Không xác nhận được: {message}",
+  "@treasuryImportWalletOtpVerifyFailed": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletPrivateKeyRequired": "Cần nhập khóa bí mật.",
+  "treasuryImportWalletSuccessSnack": "Đã thêm ví vào danh sách chờ duyệt.",
+  "treasuryImportWalletErrorSnack": "Lỗi: {error}",
+  "@treasuryImportWalletErrorSnack": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "drawerWithdrawalManagement": "Quản lý rút tiền",
   "drawerWithdrawalManagementSubtitle": "Duyệt và xử lý yêu cầu",
   "drawerManagedWalletsTitle": "Nạp tiền & ví quản lý",

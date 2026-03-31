@@ -6,7 +6,9 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 String _treasuryHistoryTypeLabel(AppLocalizations l10n, String type) {
   switch (type.toUpperCase()) {
@@ -678,20 +680,13 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: AppDropdownField<String?>(
+              child: TreasuryChainDropdown(
+                chains: kTreasuryHistoryFilterChainValues,
                 value: provider.historyChain,
+                allowAllOption: true,
                 labelText: l10n.treasuryChainLabel,
                 hintText: l10n.treasuryFilterAll,
                 menuMaxHeight: menuHeight,
-                items: [
-                  DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text(l10n.treasuryFilterAll),
-                  ),
-                  const DropdownMenuItem(value: 'TRON_NILE', child: Text('TRON_NILE')),
-                  const DropdownMenuItem(value: 'TRON_SHASTA', child: Text('TRON_SHASTA')),
-                  const DropdownMenuItem(value: 'ETH_SEPOLIA', child: Text('ETH_SEPOLIA')),
-                ],
                 onChanged: (value) async {
                   provider.setHistoryFilters(
                     chain: value,

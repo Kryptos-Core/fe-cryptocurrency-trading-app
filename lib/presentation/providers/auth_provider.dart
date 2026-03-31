@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/enums/user_role.dart';
+import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
@@ -50,6 +51,13 @@ class AuthProvider extends ChangeNotifier {
 
   /// Đã xác minh định danh (CCCD/Passport) — từ JWT; đăng nhập lại sau khi admin cập nhật DB.
   bool get isIdentityVerified => _identityVerified;
+
+  /// Email thật (không phải placeholder `@*.wallet` từ đăng nhập ví) — cần để nhận OTP qua mail.
+  bool get hasRealEmailForOtp {
+    final u = _currentUser;
+    if (u == null) return false;
+    return !isWalletPlaceholderEmail(u.email);
+  }
 
   /// Tổng quan + monitoring (dashboard) — admin, risk, finance, support.
   bool get canViewOpsDashboard =>

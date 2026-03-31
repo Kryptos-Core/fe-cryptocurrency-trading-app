@@ -7,7 +7,9 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 String _formatBalance(String? balance) {
   if (balance == null || balance.isEmpty) return '—';
@@ -210,19 +212,15 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: AppDropdownField<String>(
+          child: TreasuryChainDropdown(
+            chains: kTreasuryOpsChainValues,
             value: provider.walletChain,
+            allowAllOption: true,
             labelText: l10n.treasuryChainLabel,
             hintText: l10n.treasuryFilterAll,
-            items: const [
-              DropdownMenuItem(value: 'TRON_NILE', child: Text('TRON_NILE')),
-              DropdownMenuItem(value: 'TRON_SHASTA', child: Text('TRON_SHASTA')),
-              DropdownMenuItem(value: 'TRON_MAINNET', child: Text('TRON_MAINNET')),
-              DropdownMenuItem(value: 'ETH_SEPOLIA', child: Text('ETH_SEPOLIA')),
-              DropdownMenuItem(value: 'ETH_MAINNET', child: Text('ETH_MAINNET')),
-            ],
             onChanged: (value) async {
-              provider.setWalletFilters(chain: value, purpose: provider.walletPurpose);
+              provider.setWalletFilters(
+                  chain: value, purpose: provider.walletPurpose);
               await provider.loadWallets();
             },
           ),

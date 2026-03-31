@@ -2426,6 +2426,54 @@ abstract class AppLocalizations {
   /// **'Please enable 2FA in Settings before changing email or password.'**
   String get otpRequiredEnable2faFirst;
 
+  /// No description provided for @contactEmailRequiredForOtpShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a real email in Profile → Security before using email OTP.'**
+  String get contactEmailRequiredForOtpShort;
+
+  /// No description provided for @contactEmailRequiredForOtpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet sign-in uses a placeholder address until you verify a real one. Open Change email, enter your address, tap Send code, then enter the OTP sent to that inbox.'**
+  String get contactEmailRequiredForOtpBody;
+
+  /// No description provided for @contactEmailGoToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile'**
+  String get contactEmailGoToProfile;
+
+  /// No description provided for @contactEmailVerifyDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify contact email'**
+  String get contactEmailVerifyDialogTitle;
+
+  /// No description provided for @contactEmailVerifyDialogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your real email. We will send a 6-digit code there.'**
+  String get contactEmailVerifyDialogSubtitle;
+
+  /// No description provided for @contactEmailSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get contactEmailSendCode;
+
+  /// No description provided for @contactEmailVerifySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify and save'**
+  String get contactEmailVerifySave;
+
+  /// No description provided for @contactEmailUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact email updated.'**
+  String get contactEmailUpdatedSuccess;
+
   /// No description provided for @aboutTitle.
   ///
   /// In en, this message translates to:
@@ -5426,6 +5474,247 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Methods, wallets, activation'**
   String get drawerPaymentConfigSubtitle;
+
+  /// No description provided for @drawerTreasuryMainWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Hot Wallets'**
+  String get drawerTreasuryMainWalletsTitle;
+
+  /// No description provided for @drawerTreasuryMainWalletsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys, approvals, MFA'**
+  String get drawerTreasuryMainWalletsSubtitle;
+
+  /// No description provided for @treasuryMainWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Hot Wallets Management'**
+  String get treasuryMainWalletsTitle;
+
+  /// No description provided for @treasuryMainWalletsTabActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Wallets'**
+  String get treasuryMainWalletsTabActive;
+
+  /// No description provided for @treasuryMainWalletsTabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Approvals'**
+  String get treasuryMainWalletsTabPending;
+
+  /// No description provided for @treasuryMainWalletsEmptyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'No active main wallets found.'**
+  String get treasuryMainWalletsEmptyActive;
+
+  /// No description provided for @treasuryMainWalletsEmptyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending wallets for approval.'**
+  String get treasuryMainWalletsEmptyPending;
+
+  /// No description provided for @treasuryMainWalletChipDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get treasuryMainWalletChipDefault;
+
+  /// No description provided for @treasuryMainWalletLabelNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get treasuryMainWalletLabelNone;
+
+  /// No description provided for @treasuryMainWalletTooltipSetDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as Default'**
+  String get treasuryMainWalletTooltipSetDefault;
+
+  /// No description provided for @treasuryMainWalletTooltipApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get treasuryMainWalletTooltipApprove;
+
+  /// No description provided for @treasuryMainWalletTooltipReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get treasuryMainWalletTooltipReject;
+
+  /// No description provided for @treasuryMainWalletUnknownTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get treasuryMainWalletUnknownTime;
+
+  /// No description provided for @treasuryMainWalletCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {balance} {symbol}\nLabel: {label}'**
+  String treasuryMainWalletCardSubtitle(
+      String balance, String symbol, String label);
+
+  /// No description provided for @treasuryMainWalletPendingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Added at: {dateTime}'**
+  String treasuryMainWalletPendingSubtitle(String dateTime);
+
+  /// No description provided for @treasuryChainTronNile.
+  ///
+  /// In en, this message translates to:
+  /// **'TRON — Nile testnet'**
+  String get treasuryChainTronNile;
+
+  /// No description provided for @treasuryChainTronMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'TRON — Mainnet'**
+  String get treasuryChainTronMainnet;
+
+  /// No description provided for @treasuryChainBscTestnet.
+  ///
+  /// In en, this message translates to:
+  /// **'BNB Smart Chain — Testnet'**
+  String get treasuryChainBscTestnet;
+
+  /// No description provided for @treasuryChainBscMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'BNB Smart Chain — Mainnet'**
+  String get treasuryChainBscMainnet;
+
+  /// No description provided for @treasuryChainSolanaDevnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Solana — Devnet'**
+  String get treasuryChainSolanaDevnet;
+
+  /// No description provided for @treasuryChainSolanaMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Solana — Mainnet'**
+  String get treasuryChainSolanaMainnet;
+
+  /// No description provided for @treasuryChainTronShasta.
+  ///
+  /// In en, this message translates to:
+  /// **'TRON — Shasta testnet'**
+  String get treasuryChainTronShasta;
+
+  /// No description provided for @treasuryChainEthSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethereum — Sepolia'**
+  String get treasuryChainEthSepolia;
+
+  /// No description provided for @treasuryChainEthMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethereum — Mainnet'**
+  String get treasuryChainEthMainnet;
+
+  /// No description provided for @treasuryImportWalletDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import main wallet ({chainName})'**
+  String treasuryImportWalletDialogTitle(String chainName);
+
+  /// No description provided for @treasuryImportWalletLabelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (optional)'**
+  String get treasuryImportWalletLabelOptional;
+
+  /// No description provided for @treasuryImportWalletPrivateKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Private key'**
+  String get treasuryImportWalletPrivateKey;
+
+  /// No description provided for @treasuryImportWalletMfaCode.
+  ///
+  /// In en, this message translates to:
+  /// **'MFA code'**
+  String get treasuryImportWalletMfaCode;
+
+  /// No description provided for @treasuryImportWalletSendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP'**
+  String get treasuryImportWalletSendOtp;
+
+  /// No description provided for @treasuryImportWalletImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get treasuryImportWalletImport;
+
+  /// No description provided for @treasuryImportWalletMfaSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'MFA code sent to your email.'**
+  String get treasuryImportWalletMfaSentSnack;
+
+  /// No description provided for @treasuryImportWalletMfaFailedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send MFA: {error}'**
+  String treasuryImportWalletMfaFailedSnack(String error);
+
+  /// No description provided for @treasuryImportWalletRequiredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Private key and MFA code are required.'**
+  String get treasuryImportWalletRequiredSnack;
+
+  /// No description provided for @treasuryImportWalletOtpStepHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Send OTP, enter the code from your email, and confirm. You can enter the label and private key only after the code is verified.'**
+  String get treasuryImportWalletOtpStepHint;
+
+  /// No description provided for @treasuryImportWalletConfirmOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm code'**
+  String get treasuryImportWalletConfirmOtp;
+
+  /// No description provided for @treasuryImportWalletOtpEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code from your email.'**
+  String get treasuryImportWalletOtpEmpty;
+
+  /// No description provided for @treasuryImportWalletOtpVerifyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not verify: {message}'**
+  String treasuryImportWalletOtpVerifyFailed(String message);
+
+  /// No description provided for @treasuryImportWalletPrivateKeyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Private key is required.'**
+  String get treasuryImportWalletPrivateKeyRequired;
+
+  /// No description provided for @treasuryImportWalletSuccessSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet imported to pending approvals.'**
+  String get treasuryImportWalletSuccessSnack;
+
+  /// No description provided for @treasuryImportWalletErrorSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String treasuryImportWalletErrorSnack(String error);
 
   /// No description provided for @drawerWithdrawalManagement.
   ///

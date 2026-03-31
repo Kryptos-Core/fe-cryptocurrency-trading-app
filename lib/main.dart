@@ -25,6 +25,7 @@ import 'package:crypto_trading_app/presentation/providers/admin_users_provider.d
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/core/services/fcm_service.dart';
@@ -33,8 +34,7 @@ import 'package:crypto_trading_app/data/datasources/payment_config_remote_dataso
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/withdrawal_admin_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/fiat_withdrawals_remote_datasource.dart';
-import 'package:crypto_trading_app/presentation/providers/fiat_withdrawals_provider.dart';
+
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
 void main() async {
@@ -140,7 +140,6 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<DashboardProvider>(
           create: (_) => DashboardProvider(
             datasource: di.sl(),
-            fiatWithdrawalsRemote: di.sl(),
             wsService: di.sl(),
             tokenService: di.sl(),
           ),
@@ -167,6 +166,13 @@ class CryptoTradingApp extends StatelessWidget {
             dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
           ),
         ),
+        ChangeNotifierProvider<TreasuryMainWalletProvider>(
+          create: (_) => TreasuryMainWalletProvider(
+            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+            authRepo: di.sl(),
+            tokenService: di.sl(),
+          ),
+        ),
         ChangeNotifierProvider<MarketMakerProvider>(
           create: (_) => MarketMakerProvider(
             dataSource: MarketMakerRemoteDataSourceImpl(dioClient: di.sl()),
@@ -175,11 +181,6 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<WithdrawalManagementProvider>(
           create: (_) => WithdrawalManagementProvider(
             dataSource: WithdrawalAdminRemoteDataSourceImpl(dioClient: di.sl<DioClient>()),
-          ),
-        ),
-        ChangeNotifierProvider<FiatWithdrawalsProvider>(
-          create: (_) => FiatWithdrawalsProvider(
-            dataSource: di.sl<FiatWithdrawalsRemoteDataSource>(),
           ),
         ),
       ],

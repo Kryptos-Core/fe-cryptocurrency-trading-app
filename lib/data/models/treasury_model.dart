@@ -125,29 +125,41 @@ class TreasuryTransactionModel {
 
 class TreasuryMainWalletModel {
   final String mainWalletId;
+  final String chain;
   final String address;
   final String? label;
   final String balance;
   final String symbol;
   final bool isDefault;
+  final String status;
+  final DateTime? createdAt;
+  final DateTime? lastRotatedAt;
 
   const TreasuryMainWalletModel({
     required this.mainWalletId,
+    required this.chain,
     required this.address,
     this.label,
     required this.balance,
     required this.symbol,
     required this.isDefault,
+    required this.status,
+    this.createdAt,
+    this.lastRotatedAt,
   });
 
   factory TreasuryMainWalletModel.fromJson(Map<String, dynamic> json) {
     return TreasuryMainWalletModel(
       mainWalletId: (json['mainWalletId'] ?? json['main_wallet_id'] ?? '').toString(),
+      chain: (json['chain'] ?? '').toString(),
       address: (json['address'] ?? '').toString(),
       label: json['label']?.toString(),
       balance: (json['balance'] ?? '0').toString(),
       symbol: (json['symbol'] ?? '').toString(),
       isDefault: json['isDefault'] == true || json['is_default'] == true,
+      status: (json['status'] ?? 'ACTIVE').toString(),
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
+      lastRotatedAt: json['last_rotated_at'] != null ? DateTime.tryParse(json['last_rotated_at'].toString()) : null,
     );
   }
 }

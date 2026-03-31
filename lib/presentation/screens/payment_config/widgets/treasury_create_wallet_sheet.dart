@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 class TreasuryCreateWalletSheet extends StatefulWidget {
   const TreasuryCreateWalletSheet({super.key});
@@ -43,16 +45,10 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            AppDropdownField<String>(
+            TreasuryChainDropdown(
+              chains: kTreasuryOpsChainValues,
               value: _chain,
               labelText: l10n.treasuryChainLabel,
-              items: const [
-                DropdownMenuItem(value: 'TRON_NILE', child: Text('TRON_NILE')),
-                DropdownMenuItem(value: 'TRON_SHASTA', child: Text('TRON_SHASTA')),
-                DropdownMenuItem(value: 'TRON_MAINNET', child: Text('TRON_MAINNET')),
-                DropdownMenuItem(value: 'ETH_SEPOLIA', child: Text('ETH_SEPOLIA')),
-                DropdownMenuItem(value: 'ETH_MAINNET', child: Text('ETH_MAINNET')),
-              ],
               onChanged: (v) {
                 if (v == null) return;
                 setState(() => _chain = v);

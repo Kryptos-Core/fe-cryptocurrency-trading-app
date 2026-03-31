@@ -468,6 +468,14 @@
   "otpEnterCodeHint": "Enter 6-digit OTP",
   "otpVerify": "Verify",
   "otpRequiredEnable2faFirst": "Please enable 2FA in Settings before changing email or password.",
+  "contactEmailRequiredForOtpShort": "Add a real email in Profile → Security before using email OTP.",
+  "contactEmailRequiredForOtpBody": "Wallet sign-in uses a placeholder address until you verify a real one. Open Change email, enter your address, tap Send code, then enter the OTP sent to that inbox.",
+  "contactEmailGoToProfile": "Open Profile",
+  "contactEmailVerifyDialogTitle": "Verify contact email",
+  "contactEmailVerifyDialogSubtitle": "Enter your real email. We will send a 6-digit code there.",
+  "contactEmailSendCode": "Send code",
+  "contactEmailVerifySave": "Verify and save",
+  "contactEmailUpdatedSuccess": "Contact email updated.",
   "aboutTitle": "About",
   "aboutOpenInBrowser": "Open in browser",
   "aboutPolicyGuideHint": "Policy, app information, and user guide are available in browser.",
@@ -1120,6 +1128,78 @@
   "drawerSectionFinance": "Finance",
   "drawerPaymentConfig": "Payment Configuration",
   "drawerPaymentConfigSubtitle": "Methods, wallets, activation",
+  "drawerTreasuryMainWalletsTitle": "System Hot Wallets",
+  "drawerTreasuryMainWalletsSubtitle": "Keys, approvals, MFA",
+  "treasuryMainWalletsTitle": "System Hot Wallets Management",
+  "treasuryMainWalletsTabActive": "Active Wallets",
+  "treasuryMainWalletsTabPending": "Pending Approvals",
+  "treasuryMainWalletsEmptyActive": "No active main wallets found.",
+  "treasuryMainWalletsEmptyPending": "No pending wallets for approval.",
+  "treasuryMainWalletChipDefault": "Default",
+  "treasuryMainWalletLabelNone": "None",
+  "treasuryMainWalletTooltipSetDefault": "Set as Default",
+  "treasuryMainWalletTooltipApprove": "Approve",
+  "treasuryMainWalletTooltipReject": "Reject",
+  "treasuryMainWalletUnknownTime": "Unknown",
+  "treasuryMainWalletCardSubtitle": "Balance: {balance} {symbol}\nLabel: {label}",
+  "@treasuryMainWalletCardSubtitle": {
+    "placeholders": {
+      "balance": { "type": "String" },
+      "symbol": { "type": "String" },
+      "label": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletPendingSubtitle": "Added at: {dateTime}",
+  "@treasuryMainWalletPendingSubtitle": {
+    "placeholders": {
+      "dateTime": { "type": "String" }
+    }
+  },
+  "treasuryChainTronNile": "TRON — Nile testnet",
+  "treasuryChainTronMainnet": "TRON — Mainnet",
+  "treasuryChainBscTestnet": "BNB Smart Chain — Testnet",
+  "treasuryChainBscMainnet": "BNB Smart Chain — Mainnet",
+  "treasuryChainSolanaDevnet": "Solana — Devnet",
+  "treasuryChainSolanaMainnet": "Solana — Mainnet",
+  "treasuryChainTronShasta": "TRON — Shasta testnet",
+  "treasuryChainEthSepolia": "Ethereum — Sepolia",
+  "treasuryChainEthMainnet": "Ethereum — Mainnet",
+  "treasuryImportWalletDialogTitle": "Import main wallet ({chainName})",
+  "@treasuryImportWalletDialogTitle": {
+    "placeholders": {
+      "chainName": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletLabelOptional": "Label (optional)",
+  "treasuryImportWalletPrivateKey": "Private key",
+  "treasuryImportWalletMfaCode": "MFA code",
+  "treasuryImportWalletSendOtp": "Send OTP",
+  "treasuryImportWalletImport": "Import",
+  "treasuryImportWalletMfaSentSnack": "MFA code sent to your email.",
+  "treasuryImportWalletMfaFailedSnack": "Failed to send MFA: {error}",
+  "@treasuryImportWalletMfaFailedSnack": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletRequiredSnack": "Private key and MFA code are required.",
+  "treasuryImportWalletOtpStepHint": "Tap Send OTP, enter the code from your email, and confirm. You can enter the label and private key only after the code is verified.",
+  "treasuryImportWalletConfirmOtp": "Confirm code",
+  "treasuryImportWalletOtpEmpty": "Enter the code from your email.",
+  "treasuryImportWalletOtpVerifyFailed": "Could not verify: {message}",
+  "@treasuryImportWalletOtpVerifyFailed": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "treasuryImportWalletPrivateKeyRequired": "Private key is required.",
+  "treasuryImportWalletSuccessSnack": "Wallet imported to pending approvals.",
+  "treasuryImportWalletErrorSnack": "Error: {error}",
+  "@treasuryImportWalletErrorSnack": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "drawerWithdrawalManagement": "Withdrawal Management",
   "drawerWithdrawalManagementSubtitle": "Review and process requests",
   "drawerManagedWalletsTitle": "User deposits & managed wallets",

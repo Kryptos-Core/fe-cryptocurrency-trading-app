@@ -61,6 +61,19 @@ abstract class AuthRepository {
     String? otpCode,
   });
 
+  /// OTP gửi tới email mới — chỉ tài khoản ví (email @*.wallet). Trả về thời gian còn hiệu lực (giây).
+  Future<Either<Failure, int>> sendContactEmailVerificationOtp({
+    required String token,
+    required String email,
+  });
+
+  /// Xác minh OTP và cập nhật email đăng nhập.
+  Future<Either<Failure, User>> verifyContactEmail({
+    required String token,
+    required String email,
+    required String otpCode,
+  });
+
   /// Upload avatar — trả về user đã cập nhật
   Future<Either<Failure, User>> uploadAvatar({
     required String token,
@@ -347,6 +360,56 @@ class AuthRepositoryImpl implements AuthRepository {
         otpCode: otpCode,
       );
       return Right(res);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> sendContactEmailVerificationOtp({
+    required String token,
+    required String email,
+  }) async {
+    try {
+      final expiresIn = await userRemoteDataSource.sendContactEmailVerificationOtp(
+        token: token,
+        email: email,
+      );
+      return Right(expiresIn);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> verifyContactEmail({
+    required String token,
+    required String email,
+    required String otpCode,
+  }) async {
+    try {
+      final model = await userRemoteDataSource.verifyContactEmail(
+        token: token,
+        email: email,
+        otpCode: otpCode,
+      );
+      return Right(model.toEntity());
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
     } on ValidationException catch (e) {

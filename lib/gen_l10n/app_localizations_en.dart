@@ -1271,6 +1271,33 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enable 2FA in Settings before changing email or password.';
 
   @override
+  String get contactEmailRequiredForOtpShort =>
+      'Add a real email in Profile → Security before using email OTP.';
+
+  @override
+  String get contactEmailRequiredForOtpBody =>
+      'Wallet sign-in uses a placeholder address until you verify a real one. Open Change email, enter your address, tap Send code, then enter the OTP sent to that inbox.';
+
+  @override
+  String get contactEmailGoToProfile => 'Open Profile';
+
+  @override
+  String get contactEmailVerifyDialogTitle => 'Verify contact email';
+
+  @override
+  String get contactEmailVerifyDialogSubtitle =>
+      'Enter your real email. We will send a 6-digit code there.';
+
+  @override
+  String get contactEmailSendCode => 'Send code';
+
+  @override
+  String get contactEmailVerifySave => 'Verify and save';
+
+  @override
+  String get contactEmailUpdatedSuccess => 'Contact email updated.';
+
+  @override
   String get aboutTitle => 'About';
 
   @override
@@ -2891,6 +2918,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get drawerPaymentConfigSubtitle => 'Methods, wallets, activation';
+
+  @override
+  String get drawerTreasuryMainWalletsTitle => 'System Hot Wallets';
+
+  @override
+  String get drawerTreasuryMainWalletsSubtitle => 'Keys, approvals, MFA';
+
+  @override
+  String get treasuryMainWalletsTitle => 'System Hot Wallets Management';
+
+  @override
+  String get treasuryMainWalletsTabActive => 'Active Wallets';
+
+  @override
+  String get treasuryMainWalletsTabPending => 'Pending Approvals';
+
+  @override
+  String get treasuryMainWalletsEmptyActive => 'No active main wallets found.';
+
+  @override
+  String get treasuryMainWalletsEmptyPending =>
+      'No pending wallets for approval.';
+
+  @override
+  String get treasuryMainWalletChipDefault => 'Default';
+
+  @override
+  String get treasuryMainWalletLabelNone => 'None';
+
+  @override
+  String get treasuryMainWalletTooltipSetDefault => 'Set as Default';
+
+  @override
+  String get treasuryMainWalletTooltipApprove => 'Approve';
+
+  @override
+  String get treasuryMainWalletTooltipReject => 'Reject';
+
+  @override
+  String get treasuryMainWalletUnknownTime => 'Unknown';
+
+  @override
+  String treasuryMainWalletCardSubtitle(
+      String balance, String symbol, String label) {
+    return 'Balance: $balance $symbol\nLabel: $label';
+  }
+
+  @override
+  String treasuryMainWalletPendingSubtitle(String dateTime) {
+    return 'Added at: $dateTime';
+  }
+
+  @override
+  String get treasuryChainTronNile => 'TRON — Nile testnet';
+
+  @override
+  String get treasuryChainTronMainnet => 'TRON — Mainnet';
+
+  @override
+  String get treasuryChainBscTestnet => 'BNB Smart Chain — Testnet';
+
+  @override
+  String get treasuryChainBscMainnet => 'BNB Smart Chain — Mainnet';
+
+  @override
+  String get treasuryChainSolanaDevnet => 'Solana — Devnet';
+
+  @override
+  String get treasuryChainSolanaMainnet => 'Solana — Mainnet';
+
+  @override
+  String get treasuryChainTronShasta => 'TRON — Shasta testnet';
+
+  @override
+  String get treasuryChainEthSepolia => 'Ethereum — Sepolia';
+
+  @override
+  String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
+
+  @override
+  String treasuryImportWalletDialogTitle(String chainName) {
+    return 'Import main wallet ($chainName)';
+  }
+
+  @override
+  String get treasuryImportWalletLabelOptional => 'Label (optional)';
+
+  @override
+  String get treasuryImportWalletPrivateKey => 'Private key';
+
+  @override
+  String get treasuryImportWalletMfaCode => 'MFA code';
+
+  @override
+  String get treasuryImportWalletSendOtp => 'Send OTP';
+
+  @override
+  String get treasuryImportWalletImport => 'Import';
+
+  @override
+  String get treasuryImportWalletMfaSentSnack => 'MFA code sent to your email.';
+
+  @override
+  String treasuryImportWalletMfaFailedSnack(String error) {
+    return 'Failed to send MFA: $error';
+  }
+
+  @override
+  String get treasuryImportWalletRequiredSnack =>
+      'Private key and MFA code are required.';
+
+  @override
+  String get treasuryImportWalletOtpStepHint =>
+      'Tap Send OTP, enter the code from your email, and confirm. You can enter the label and private key only after the code is verified.';
+
+  @override
+  String get treasuryImportWalletConfirmOtp => 'Confirm code';
+
+  @override
+  String get treasuryImportWalletOtpEmpty => 'Enter the code from your email.';
+
+  @override
+  String treasuryImportWalletOtpVerifyFailed(String message) {
+    return 'Could not verify: $message';
+  }
+
+  @override
+  String get treasuryImportWalletPrivateKeyRequired =>
+      'Private key is required.';
+
+  @override
+  String get treasuryImportWalletSuccessSnack =>
+      'Wallet imported to pending approvals.';
+
+  @override
+  String treasuryImportWalletErrorSnack(String error) {
+    return 'Error: $error';
+  }
 
   @override
   String get drawerWithdrawalManagement => 'Withdrawal Management';

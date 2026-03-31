@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
@@ -11,6 +12,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/screens/login_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/otp_verification_dialog.dart';
+import 'package:crypto_trading_app/presentation/widgets/wallet_contact_email_verification_dialog.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 
@@ -259,6 +261,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_currentUser == null) return;
     final effective = _mergeProfileWithAuth(
         _currentUser!, context.read<AuthProvider>().currentUser);
+    if (isWalletPlaceholderEmail(effective.email)) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).contactEmailRequiredForOtpShort,
+          type: SnackBarType.error,
+        );
+      }
+      return;
+    }
     if (!effective.twoFaEnabled) {
       if (mounted) {
         showAppSnackBar(
@@ -320,64 +332,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Gửi yêu cầu thay đổi email (cần xét duyệt)
   Future<void> _requestEmailChange() async {
     if (_currentUser == null) return;
+    final l10n = AppLocalizations.of(context);
     final effective = _mergeProfileWithAuth(
         _currentUser!, context.read<AuthProvider>().currentUser);
-    if (!effective.twoFaEnabled) {
-      if (mounted) {
-        showAppSnackBar(
-          context,
-          message: AppLocalizations.of(context).otpRequiredEnable2faFirst,
-          type: SnackBarType.error,
-        );
-      }
-      return;
-    }
+    final walletPlaceholder = isWalletPlaceholderEmail(effective.email);
 
     final token = sl<TokenService>().getAccessToken();
     if (token == null) return;
     final authRepo = sl<AuthRepository>();
 
-    final otpSent = await authRepo.send2faOtp(token);
-    final canContinue = otpSent.fold((f) {
-      if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
-      return false;
-    }, (_) => true);
-    if (!canContinue) return;
-
-    if (mounted) {
-      showAppSnackBar(
-        context,
-        message: AppLocalizations.of(context).otpSentToEmail,
-        type: SnackBarType.success,
-      );
-    }
-    if (!mounted) return;
-
-    final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
-    if (otp == null || otp.length != 6) return;
-
-    final newEmail = await _showChangeEmailDialog(label: 'New email', hint: 'Enter new email');
-    if (newEmail == null || newEmail.isEmpty) return;
-
-    final result = await authRepo.requestSecurityChange(
-      token: token,
-      changeType: 'EMAIL_CHANGE',
-      payload: {'email': newEmail},
-      otpCode: otp,
-    );
-    result.fold(
-      (f) {
-        if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
-      },
-      (_) {
+    if (!walletPlaceholder) {
+      if (!effective.twoFaEnabled) {
         if (mounted) {
           showAppSnackBar(
             context,
-            message: AppLocalizations.of(context).requestSentPendingApproval,
-            type: SnackBarType.success,
+            message: l10n.otpRequiredEnable2faFirst,
+            type: SnackBarType.error,
           );
         }
-      },
+        return;
+      }
+
+      final otpSent = await authRepo.send2faOtp(token);
+      final canContinue = otpSent.fold((f) {
+        if (mounted) {
+          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        }
+        return false;
+      }, (_) => true);
+      if (!canContinue) return;
+
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: l10n.otpSentToEmail,
+          type: SnackBarType.success,
+        );
+      }
+      if (!mounted) return;
+
+      final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+      if (otp == null || otp.length != 6) return;
+
+      final newEmail =
+          await _showChangeEmailDialog(label: 'New email', hint: 'Enter new email');
+      if (newEmail == null || newEmail.isEmpty) return;
+
+      final result = await authRepo.requestSecurityChange(
+        token: token,
+        changeType: 'EMAIL_CHANGE',
+        payload: {'email': newEmail},
+        otpCode: otp,
+      );
+      result.fold(
+        (f) {
+          if (mounted) {
+            showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+          }
+        },
+        (_) {
+          if (mounted) {
+            showAppSnackBar(
+              context,
+              message: l10n.requestSentPendingApproval,
+              type: SnackBarType.success,
+            );
+          }
+        },
+      );
+      return;
+    }
+
+    // Đăng nhập ví: OTP gửi thẳng tới email mới, cập nhật ngay sau khi xác minh.
+    final updated = await WalletContactEmailVerificationDialog.show(
+      context,
+      authRepo: authRepo,
+      token: token,
+    );
+    if (!mounted || updated == null) return;
+    setState(() => _currentUser = updated);
+    context.read<AuthProvider>().updateCurrentUser(updated);
+    showAppSnackBar(
+      context,
+      message: l10n.contactEmailUpdatedSuccess,
+      type: SnackBarType.success,
     );
   }
 

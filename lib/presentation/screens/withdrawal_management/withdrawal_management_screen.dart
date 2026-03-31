@@ -6,8 +6,10 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_detail_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 class WithdrawalManagementScreen extends StatefulWidget {
   const WithdrawalManagementScreen({super.key});
@@ -198,14 +200,6 @@ class _FilterBar extends StatelessWidget {
     (l10n.withdrawalStatusFailed, 'FAILED'),
   ];
 
-  static List<(String, String?)> _chains(AppLocalizations l10n) => [
-        (l10n.adminFilterAll, null),
-        ('TRON Nile', 'TRON_NILE'),
-        ('TRON Shasta', 'TRON_SHASTA'),
-        ('ETH Sepolia', 'ETH_SEPOLIA'),
-        ('Solana Devnet', 'SOLANA_DEVNET'),
-      ];
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -229,7 +223,6 @@ class _FilterBar extends StatelessWidget {
           Consumer<WithdrawalManagementProvider>(
             builder: (_, p, __) {
               final statusItems = _statuses(l10n);
-              final chainItems = _chains(l10n);
               final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
 
               return Column(
@@ -259,18 +252,13 @@ class _FilterBar extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 10),
-                  AppDropdownField<String?>(
+                  TreasuryChainDropdown(
+                    chains: kWithdrawalFilterChainValues,
                     value: p.filterChain,
+                    allowAllOption: true,
+                    allOptionLabel: l10n.adminFilterAll,
                     labelText: l10n.withdrawalNetworkLabel,
                     menuMaxHeight: menuHeight,
-                    items: chainItems
-                        .map(
-                          (c) => DropdownMenuItem<String?>(
-                            value: c.$2,
-                            child: Text(c.$1, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ),
-                        )
-                        .toList(),
                     onChanged: (v) {
                       p.loadWithdrawals(
                         status: p.filterStatus,

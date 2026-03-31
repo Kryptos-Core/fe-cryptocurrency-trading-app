@@ -82,6 +82,8 @@ class ApiConstants {
   static const String usersStatistics = '/users/statistics';
   static const String usersMeProfileBasic = '/users/me/profile-basic';
   static const String usersMeSecurityChangeRequests = '/users/me/security-change-requests';
+  static const String usersMeContactEmailSendOtp = '/users/me/contact-email/send-otp';
+  static const String usersMeContactEmailVerify = '/users/me/contact-email/verify';
   static const String usersMeAvatar = '/users/me/avatar';
   static const String usersSecurityChangeRequestsPending =
       '/users/security-change-requests/pending';
@@ -219,33 +221,7 @@ class ApiConstants {
   /// POST — Submit signature sau khi WC signing hoàn tất
   static const String blockchainWcSubmit = '$blockchain/wallets/wc/submit';
 
-  /// Fiat (bank) withdrawal — USDT to VN bank (manual payout)
-  static const String fiatWithdrawalsBanks = '/fiat-withdrawals/banks';
-  static const String fiatWithdrawalsIntegrationSettings =
-      '/fiat-withdrawals/integration-settings';
-  static const String fiatWithdrawalsCasGrantToken = '/fiat-withdrawals/cas/grant-token';
-  static const String fiatWithdrawalsCasCompleteLink = '/fiat-withdrawals/cas/complete-link';
-  /// Public health probe: Cas/BankHub (no lookup quota).
-  static const String fiatWithdrawalsProvidersHealth = '/fiat-withdrawals/providers/health';
-  static const String fiatWithdrawalsBankAccounts = '/fiat-withdrawals/bank-accounts';
-  static const String fiatWithdrawalsRequests = '/fiat-withdrawals/requests';
-  static const String fiatWithdrawalsAdminBankAccounts =
-      '/fiat-withdrawals/admin/bank-accounts';
-  static String fiatWithdrawalsAdminBankAccount(String id) =>
-      '/fiat-withdrawals/admin/bank-accounts/$id';
-  static String fiatWithdrawalsAdminBankAccountVerify(String id) =>
-      '/fiat-withdrawals/admin/bank-accounts/$id/verify';
-  static String fiatWithdrawalsAdminBankAccountReject(String id) =>
-      '/fiat-withdrawals/admin/bank-accounts/$id/reject';
-  static const String fiatWithdrawalsAdminRequests =
-      '/fiat-withdrawals/admin/requests';
-  static String fiatWithdrawalsAdminRequest(String id) =>
-      '/fiat-withdrawals/admin/requests/$id';
-  static String fiatWithdrawalsAdminRequestComplete(String id) =>
-      '/fiat-withdrawals/admin/requests/$id/complete';
-  static String fiatWithdrawalsAdminRequestReject(String id) =>
-      '/fiat-withdrawals/admin/requests/$id/reject';
-  
+
   // Managed Wallets Endpoints (Treasury / Finance Manager — RISK_OFFICER)
   static const String managedWallets = '/managed-wallets';
   static const String managedWalletsDepositDefaults = '$managedWallets/deposit-defaults';
@@ -267,6 +243,10 @@ class ApiConstants {
   static const String treasury = '/treasury';
   static const String treasuryWallets = '$treasury/wallets';
   static const String treasuryMainWallets = '$treasury/main-wallets';
+  static const String treasuryMainWalletsPending = '$treasury/main-wallets/pending';
+  static String treasuryMainWalletApprove(String id) => '$treasury/main-wallets/$id/approve';
+  static String treasuryMainWalletReject(String id) => '$treasury/main-wallets/$id/reject';
+  static String treasuryMainWalletSetDefault(String id) => '$treasury/main-wallets/$id/set-default';
   static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';
   static String treasuryWalletSweep(String walletId) => '$treasury/wallets/$walletId/sweep';
   static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';

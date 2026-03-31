@@ -115,6 +115,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final auth = context.read<AuthProvider>();
     final user = auth.currentUser;
     if (user == null) return;
+    if (!auth.hasRealEmailForOtp) {
+      showAppSnackBar(
+        context,
+        message: AppLocalizations.of(context).contactEmailRequiredForOtpShort,
+        type: SnackBarType.error,
+      );
+      return;
+    }
     final token = sl<TokenService>().getAccessToken();
     if (token == null || token.isEmpty) return;
 

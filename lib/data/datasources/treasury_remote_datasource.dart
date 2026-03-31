@@ -20,6 +20,19 @@ abstract class TreasuryRemoteDataSource {
 
   Future<List<TreasuryMainWalletModel>> listMainWallets(String chain);
 
+  Future<List<TreasuryMainWalletModel>> listPendingMainWallets();
+
+  Future<TreasuryMainWalletModel> importMainWallet({
+    required String chain,
+    required String label,
+    required String privateKey,
+    required String mfaCode,
+  });
+
+  Future<TreasuryMainWalletModel> approveMainWallet(String id);
+  Future<TreasuryMainWalletModel> rejectMainWallet(String id);
+  Future<TreasuryMainWalletModel> setDefaultMainWallet(String id);
+
   Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId});
 
   Future<Map<String, dynamic>> fundWallet({
@@ -132,6 +145,70 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to load main wallets',
       );
+    }
+  }
+
+  @override
+  Future<List<TreasuryMainWalletModel>> listPendingMainWallets() async {
+    try {
+      final response = await dioClient.dio.get(ApiConstants.treasuryMainWalletsPending);
+      final raw = _unwrap<List<dynamic>>(response.data);
+      return raw.whereType<Map<String, dynamic>>().map(TreasuryMainWalletModel.fromJson).toList();
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to load pending main wallets');
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> importMainWallet({
+    required String chain,
+    required String label,
+    required String privateKey,
+    required String mfaCode,
+  }) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryMainWallets,
+        data: {
+          'chain': chain,
+          'label': label,
+          'privateKey': privateKey,
+          'mfaCode': mfaCode,
+        },
+      );
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to import main wallet');
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> approveMainWallet(String id) async {
+    try {
+      final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletApprove(id));
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to approve main wallet');
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> rejectMainWallet(String id) async {
+    try {
+      final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletReject(id));
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to reject main wallet');
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> setDefaultMainWallet(String id) async {
+    try {
+      final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletSetDefault(id));
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to set default main wallet');
     }
   }
 

@@ -44,6 +44,19 @@ abstract class UserRemoteDataSource {
     String? otpCode,
   });
 
+  /// Gửi OTP xác minh tới email mới (chỉ tài khoản ví / email @*.wallet). Trả về expiresIn (giây).
+  Future<int> sendContactEmailVerificationOtp({
+    required String token,
+    required String email,
+  });
+
+  /// Xác minh OTP và cập nhật email đăng nhập.
+  Future<UserModel> verifyContactEmail({
+    required String token,
+    required String email,
+    required String otpCode,
+  });
+
   /// Upload avatar image (multipart)
   Future<UserModel> uploadAvatar({
     required String token,
@@ -510,6 +523,88 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         final msg = e.response!.data['message'] ?? 'Failed to submit request';
         if (e.response!.statusCode == 401) throw AuthenticationException(message: msg);
         if (e.response!.statusCode == 400) throw ValidationException(message: msg);
+        throw ServerException(message: msg);
+      }
+      throw NetworkException(message: 'Network error. Please check your connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<int> sendContactEmailVerificationOtp({
+    required String token,
+    required String email,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.usersMeContactEmailSendOtp,
+        data: {'email': email},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw is Map && raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw as Map<String, dynamic>;
+        final expires = data['expiresIn'];
+        if (expires is int) return expires;
+        if (expires is num) return expires.toInt();
+        return int.tryParse('$expires') ?? 300;
+      }
+
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to send OTP',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final msg = e.response!.data['message'] ?? 'Failed to send OTP';
+        final code = e.response!.statusCode;
+        if (code == 401) throw AuthenticationException(message: msg);
+        if (code == 400 || code == 409) throw ValidationException(message: msg);
+        throw ServerException(message: msg);
+      }
+      throw NetworkException(message: 'Network error. Please check your connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<UserModel> verifyContactEmail({
+    required String token,
+    required String email,
+    required String otpCode,
+  }) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.usersMeContactEmailVerify,
+        data: {'email': email, 'otpCode': otpCode},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final userData = raw is Map && raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw as Map<String, dynamic>;
+        return UserModel.fromJson(userData);
+      }
+
+      throw ServerException(
+        message: response.data['message'] ?? 'Verification failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final msg = e.response!.data['message'] ?? 'Verification failed';
+        final code = e.response!.statusCode;
+        if (code == 401) throw AuthenticationException(message: msg);
+        if (code == 400 || code == 409) throw ValidationException(message: msg);
         throw ServerException(message: msg);
       }
       throw NetworkException(message: 'Network error. Please check your connection.');

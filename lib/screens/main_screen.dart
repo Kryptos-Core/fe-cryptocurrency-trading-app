@@ -29,6 +29,7 @@ import 'package:crypto_trading_app/presentation/screens/withdrawal_management/wi
 import 'package:crypto_trading_app/presentation/screens/fiat_withdrawals/fiat_withdrawals_admin_screen.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/treasury_main_wallets_screen.dart';
 import 'package:crypto_trading_app/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/screens/admin_currencies_screen.dart';
@@ -727,101 +728,25 @@ class _MainScreenState extends State<MainScreen> {
                           title: l10n.drawerSectionFinance,
                           topPadding: showAdmin ? 12 : 0,
                           children: [
-                            if (auth.canManageWallets)
-                              ListTile(
+                            ..._financeDrawerItemSpecs(
+                                    context: context, auth: auth)
+                                .map(
+                              (spec) => ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 4),
                                 leading: Icon(
-                                  Icons.account_balance_outlined,
+                                  spec.icon,
                                   size: 22,
                                   color: cs.primary,
                                 ),
-                                title: Text(l10n.drawerManagedWalletsTitle),
+                                title: Text(spec.title(l10n)),
                                 subtitle: Text(
-                                  l10n.drawerManagedWalletsSubtitle,
+                                  spec.subtitle(l10n),
                                   style: subtitleStyle,
                                 ),
                                 mouseCursor: SystemMouseCursors.click,
-                                onTap: openManagedWallets,
+                                onTap: spec.onTap,
                               ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              leading: Icon(
-                                Icons.payment_outlined,
-                                size: 22,
-                                color: cs.primary,
-                              ),
-                              title: Text(l10n.drawerPaymentConfig),
-                              subtitle: Text(
-                                l10n.drawerPaymentConfigSubtitle,
-                                style: subtitleStyle,
-                              ),
-                              mouseCursor: SystemMouseCursors.click,
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ChangeNotifierProvider.value(
-                                      value: context
-                                          .read<PaymentConfigProvider>(),
-                                      child: const PaymentConfigScreen(),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              leading: Icon(
-                                Icons.account_balance_wallet_outlined,
-                                size: 22,
-                                color: cs.primary,
-                              ),
-                              title: Text(l10n.drawerWithdrawalManagement),
-                              subtitle: Text(
-                                l10n.drawerWithdrawalManagementSubtitle,
-                                style: subtitleStyle,
-                              ),
-                              mouseCursor: SystemMouseCursors.click,
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const WithdrawalManagementScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              leading: Icon(
-                                Icons.savings_outlined,
-                                size: 22,
-                                color: cs.primary,
-                              ),
-                              title: Text(l10n.drawerFiatWithdrawalAdmin),
-                              subtitle: Text(
-                                l10n.drawerFiatWithdrawalAdminSubtitle,
-                                style: subtitleStyle,
-                              ),
-                              mouseCursor: SystemMouseCursors.click,
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const FiatWithdrawalsAdminScreen(),
-                                  ),
-                                );
-                              },
                             ),
                           ],
                         ),
@@ -972,6 +897,108 @@ class _DrawerSubsectionHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Declarative row in the Finance drawer — order and visibility live in one list.
+class _FinanceDrawerItemSpec {
+  const _FinanceDrawerItemSpec({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String Function(AppLocalizations l10n) title;
+  final String Function(AppLocalizations l10n) subtitle;
+  final VoidCallback onTap;
+}
+
+List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
+  required BuildContext context,
+  required AuthProvider auth,
+}) {
+  void openManagedWallets() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
+          value: context.read<ManagedWalletsProvider>(),
+          child: const ManagedWalletsScreen(),
+        ),
+      ),
+    );
+  }
+
+  return <_FinanceDrawerItemSpec>[
+    if (auth.canManageWallets)
+      _FinanceDrawerItemSpec(
+        icon: Icons.account_balance_outlined,
+        title: (l) => l.drawerManagedWalletsTitle,
+        subtitle: (l) => l.drawerManagedWalletsSubtitle,
+        onTap: openManagedWallets,
+      ),
+    _FinanceDrawerItemSpec(
+      icon: Icons.payment_outlined,
+      title: (l) => l.drawerPaymentConfig,
+      subtitle: (l) => l.drawerPaymentConfigSubtitle,
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: context.read<PaymentConfigProvider>(),
+              child: const PaymentConfigScreen(),
+            ),
+          ),
+        );
+      },
+    ),
+    _FinanceDrawerItemSpec(
+      icon: Icons.admin_panel_settings_outlined,
+      title: (l) => l.drawerTreasuryMainWalletsTitle,
+      subtitle: (l) => l.drawerTreasuryMainWalletsSubtitle,
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const TreasuryMainWalletsScreen(),
+          ),
+        );
+      },
+    ),
+    _FinanceDrawerItemSpec(
+      icon: Icons.account_balance_wallet_outlined,
+      title: (l) => l.drawerWithdrawalManagement,
+      subtitle: (l) => l.drawerWithdrawalManagementSubtitle,
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const WithdrawalManagementScreen(),
+          ),
+        );
+      },
+    ),
+    _FinanceDrawerItemSpec(
+      icon: Icons.savings_outlined,
+      title: (l) => l.drawerFiatWithdrawalAdmin,
+      subtitle: (l) => l.drawerFiatWithdrawalAdminSubtitle,
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const FiatWithdrawalsAdminScreen(),
+          ),
+        );
+      },
+    ),
+  ];
 }
 
 /// Card nền bo góc dùng chung cho mọi mục quản trị (Admin, Support, Risk, Finance…).

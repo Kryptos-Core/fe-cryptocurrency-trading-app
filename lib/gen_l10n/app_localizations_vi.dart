@@ -1271,6 +1271,33 @@ class AppLocalizationsVi extends AppLocalizations {
       'Vui lòng bật 2FA trong Cài đặt trước khi đổi email hoặc mật khẩu.';
 
   @override
+  String get contactEmailRequiredForOtpShort =>
+      'Hãy thêm email thật trong Hồ sơ → Bảo mật trước khi dùng OTP qua mail.';
+
+  @override
+  String get contactEmailRequiredForOtpBody =>
+      'Đăng nhập bằng ví đang dùng email tạm cho đến khi bạn xác minh email thật. Chọn Đổi email, nhập địa chỉ, bấm Gửi mã, rồi nhập OTP được gửi tới hộp thư đó.';
+
+  @override
+  String get contactEmailGoToProfile => 'Mở Hồ sơ';
+
+  @override
+  String get contactEmailVerifyDialogTitle => 'Xác minh email liên hệ';
+
+  @override
+  String get contactEmailVerifyDialogSubtitle =>
+      'Nhập email thật của bạn. Hệ thống sẽ gửi mã 6 chữ số tới địa chỉ đó.';
+
+  @override
+  String get contactEmailSendCode => 'Gửi mã';
+
+  @override
+  String get contactEmailVerifySave => 'Xác minh và lưu';
+
+  @override
+  String get contactEmailUpdatedSuccess => 'Đã cập nhật email liên hệ.';
+
+  @override
   String get aboutTitle => 'Giới thiệu';
 
   @override
@@ -2893,6 +2920,145 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get drawerPaymentConfigSubtitle => 'Phương thức, ví, kích hoạt';
+
+  @override
+  String get drawerTreasuryMainWalletsTitle => 'Ví Hot Wallet Hệ Thống';
+
+  @override
+  String get drawerTreasuryMainWalletsSubtitle => 'Quản lý khóa, duyệt, MFA';
+
+  @override
+  String get treasuryMainWalletsTitle => 'Quản lý Hot Wallet Hệ Thống';
+
+  @override
+  String get treasuryMainWalletsTabActive => 'Ví đang hoạt động';
+
+  @override
+  String get treasuryMainWalletsTabPending => 'Chờ duyệt';
+
+  @override
+  String get treasuryMainWalletsEmptyActive =>
+      'Chưa có ví chính đang hoạt động.';
+
+  @override
+  String get treasuryMainWalletsEmptyPending =>
+      'Không có ví nào đang chờ duyệt.';
+
+  @override
+  String get treasuryMainWalletChipDefault => 'Mặc định';
+
+  @override
+  String get treasuryMainWalletLabelNone => 'Không có';
+
+  @override
+  String get treasuryMainWalletTooltipSetDefault => 'Đặt làm mặc định';
+
+  @override
+  String get treasuryMainWalletTooltipApprove => 'Duyệt';
+
+  @override
+  String get treasuryMainWalletTooltipReject => 'Từ chối';
+
+  @override
+  String get treasuryMainWalletUnknownTime => 'Không rõ';
+
+  @override
+  String treasuryMainWalletCardSubtitle(
+      String balance, String symbol, String label) {
+    return 'Số dư: $balance $symbol\nNhãn: $label';
+  }
+
+  @override
+  String treasuryMainWalletPendingSubtitle(String dateTime) {
+    return 'Thêm lúc: $dateTime';
+  }
+
+  @override
+  String get treasuryChainTronNile => 'TRON — Testnet Nile';
+
+  @override
+  String get treasuryChainTronMainnet => 'TRON — Mainnet';
+
+  @override
+  String get treasuryChainBscTestnet => 'BNB Smart Chain — Testnet';
+
+  @override
+  String get treasuryChainBscMainnet => 'BNB Smart Chain — Mainnet';
+
+  @override
+  String get treasuryChainSolanaDevnet => 'Solana — Devnet';
+
+  @override
+  String get treasuryChainSolanaMainnet => 'Solana — Mainnet';
+
+  @override
+  String get treasuryChainTronShasta => 'TRON — Testnet Shasta';
+
+  @override
+  String get treasuryChainEthSepolia => 'Ethereum — Sepolia';
+
+  @override
+  String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
+
+  @override
+  String treasuryImportWalletDialogTitle(String chainName) {
+    return 'Nhập ví chính ($chainName)';
+  }
+
+  @override
+  String get treasuryImportWalletLabelOptional => 'Nhãn (tuỳ chọn)';
+
+  @override
+  String get treasuryImportWalletPrivateKey => 'Khóa bí mật';
+
+  @override
+  String get treasuryImportWalletMfaCode => 'Mã MFA';
+
+  @override
+  String get treasuryImportWalletSendOtp => 'Gửi OTP';
+
+  @override
+  String get treasuryImportWalletImport => 'Nhập ví';
+
+  @override
+  String get treasuryImportWalletMfaSentSnack =>
+      'Đã gửi mã MFA tới email của bạn.';
+
+  @override
+  String treasuryImportWalletMfaFailedSnack(String error) {
+    return 'Gửi MFA thất bại: $error';
+  }
+
+  @override
+  String get treasuryImportWalletRequiredSnack =>
+      'Cần nhập khóa bí mật và mã MFA.';
+
+  @override
+  String get treasuryImportWalletOtpStepHint =>
+      'Nhấn Gửi OTP, nhập mã trong email, rồi Xác nhận mã. Chỉ sau khi mã đúng bạn mới nhập nhãn và khóa bí mật.';
+
+  @override
+  String get treasuryImportWalletConfirmOtp => 'Xác nhận mã';
+
+  @override
+  String get treasuryImportWalletOtpEmpty => 'Nhập mã OTP trong email.';
+
+  @override
+  String treasuryImportWalletOtpVerifyFailed(String message) {
+    return 'Không xác nhận được: $message';
+  }
+
+  @override
+  String get treasuryImportWalletPrivateKeyRequired => 'Cần nhập khóa bí mật.';
+
+  @override
+  String get treasuryImportWalletSuccessSnack =>
+      'Đã thêm ví vào danh sách chờ duyệt.';
+
+  @override
+  String treasuryImportWalletErrorSnack(String error) {
+    return 'Lỗi: $error';
+  }
 
   @override
   String get drawerWithdrawalManagement => 'Quản lý rút tiền';

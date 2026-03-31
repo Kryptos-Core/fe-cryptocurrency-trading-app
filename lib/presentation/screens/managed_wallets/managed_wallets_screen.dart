@@ -7,7 +7,8 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallet_detail_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/managed_wallet_card.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 /// User-facing deposit & managed wallets (`/managed-wallets`).
 /// Not the same data as Payment configuration → operational transaction wallets (`/treasury`).
@@ -19,11 +20,6 @@ class ManagedWalletsScreen extends StatefulWidget {
 }
 
 class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
-  static const _supportedChains = [
-    ('TRON_NILE', 'Tron Nile'),
-    ('TRON_SHASTA', 'Tron Shasta'),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -98,12 +94,11 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                 const SizedBox(height: 16),
                 _DepositDefaultsCard(
                   depositDefaults: provider.depositDefaults,
-                  allChains: _supportedChains,
+                  chainIds: kManagedWalletsChainValues,
                 ),
                 const SizedBox(height: 16),
                 _RecommendedChainCard(
                   currentChain: provider.recommendedChain,
-                  chains: _supportedChains,
                   isSubmitting: provider.isSubmitting,
                   onChanged: _onSetRecommendedChain,
                 ),
@@ -190,12 +185,16 @@ class _ManagedScopeBanner extends StatelessWidget {
 
 class _DepositDefaultsCard extends StatelessWidget {
   final List<ManagedWallet> depositDefaults;
-  final List<(String, String)> allChains;
+  final List<String> chainIds;
 
-  const _DepositDefaultsCard({required this.depositDefaults, required this.allChains});
+  const _DepositDefaultsCard({
+    required this.depositDefaults,
+    required this.chainIds,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -215,12 +214,12 @@ class _DepositDefaultsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            ...allChains.map((chain) {
+            ...chainIds.map((chainId) {
               final defaultWallet = depositDefaults
-                  .where((w) => w.chain.apiValue == chain.$1)
+                  .where((w) => w.chain.apiValue == chainId)
                   .firstOrNull;
               return _DepositDefaultRow(
-                chainLabel: chain.$2,
+                chainLabel: treasuryChainDisplayLabel(l10n, chainId),
                 wallet: defaultWallet,
                 colorScheme: colorScheme,
               );
@@ -307,19 +306,18 @@ class _DepositDefaultRow extends StatelessWidget {
 
 class _RecommendedChainCard extends StatelessWidget {
   final String? currentChain;
-  final List<(String, String)> chains;
   final bool isSubmitting;
   final ValueChanged<String?> onChanged;
 
   const _RecommendedChainCard({
     required this.currentChain,
-    required this.chains,
     required this.isSubmitting,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -348,13 +346,11 @@ class _RecommendedChainCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
             ),
             const SizedBox(height: 12),
-            AppDropdownField<String>(
+            TreasuryChainDropdown(
+              chains: kManagedWalletsChainValues,
               value: currentChain,
-              labelText: AppLocalizations.of(context).managedWalletsRecommendedChainLabel,
-              hintText: AppLocalizations.of(context).managedWalletsSelectChain,
-              items: chains
-                  .map((c) => DropdownMenuItem(value: c.$1, child: Text(c.$2)))
-                  .toList(),
+              labelText: l10n.managedWalletsRecommendedChainLabel,
+              hintText: l10n.managedWalletsSelectChain,
               onChanged: isSubmitting ? null : onChanged,
             ),
           ],
