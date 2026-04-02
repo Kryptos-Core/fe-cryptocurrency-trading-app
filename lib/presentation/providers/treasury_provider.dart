@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/utils/stale_query_policy.dart';
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 
@@ -28,6 +29,20 @@ class TreasuryProvider extends ChangeNotifier {
   String? _historyStatus;
   String? _historyQuery;
   Timer? _realtimeRefreshDebounce;
+
+  static const int _historyPageSize = 20;
+  int _historyOpPage = 1;
+  int _historyTxPage = 1;
+  bool _opHasMore = false;
+  bool _txHasMore = false;
+  bool _loadingMoreHistory = false;
+
+  String? _walletsFetchKey;
+  DateTime? _walletsFetchedAt;
+
+  String? _historyFetchKey;
+  DateTime? _historyFetchedAt;
+
   /// Wallets with an in-flight Fund/Sweep: maps walletId → operationId from API (nullable if unknown).
   final Map<String, String?> _pendingOnChainByWallet = {};
   final Map<String, Timer> _pendingWalletClearTimers = {};
@@ -48,6 +63,22 @@ class TreasuryProvider extends ChangeNotifier {
   String? get historyType => _historyType;
   String? get historyStatus => _historyStatus;
   String? get historyQuery => _historyQuery;
+
+  bool get hasMoreHistory => _opHasMore || _txHasMore;
+  bool get isLoadingMoreHistory => _loadingMoreHistory;
+
+  String _walletCacheKey() => '${_walletChain ?? ''}\x1F${_walletPurpose ?? ''}';
+
+  String _historyCacheKey() =>
+      '${_historyChain ?? ''}\x1F${_historyType ?? ''}\x1F${_historyStatus ?? ''}\x1F${_historyQuery ?? ''}';
+
+  /// After [loadMoreHistory], revisiting the tab should refetch (stale window alone would drop extra pages).
+  bool _shouldSkipHistoryStaleFetch(String key) {
+    if (!isStaleQueryFresh(_historyFetchedAt)) return false;
+    if (_historyFetchKey != key) return false;
+    if (_historyOpPage > 2 || _historyTxPage > 2) return false;
+    return true;
+  }
 
   TreasuryOperationModel? _findPendingOperationForWallet(String walletId) {
     for (final op in _operations) {
@@ -151,7 +182,12 @@ class TreasuryProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> loadWallets() async {
+  Future<void> loadWallets({bool force = false}) async {
+    final key = _walletCacheKey();
+    if (!force && isStaleQueryFresh(_walletsFetchedAt) && _walletsFetchKey == key) {
+      return;
+    }
+
     _isLoadingWallets = true;
     _error = null;
     notifyListeners();
@@ -162,6 +198,8 @@ class TreasuryProvider extends ChangeNotifier {
         purpose: _walletPurpose,
       );
       _wallets = list;
+      _walletsFetchKey = key;
+      _walletsFetchedAt = DateTime.now();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -170,7 +208,32 @@ class TreasuryProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> loadHistory() async {
+  static bool _pageHasMore({
+    required int itemCount,
+    required int total,
+    required int loadedCount,
+    required int limit,
+  }) {
+    if (itemCount == 0) return false;
+    if (itemCount < limit) return false;
+    if (total > 0) return loadedCount < total;
+    return true;
+  }
+
+  /// Resets pagination and loads the first page of operations + on-chain txs.
+  Future<void> loadHistory({bool force = false}) async {
+    final key = _historyCacheKey();
+    if (!force && _shouldSkipHistoryStaleFetch(key)) {
+      return;
+    }
+
+    _historyOpPage = 1;
+    _historyTxPage = 1;
+    _opHasMore = false;
+    _txHasMore = false;
+    _operations = [];
+    _transactions = [];
+
     _isLoadingHistory = true;
     _error = null;
     notifyListeners();
@@ -181,21 +244,98 @@ class TreasuryProvider extends ChangeNotifier {
         type: _historyType,
         status: _historyStatus,
         q: _historyQuery,
+        page: 1,
+        limit: _historyPageSize,
       );
       _operations = opResult.items;
+      _historyOpPage = 2;
+      _opHasMore = _pageHasMore(
+        itemCount: opResult.items.length,
+        total: opResult.total,
+        loadedCount: _operations.length,
+        limit: _historyPageSize,
+      );
 
       final txResult = await _dataSource.listTransactions(
         chain: _historyChain,
         type: _historyType,
         status: _historyStatus,
         q: _historyQuery,
+        page: 1,
+        limit: _historyPageSize,
       );
       _transactions = txResult.items;
+      _historyTxPage = 2;
+      _txHasMore = _pageHasMore(
+        itemCount: txResult.items.length,
+        total: txResult.total,
+        loadedCount: _transactions.length,
+        limit: _historyPageSize,
+      );
+
       _prunePendingIfOperationTerminalInList();
+      _historyFetchKey = key;
+      _historyFetchedAt = DateTime.now();
     } catch (e) {
       _error = e.toString();
     } finally {
       _isLoadingHistory = false;
+      notifyListeners();
+    }
+  }
+
+  /// Appends next pages (operations and/or transactions) when user scrolls near the end.
+  Future<void> loadMoreHistory() async {
+    if (_loadingMoreHistory || _isLoadingHistory) return;
+    if (!_opHasMore && !_txHasMore) return;
+
+    _loadingMoreHistory = true;
+    notifyListeners();
+
+    try {
+      if (_opHasMore) {
+        final opResult = await _dataSource.listOperations(
+          chain: _historyChain,
+          type: _historyType,
+          status: _historyStatus,
+          q: _historyQuery,
+          page: _historyOpPage,
+          limit: _historyPageSize,
+        );
+        _operations = [..._operations, ...opResult.items];
+        _historyOpPage += 1;
+        _opHasMore = _pageHasMore(
+          itemCount: opResult.items.length,
+          total: opResult.total,
+          loadedCount: _operations.length,
+          limit: _historyPageSize,
+        );
+      }
+
+      if (_txHasMore) {
+        final txResult = await _dataSource.listTransactions(
+          chain: _historyChain,
+          type: _historyType,
+          status: _historyStatus,
+          q: _historyQuery,
+          page: _historyTxPage,
+          limit: _historyPageSize,
+        );
+        _transactions = [..._transactions, ...txResult.items];
+        _historyTxPage += 1;
+        _txHasMore = _pageHasMore(
+          itemCount: txResult.items.length,
+          total: txResult.total,
+          loadedCount: _transactions.length,
+          limit: _historyPageSize,
+        );
+      }
+
+      _prunePendingIfOperationTerminalInList();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _loadingMoreHistory = false;
       notifyListeners();
     }
   }
@@ -211,7 +351,7 @@ class TreasuryProvider extends ChangeNotifier {
 
     try {
       await _dataSource.createWallet(chain: chain, purpose: purpose, label: label);
-      await loadWallets();
+      await loadWallets(force: true);
       return true;
     } catch (e) {
       _error = e.toString();
@@ -267,10 +407,10 @@ class TreasuryProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshAll() async {
+  Future<void> refreshAll({bool force = true}) async {
     await Future.wait([
-      loadWallets(),
-      loadHistory(),
+      loadWallets(force: force),
+      loadHistory(force: force),
     ]);
   }
 
@@ -301,7 +441,7 @@ class TreasuryProvider extends ChangeNotifier {
 
     _realtimeRefreshDebounce?.cancel();
     _realtimeRefreshDebounce = Timer(const Duration(milliseconds: 350), () async {
-      await refreshAll();
+      await refreshAll(force: true);
       if (isOpTerminalEvent || isTerminalStatus) {
         _clearOnChainPendingState();
       }

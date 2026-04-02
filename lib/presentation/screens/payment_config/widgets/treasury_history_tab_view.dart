@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/debounced_search_text_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 String _treasuryHistoryTypeLabel(AppLocalizations l10n, String type) {
@@ -46,19 +47,61 @@ class TreasuryHistoryTabView extends StatefulWidget {
 }
 
 class _TreasuryHistoryTabViewState extends State<TreasuryHistoryTabView> {
-  final _searchCtrl = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _loadMoreInFlight = false;
+  bool _scrollMetricsPostFramePending = false;
+
+  /// Same idea as [MarketsListScreen]: load next page near the bottom. Also handles
+  /// "short viewport" (no scroll) by loading until the list scrolls or hasMore is false.
+  void _maybeLoadMoreFromScrollPosition() {
+    if (!mounted || _loadMoreInFlight) return;
+    if (!_scrollController.hasClients) return;
+
+    final provider = context.read<TreasuryProvider>();
+    if (!provider.hasMoreHistory || provider.isLoadingMoreHistory || provider.isLoadingHistory) {
+      return;
+    }
+
+    final pos = _scrollController.position;
+    final maxExt = pos.maxScrollExtent;
+    // Market tab uses 80% of maxScrollExtent; when content fits the screen, maxExt is 0 — treat as "at end".
+    final nearEnd = maxExt <= 0 || pos.pixels >= maxExt * 0.8;
+    if (!nearEnd) return;
+
+    _loadMoreInFlight = true;
+    provider.loadMoreHistory().whenComplete(() {
+      if (!mounted) return;
+      _loadMoreInFlight = false;
+      // After new rows append, metrics may still fit in viewport — chain load (TanStack-style infinite query).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _maybeLoadMoreFromScrollPosition();
+      });
+    });
+  }
+
+  void _onScroll() => _maybeLoadMoreFromScrollPosition();
+
+  bool _onScrollMetrics(ScrollMetricsNotification n) {
+    if (n.metrics.axis != Axis.vertical) return false;
+    if (_scrollMetricsPostFramePending) return false;
+    _scrollMetricsPostFramePending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollMetricsPostFramePending = false;
+      if (mounted) _maybeLoadMoreFromScrollPosition();
+    });
+    return false;
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TreasuryProvider>().loadHistory();
-    });
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -77,80 +120,121 @@ class _TreasuryHistoryTabViewState extends State<TreasuryHistoryTabView> {
 
     return Consumer<TreasuryProvider>(
       builder: (context, provider, _) {
+        final bottomInset = MediaQuery.of(context).padding.bottom;
         return RefreshIndicator(
-          onRefresh: provider.loadHistory,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-            children: [
-              _TreasuryHistoryFilterBar(searchCtrl: _searchCtrl, provider: provider),
+          onRefresh: () => provider.loadHistory(force: true),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(12, 8, 12, 12 + bottomInset),
+            child: NotificationListener<ScrollMetricsNotification>(
+              onNotification: _onScrollMetrics,
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+              SliverToBoxAdapter(
+                child: _TreasuryHistoryFilterBar(provider: provider),
+              ),
               if (provider.error != null && provider.error!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Material(
-                  color: theme.colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            provider.error!,
-                            style: TextStyle(color: theme.colorScheme.onErrorContainer, fontSize: 13),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                SliverToBoxAdapter(
+                  child: Material(
+                    color: theme.colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              provider.error!,
+                              style: TextStyle(color: theme.colorScheme.onErrorContainer, fontSize: 13),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
-              _SectionHeader(
-                icon: Icons.settings_suggest_outlined,
-                title: l10n.treasuryOperationsTitle,
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
+              SliverToBoxAdapter(
+                child: _SectionHeader(
+                  icon: Icons.settings_suggest_outlined,
+                  title: l10n.treasuryOperationsTitle,
+                ),
               ),
-              const SizedBox(height: 10),
+              const SliverToBoxAdapter(child: SizedBox(height: 6)),
               if (provider.isLoadingHistory && provider.operations.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(),
+                const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
                 )
               else if (provider.operations.isEmpty)
-                _EmptyHint(icon: Icons.inbox_outlined, message: l10n.treasuryNoOperations)
+                SliverToBoxAdapter(
+                  child: _EmptyHint(icon: Icons.inbox_outlined, message: l10n.treasuryNoOperations),
+                )
               else
-                ...provider.operations.map(
-                  (op) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _TreasuryOperationTile(
-                      l10n: l10n,
-                      op: op,
-                      onCopy: (s) => _copy(context, s),
-                    ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final op = provider.operations[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: _TreasuryOperationTile(
+                          l10n: l10n,
+                          op: op,
+                          onCopy: (s) => _copy(context, s),
+                        ),
+                      );
+                    },
+                    childCount: provider.operations.length,
                   ),
                 ),
-              const SizedBox(height: 8),
-              _SectionHeader(
-                icon: Icons.receipt_long_outlined,
-                title: l10n.treasuryTransactionsTitle,
+              const SliverToBoxAdapter(child: SizedBox(height: 6)),
+              SliverToBoxAdapter(
+                child: _SectionHeader(
+                  icon: Icons.receipt_long_outlined,
+                  title: l10n.treasuryTransactionsTitle,
+                ),
               ),
-              const SizedBox(height: 10),
+              const SliverToBoxAdapter(child: SizedBox(height: 6)),
               if (provider.transactions.isEmpty)
-                _EmptyHint(icon: Icons.payments_outlined, message: l10n.treasuryNoTransactions)
+                SliverToBoxAdapter(
+                  child: _EmptyHint(icon: Icons.payments_outlined, message: l10n.treasuryNoTransactions),
+                )
               else
-                ...provider.transactions.map(
-                  (tx) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _TreasuryTransactionTile(
-                      l10n: l10n,
-                      tx: tx,
-                      onCopy: (s) => _copy(context, s),
-                    ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final tx = provider.transactions[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: _TreasuryTransactionTile(
+                          l10n: l10n,
+                          tx: tx,
+                          onCopy: (s) => _copy(context, s),
+                        ),
+                      );
+                    },
+                    childCount: provider.transactions.length,
                   ),
                 ),
-            ],
+              if (provider.isLoadingMoreHistory)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -169,13 +253,13 @@ class _SectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(icon, size: 22, color: theme.colorScheme.primary),
-        const SizedBox(width: 8),
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 6),
         Text(
           title,
-          style: theme.textTheme.titleMedium?.copyWith(
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
+            letterSpacing: 0.15,
           ),
         ),
       ],
@@ -193,7 +277,7 @@ class _EmptyHint extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Center(
         child: Column(
           children: [
@@ -227,26 +311,27 @@ class _TreasuryOperationTile extends StatelessWidget {
 
     return Card(
       elevation: 0,
+      margin: EdgeInsets.zero,
       color: scheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 20,
+                  radius: 16,
                   backgroundColor: scheme.primaryContainer,
                   child: Icon(
                     isFund ? Icons.south_west : Icons.north_east,
                     color: scheme.onPrimaryContainer,
-                    size: 22,
+                    size: 18,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,11 +339,11 @@ class _TreasuryOperationTile extends StatelessWidget {
                       Row(
                         children: [
                           _TypeChip(l10n: l10n, typeCode: op.type),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               op.chain,
-                              style: theme.textTheme.labelLarge?.copyWith(
+                              style: theme.textTheme.labelMedium?.copyWith(
                                 color: scheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -269,11 +354,11 @@ class _TreasuryOperationTile extends StatelessWidget {
                         ],
                       ),
                       if (op.createdAt != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            fmt.format(op.createdAt!.toLocal()),
-                            style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                        Text(
+                          fmt.format(op.createdAt!.toLocal()),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                            height: 1.1,
                           ),
                         ),
                     ],
@@ -281,28 +366,32 @@ class _TreasuryOperationTile extends StatelessWidget {
                 ),
                 Text(
                   FormatUtils.formatDecimalAmountDisplay(op.amount),
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: scheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            _StatusChip(l10n: l10n, status: op.status),
-            if (op.failureReason != null && op.failureReason!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  op.failureReason!,
-                  style: theme.textTheme.bodySmall?.copyWith(color: scheme.error),
-                ),
-              ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _StatusChip(l10n: l10n, status: op.status),
+                if (op.failureReason != null && op.failureReason!.isNotEmpty)
+                  Text(
+                    op.failureReason!,
+                    style: theme.textTheme.labelSmall?.copyWith(color: scheme.error),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
             _IdRow(label: l10n.treasuryHistoryIdLabel, value: op.operationId, onCopy: onCopy),
             if (op.txHash != null && op.txHash!.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              _HashRow(l10n: l10n, hash: op.txHash!, onCopy: onCopy),
+              const SizedBox(height: 4),
+              _HashRowCompact(l10n: l10n, hash: op.txHash!, onCopy: onCopy),
             ],
           ],
         ),
@@ -331,26 +420,27 @@ class _TreasuryTransactionTile extends StatelessWidget {
 
     return Card(
       elevation: 0,
+      margin: EdgeInsets.zero,
       color: scheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 20,
+                  radius: 16,
                   backgroundColor: scheme.secondaryContainer,
                   child: Icon(
                     isFund ? Icons.south_west : Icons.north_east,
                     color: scheme.onSecondaryContainer,
-                    size: 22,
+                    size: 18,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,11 +448,11 @@ class _TreasuryTransactionTile extends StatelessWidget {
                       Row(
                         children: [
                           _TypeChip(l10n: l10n, typeCode: tx.type),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               tx.chain,
-                              style: theme.textTheme.labelLarge?.copyWith(
+                              style: theme.textTheme.labelMedium?.copyWith(
                                 color: scheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -373,11 +463,11 @@ class _TreasuryTransactionTile extends StatelessWidget {
                         ],
                       ),
                       if (tx.createdAt != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            fmt.format(tx.createdAt!.toLocal()),
-                            style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                        Text(
+                          fmt.format(tx.createdAt!.toLocal()),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                            height: 1.1,
                           ),
                         ),
                     ],
@@ -385,32 +475,32 @@ class _TreasuryTransactionTile extends StatelessWidget {
                 ),
                 Text(
                   FormatUtils.formatDecimalAmountDisplay(tx.amount),
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: scheme.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            _StatusChip(l10n: l10n, status: tx.status),
-            const SizedBox(height: 8),
-            _IdRow(label: l10n.treasuryHistoryIdLabel, value: tx.txId, onCopy: onCopy),
             const SizedBox(height: 6),
+            _StatusChip(l10n: l10n, status: tx.status),
+            const SizedBox(height: 4),
+            _IdRow(label: l10n.treasuryHistoryIdLabel, value: tx.txId, onCopy: onCopy),
+            const SizedBox(height: 2),
             _AddressRow(
               label: l10n.treasuryHistoryFrom,
               address: tx.fromAddress,
               onCopy: onCopy,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             _AddressRow(
               label: l10n.treasuryHistoryTo,
               address: tx.toAddress,
               onCopy: onCopy,
             ),
             if (tx.txHash != null && tx.txHash!.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              _HashRow(l10n: l10n, hash: tx.txHash!, onCopy: onCopy),
+              const SizedBox(height: 4),
+              _HashRowCompact(l10n: l10n, hash: tx.txHash!, onCopy: onCopy),
             ],
           ],
         ),
@@ -432,17 +522,17 @@ class _TypeChip extends StatelessWidget {
     return Tooltip(
       message: typeCode,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           color: theme.colorScheme.primary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           label,
-          style: theme.textTheme.labelLarge?.copyWith(
+          style: theme.textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: theme.colorScheme.primary,
-            letterSpacing: 0.5,
+            letterSpacing: 0.3,
           ),
         ),
       ),
@@ -494,19 +584,19 @@ class _StatusChip extends StatelessWidget {
     return Tooltip(
       message: status,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: fg),
-            const SizedBox(width: 6),
+            Icon(icon, size: 14, color: fg),
+            const SizedBox(width: 4),
             Text(
               label,
-              style: theme.textTheme.labelLarge?.copyWith(
+              style: theme.textTheme.labelSmall?.copyWith(
                 color: fg,
                 fontWeight: FontWeight.w700,
               ),
@@ -529,28 +619,35 @@ class _IdRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          width: 44,
+          width: 40,
           child: Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ),
         Expanded(
-          child: SelectableText(
-            value,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontFamily: 'monospace',
-              fontFamilyFallback: const ['monospace'],
+          child: Tooltip(
+            message: value,
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontFamily: 'monospace',
+                fontFamilyFallback: const ['monospace'],
+              ),
             ),
           ),
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).copyAddressTooltip,
-          icon: const Icon(Icons.copy_rounded, size: 18),
+          icon: const Icon(Icons.copy_rounded, size: 16),
           visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           onPressed: () => onCopy(value),
         ),
       ],
@@ -558,59 +655,61 @@ class _IdRow extends StatelessWidget {
   }
 }
 
-class _HashRow extends StatelessWidget {
+/// Single-line tx hash (saves vertical space vs stacked label + box).
+class _HashRowCompact extends StatelessWidget {
   final AppLocalizations l10n;
   final String hash;
   final void Function(String) onCopy;
 
-  const _HashRow({required this.l10n, required this.hash, required this.onCopy});
+  const _HashRowCompact({required this.l10n, required this.hash, required this.onCopy});
 
   String _short(String h) {
-    if (h.length <= 18) return h;
+    if (h.length <= 22) return h;
     return '${h.substring(0, 10)}…${h.substring(h.length - 8)}';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.treasuryHistoryTxHash,
-          style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Text(
+            l10n.treasuryHistoryTxHash,
+            style: theme.textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: SelectableText(
-                  _short(hash),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontFamily: 'monospace',
-                    fontFamilyFallback: const ['monospace'],
-                    fontWeight: FontWeight.w500,
-                  ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Tooltip(
+              message: hash,
+              child: Text(
+                _short(hash),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontFamily: 'monospace',
+                  fontFamilyFallback: const ['monospace'],
                 ),
               ),
-              IconButton(
-                tooltip: AppLocalizations.of(context).copyAddressTooltip,
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                visualDensity: VisualDensity.compact,
-                onPressed: () => onCopy(hash),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
+          IconButton(
+            tooltip: AppLocalizations.of(context).copyAddressTooltip,
+            icon: const Icon(Icons.copy_rounded, size: 16),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: () => onCopy(hash),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -632,21 +731,25 @@ class _AddressRow extends StatelessWidget {
     final theme = Theme.of(context);
     if (address.isEmpty) return const SizedBox.shrink();
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          width: 88,
+          width: 72,
           child: Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Expanded(
           child: Tooltip(
             message: address,
-            child: SelectableText(
+            child: Text(
               _shortAddr(address),
-              style: theme.textTheme.bodySmall?.copyWith(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
                 fontFamily: 'monospace',
                 fontFamilyFallback: const ['monospace'],
               ),
@@ -655,8 +758,10 @@ class _AddressRow extends StatelessWidget {
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).copyAddressTooltip,
-          icon: const Icon(Icons.copy_rounded, size: 18),
+          icon: const Icon(Icons.copy_rounded, size: 16),
           visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           onPressed: () => onCopy(address),
         ),
       ],
@@ -665,10 +770,9 @@ class _AddressRow extends StatelessWidget {
 }
 
 class _TreasuryHistoryFilterBar extends StatelessWidget {
-  final TextEditingController searchCtrl;
   final TreasuryProvider provider;
 
-  const _TreasuryHistoryFilterBar({required this.searchCtrl, required this.provider});
+  const _TreasuryHistoryFilterBar({required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +798,7 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
                     status: provider.historyStatus,
                     query: provider.historyQuery,
                   );
-                  await provider.loadHistory();
+                  await provider.loadHistory(force: true);
                 },
               ),
             ),
@@ -720,40 +824,26 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
                     status: provider.historyStatus,
                     query: provider.historyQuery,
                   );
-                  await provider.loadHistory();
+                  await provider.loadHistory(force: true);
                 },
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: searchCtrl,
-          decoration: InputDecoration(
-            labelText: l10n.treasuryHistorySearchLabel,
-            hintText: l10n.treasurySearchHint,
-            border: const OutlineInputBorder(),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () async {
-                provider.setHistoryFilters(
-                  chain: provider.historyChain,
-                  type: provider.historyType,
-                  status: provider.historyStatus,
-                  query: searchCtrl.text.trim().isEmpty ? null : searchCtrl.text.trim(),
-                );
-                await provider.loadHistory();
-              },
-            ),
-          ),
-          onSubmitted: (_) async {
+        const SizedBox(height: 6),
+        DebouncedSearchTextField(
+          labelText: l10n.treasuryHistorySearchLabel,
+          hintText: l10n.treasurySearchHint,
+          initialValue: provider.historyQuery ?? '',
+          onDebouncedChanged: (raw) async {
+            final q = raw.trim().isEmpty ? null : raw.trim();
             provider.setHistoryFilters(
               chain: provider.historyChain,
               type: provider.historyType,
               status: provider.historyStatus,
-              query: searchCtrl.text.trim().isEmpty ? null : searchCtrl.text.trim(),
+              query: q,
             );
-            await provider.loadHistory();
+            await provider.loadHistory(force: true);
           },
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/utils/stale_query_policy.dart';
 import 'package:crypto_trading_app/data/datasources/payment_config_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/payment_method_config_model.dart';
 
@@ -19,6 +20,7 @@ class PaymentConfigProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _error;
+  DateTime? _configsFetchedAt;
 
   /// Latest payment config event received via WebSocket.
   PaymentConfigEvent? _latestEvent;
@@ -54,12 +56,18 @@ class PaymentConfigProvider extends ChangeNotifier {
 
   // ── Data loading ─────────────────────────────────────────────────────────
 
-  Future<void> loadConfigs() async {
+  /// [force] — true after pull-to-refresh, mutations, or WebSocket (bypass stale window).
+  Future<void> loadConfigs({bool force = false}) async {
+    if (!force && isStaleQueryFresh(_configsFetchedAt) && _error == null) {
+      return;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
       _configs = await _dataSource.listConfigs();
+      _configsFetchedAt = DateTime.now();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -141,7 +149,7 @@ class PaymentConfigProvider extends ChangeNotifier {
         configId,
         gracePeriodMinutes: gracePeriodMinutes,
       );
-      await loadConfigs(); // Refresh list to show TRANSITIONING state
+      await loadConfigs(force: true); // Refresh list to show TRANSITIONING state
       return result;
     } catch (e) {
       _error = e.toString();
@@ -158,7 +166,7 @@ class PaymentConfigProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _dataSource.deactivateConfig(configId);
-      await loadConfigs();
+      await loadConfigs(force: true);
       return true;
     } catch (e) {
       _error = e.toString();
@@ -176,7 +184,7 @@ class PaymentConfigProvider extends ChangeNotifier {
     try {
       _latestEvent = PaymentConfigEvent.fromJson(data);
       // Refresh config list so status chips update immediately
-      loadConfigs();
+      loadConfigs(force: true);
     } catch (_) {
       // Malformed event — ignore
     }

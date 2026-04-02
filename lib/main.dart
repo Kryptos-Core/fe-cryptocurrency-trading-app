@@ -24,6 +24,8 @@ import 'package:crypto_trading_app/presentation/providers/notification_provider.
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
+import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
@@ -159,6 +161,11 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<PaymentConfigProvider>(
           create: (_) => PaymentConfigProvider(
             dataSource: PaymentConfigRemoteDataSourceImpl(dioClient: di.sl()),
+          ),
+        ),
+        ChangeNotifierProvider<RuntimeSettingsProvider>(
+          create: (_) => RuntimeSettingsProvider(
+            repository: di.sl<SystemConfigRepository>(),
           ),
         ),
         ChangeNotifierProvider<TreasuryProvider>(

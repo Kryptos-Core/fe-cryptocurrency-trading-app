@@ -9,6 +9,8 @@ import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_create_wallet_sheet.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_history_tab_view.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_wallets_tab_view.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_settings_tab_view.dart';
+import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
 
 /// Payment Method Config Screen — accessible only to ADMIN and FINANCE_MANAGER.
 /// Allows dynamic management of PayOS credentials, blockchain hot wallet keys,
@@ -21,50 +23,93 @@ class PaymentConfigScreen extends StatefulWidget {
   State<PaymentConfigScreen> createState() => _PaymentConfigScreenState();
 }
 
-class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
+class _PaymentConfigScreenState extends State<PaymentConfigScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
   int _tabIndex = 0;
+  int _lastEnsuredTabIndex = -1;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _tabIndex = _tabController.index;
+    _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PaymentConfigProvider>().loadConfigs();
-      context.read<TreasuryProvider>().refreshAll();
+      if (!mounted) return;
+      _lastEnsuredTabIndex = _tabController.index;
+      _ensureTabData(_tabController.index);
     });
+  }
+
+  void _onTabControllerTick() {
+    if (_tabController.indexIsChanging) return;
+    final idx = _tabController.index;
+    if (idx != _tabIndex) {
+      setState(() => _tabIndex = idx);
+    }
+    if (_lastEnsuredTabIndex == idx) return;
+    _lastEnsuredTabIndex = idx;
+    _ensureTabData(idx);
+  }
+
+  Future<void> _ensureTabData(int index) async {
+    if (!mounted) return;
+    switch (index) {
+      case 0:
+        await context.read<PaymentConfigProvider>().loadConfigs();
+        break;
+      case 1:
+        await context.read<TreasuryProvider>().loadWallets();
+        break;
+      case 2:
+        await context.read<TreasuryProvider>().loadHistory();
+        break;
+      case 3:
+        await context.read<RuntimeSettingsProvider>().load();
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabControllerTick);
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.paymentConfigTitle),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _refreshCurrentTab,
-              tooltip: l10n.refresh,
-            ),
-          ],
-          bottom: TabBar(
-            onTap: (idx) => setState(() => _tabIndex = idx),
-            tabs: [
-              Tab(text: l10n.paymentConfigMethodsTab),
-              Tab(text: l10n.paymentConfigTreasuryWalletsTab),
-              Tab(text: l10n.paymentConfigHistoryTab),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.paymentConfigTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshCurrentTab,
+            tooltip: l10n.refresh,
           ),
-        ),
-        floatingActionButton: _buildFloatingActionButton(context),
-        body: const TabBarView(
-          children: [
-            _PaymentConfigTabView(),
-            TreasuryWalletsTabView(),
-            TreasuryHistoryTabView(),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: l10n.paymentConfigMethodsTab),
+            Tab(text: l10n.paymentConfigTreasuryWalletsTab),
+            Tab(text: l10n.paymentConfigHistoryTab),
+            Tab(text: l10n.paymentConfigRuntimeTab),
           ],
         ),
+      ),
+      floatingActionButton: _buildFloatingActionButton(context),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          _PaymentConfigTabView(),
+          TreasuryWalletsTabView(),
+          TreasuryHistoryTabView(),
+          RuntimeSettingsTabView(),
+        ],
       ),
     );
   }
@@ -92,7 +137,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
 
   Future<void> _refreshCurrentTab() async {
     if (_tabIndex == 0) {
-      await context.read<PaymentConfigProvider>().loadConfigs();
+      await context.read<PaymentConfigProvider>().loadConfigs(force: true);
       return;
     }
 
@@ -100,11 +145,16 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
     if (_tabIndex == 1) {
       // Must reload operations too so TreasuryProvider can clear optimistic
       // pending state when sweep/fund is already COMPLETED (prune runs in loadHistory).
-      await treasuryProvider.refreshAll();
+      await treasuryProvider.refreshAll(force: true);
       return;
     }
 
-    await treasuryProvider.loadHistory();
+    if (_tabIndex == 2) {
+      await treasuryProvider.loadHistory(force: true);
+      return;
+    }
+
+    await context.read<RuntimeSettingsProvider>().load(force: true);
   }
 
   void _showCreateConfigSheet(BuildContext context) {
@@ -286,7 +336,7 @@ class _PaymentConfigTabView extends StatelessWidget {
                   Text(provider.error!, textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: provider.loadConfigs,
+                    onPressed: () => provider.loadConfigs(force: true),
                     child: Text(l10n.retry),
                   ),
                 ],
@@ -309,7 +359,7 @@ class _PaymentConfigTabView extends StatelessWidget {
         }
 
         return RefreshIndicator(
-          onRefresh: provider.loadConfigs,
+          onRefresh: () => provider.loadConfigs(force: true),
           child: ListView.separated(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             itemCount: provider.configs.length,

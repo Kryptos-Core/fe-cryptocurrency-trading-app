@@ -1459,6 +1459,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get guestFeatureDeposit => 'Phương thức nạp tiền của sàn';
 
   @override
+  String get continueAsGuest => 'Tiếp tục xem không đăng nhập';
+
+  @override
   String get notificationsTitle => 'Thông báo';
 
   @override
@@ -1892,6 +1895,211 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get paymentConfigMaskedHelper => 'Ẩn — nhấn \"Hiện\" để xem';
+
+  @override
+  String get paymentConfigRuntimeTab => 'Nền tảng';
+
+  @override
+  String get paymentConfigRuntimeSaveAll => 'Lưu cấu hình runtime';
+
+  @override
+  String get paymentConfigRuntimeLoadFailed =>
+      'Không tải được cấu hình nền tảng.';
+
+  @override
+  String get paymentConfigRuntimeSaved => 'Đã lưu cấu hình runtime.';
+
+  @override
+  String get paymentConfigRuntimeIntro =>
+      'Các giá trị này có hiệu lực mà không cần deploy lại API. Biến môi trường vẫn là mặc định khi chưa lưu trong cơ sở dữ liệu.';
+
+  @override
+  String get paymentConfigRuntimeSectionCore => 'Lõi hệ thống';
+
+  @override
+  String get paymentConfigRuntimeSectionTech => 'Hạ tầng & RPC';
+
+  @override
+  String get paymentConfigRuntimeSectionFinance => 'Tài chính & giới hạn';
+
+  @override
+  String get paymentConfigRuntimeSourceEnv => 'Mặc định (env)';
+
+  @override
+  String get paymentConfigRuntimeSourceDb => 'Cơ sở dữ liệu';
+
+  @override
+  String get paymentConfigRuntimeTypeString => 'chuỗi';
+
+  @override
+  String get paymentConfigRuntimeTypeInteger => 'số nguyên';
+
+  @override
+  String get paymentConfigRuntimeTypeBoolean => 'boolean';
+
+  @override
+  String get paymentConfigRuntimeTypeFloat => 'số thực';
+
+  @override
+  String get runtimeSettingWalletSyncIntervalName => 'Chu kỳ đồng bộ ví (ms)';
+
+  @override
+  String get runtimeSettingWalletSyncIntervalDesc =>
+      'Khoảng thời gian cho worker đồng bộ ví (milliseconds).';
+
+  @override
+  String get runtimeSettingWalletReconciliationThresholdName =>
+      'Ngưỡng chênh lệch đối soát';
+
+  @override
+  String get runtimeSettingWalletReconciliationThresholdDesc =>
+      'Chênh lệch số dư tuyệt đối được coi là chấp nhận được khi đối soát.';
+
+  @override
+  String get runtimeSettingTronNileFullHostName => 'URL RPC Tron Nile';
+
+  @override
+  String get runtimeSettingTronNileFullHostDesc =>
+      'HTTP API full node cho testnet TRON Nile.';
+
+  @override
+  String get runtimeSettingTronShastaFullHostName => 'URL RPC Tron Shasta';
+
+  @override
+  String get runtimeSettingTronShastaFullHostDesc =>
+      'HTTP API full node cho testnet TRON Shasta.';
+
+  @override
+  String get runtimeSettingTronDefaultNetworkName => 'Mạng Tron mặc định';
+
+  @override
+  String get runtimeSettingTronDefaultNetworkDesc =>
+      'TRON_NILE hoặc TRON_SHASTA. Đổi giá trị có thể cần khởi động lại API cho một số tiến trình.';
+
+  @override
+  String get runtimeSettingSolanaDevnetUrlName => 'URL RPC Solana Devnet';
+
+  @override
+  String get runtimeSettingSolanaDevnetUrlDesc =>
+      'Endpoint JSON RPC cho Solana devnet.';
+
+  @override
+  String get runtimeSettingEthSepoliaRpcUrlName => 'URL RPC Ethereum Sepolia';
+
+  @override
+  String get runtimeSettingEthSepoliaRpcUrlDesc =>
+      'URL JSON-RPC cho testnet Sepolia.';
+
+  @override
+  String get runtimeSettingEthSepoliaChainIdName => 'Chain ID Ethereum Sepolia';
+
+  @override
+  String get runtimeSettingEthSepoliaChainIdDesc =>
+      'Chain ID EIP-155 cho Sepolia (ví dụ 11155111).';
+
+  @override
+  String get runtimeSettingBlockchainAllowTestSignatureName =>
+      'Cho phép bỏ qua chữ ký thử (test)';
+
+  @override
+  String get runtimeSettingBlockchainAllowTestSignatureDesc =>
+      'Khi bật (áp dụng quy tắc ngoài production), liên kết có thể chấp nhận payload TEST_SIG::. Trên production, chỉnh từ UI bị chặn trừ khi ALLOW_UI_TEST_SIGNATURE=true.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxName =>
+      'Giới hạn rút tự động toàn cục (native)';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxDesc =>
+      'Số native tối đa mặc định cho các lệnh rút được xử lý tự động.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName =>
+      'Giới hạn rút tự động — ETH Sepolia';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc =>
+      'Trần theo chuỗi cho ETH_SEPOLIA; để trống sẽ dùng giới hạn toàn cục.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName =>
+      'Giới hạn rút tự động — Solana devnet';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc =>
+      'Trần theo chuỗi cho SOLANA_DEVNET; để trống sẽ dùng giới hạn toàn cục.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileName =>
+      'Giới hạn rút tự động — Tron Nile';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileDesc =>
+      'Trần theo chuỗi cho TRON_NILE; để trống sẽ dùng giới hạn toàn cục.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaName =>
+      'Giới hạn rút tự động — Tron Shasta';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaDesc =>
+      'Trần theo chuỗi cho TRON_SHASTA; để trống sẽ dùng giới hạn toàn cục.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawEthSymbolName =>
+      'Ký hiệu rút — Ethereum';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawEthSymbolDesc =>
+      'Ký hiệu tiền tệ cho các chuỗi họ ETH (phải tồn tại trong DB).';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawSolSymbolName =>
+      'Ký hiệu rút — Solana';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawSolSymbolDesc =>
+      'Ký hiệu tiền tệ cho rút Solana devnet.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawTronSymbolName =>
+      'Ký hiệu rút — Tron';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawTronSymbolDesc =>
+      'Ký hiệu tiền tệ cho rút Tron (ví dụ TRX).';
+
+  @override
+  String get runtimeSettingPlatformCashCurrencySymbolName =>
+      'Ký hiệu tiền mặt nền tảng';
+
+  @override
+  String get runtimeSettingPlatformCashCurrencySymbolDesc =>
+      'Ký hiệu sổ cái nội bộ cho nhánh tiền mặt của nạp (thường là USDT).';
+
+  @override
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateName =>
+      'Tỉ giá dự phòng TRX → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateDesc =>
+      'Dùng khi oracle giá không khả dụng; 1 TRX = X USDT.';
+
+  @override
+  String get runtimeSettingBlockchainDepositEthToUsdtRateName =>
+      'Tỉ giá dự phòng ETH → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositEthToUsdtRateDesc =>
+      'Dùng khi oracle giá không khả dụng.';
+
+  @override
+  String get runtimeSettingBlockchainDepositSolToUsdtRateName =>
+      'Tỉ giá dự phòng SOL → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositSolToUsdtRateDesc =>
+      'Dùng khi oracle giá không khả dụng.';
 
   @override
   String get treasuryCreateWalletFab => 'Tạo ví giao dịch';

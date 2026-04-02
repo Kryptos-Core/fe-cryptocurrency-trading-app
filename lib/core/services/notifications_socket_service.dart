@@ -112,6 +112,11 @@ class NotificationsSocketService {
       _emitWalletBalance(raw);
     });
 
+    _socket!.on('system_config:updated', (raw) {
+      _logger.i('SystemConfig updated via WebSocket');
+      _emit('system_config:updated', raw);
+    });
+
     _socket!.on('auth_response', (raw) {
       _logger.d('NotificationsSocket auth_response: $raw');
     });

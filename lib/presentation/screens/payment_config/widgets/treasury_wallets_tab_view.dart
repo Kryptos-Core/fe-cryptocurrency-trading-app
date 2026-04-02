@@ -145,21 +145,13 @@ class TreasuryWalletsTabView extends StatefulWidget {
 
 class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TreasuryProvider>().loadWallets();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Consumer<TreasuryProvider>(
       builder: (context, provider, _) {
         final wallets = provider.wallets;
         return RefreshIndicator(
-          onRefresh: provider.refreshAll,
+          onRefresh: () => provider.loadWallets(force: true),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
@@ -221,7 +213,7 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
             onChanged: (value) async {
               provider.setWalletFilters(
                   chain: value, purpose: provider.walletPurpose);
-              await provider.loadWallets();
+              await provider.loadWallets(force: true);
             },
           ),
         ),
@@ -238,7 +230,7 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
             ],
             onChanged: (value) async {
               provider.setWalletFilters(chain: provider.walletChain, purpose: value);
-              await provider.loadWallets();
+              await provider.loadWallets(force: true);
             },
           ),
         ),

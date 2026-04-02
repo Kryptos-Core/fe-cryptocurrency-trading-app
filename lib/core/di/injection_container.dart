@@ -50,6 +50,7 @@ import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/providers/theme_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -95,6 +96,10 @@ Future<void> initializeDependencies() async {
   // TokenService - quản lý JWT tokens
   sl.registerLazySingleton<TokenService>(
     () => TokenService(sharedPreferences: sl()),
+  );
+
+  sl.registerLazySingleton<SystemConfigRepository>(
+    () => SystemConfigRepository(tokenService: sl()),
   );
 
   // DioClient - HTTP client với interceptors

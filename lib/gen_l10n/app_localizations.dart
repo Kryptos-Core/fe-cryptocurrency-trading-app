@@ -2774,6 +2774,12 @@ abstract class AppLocalizations {
   /// **'Platform deposit methods'**
   String get guestFeatureDeposit;
 
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without signing in'**
+  String get continueAsGuest;
+
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
@@ -3547,6 +3553,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hidden - tap \"Show\" to reveal'**
   String get paymentConfigMaskedHelper;
+
+  /// No description provided for @paymentConfigRuntimeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get paymentConfigRuntimeTab;
+
+  /// No description provided for @paymentConfigRuntimeSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save runtime settings'**
+  String get paymentConfigRuntimeSaveAll;
+
+  /// No description provided for @paymentConfigRuntimeLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load platform settings.'**
+  String get paymentConfigRuntimeLoadFailed;
+
+  /// No description provided for @paymentConfigRuntimeSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Runtime settings saved.'**
+  String get paymentConfigRuntimeSaved;
+
+  /// No description provided for @paymentConfigRuntimeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'These values apply without redeploying the API. Environment variables still act as defaults when a key is not stored in the database.'**
+  String get paymentConfigRuntimeIntro;
+
+  /// No description provided for @paymentConfigRuntimeSectionCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Core'**
+  String get paymentConfigRuntimeSectionCore;
+
+  /// No description provided for @paymentConfigRuntimeSectionTech.
+  ///
+  /// In en, this message translates to:
+  /// **'Infrastructure & RPC'**
+  String get paymentConfigRuntimeSectionTech;
+
+  /// No description provided for @paymentConfigRuntimeSectionFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance & limits'**
+  String get paymentConfigRuntimeSectionFinance;
+
+  /// No description provided for @paymentConfigRuntimeSourceEnv.
+  ///
+  /// In en, this message translates to:
+  /// **'Default (env)'**
+  String get paymentConfigRuntimeSourceEnv;
+
+  /// No description provided for @paymentConfigRuntimeSourceDb.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get paymentConfigRuntimeSourceDb;
+
+  /// No description provided for @paymentConfigRuntimeTypeString.
+  ///
+  /// In en, this message translates to:
+  /// **'string'**
+  String get paymentConfigRuntimeTypeString;
+
+  /// No description provided for @paymentConfigRuntimeTypeInteger.
+  ///
+  /// In en, this message translates to:
+  /// **'integer'**
+  String get paymentConfigRuntimeTypeInteger;
+
+  /// No description provided for @paymentConfigRuntimeTypeBoolean.
+  ///
+  /// In en, this message translates to:
+  /// **'boolean'**
+  String get paymentConfigRuntimeTypeBoolean;
+
+  /// No description provided for @paymentConfigRuntimeTypeFloat.
+  ///
+  /// In en, this message translates to:
+  /// **'float'**
+  String get paymentConfigRuntimeTypeFloat;
+
+  /// No description provided for @runtimeSettingWalletSyncIntervalName.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet sync interval (ms)'**
+  String get runtimeSettingWalletSyncIntervalName;
+
+  /// No description provided for @runtimeSettingWalletSyncIntervalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval for wallet sync workers (milliseconds).'**
+  String get runtimeSettingWalletSyncIntervalDesc;
+
+  /// No description provided for @runtimeSettingWalletReconciliationThresholdName.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconciliation discrepancy threshold'**
+  String get runtimeSettingWalletReconciliationThresholdName;
+
+  /// No description provided for @runtimeSettingWalletReconciliationThresholdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolute balance discrepancy treated as acceptable for reconciliation.'**
+  String get runtimeSettingWalletReconciliationThresholdDesc;
+
+  /// No description provided for @runtimeSettingTronNileFullHostName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tron Nile RPC URL'**
+  String get runtimeSettingTronNileFullHostName;
+
+  /// No description provided for @runtimeSettingTronNileFullHostDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Full node HTTP API for TRON Nile testnet.'**
+  String get runtimeSettingTronNileFullHostDesc;
+
+  /// No description provided for @runtimeSettingTronShastaFullHostName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tron Shasta RPC URL'**
+  String get runtimeSettingTronShastaFullHostName;
+
+  /// No description provided for @runtimeSettingTronShastaFullHostDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Full node HTTP API for TRON Shasta testnet.'**
+  String get runtimeSettingTronShastaFullHostDesc;
+
+  /// No description provided for @runtimeSettingTronDefaultNetworkName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Tron network'**
+  String get runtimeSettingTronDefaultNetworkName;
+
+  /// No description provided for @runtimeSettingTronDefaultNetworkDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'TRON_NILE or TRON_SHASTA. Changing may require API restart for some processes.'**
+  String get runtimeSettingTronDefaultNetworkDesc;
+
+  /// No description provided for @runtimeSettingSolanaDevnetUrlName.
+  ///
+  /// In en, this message translates to:
+  /// **'Solana Devnet RPC URL'**
+  String get runtimeSettingSolanaDevnetUrlName;
+
+  /// No description provided for @runtimeSettingSolanaDevnetUrlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON RPC endpoint for Solana devnet.'**
+  String get runtimeSettingSolanaDevnetUrlDesc;
+
+  /// No description provided for @runtimeSettingEthSepoliaRpcUrlName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethereum Sepolia RPC URL'**
+  String get runtimeSettingEthSepoliaRpcUrlName;
+
+  /// No description provided for @runtimeSettingEthSepoliaRpcUrlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON-RPC URL for Sepolia testnet.'**
+  String get runtimeSettingEthSepoliaRpcUrlDesc;
+
+  /// No description provided for @runtimeSettingEthSepoliaChainIdName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethereum Sepolia chain ID'**
+  String get runtimeSettingEthSepoliaChainIdName;
+
+  /// No description provided for @runtimeSettingEthSepoliaChainIdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'EIP-155 chain ID for Sepolia (e.g. 11155111).'**
+  String get runtimeSettingEthSepoliaChainIdDesc;
+
+  /// No description provided for @runtimeSettingBlockchainAllowTestSignatureName.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow test signature bypass'**
+  String get runtimeSettingBlockchainAllowTestSignatureName;
+
+  /// No description provided for @runtimeSettingBlockchainAllowTestSignatureDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When true (non-production rules apply), linking may accept TEST_SIG:: payloads. Editing from UI is blocked in production unless ALLOW_UI_TEST_SIGNATURE=true.'**
+  String get runtimeSettingBlockchainAllowTestSignatureDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxName.
+  ///
+  /// In en, this message translates to:
+  /// **'Global auto-approve withdraw max (native)'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Default max native amount for auto-processed withdrawals.'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto max withdraw — ETH Sepolia'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-chain cap for ETH_SEPOLIA; falls back to global when empty.'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto max withdraw — Solana devnet'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-chain cap for SOLANA_DEVNET; falls back to global when empty.'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxTronNileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto max withdraw — Tron Nile'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxTronNileDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-chain cap for TRON_NILE; falls back to global when empty.'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxTronShastaName.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto max withdraw — Tron Shasta'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxTronShastaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-chain cap for TRON_SHASTA; falls back to global when empty.'**
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawEthSymbolName.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw symbol — Ethereum'**
+  String get runtimeSettingBlockchainWithdrawEthSymbolName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawEthSymbolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency symbol used for ETH-family chains (must exist in DB).'**
+  String get runtimeSettingBlockchainWithdrawEthSymbolDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawSolSymbolName.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw symbol — Solana'**
+  String get runtimeSettingBlockchainWithdrawSolSymbolName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawSolSymbolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency symbol used for Solana devnet withdrawals.'**
+  String get runtimeSettingBlockchainWithdrawSolSymbolDesc;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawTronSymbolName.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw symbol — Tron'**
+  String get runtimeSettingBlockchainWithdrawTronSymbolName;
+
+  /// No description provided for @runtimeSettingBlockchainWithdrawTronSymbolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency symbol used for Tron withdrawals (e.g. TRX).'**
+  String get runtimeSettingBlockchainWithdrawTronSymbolDesc;
+
+  /// No description provided for @runtimeSettingPlatformCashCurrencySymbolName.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform cash symbol'**
+  String get runtimeSettingPlatformCashCurrencySymbolName;
+
+  /// No description provided for @runtimeSettingPlatformCashCurrencySymbolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal ledger symbol for cash leg of deposits (typically USDT).'**
+  String get runtimeSettingPlatformCashCurrencySymbolDesc;
+
+  /// No description provided for @runtimeSettingBlockchainDepositTrxToUsdtRateName.
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback rate TRX → USDT'**
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateName;
+
+  /// No description provided for @runtimeSettingBlockchainDepositTrxToUsdtRateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when price oracle unavailable; 1 TRX = X USDT.'**
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateDesc;
+
+  /// No description provided for @runtimeSettingBlockchainDepositEthToUsdtRateName.
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback rate ETH → USDT'**
+  String get runtimeSettingBlockchainDepositEthToUsdtRateName;
+
+  /// No description provided for @runtimeSettingBlockchainDepositEthToUsdtRateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when price oracle unavailable.'**
+  String get runtimeSettingBlockchainDepositEthToUsdtRateDesc;
+
+  /// No description provided for @runtimeSettingBlockchainDepositSolToUsdtRateName.
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback rate SOL → USDT'**
+  String get runtimeSettingBlockchainDepositSolToUsdtRateName;
+
+  /// No description provided for @runtimeSettingBlockchainDepositSolToUsdtRateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when price oracle unavailable.'**
+  String get runtimeSettingBlockchainDepositSolToUsdtRateDesc;
 
   /// No description provided for @treasuryCreateWalletFab.
   ///

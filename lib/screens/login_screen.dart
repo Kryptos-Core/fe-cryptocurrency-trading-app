@@ -68,6 +68,20 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Return to the main (guest-capable) shell — pop if this route was pushed, otherwise replace stack.
+  void _exitToGuest() {
+    if (!mounted) return;
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.pop();
+    } else {
+      nav.pushAndRemoveUntil<void>(
+        MaterialPageRoute<void>(builder: (_) => const MainScreen()),
+        (_) => false,
+      );
+    }
+  }
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -191,6 +205,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
+          onPressed: _isLoading ? null : _exitToGuest,
+        ),
         title: Text(l10n.login),
         centerTitle: true,
       ),
@@ -377,6 +396,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(l10n.register),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: TextButton(
+                      onPressed: _isLoading ? null : _exitToGuest,
+                      child: Text(l10n.continueAsGuest),
+                    ),
                   ),
                 ],
               ),

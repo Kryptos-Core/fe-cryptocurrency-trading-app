@@ -1455,6 +1455,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestFeatureDeposit => 'Platform deposit methods';
 
   @override
+  String get continueAsGuest => 'Continue without signing in';
+
+  @override
   String get notificationsTitle => 'Notifications';
 
   @override
@@ -1888,6 +1891,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentConfigMaskedHelper => 'Hidden - tap \"Show\" to reveal';
+
+  @override
+  String get paymentConfigRuntimeTab => 'Platform';
+
+  @override
+  String get paymentConfigRuntimeSaveAll => 'Save runtime settings';
+
+  @override
+  String get paymentConfigRuntimeLoadFailed =>
+      'Could not load platform settings.';
+
+  @override
+  String get paymentConfigRuntimeSaved => 'Runtime settings saved.';
+
+  @override
+  String get paymentConfigRuntimeIntro =>
+      'These values apply without redeploying the API. Environment variables still act as defaults when a key is not stored in the database.';
+
+  @override
+  String get paymentConfigRuntimeSectionCore => 'Core';
+
+  @override
+  String get paymentConfigRuntimeSectionTech => 'Infrastructure & RPC';
+
+  @override
+  String get paymentConfigRuntimeSectionFinance => 'Finance & limits';
+
+  @override
+  String get paymentConfigRuntimeSourceEnv => 'Default (env)';
+
+  @override
+  String get paymentConfigRuntimeSourceDb => 'Database';
+
+  @override
+  String get paymentConfigRuntimeTypeString => 'string';
+
+  @override
+  String get paymentConfigRuntimeTypeInteger => 'integer';
+
+  @override
+  String get paymentConfigRuntimeTypeBoolean => 'boolean';
+
+  @override
+  String get paymentConfigRuntimeTypeFloat => 'float';
+
+  @override
+  String get runtimeSettingWalletSyncIntervalName =>
+      'Wallet sync interval (ms)';
+
+  @override
+  String get runtimeSettingWalletSyncIntervalDesc =>
+      'Interval for wallet sync workers (milliseconds).';
+
+  @override
+  String get runtimeSettingWalletReconciliationThresholdName =>
+      'Reconciliation discrepancy threshold';
+
+  @override
+  String get runtimeSettingWalletReconciliationThresholdDesc =>
+      'Absolute balance discrepancy treated as acceptable for reconciliation.';
+
+  @override
+  String get runtimeSettingTronNileFullHostName => 'Tron Nile RPC URL';
+
+  @override
+  String get runtimeSettingTronNileFullHostDesc =>
+      'Full node HTTP API for TRON Nile testnet.';
+
+  @override
+  String get runtimeSettingTronShastaFullHostName => 'Tron Shasta RPC URL';
+
+  @override
+  String get runtimeSettingTronShastaFullHostDesc =>
+      'Full node HTTP API for TRON Shasta testnet.';
+
+  @override
+  String get runtimeSettingTronDefaultNetworkName => 'Default Tron network';
+
+  @override
+  String get runtimeSettingTronDefaultNetworkDesc =>
+      'TRON_NILE or TRON_SHASTA. Changing may require API restart for some processes.';
+
+  @override
+  String get runtimeSettingSolanaDevnetUrlName => 'Solana Devnet RPC URL';
+
+  @override
+  String get runtimeSettingSolanaDevnetUrlDesc =>
+      'JSON RPC endpoint for Solana devnet.';
+
+  @override
+  String get runtimeSettingEthSepoliaRpcUrlName => 'Ethereum Sepolia RPC URL';
+
+  @override
+  String get runtimeSettingEthSepoliaRpcUrlDesc =>
+      'JSON-RPC URL for Sepolia testnet.';
+
+  @override
+  String get runtimeSettingEthSepoliaChainIdName => 'Ethereum Sepolia chain ID';
+
+  @override
+  String get runtimeSettingEthSepoliaChainIdDesc =>
+      'EIP-155 chain ID for Sepolia (e.g. 11155111).';
+
+  @override
+  String get runtimeSettingBlockchainAllowTestSignatureName =>
+      'Allow test signature bypass';
+
+  @override
+  String get runtimeSettingBlockchainAllowTestSignatureDesc =>
+      'When true (non-production rules apply), linking may accept TEST_SIG:: payloads. Editing from UI is blocked in production unless ALLOW_UI_TEST_SIGNATURE=true.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxName =>
+      'Global auto-approve withdraw max (native)';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxDesc =>
+      'Default max native amount for auto-processed withdrawals.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName =>
+      'Auto max withdraw — ETH Sepolia';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc =>
+      'Per-chain cap for ETH_SEPOLIA; falls back to global when empty.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName =>
+      'Auto max withdraw — Solana devnet';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc =>
+      'Per-chain cap for SOLANA_DEVNET; falls back to global when empty.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileName =>
+      'Auto max withdraw — Tron Nile';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronNileDesc =>
+      'Per-chain cap for TRON_NILE; falls back to global when empty.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaName =>
+      'Auto max withdraw — Tron Shasta';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawAutoMaxTronShastaDesc =>
+      'Per-chain cap for TRON_SHASTA; falls back to global when empty.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawEthSymbolName =>
+      'Withdraw symbol — Ethereum';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawEthSymbolDesc =>
+      'Currency symbol used for ETH-family chains (must exist in DB).';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawSolSymbolName =>
+      'Withdraw symbol — Solana';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawSolSymbolDesc =>
+      'Currency symbol used for Solana devnet withdrawals.';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawTronSymbolName =>
+      'Withdraw symbol — Tron';
+
+  @override
+  String get runtimeSettingBlockchainWithdrawTronSymbolDesc =>
+      'Currency symbol used for Tron withdrawals (e.g. TRX).';
+
+  @override
+  String get runtimeSettingPlatformCashCurrencySymbolName =>
+      'Platform cash symbol';
+
+  @override
+  String get runtimeSettingPlatformCashCurrencySymbolDesc =>
+      'Internal ledger symbol for cash leg of deposits (typically USDT).';
+
+  @override
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateName =>
+      'Fallback rate TRX → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositTrxToUsdtRateDesc =>
+      'Used when price oracle unavailable; 1 TRX = X USDT.';
+
+  @override
+  String get runtimeSettingBlockchainDepositEthToUsdtRateName =>
+      'Fallback rate ETH → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositEthToUsdtRateDesc =>
+      'Used when price oracle unavailable.';
+
+  @override
+  String get runtimeSettingBlockchainDepositSolToUsdtRateName =>
+      'Fallback rate SOL → USDT';
+
+  @override
+  String get runtimeSettingBlockchainDepositSolToUsdtRateDesc =>
+      'Used when price oracle unavailable.';
 
   @override
   String get treasuryCreateWalletFab => 'Create wallet';
