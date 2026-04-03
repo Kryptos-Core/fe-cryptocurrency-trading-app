@@ -244,9 +244,12 @@ class ApiConstants {
   static const String treasuryWallets = '$treasury/wallets';
   static const String treasuryMainWallets = '$treasury/main-wallets';
   static const String treasuryMainWalletsPending = '$treasury/main-wallets/pending';
+  static String treasuryMainWallet(String id) => '$treasury/main-wallets/$id';
   static String treasuryMainWalletApprove(String id) => '$treasury/main-wallets/$id/approve';
   static String treasuryMainWalletReject(String id) => '$treasury/main-wallets/$id/reject';
   static String treasuryMainWalletSetDefault(String id) => '$treasury/main-wallets/$id/set-default';
+  static String treasuryMainWalletRevealPrivateKey(String id) =>
+      '$treasury/main-wallets/$id/reveal-private-key';
   static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';
   static String treasuryWalletSweep(String walletId) => '$treasury/wallets/$walletId/sweep';
   static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';

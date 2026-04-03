@@ -6,13 +6,17 @@ class ServerException implements Exception {
   final String message;
   final int? statusCode;
 
+  /// API error code when the server returns JSON `{ code: ... }` (e.g. INVALID_MFA_CODE).
+  final String? code;
+
   ServerException({
     this.message = 'Server Error',
     this.statusCode,
+    this.code,
   });
 
   @override
-  String toString() => 'ServerException: $message (Status Code: $statusCode)';
+  String toString() => message;
 }
 
 class NetworkException implements Exception {

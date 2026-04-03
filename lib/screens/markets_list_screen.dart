@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/ui/app_responsive.dart';
+import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
@@ -88,118 +90,179 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final marketsBody = _buildMarketsBody(l10n);
     return Scaffold(
       appBar: widget.showAppBar
           ? AppBar(title: Text(l10n.markets))
           : null,
-      body: Consumer<MarketsProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading && provider.markets.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: widget.showAppBar
+          ? AppCenteredContent(child: marketsBody)
+          : marketsBody,
+    );
+  }
 
-          if (provider.error != null && provider.markets.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    provider.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      provider.fetchMarkets(refresh: true);
-                    },
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
-            );
-          }
+  Widget _buildMarketsBody(AppLocalizations l10n) {
+    return Consumer<MarketsProvider>(
+      builder: (context, provider, child) {
+            if (provider.isLoading && provider.markets.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (provider.markets.isNotEmpty) {
-            _maybeFetchTickersFallback(provider);
-          }
+            if (provider.error != null && provider.markets.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      provider.error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        provider.fetchMarkets(refresh: true);
+                      },
+                      child: Text(l10n.retry),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-          final tickerByPairId = {
-            for (final t in provider.allTickers)
-              if (t.pairId.isNotEmpty) t.pairId: t
-          };
+            if (provider.markets.isNotEmpty) {
+              _maybeFetchTickersFallback(provider);
+            }
 
-          return Column(
-            children: [
-              _buildSearchAndFilters(context, provider, l10n),
-              Expanded(
-                child: provider.markets.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(l10n.noMarkets, textAlign: TextAlign.center),
-                            if (provider.hasActiveFilter) ...[
-                              const SizedBox(height: 12),
-                              TextButton.icon(
-                                onPressed: () {
-                                  _searchBarKey.currentState?.clear();
-                                  provider.clearSearchAndFilters();
-                                },
-                                icon:
-                                    const Icon(Icons.filter_alt_off, size: 18),
-                                label: Text(l10n.clearFilters),
-                              ),
+            final tickerByPairId = {
+              for (final t in provider.allTickers)
+                if (t.pairId.isNotEmpty) t.pairId: t
+            };
+
+            return Column(
+              children: [
+                _buildSearchAndFilters(context, provider, l10n),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (provider.markets.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(l10n.noMarkets, textAlign: TextAlign.center),
+                              if (provider.hasActiveFilter) ...[
+                                const SizedBox(height: 12),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    _searchBarKey.currentState?.clear();
+                                    provider.clearSearchAndFilters();
+                                  },
+                                  icon: const Icon(Icons.filter_alt_off, size: 18),
+                                  label: Text(l10n.clearFilters),
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
+                          ),
+                        );
+                      }
+
+                      final twoCol = AppBreakpoints.isTwoColumnGrid(
+                          constraints.maxWidth);
+                      final tail =
+                          provider.hasMore && provider.isLoading ? 1 : 0;
+                      final itemCount = provider.markets.length + tail;
+
+                      return RefreshIndicator(
                         onRefresh: () async {
                           _isLoadingMore = false;
                           _fallbackTickersRequested = false;
                           await provider.refreshKeepingPosition();
                         },
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: provider.markets.length +
-                              (provider.hasMore && provider.isLoading ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == provider.markets.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(),
+                        child: twoCol
+                            ? GridView.builder(
+                                controller: _scrollController,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisExtent: 120,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 4,
                                 ),
-                              );
-                            }
-                            final market = provider.markets[index];
-                            final ticker = tickerByPairId[market.pairId];
-                            return MarketRow(
-                              market: market,
-                              ticker: ticker,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ChangeNotifierProvider(
-                                      create: (_) => sl<ChartProvider>(),
-                                      child: MarketDetailScreen(
-                                        pairId: market.pairId,
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  if (index >= provider.markets.length) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
+                                    );
+                                  }
+                                  final market = provider.markets[index];
+                                  final ticker = tickerByPairId[market.pairId];
+                                  return _marketRow(
+                                    context,
+                                    market: market,
+                                    ticker: ticker,
+                                    denseLayout: true,
+                                  );
+                                },
+                              )
+                            : ListView.builder(
+                                controller: _scrollController,
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  if (index >= provider.markets.length) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+                                  final market = provider.markets[index];
+                                  final ticker = tickerByPairId[market.pairId];
+                                  return _marketRow(
+                                    context,
+                                    market: market,
+                                    ticker: ticker,
+                                    denseLayout: false,
+                                  );
+                                },
+                              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+  }
+
+  Widget _marketRow(
+    BuildContext context, {
+    required MarketPair market,
+    required MarketTicker? ticker,
+    required bool denseLayout,
+  }) {
+    return MarketRow(
+      market: market,
+      ticker: ticker,
+      denseLayout: denseLayout,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => sl<ChartProvider>(),
+              child: MarketDetailScreen(
+                pairId: market.pairId,
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -209,54 +272,53 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     AppLocalizations l10n,
   ) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MarketSearchBar(
-            key: _searchBarKey,
-            hintText: l10n.searchMarketsHint,
-            initialValue: provider.searchQuery,
-            onDebouncedSearch: provider.setSearchQuery,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wideFilters =
+            AppBreakpoints.isMediumOrWider(constraints.maxWidth);
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _BaseFilterDropdown(
-                  selectedBaseSymbol: provider.filterBaseSymbol,
-                  onSelected: provider.setFilterBaseSymbol,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _QuoteFilterDropdown(
-                  selectedQuoteSymbol: provider.filterQuoteSymbol,
-                  onSelected: provider.setFilterQuoteSymbol,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                flex: 2,
-                child: _SortDropdown(
-                  selected: provider.sortOption,
-                  onSelected: provider.setSortOption,
-                ),
+              MarketSearchBar(
+                key: _searchBarKey,
+                hintText: l10n.searchMarketsHint,
+                initialValue: provider.searchQuery,
+                onDebouncedSearch: provider.setSearchQuery,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 3,
-                child: Wrap(
+              const SizedBox(height: 10),
+              if (wideFilters) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _BaseFilterDropdown(
+                        selectedBaseSymbol: provider.filterBaseSymbol,
+                        onSelected: provider.setFilterBaseSymbol,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuoteFilterDropdown(
+                        selectedQuoteSymbol: provider.filterQuoteSymbol,
+                        onSelected: provider.setFilterQuoteSymbol,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _SortDropdown(
+                        selected: provider.sortOption,
+                        onSelected: provider.setSortOption,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -287,11 +349,78 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                       ),
                   ],
                 ),
-              ),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _BaseFilterDropdown(
+                        selectedBaseSymbol: provider.filterBaseSymbol,
+                        onSelected: provider.setFilterBaseSymbol,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuoteFilterDropdown(
+                        selectedQuoteSymbol: provider.filterQuoteSymbol,
+                        onSelected: provider.setFilterQuoteSymbol,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _SortDropdown(
+                        selected: provider.sortOption,
+                        onSelected: provider.setSortOption,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 3,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          FilterChip(
+                            label: Text(l10n.marketsFuzzySearch),
+                            selected: provider.fuzzySearch,
+                            onSelected: provider.setFuzzySearch,
+                          ),
+                          Text(
+                            provider.total > 0
+                                ? '${provider.markets.length}/${provider.total} ${l10n.marketsResultSuffix}'
+                                : '${provider.markets.length} ${l10n.marketsResultSuffix}',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          if (provider.hasActiveFilter)
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              onPressed: () {
+                                _searchBarKey.currentState?.clear();
+                                provider.clearSearchAndFilters();
+                              },
+                              icon: const Icon(Icons.filter_alt_off, size: 18),
+                              label: Text(l10n.clearFilters),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -94,7 +94,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                 const SizedBox(height: 16),
                 _DepositDefaultsCard(
                   depositDefaults: provider.depositDefaults,
-                  chainIds: kManagedWalletsChainValues,
+                  chainIds: managedWalletsChainsForCurrentEnv(),
                 ),
                 const SizedBox(height: 16),
                 _RecommendedChainCard(
@@ -347,7 +347,7 @@ class _RecommendedChainCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             TreasuryChainDropdown(
-              chains: kManagedWalletsChainValues,
+              chains: managedWalletsChainsForCurrentEnv(),
               value: currentChain,
               labelText: l10n.managedWalletsRecommendedChainLabel,
               hintText: l10n.managedWalletsSelectChain,

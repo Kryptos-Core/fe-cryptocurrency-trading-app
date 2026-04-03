@@ -3,22 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/import_wallet_dialog.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_menu_button.dart';
 
-class MainWalletsTabView extends StatefulWidget {
+class MainWalletsTabView extends StatelessWidget {
   const MainWalletsTabView({super.key});
-
-  @override
-  State<MainWalletsTabView> createState() => _MainWalletsTabViewState();
-}
-
-class _MainWalletsTabViewState extends State<MainWalletsTabView> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TreasuryMainWalletProvider>().loadMainWallets();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +22,7 @@ class _MainWalletsTabViewState extends State<MainWalletsTabView> {
           Center(child: Text(l10n.treasuryMainWalletsEmptyActive))
         else
           RefreshIndicator(
-            onRefresh: provider.loadMainWallets,
+            onRefresh: provider.refreshAllWallets,
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: wallets.length,
@@ -52,17 +40,27 @@ class _MainWalletsTabViewState extends State<MainWalletsTabView> {
                         labelText,
                       ),
                     ),
-                    trailing: wallet.isDefault
-                        ? Chip(
-                            label: Text(l10n.treasuryMainWalletChipDefault),
-                            backgroundColor: Colors.green,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (wallet.isDefault)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(end: 4),
+                            child: Chip(
+                              label: Text(l10n.treasuryMainWalletChipDefault),
+                              backgroundColor: Colors.green,
+                            ),
                           )
-                        : IconButton(
+                        else
+                          IconButton(
                             icon: const Icon(Icons.star_border),
                             onPressed: () =>
                                 provider.setDefaultWallet(wallet.mainWalletId),
                             tooltip: l10n.treasuryMainWalletTooltipSetDefault,
                           ),
+                        TreasuryMainWalletMenuButton(wallet: wallet),
+                      ],
+                    ),
                   ),
                 );
               },

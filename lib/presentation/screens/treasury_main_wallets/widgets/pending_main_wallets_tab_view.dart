@@ -3,22 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_menu_button.dart';
 
-class PendingMainWalletsTabView extends StatefulWidget {
+class PendingMainWalletsTabView extends StatelessWidget {
   const PendingMainWalletsTabView({super.key});
-
-  @override
-  State<PendingMainWalletsTabView> createState() => _PendingMainWalletsTabViewState();
-}
-
-class _PendingMainWalletsTabViewState extends State<PendingMainWalletsTabView> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TreasuryMainWalletProvider>().loadPendingWallets();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +23,7 @@ class _PendingMainWalletsTabViewState extends State<PendingMainWalletsTabView> {
     }
 
     return RefreshIndicator(
-      onRefresh: provider.loadPendingWallets,
+      onRefresh: provider.refreshAllWallets,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: wallets.length,
@@ -67,6 +55,7 @@ class _PendingMainWalletsTabViewState extends State<PendingMainWalletsTabView> {
                       provider.rejectWallet(wallet.mainWalletId);
                     },
                   ),
+                  TreasuryMainWalletMenuButton(wallet: wallet),
                 ],
               ),
             ),

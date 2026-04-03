@@ -31,6 +31,7 @@ lib/
 │   ├── error/                # failures, exceptions
 │   ├── network/              # dio_client.dart, interceptors
 │   ├── services/             # token, cache, notifications, …
+│   ├── wallet_auth/          # WalletBrandLoginConnector + resolver (web / desktop / mobile)
 │   └── utils/
 ├── data/
 │   ├── datasources/          # *remote_datasource.dart
@@ -49,6 +50,20 @@ lib/
 └── l10n/                     # app_en.arb, app_vi.arb
 ```
 
+## Thư viện chính (tóm tắt)
+
+| Thành phần | Package |
+|------------|---------|
+| State | `provider` |
+| DI | `get_it` |
+| HTTP | `dio` |
+| JSON | `json_annotation` + codegen |
+| Local | `shared_preferences`, `hive` |
+| Realtime | `socket_io_client` |
+| Biểu đồ (Windows) | Lightweight Charts qua `webview_windows` |
+| i18n | `flutter_localizations` + ARB |
+| Push (mobile) | `firebase_core`, `firebase_messaging`, local notifications |
+
 ## Màn hình tiêu biểu (`lib/screens/`)
 
 Auth & shell: `login_screen`, `register_screen`, `main_screen`, `home_screen`, `settings_screen`, `profile_screen`.
@@ -57,7 +72,11 @@ Giao dịch & thị trường: `markets_list_screen`, `market_detail_screen`, `a
 
 Ví & nạp: `wallets_overview_screen`, `wallet_detail_screen`, `deposits_screen`, `wallet_api_screen`, …
 
-**Ví / WalletConnect:** **Đăng nhập** — `wallet_connect_auth_login_dialog.dart`: **Android/iOS** — Reown AppKit (`reown_appkit`, `reown_wallet_auth_config.dart`) → `/auth/wallet-verify`. **Desktop native** — QR từ **`POST /auth/wallet/wc/init`** (server **SignClient** + relay khi có project id; `relayPairing`, poll `status`, auto verify khi có signature). **Web** — extension + tùy chọn QR server như desktop. **Liên kết ví (đã JWT)** — `link_wallet_dialog.dart`, `wc_qr_session_card`, `wc_deeplink_launcher`, `wc_session_poller`, `blockchain_provider`, `blockchainWc*` / `api_constants.dart` (QR từ **`/blockchain/wallets/wc/*`** + `qr_flutter`). Tron (web): TronLink. `BASE_URL`, Project ID và luồng tóm tắt: [README.md](README.md) (mục Backend / Wallet).
+**Ví / WalletConnect:** **Đăng nhập** — `wallet_connect_auth_login_dialog.dart`: **Android/iOS** — Reown AppKit (`reown_appkit`, `reown_wallet_auth_config.dart`) → `/auth/wallet-verify`. **Desktop native** — QR từ **`POST /auth/wallet/wc/init`** (server **SignClient** + relay khi có project id; poll `status`). **Web** — extension (bridge JS); WC modal tùy chọn — xem [`docs/WALLETCONNECT_FLUTTER_WEB.md`](docs/WALLETCONNECT_FLUTTER_WEB.md). **Liên kết ví (đã JWT)** — `link_wallet_dialog.dart`, `wc_qr_session_card`, `wc_deeplink_launcher`, … (QR **`/blockchain/wallets/wc/*`**). Tron (web): TronLink. Biến môi trường & API: [`../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md) (bảng **Primary stack**).
+
+## Guest và tích xanh email
+
+**Guest** = chưa đăng nhập (không JWT), không phải `role` trên server. **Tích xanh** (`Icons.verified`) khi `email_verified` (OTP / xác minh inbox). Khác với KYC (`identity_verified`).
 
 Admin / vận hành: `admin_user_list_screen`, `admin_user_detail_screen`, `admin_transactions_screen`, `admin_currencies_screen`, `admin_wallet_adjust_screen`, `security_requests_review_screen`, `broadcast_notification_screen`, …
 
@@ -71,8 +90,3 @@ Market maker: `market_maker/market_maker_hub_screen`, `market_maker_config_scree
 ## i18n
 
 ARB trong `lib/l10n/`; chạy `flutter gen-l10n`. Locale lưu `SharedPreferences` qua **`LocaleProvider`** (`lib/core/providers/locale_provider.dart`); đổi ngôn ngữ tại **Settings** (và các chỗ bind `LocaleProvider` khác nếu có).
-
-## Tài liệu thêm
-
-- [README.md](README.md) — cài đặt, chạy, backend kèm theo, Wallet / đăng nhập ví
-- [scripts/README-FLUTTER.md](scripts/README-FLUTTER.md) — script cài Flutter trên Windows

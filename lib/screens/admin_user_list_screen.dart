@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/ui/app_responsive.dart';
 import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -26,9 +27,6 @@ List<(String, String?)> _statuses(AppLocalizations l10n) => [
   (l10n.adminUserListStatusBanned, 'BANNED'),
   (l10n.adminUserListStatusPending, 'PENDING'),
 ];
-
-// Responsive breakpoint: above this width, show master-detail side-by-side.
-const _kWideBreakpoint = 720.0;
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -115,7 +113,8 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= _kWideBreakpoint;
+          final isWide =
+              constraints.maxWidth >= AppBreakpoints.wideLayout;
           if (isWide) {
             return _buildMasterDetail(context, l10n);
           }

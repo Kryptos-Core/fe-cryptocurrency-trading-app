@@ -1645,9 +1645,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get registerWalletDivider => 'Đăng ký bằng ví';
 
   @override
-  String get registerWithMetaMask => 'Đăng ký bằng MetaMask';
-
-  @override
   String get registerWithTronLink => 'Đăng ký bằng TronLink';
 
   @override
@@ -1663,6 +1660,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get registerWalletSuccess => 'Đăng ký & đăng nhập bằng ví thành công!';
+
+  @override
+  String get registerWalletConnectQr => 'WalletConnect (QR)';
+
+  @override
+  String registerUnexpectedError(String error) {
+    return 'Lỗi không mong đợi: $error';
+  }
 
   @override
   String get walletDetails => 'Chi tiết ví';
@@ -3188,6 +3193,51 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get treasuryMainWalletMenuCopyPrivateKey => 'Sao chép private key';
+
+  @override
+  String get treasuryMainWalletMenuEditLabel => 'Sửa nhãn';
+
+  @override
+  String get treasuryMainWalletMenuDelete => 'Xóa ví';
+
+  @override
+  String get treasuryMainWalletRevealKeyTitle => 'Sao chép private key';
+
+  @override
+  String get treasuryMainWalletRevealKeyHint =>
+      'Gửi OTP về email, nhập mã, rồi sao chép khóa.';
+
+  @override
+  String get treasuryMainWalletRevealKeyCopy => 'Hiện và sao chép';
+
+  @override
+  String get treasuryMainWalletCopiedPrivateKeySnack =>
+      'Đã sao chép private key vào clipboard.';
+
+  @override
+  String get treasuryMainWalletEditLabelTitle => 'Sửa nhãn';
+
+  @override
+  String get treasuryMainWalletEditLabelSave => 'Lưu';
+
+  @override
+  String get treasuryMainWalletLabelUpdatedSnack => 'Đã cập nhật nhãn.';
+
+  @override
+  String get treasuryMainWalletDeleteTitle => 'Xóa ví?';
+
+  @override
+  String get treasuryMainWalletDeleteBody =>
+      'Xóa ví hot khỏi hệ thống. Không thể xóa ví mặc định nếu còn ví khác đang hoạt động trên cùng chain.';
+
+  @override
+  String get treasuryMainWalletDeleteSuccessSnack => 'Đã xóa ví.';
+
+  @override
+  String get treasuryMainWalletDeleteAction => 'Xóa';
+
+  @override
   String get treasuryChainTronNile => 'TRON — Testnet Nile';
 
   @override
@@ -3266,6 +3316,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryImportWalletPrivateKeyRequired => 'Cần nhập khóa bí mật.';
 
   @override
+  String get treasuryImportWalletMistakeTronAddress =>
+      'Chuỗi này giống địa chỉ TRON (bắt đầu bằng T), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.';
+
+  @override
+  String get treasuryImportWalletMistakeEvmAddress =>
+      'Chuỗi này giống địa chỉ ví EVM (0x…), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.';
+
+  @override
   String get treasuryImportWalletSuccessSnack =>
       'Đã thêm ví vào danh sách chờ duyệt.';
 
@@ -3273,6 +3331,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String treasuryImportWalletErrorSnack(String error) {
     return 'Lỗi: $error';
   }
+
+  @override
+  String get treasuryImportWalletMfaExpiredOnImport =>
+      'Mã email đã hết hạn hoặc đã dùng. Nhấn Gửi OTP để lấy mã mới, xác nhận mã, rồi nhập ví lại.';
+
+  @override
+  String get treasuryImportWalletMfaExpiredOnImportSnack =>
+      'Mã OTP hết hạn hoặc không hợp lệ. Nhấn Gửi OTP để lấy mã mới.';
 
   @override
   String get drawerWithdrawalManagement => 'Quản lý rút tiền';
@@ -3612,7 +3678,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcReownDesktopUnsupportedBody =>
-      'WalletConnect (Reown AppKit) trên bản desktop (Windows, Linux, macOS) chưa dùng được: SDK cần webview_flutter và hiện chỉ có implementation cho Android/iOS. Dùng mục «Nâng cao: QR từ server (legacy)» bên dưới, hoặc đăng nhập bằng ví trên điện thoại.';
+      'Chọn mạng, bấm «Tạo mã QR», quét bằng ví trên điện thoại và ký khi được hỏi.';
 
   @override
   String get wcReownMissingProjectId =>
@@ -3637,17 +3703,92 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcReownQrDescription =>
-      'WalletConnect (Reown): QR do SDK tạo — kết nối MetaMask mobile hoặc ví khác. Sau khi kết nối, app sẽ xin ký message đăng nhập (Sepolia).';
+      'Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập (Sepolia).';
 
   @override
   String get wcReownOpenQrButton => 'Mở QR WalletConnect (Reown)';
 
   @override
-  String get wcAdvancedLegacyQrTitle => 'Nâng cao: QR từ server (legacy)';
+  String get wcAdvancedLegacyQrTitle => 'Khác: QR từ server';
 
   @override
-  String get wcAdvancedLegacyQrSubtitle =>
-      'Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*';
+  String get wcAdvancedLegacyQrSubtitle => 'Khi không dùng nút Reown phía trên';
+
+  @override
+  String get wcManualFlowIntroWeb =>
+      'Tạo QR, quét bằng ví, ký đúng message rồi hoàn tất trên web.';
+
+  @override
+  String get wcManualFlowIntroNative =>
+      'Tạo QR, quét bằng ví trên điện thoại; ứng dụng sẽ hoàn tất khi server nhận chữ ký.';
+
+  @override
+  String get wcNetworkLabel => 'Mạng';
+
+  @override
+  String get wcCreateQr => 'Tạo mã QR';
+
+  @override
+  String get wcCreateQrNew => 'Tạo mã QR mới';
+
+  @override
+  String get wcRelayDisabledBanner =>
+      'Relay WalletConnect chưa bật trên server (thiếu project id). QR này không dùng để quét — cấu hình WALLETCONNECT_PROJECT_ID trên API, khởi động lại, tạo QR mới. Hoặc ký message rồi dán địa chỉ + chữ ký bên dưới.';
+
+  @override
+  String get wcQrFooterLoginShort =>
+      'Quét bằng ví trên điện thoại, ký đúng message bên dưới.';
+
+  @override
+  String get wcMessageToSign => 'Message cần ký';
+
+  @override
+  String get wcCopyMessage => 'Sao chép message';
+
+  @override
+  String get wcMessageCopied => 'Đã sao chép message';
+
+  @override
+  String get wcCompletingLogin => 'Đang hoàn tất đăng nhập…';
+
+  @override
+  String get wcSignedWalletAddress => 'Địa chỉ ví đã ký';
+
+  @override
+  String get wcSignatureField => 'Chữ ký (signature)';
+
+  @override
+  String get wcVerifyAndLogin => 'Xác thực & đăng nhập';
+
+  @override
+  String get wcWebRecommendExtension =>
+      'Tron: dùng TronLink trên Chrome. EVM: mở mục QR bên dưới.';
+
+  @override
+  String get wcWebAdvancedWcTitle => 'QR WalletConnect / dán chữ ký';
+
+  @override
+  String get wcWebAdvancedWcSubtitle =>
+      'Máy tính, ví mobile hoặc không dùng extension';
+
+  @override
+  String get wcWebTronLinkExtension => 'TronLink (Chrome)';
+
+  @override
+  String get wcEnterAddressAndSignature => 'Nhập địa chỉ ví và chữ ký.';
+
+  @override
+  String get wcSessionExpiredCreateNew => 'Phiên đã hết hạn. Tạo mã QR mới.';
+
+  @override
+  String get desktopTronlinkDialogTitle => 'TronLink';
+
+  @override
+  String get desktopTronlinkDialogBody =>
+      'Chỉ dùng TronLink trên Chrome (web). Trên app này: đăng nhập email hoặc mở bản web.';
+
+  @override
+  String get desktopTronlinkDialogOk => 'Đã hiểu';
 
   @override
   String get wcLinkDialogTitle => 'Liên kết ví điện tử';

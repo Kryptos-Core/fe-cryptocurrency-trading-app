@@ -33,6 +33,19 @@ abstract class TreasuryRemoteDataSource {
   Future<TreasuryMainWalletModel> rejectMainWallet(String id);
   Future<TreasuryMainWalletModel> setDefaultMainWallet(String id);
 
+  /// Email OTP verified server-side; returns raw private key (handle securely).
+  Future<String> revealMainWalletPrivateKey({
+    required String mainWalletId,
+    required String mfaCode,
+  });
+
+  Future<TreasuryMainWalletModel> updateMainWallet({
+    required String mainWalletId,
+    String? label,
+  });
+
+  Future<void> deleteMainWallet(String mainWalletId);
+
   Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId});
 
   Future<Map<String, dynamic>> fundWallet({
@@ -178,7 +191,19 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to import main wallet');
+      final data = e.response?.data;
+      String? apiCode;
+      var message = 'Failed to import main wallet';
+      if (data is Map<String, dynamic>) {
+        message = data['message'] as String? ?? message;
+        final c = data['code'];
+        if (c is String) apiCode = c;
+      }
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+        code: apiCode,
+      );
     }
   }
 
@@ -209,6 +234,64 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
       throw ServerException(message: e.response?.data?['message'] ?? 'Failed to set default main wallet');
+    }
+  }
+
+  @override
+  Future<String> revealMainWalletPrivateKey({
+    required String mainWalletId,
+    required String mfaCode,
+  }) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryMainWalletRevealPrivateKey(mainWalletId),
+        data: {'mfaCode': mfaCode},
+      );
+      final map = _unwrap<Map<String, dynamic>>(response.data);
+      final pk = map['privateKey'] as String?;
+      if (pk == null || pk.isEmpty) {
+        throw ServerException(message: 'Invalid reveal response');
+      }
+      return pk;
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      String? apiCode;
+      var message = 'Failed to reveal private key';
+      if (data is Map<String, dynamic>) {
+        message = data['message'] as String? ?? message;
+        final c = data['code'];
+        if (c is String) apiCode = c;
+      }
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+        code: apiCode,
+      );
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> updateMainWallet({
+    required String mainWalletId,
+    String? label,
+  }) async {
+    try {
+      final response = await dioClient.dio.patch(
+        ApiConstants.treasuryMainWallet(mainWalletId),
+        data: {'label': label},
+      );
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to update main wallet');
+    }
+  }
+
+  @override
+  Future<void> deleteMainWallet(String mainWalletId) async {
+    try {
+      await dioClient.dio.delete(ApiConstants.treasuryMainWallet(mainWalletId));
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to delete main wallet');
     }
   }
 

@@ -253,7 +253,7 @@ class _FilterBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   TreasuryChainDropdown(
-                    chains: kWithdrawalFilterChainValues,
+                    chains: withdrawalFilterChainsForCurrentEnv(),
                     value: p.filterChain,
                     allowAllOption: true,
                     allOptionLabel: l10n.adminFilterAll,

@@ -785,7 +785,7 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
           children: [
             Expanded(
               child: TreasuryChainDropdown(
-                chains: kTreasuryHistoryFilterChainValues,
+                chains: treasuryHistoryFilterChainsForCurrentEnv(),
                 value: provider.historyChain,
                 allowAllOption: true,
                 labelText: l10n.treasuryChainLabel,

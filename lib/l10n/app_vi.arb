@@ -532,12 +532,18 @@
   "registerConfirmPasswordRequired": "Xác nhận mật khẩu là bắt buộc",
   "registerPasswordsNoMatch": "Mật khẩu không khớp",
   "registerWalletDivider": "Đăng ký bằng ví",
-  "registerWithMetaMask": "Đăng ký bằng MetaMask",
   "registerWithTronLink": "Đăng ký bằng TronLink",
   "registerSuccessLoggingIn": "Đăng ký thành công! Đang đăng nhập...",
   "registerLoginFailedManual": "Đăng nhập thất bại. Vui lòng đăng nhập thủ công.",
   "registerLoginSuccess": "Đăng nhập thành công!",
   "registerWalletSuccess": "Đăng ký & đăng nhập bằng ví thành công!",
+  "registerWalletConnectQr": "WalletConnect (QR)",
+  "registerUnexpectedError": "Lỗi không mong đợi: {error}",
+  "@registerUnexpectedError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "walletDetails": "Chi tiết ví",
   "walletNotFound": "Không tìm thấy ví",
@@ -1114,6 +1120,20 @@
       "dateTime": { "type": "String" }
     }
   },
+  "treasuryMainWalletMenuCopyPrivateKey": "Sao chép private key",
+  "treasuryMainWalletMenuEditLabel": "Sửa nhãn",
+  "treasuryMainWalletMenuDelete": "Xóa ví",
+  "treasuryMainWalletRevealKeyTitle": "Sao chép private key",
+  "treasuryMainWalletRevealKeyHint": "Gửi OTP về email, nhập mã, rồi sao chép khóa.",
+  "treasuryMainWalletRevealKeyCopy": "Hiện và sao chép",
+  "treasuryMainWalletCopiedPrivateKeySnack": "Đã sao chép private key vào clipboard.",
+  "treasuryMainWalletEditLabelTitle": "Sửa nhãn",
+  "treasuryMainWalletEditLabelSave": "Lưu",
+  "treasuryMainWalletLabelUpdatedSnack": "Đã cập nhật nhãn.",
+  "treasuryMainWalletDeleteTitle": "Xóa ví?",
+  "treasuryMainWalletDeleteBody": "Xóa ví hot khỏi hệ thống. Không thể xóa ví mặc định nếu còn ví khác đang hoạt động trên cùng chain.",
+  "treasuryMainWalletDeleteSuccessSnack": "Đã xóa ví.",
+  "treasuryMainWalletDeleteAction": "Xóa",
   "treasuryChainTronNile": "TRON — Testnet Nile",
   "treasuryChainTronMainnet": "TRON — Mainnet",
   "treasuryChainBscTestnet": "BNB Smart Chain — Testnet",
@@ -1152,6 +1172,8 @@
     }
   },
   "treasuryImportWalletPrivateKeyRequired": "Cần nhập khóa bí mật.",
+  "treasuryImportWalletMistakeTronAddress": "Chuỗi này giống địa chỉ TRON (bắt đầu bằng T), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.",
+  "treasuryImportWalletMistakeEvmAddress": "Chuỗi này giống địa chỉ ví EVM (0x…), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.",
   "treasuryImportWalletSuccessSnack": "Đã thêm ví vào danh sách chờ duyệt.",
   "treasuryImportWalletErrorSnack": "Lỗi: {error}",
   "@treasuryImportWalletErrorSnack": {
@@ -1159,6 +1181,8 @@
       "error": { "type": "String" }
     }
   },
+  "treasuryImportWalletMfaExpiredOnImport": "Mã email đã hết hạn hoặc đã dùng. Nhấn Gửi OTP để lấy mã mới, xác nhận mã, rồi nhập ví lại.",
+  "treasuryImportWalletMfaExpiredOnImportSnack": "Mã OTP hết hạn hoặc không hợp lệ. Nhấn Gửi OTP để lấy mã mới.",
   "drawerWithdrawalManagement": "Quản lý rút tiền",
   "drawerWithdrawalManagementSubtitle": "Duyệt và xử lý yêu cầu",
   "drawerManagedWalletsTitle": "Nạp tiền & ví quản lý",
@@ -1306,7 +1330,7 @@
 
   "wcLoginTitleWeb": "Đăng nhập bằng ví (Web)",
   "wcLoginTitleNative": "Đăng nhập WalletConnect",
-  "wcReownDesktopUnsupportedBody": "WalletConnect (Reown AppKit) trên bản desktop (Windows, Linux, macOS) chưa dùng được: SDK cần webview_flutter và hiện chỉ có implementation cho Android/iOS. Dùng mục «Nâng cao: QR từ server (legacy)» bên dưới, hoặc đăng nhập bằng ví trên điện thoại.",
+  "wcReownDesktopUnsupportedBody": "Chọn mạng, bấm «Tạo mã QR», quét bằng ví trên điện thoại và ký khi được hỏi.",
   "wcReownMissingProjectId": "Thiếu WALLETCONNECT_PROJECT_ID (hoặc REOWN_PROJECT_ID) trong .env",
   "wcReownInitFailed": "Không khởi tạo Reown: {error}",
   "@wcReownInitFailed": {
@@ -1322,10 +1346,33 @@
       "error": { "type": "String" }
     }
   },
-  "wcReownQrDescription": "WalletConnect (Reown): QR do SDK tạo — kết nối MetaMask mobile hoặc ví khác. Sau khi kết nối, app sẽ xin ký message đăng nhập (Sepolia).",
+  "wcReownQrDescription": "Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập (Sepolia).",
   "wcReownOpenQrButton": "Mở QR WalletConnect (Reown)",
-  "wcAdvancedLegacyQrTitle": "Nâng cao: QR từ server (legacy)",
-  "wcAdvancedLegacyQrSubtitle": "Chỉ khi cần tương thích với luồng Nest /auth/wallet/wc/*",
+  "wcAdvancedLegacyQrTitle": "Khác: QR từ server",
+  "wcAdvancedLegacyQrSubtitle": "Khi không dùng nút Reown phía trên",
+  "wcManualFlowIntroWeb": "Tạo QR, quét bằng ví, ký đúng message rồi hoàn tất trên web.",
+  "wcManualFlowIntroNative": "Tạo QR, quét bằng ví trên điện thoại; ứng dụng sẽ hoàn tất khi server nhận chữ ký.",
+  "wcNetworkLabel": "Mạng",
+  "wcCreateQr": "Tạo mã QR",
+  "wcCreateQrNew": "Tạo mã QR mới",
+  "wcRelayDisabledBanner": "Relay WalletConnect chưa bật trên server (thiếu project id). QR này không dùng để quét — cấu hình WALLETCONNECT_PROJECT_ID trên API, khởi động lại, tạo QR mới. Hoặc ký message rồi dán địa chỉ + chữ ký bên dưới.",
+  "wcQrFooterLoginShort": "Quét bằng ví trên điện thoại, ký đúng message bên dưới.",
+  "wcMessageToSign": "Message cần ký",
+  "wcCopyMessage": "Sao chép message",
+  "wcMessageCopied": "Đã sao chép message",
+  "wcCompletingLogin": "Đang hoàn tất đăng nhập…",
+  "wcSignedWalletAddress": "Địa chỉ ví đã ký",
+  "wcSignatureField": "Chữ ký (signature)",
+  "wcVerifyAndLogin": "Xác thực & đăng nhập",
+  "wcWebRecommendExtension": "Tron: dùng TronLink trên Chrome. EVM: mở mục QR bên dưới.",
+  "wcWebAdvancedWcTitle": "QR WalletConnect / dán chữ ký",
+  "wcWebAdvancedWcSubtitle": "Máy tính, ví mobile hoặc không dùng extension",
+  "wcWebTronLinkExtension": "TronLink (Chrome)",
+  "wcEnterAddressAndSignature": "Nhập địa chỉ ví và chữ ký.",
+  "wcSessionExpiredCreateNew": "Phiên đã hết hạn. Tạo mã QR mới.",
+  "desktopTronlinkDialogTitle": "TronLink",
+  "desktopTronlinkDialogBody": "Chỉ dùng TronLink trên Chrome (web). Trên app này: đăng nhập email hoặc mở bản web.",
+  "desktopTronlinkDialogOk": "Đã hiểu",
 
   "wcLinkDialogTitle": "Liên kết ví điện tử",
   "wcLinkDialogSubtitle": "Kết nối bằng WalletConnect • Bảo mật cao",

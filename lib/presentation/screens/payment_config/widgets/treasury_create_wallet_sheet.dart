@@ -15,9 +15,15 @@ class TreasuryCreateWalletSheet extends StatefulWidget {
 
 class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
   final _formKey = GlobalKey<FormState>();
-  String _chain = 'TRON_NILE'; // Default to testnet
+  late String _chain;
   String _purpose = 'BOTH';
   final TextEditingController _labelCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _chain = treasuryOpsChainsForCurrentEnv().first;
+  }
 
   @override
   void dispose() {
@@ -46,7 +52,7 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
             ),
             const SizedBox(height: 12),
             TreasuryChainDropdown(
-              chains: kTreasuryOpsChainValues,
+              chains: treasuryOpsChainsForCurrentEnv(),
               value: _chain,
               labelText: l10n.treasuryChainLabel,
               onChanged: (v) {

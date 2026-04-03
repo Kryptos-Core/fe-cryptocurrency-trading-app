@@ -3110,12 +3110,6 @@ abstract class AppLocalizations {
   /// **'Register with wallet'**
   String get registerWalletDivider;
 
-  /// No description provided for @registerWithMetaMask.
-  ///
-  /// In en, this message translates to:
-  /// **'Register with MetaMask'**
-  String get registerWithMetaMask;
-
   /// No description provided for @registerWithTronLink.
   ///
   /// In en, this message translates to:
@@ -3145,6 +3139,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet registration & login successful!'**
   String get registerWalletSuccess;
+
+  /// No description provided for @registerWalletConnectQr.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect (QR)'**
+  String get registerWalletConnectQr;
+
+  /// No description provided for @registerUnexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error: {error}'**
+  String registerUnexpectedError(String error);
 
   /// No description provided for @walletDetails.
   ///
@@ -5920,6 +5926,90 @@ abstract class AppLocalizations {
   /// **'Added at: {dateTime}'**
   String treasuryMainWalletPendingSubtitle(String dateTime);
 
+  /// No description provided for @treasuryMainWalletMenuCopyPrivateKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy private key'**
+  String get treasuryMainWalletMenuCopyPrivateKey;
+
+  /// No description provided for @treasuryMainWalletMenuEditLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get treasuryMainWalletMenuEditLabel;
+
+  /// No description provided for @treasuryMainWalletMenuDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet'**
+  String get treasuryMainWalletMenuDelete;
+
+  /// No description provided for @treasuryMainWalletRevealKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy private key'**
+  String get treasuryMainWalletRevealKeyTitle;
+
+  /// No description provided for @treasuryMainWalletRevealKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP to your email, enter the code, then copy the key.'**
+  String get treasuryMainWalletRevealKeyHint;
+
+  /// No description provided for @treasuryMainWalletRevealKeyCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal and copy'**
+  String get treasuryMainWalletRevealKeyCopy;
+
+  /// No description provided for @treasuryMainWalletCopiedPrivateKeySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Private key copied to clipboard.'**
+  String get treasuryMainWalletCopiedPrivateKeySnack;
+
+  /// No description provided for @treasuryMainWalletEditLabelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label'**
+  String get treasuryMainWalletEditLabelTitle;
+
+  /// No description provided for @treasuryMainWalletEditLabelSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get treasuryMainWalletEditLabelSave;
+
+  /// No description provided for @treasuryMainWalletLabelUpdatedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Label updated.'**
+  String get treasuryMainWalletLabelUpdatedSnack;
+
+  /// No description provided for @treasuryMainWalletDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet?'**
+  String get treasuryMainWalletDeleteTitle;
+
+  /// No description provided for @treasuryMainWalletDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the hot wallet from the system. You cannot delete the default wallet if there is another active wallet for the chain.'**
+  String get treasuryMainWalletDeleteBody;
+
+  /// No description provided for @treasuryMainWalletDeleteSuccessSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted.'**
+  String get treasuryMainWalletDeleteSuccessSnack;
+
+  /// No description provided for @treasuryMainWalletDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get treasuryMainWalletDeleteAction;
+
   /// No description provided for @treasuryChainTronNile.
   ///
   /// In en, this message translates to:
@@ -6058,6 +6148,18 @@ abstract class AppLocalizations {
   /// **'Private key is required.'**
   String get treasuryImportWalletPrivateKeyRequired;
 
+  /// No description provided for @treasuryImportWalletMistakeTronAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'This looks like a TRON address (starts with T), not a private key. Paste the 64-character hex private key from your wallet export.'**
+  String get treasuryImportWalletMistakeTronAddress;
+
+  /// No description provided for @treasuryImportWalletMistakeEvmAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'This looks like an EVM wallet address (0x…), not a private key. Paste the 64-character hex private key from your wallet export.'**
+  String get treasuryImportWalletMistakeEvmAddress;
+
   /// No description provided for @treasuryImportWalletSuccessSnack.
   ///
   /// In en, this message translates to:
@@ -6069,6 +6171,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {error}'**
   String treasuryImportWalletErrorSnack(String error);
+
+  /// No description provided for @treasuryImportWalletMfaExpiredOnImport.
+  ///
+  /// In en, this message translates to:
+  /// **'This email code expired or was already used. Tap Send OTP for a new code, confirm it, then try importing again.'**
+  String get treasuryImportWalletMfaExpiredOnImport;
+
+  /// No description provided for @treasuryImportWalletMfaExpiredOnImportSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP expired or invalid. Tap Send OTP for a new code.'**
+  String get treasuryImportWalletMfaExpiredOnImportSnack;
 
   /// No description provided for @drawerWithdrawalManagement.
   ///
@@ -6703,7 +6817,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcReownDesktopUnsupportedBody.
   ///
   /// In en, this message translates to:
-  /// **'WalletConnect (Reown AppKit) is not available on desktop (Windows, Linux, macOS): the SDK uses webview_flutter, which is only implemented for Android and iOS. Use the “Advanced: server QR (legacy)” section below, or sign in with a wallet on your phone.'**
+  /// **'Pick a network, tap “Create QR code”, scan with your phone wallet, then sign when asked.'**
   String get wcReownDesktopUnsupportedBody;
 
   /// No description provided for @wcReownMissingProjectId.
@@ -6739,7 +6853,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcReownQrDescription.
   ///
   /// In en, this message translates to:
-  /// **'WalletConnect (Reown): the QR code is generated by the SDK — connect MetaMask mobile or another wallet. After connecting, the app will ask you to sign the login message (Sepolia).'**
+  /// **'Open QR, connect your phone wallet, then sign the login message (Sepolia).'**
   String get wcReownQrDescription;
 
   /// No description provided for @wcReownOpenQrButton.
@@ -6751,14 +6865,152 @@ abstract class AppLocalizations {
   /// No description provided for @wcAdvancedLegacyQrTitle.
   ///
   /// In en, this message translates to:
-  /// **'Advanced: Server QR (legacy)'**
+  /// **'Other: Server QR code'**
   String get wcAdvancedLegacyQrTitle;
 
   /// No description provided for @wcAdvancedLegacyQrSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Only if you need compatibility with the Nest /auth/wallet/wc/* flow'**
+  /// **'If you prefer not to use Reown above'**
   String get wcAdvancedLegacyQrSubtitle;
+
+  /// No description provided for @wcManualFlowIntroWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a QR, scan with your wallet, sign the message, then finish on the web app.'**
+  String get wcManualFlowIntroWeb;
+
+  /// No description provided for @wcManualFlowIntroNative.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a QR and scan with your phone; the app completes login when the server receives the signature.'**
+  String get wcManualFlowIntroNative;
+
+  /// No description provided for @wcNetworkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get wcNetworkLabel;
+
+  /// No description provided for @wcCreateQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Create QR code'**
+  String get wcCreateQr;
+
+  /// No description provided for @wcCreateQrNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new QR code'**
+  String get wcCreateQrNew;
+
+  /// No description provided for @wcRelayDisabledBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect relay is off on the server (missing project id). This QR is not scannable — set WALLETCONNECT_PROJECT_ID on the API, restart, create a new QR. Or sign the message and paste address + signature below.'**
+  String get wcRelayDisabledBanner;
+
+  /// No description provided for @wcQrFooterLoginShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with your phone wallet and sign the message below.'**
+  String get wcQrFooterLoginShort;
+
+  /// No description provided for @wcMessageToSign.
+  ///
+  /// In en, this message translates to:
+  /// **'Message to sign'**
+  String get wcMessageToSign;
+
+  /// No description provided for @wcCopyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy message'**
+  String get wcCopyMessage;
+
+  /// No description provided for @wcMessageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Message copied'**
+  String get wcMessageCopied;
+
+  /// No description provided for @wcCompletingLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Completing sign-in…'**
+  String get wcCompletingLogin;
+
+  /// No description provided for @wcSignedWalletAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet address used to sign'**
+  String get wcSignedWalletAddress;
+
+  /// No description provided for @wcSignatureField.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get wcSignatureField;
+
+  /// No description provided for @wcVerifyAndLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & sign in'**
+  String get wcVerifyAndLogin;
+
+  /// No description provided for @wcWebRecommendExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'Tron: use TronLink on Chrome. EVM: open the QR section below.'**
+  String get wcWebRecommendExtension;
+
+  /// No description provided for @wcWebAdvancedWcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect QR / paste signature'**
+  String get wcWebAdvancedWcTitle;
+
+  /// No description provided for @wcWebAdvancedWcSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop, mobile wallet, or no extension'**
+  String get wcWebAdvancedWcSubtitle;
+
+  /// No description provided for @wcWebTronLinkExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink (Chrome)'**
+  String get wcWebTronLinkExtension;
+
+  /// No description provided for @wcEnterAddressAndSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter wallet address and signature.'**
+  String get wcEnterAddressAndSignature;
+
+  /// No description provided for @wcSessionExpiredCreateNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Create a new QR code.'**
+  String get wcSessionExpiredCreateNew;
+
+  /// No description provided for @desktopTronlinkDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink'**
+  String get desktopTronlinkDialogTitle;
+
+  /// No description provided for @desktopTronlinkDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink works in Chrome (web) only. On this app: sign in with email or open the web version.'**
+  String get desktopTronlinkDialogBody;
+
+  /// No description provided for @desktopTronlinkDialogOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get desktopTronlinkDialogOk;
 
   /// No description provided for @wcLinkDialogTitle.
   ///

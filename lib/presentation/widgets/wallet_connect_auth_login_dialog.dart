@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +22,47 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_deeplink_launcher.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_qr_session_card.dart';
 
+// #region agent log
+void _wcAuthAgentIngest(
+  String location,
+  String message,
+  String hypothesisId,
+  Map<String, dynamic> data,
+) {
+  unawaited(
+    Dio(
+      BaseOptions(
+        connectTimeout: const Duration(milliseconds: 800),
+        receiveTimeout: const Duration(milliseconds: 800),
+      ),
+    )
+        .post(
+          'http://127.0.0.1:7396/ingest/05053a01-7b62-4741-8e05-a56dba01ee1a',
+          data: {
+            'sessionId': 'cb6ec4',
+            'location': location,
+            'message': message,
+            'hypothesisId': hypothesisId,
+            'data': data,
+            'timestamp': DateTime.now().millisecondsSinceEpoch,
+          },
+          options: Options(
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Debug-Session-Id': 'cb6ec4',
+            },
+          ),
+        )
+        .catchError(
+          (Object _) =>
+              Response<dynamic>(requestOptions: RequestOptions(path: '')),
+        ),
+  );
+}
+// #endregion
+
 /// Đăng nhập bằng ví:
-/// - **Web:** extension MetaMask/TronLink (nonce + ký); mục «Nâng cao» = QR server cũ.
+/// - **Web:** TronLink extension; QR WalletConnect trong mục mở rộng.
 /// - **Native:** **Reown AppKit** — URI/QR từ SDK + `personal_sign` + `/auth/wallet-verify`;
 ///   cần `WALLETCONNECT_PROJECT_ID` trong `.env` (cùng project Reown Cloud như backend).
 Future<bool?> showWalletConnectAuthLoginDialog({
@@ -352,6 +392,18 @@ class _WalletConnectAuthLoginDialogState
           }
           if (data.status == WcSessionStatus.expired ||
               data.status == WcSessionStatus.failed) {
+            // #region agent log
+            _wcAuthAgentIngest(
+              'wallet_connect_auth_login_dialog.dart:_startPoll',
+              'poll terminal wc auth status',
+              'H6',
+              {
+                'status': data.status.name,
+                'sessionId': sid,
+                'expiresAtMs': data.expiresAtMs,
+              },
+            );
+            // #endregion
             _stopPoll();
           }
         },
@@ -385,26 +437,55 @@ class _WalletConnectAuthLoginDialogState
         },
       );
     });
-    if (_init != null) _startPoll();
+    if (_init != null) {
+      // #region agent log
+      final init = _init!;
+      _wcAuthAgentIngest(
+        'wallet_connect_auth_login_dialog.dart:_createSession',
+        'FE WC auth init completed',
+        'H1-FE',
+        {
+          'chain': _chain.apiValue,
+          'relayPairing': init.relayPairing,
+          'sessionId': init.sessionId,
+          'expiresInSec': init.expiresIn,
+        },
+      );
+      // #endregion
+      _startPoll();
+    }
   }
 
   void _onSessionExpiredUi() {
+    // #region agent log
+    _wcAuthAgentIngest(
+      'wallet_connect_auth_login_dialog.dart:_onSessionExpiredUi',
+      'UI session expired callback',
+      'H7',
+      {
+        'chain': _chain.apiValue,
+        'sessionId': _init?.sessionId,
+        'relayPairing': _init?.relayPairing,
+      },
+    );
+    // #endregion
     _stopPoll();
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     setState(() {
-      _error = 'Phiên đã hết hạn. Tạo mã QR mới.';
+      _error = l10n.wcSessionExpiredCreateNew;
       _init = null;
       _expiresAt = null;
       _status = WcSessionStatus.expired;
     });
   }
 
-  Future<void> _webExtensionLogin({required bool metaMask}) async {
+  Future<void> _webTronLinkExtensionLogin() async {
     setState(() => _webExtensionBusy = true);
     try {
       await loginWithWebBrowserExtension(
         context,
-        metaMask: metaMask,
+        metaMask: false,
         datasource: _authDs,
         onSuccess: () {
           if (mounted) Navigator.of(context).pop(true);
@@ -464,9 +545,10 @@ class _WalletConnectAuthLoginDialogState
     final address = _addressCtrl.text.trim();
     final sig = _signatureCtrl.text.trim();
     if (address.isEmpty || sig.isEmpty) {
+      final l10n = AppLocalizations.of(context);
       showAppSnackBar(
         context,
-        message: 'Nhập địa chỉ ví và chữ ký.',
+        message: l10n.wcEnterAddressAndSignature,
         type: SnackBarType.warning,
       );
       return;
@@ -496,6 +578,7 @@ class _WalletConnectAuthLoginDialogState
 
   Widget _buildWcManualFlow(
     ThemeData theme,
+    AppLocalizations l10n,
     WcSessionProposal? proposal,
     String signingMessage,
   ) {
@@ -503,19 +586,14 @@ class _WalletConnectAuthLoginDialogState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          kIsWeb
-              ? 'Luồng server: QR + message từ `/auth/wallet/wc/init`, '
-                  'ký đúng message, gửi `/auth/wallet/wc/verify`.'
-              : 'Backend có project id: quét QR, ký message trên điện thoại — server lấy chữ ký và app tự hoàn tất. '
-                  'MetaMask có thể kết nối WC ở Ethereum Mainnet; vẫn ký đúng message Sepolia hiển thị bên dưới. '
-                  'Solana hoặc thiếu cấu hình: dán địa chỉ và chữ ký sau khi ký.',
+          kIsWeb ? l10n.wcManualFlowIntroWeb : l10n.wcManualFlowIntroNative,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Mạng',
+          l10n.wcNetworkLabel,
           style: theme.textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
@@ -544,7 +622,7 @@ class _WalletConnectAuthLoginDialogState
                 )
               : const Icon(Icons.refresh, size: 20),
           label: Text(
-            proposal == null ? 'Tạo mã QR' : 'Tạo mã QR mới',
+            proposal == null ? l10n.wcCreateQr : l10n.wcCreateQrNew,
           ),
         ),
         if (_error != null) ...[
@@ -575,11 +653,7 @@ class _WalletConnectAuthLoginDialogState
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Server chưa bật relay WalletConnect (thiếu project id trên backend). '
-                        'QR hiện tại không kết nối ví — đừng quét. Thêm WALLETCONNECT_PROJECT_ID '
-                        'hoặc REOWN_PROJECT_ID vào file .env của Nest (cùng project Reown Cloud như app), '
-                        'khởi động lại API, rồi tạo QR mới. Trong lúc chờ: ký message bằng ví khác '
-                        '(ví dụ extension) và dán địa chỉ + chữ ký bên dưới.',
+                        l10n.wcRelayDisabledBanner,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
@@ -595,9 +669,7 @@ class _WalletConnectAuthLoginDialogState
             WcQrSessionCard(
               session: proposal,
               status: _status,
-              qrFooterText:
-                  'Quét QR bằng ví (MetaMask / Trust / Phantom…). '
-                  'Ký đúng message hiển thị bên dưới.',
+              qrFooterText: l10n.wcQrFooterLoginShort,
               onExpired: _onSessionExpiredUi,
               onRefresh: _createSession,
             ),
@@ -608,7 +680,7 @@ class _WalletConnectAuthLoginDialogState
           ],
           const SizedBox(height: 16),
           Text(
-            'Message cần ký',
+            l10n.wcMessageToSign,
             style: theme.textTheme.titleSmall
                 ?.copyWith(fontWeight: FontWeight.w600),
           ),
@@ -627,12 +699,12 @@ class _WalletConnectAuthLoginDialogState
                 Clipboard.setData(ClipboardData(text: signingMessage));
                 showAppSnackBar(
                   context,
-                  message: 'Đã copy message',
+                  message: l10n.wcMessageCopied,
                   type: SnackBarType.success,
                 );
               },
               icon: const Icon(Icons.copy, size: 18),
-              label: const Text('Copy message'),
+              label: Text(l10n.wcCopyMessage),
             ),
           ),
           if (_pollHasServerSignature && _wcAutoVerifyBusy) ...[
@@ -643,7 +715,7 @@ class _WalletConnectAuthLoginDialogState
                   const CircularProgressIndicator(),
                   const SizedBox(height: 12),
                   Text(
-                    'Đang hoàn tất đăng nhập…',
+                    l10n.wcCompletingLogin,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -656,19 +728,19 @@ class _WalletConnectAuthLoginDialogState
             const SizedBox(height: 16),
             TextFormField(
               controller: _addressCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Địa chỉ ví đã ký',
-                border: OutlineInputBorder(),
-                hintText: '0x… hoặc địa chỉ Solana',
+              decoration: InputDecoration(
+                labelText: l10n.wcSignedWalletAddress,
+                border: const OutlineInputBorder(),
+                hintText: '0x… / Solana',
               ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _signatureCtrl,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Chữ ký (signature)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.wcSignatureField,
+                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
             ),
@@ -684,7 +756,7 @@ class _WalletConnectAuthLoginDialogState
                         color: Colors.white,
                       ),
                     )
-                  : const Text('Xác thực & đăng nhập'),
+                  : Text(l10n.wcVerifyAndLogin),
             ),
           ],
         ],
@@ -742,7 +814,7 @@ class _WalletConnectAuthLoginDialogState
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                'Khuyến nghị: dùng extension — ký tự động, không cần QR hay dán chữ ký.',
+                                l10n.wcWebRecommendExtension,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -751,7 +823,7 @@ class _WalletConnectAuthLoginDialogState
                               FilledButton.icon(
                                 onPressed: _webExtensionBusy
                                     ? null
-                                    : () => _webExtensionLogin(metaMask: true),
+                                    : _webTronLinkExtensionLogin,
                                 icon: _webExtensionBusy
                                     ? const SizedBox(
                                         width: 18,
@@ -761,16 +833,8 @@ class _WalletConnectAuthLoginDialogState
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Icon(Icons.account_balance_wallet_outlined),
-                                label: const Text('MetaMask (Chrome extension)'),
-                              ),
-                              const SizedBox(height: 8),
-                              OutlinedButton.icon(
-                                onPressed: _webExtensionBusy
-                                    ? null
-                                    : () => _webExtensionLogin(metaMask: false),
-                                icon: const Icon(Icons.link),
-                                label: const Text('TronLink (Chrome extension)'),
+                                    : const Icon(Icons.link),
+                                label: Text(l10n.wcWebTronLinkExtension),
                               ),
                             ],
                           ),
@@ -779,9 +843,9 @@ class _WalletConnectAuthLoginDialogState
                       const SizedBox(height: 8),
                       ExpansionTile(
                         tilePadding: EdgeInsets.zero,
-                        title: const Text('Nâng cao: QR WalletConnect / dán signature'),
+                        title: Text(l10n.wcWebAdvancedWcTitle),
                         subtitle: Text(
-                          'Desktop, ví mobile, hoặc khi không dùng extension',
+                          l10n.wcWebAdvancedWcSubtitle,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -791,19 +855,28 @@ class _WalletConnectAuthLoginDialogState
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _buildWcManualFlow(
                               theme,
+                              l10n,
                               proposal,
                               signingMessage,
                             ),
                           ),
                         ],
                       ),
+                    ] else if (!ReownWalletAuthConfig.isRuntimeSupported) ...[
+                      _buildReownNativeSection(theme, l10n),
+                      const SizedBox(height: 12),
+                      _buildWcManualFlow(
+                        theme,
+                        l10n,
+                        proposal,
+                        signingMessage,
+                      ),
                     ] else ...[
                       _buildReownNativeSection(theme, l10n),
                       const SizedBox(height: 12),
                       ExpansionTile(
                         tilePadding: EdgeInsets.zero,
-                        initiallyExpanded:
-                            !ReownWalletAuthConfig.isRuntimeSupported,
+                        initiallyExpanded: false,
                         title: Text(l10n.wcAdvancedLegacyQrTitle),
                         subtitle: Text(
                           l10n.wcAdvancedLegacyQrSubtitle,
@@ -816,6 +889,7 @@ class _WalletConnectAuthLoginDialogState
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _buildWcManualFlow(
                               theme,
+                              l10n,
                               proposal,
                               signingMessage,
                             ),

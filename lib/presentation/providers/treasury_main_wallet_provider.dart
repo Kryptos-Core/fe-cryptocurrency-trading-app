@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
@@ -32,10 +34,15 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  String _currentChain = 'TRON_NILE';
+  /// Set when [importMainWallet] fails; e.g. `INVALID_MFA_CODE` from API.
+  String? _importFailureCode;
+  String? get importFailureCode => _importFailureCode;
+
+  String _currentChain = treasuryDefaultMainWalletChainForCurrentEnv();
   String get currentChain => _currentChain;
 
   void setChain(String chain) {
+    if (!isTreasuryMainWalletChainAllowedForCurrentEnv(chain)) return;
     if (_currentChain == chain) return;
     _currentChain = chain;
     loadMainWallets();
@@ -65,6 +72,25 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
     try {
       final list = await _dataSource.listPendingMainWallets();
       _pendingWallets = list;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Reloads both active (current chain) and pending lists — use after create / approve / reject / set default / manual refresh.
+  Future<void> refreshAllWallets() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final main = await _dataSource.listMainWallets(_currentChain);
+      final pending = await _dataSource.listPendingMainWallets();
+      _mainWallets = main;
+      _pendingWallets = pending;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -127,6 +153,7 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
   }) async {
     _isSubmitting = true;
     _error = null;
+    _importFailureCode = null;
     notifyListeners();
 
     try {
@@ -136,9 +163,12 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
         privateKey: privateKey,
         mfaCode: mfaCode,
       );
-      // Wait to reload pending since it's created as pending
-      await loadPendingWallets();
+      await refreshAllWallets();
       return true;
+    } on ServerException catch (e) {
+      _importFailureCode = e.code;
+      _error = e.message;
+      return false;
     } catch (e) {
       _error = e.toString();
       return false;
@@ -155,7 +185,7 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
 
     try {
       await _dataSource.approveMainWallet(id);
-      await Future.wait([loadPendingWallets(), loadMainWallets()]);
+      await refreshAllWallets();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -173,7 +203,7 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
 
     try {
       await _dataSource.rejectMainWallet(id);
-      await loadPendingWallets();
+      await refreshAllWallets();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -191,8 +221,82 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
 
     try {
       await _dataSource.setDefaultMainWallet(id);
-      await loadMainWallets();
+      await refreshAllWallets();
       return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  /// Returns decrypted private key after server verifies [mfaCode], or null on failure ([error] set).
+  Future<String?> revealMainWalletPrivateKey({
+    required String mainWalletId,
+    required String mfaCode,
+  }) async {
+    _isSubmitting = true;
+    _error = null;
+    _importFailureCode = null;
+    notifyListeners();
+
+    try {
+      final pk = await _dataSource.revealMainWalletPrivateKey(
+        mainWalletId: mainWalletId,
+        mfaCode: mfaCode.trim(),
+      );
+      return pk;
+    } on ServerException catch (e) {
+      _importFailureCode = e.code;
+      _error = e.message;
+      return null;
+    } catch (e) {
+      _error = e.toString();
+      return null;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateMainWalletLabel(String mainWalletId, String? label) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.updateMainWallet(
+        mainWalletId: mainWalletId,
+        label: label,
+      );
+      await refreshAllWallets();
+      return true;
+    } on ServerException catch (e) {
+      _error = e.message;
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteMainWallet(String mainWalletId) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.deleteMainWallet(mainWalletId);
+      await refreshAllWallets();
+      return true;
+    } on ServerException catch (e) {
+      _error = e.message;
+      return false;
     } catch (e) {
       _error = e.toString();
       return false;

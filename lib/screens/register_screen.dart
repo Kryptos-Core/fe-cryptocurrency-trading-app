@@ -152,14 +152,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         },
       );
     } catch (e) {
+      if (!mounted) return;
+      final msg = AppLocalizations.of(context).registerUnexpectedError(e.toString());
       setState(() {
-        _errorMessage = 'Unexpected error: ${e.toString()}';
+        _errorMessage = msg;
         _isLoading = false;
       });
       if (mounted) {
         showAppSnackBar(
           context,
-          message: 'Error: ${e.toString()}',
+          message: msg,
           type: SnackBarType.error,
           duration: const Duration(seconds: 4),
         );
@@ -189,35 +191,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  static const double _kFormMaxWidth = 520;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final onSurfaceVariant = theme.colorScheme.onSurfaceVariant;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).register),
+        title: Text(l10n.register),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _kFormMaxWidth),
+              child: Form(
+                key: _formKey,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // App Icon
                   Icon(
                     Icons.person_add_outlined,
                     size: 80,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: theme.colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
 
                   // Title
                   Text(
-                    AppLocalizations.of(context).registerCreateAccount,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    l10n.registerCreateAccount,
+                    style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                     textAlign: TextAlign.center,
@@ -225,9 +237,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    AppLocalizations.of(context).registerSignUpSubtitle,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                    l10n.registerSignUpSubtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                          color: onSurfaceVariant,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -239,18 +251,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.red[50],
+                        color: theme.colorScheme.errorContainer,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red[300]!),
+                        border: Border.all(
+                          color: theme.colorScheme.error.withValues(alpha: 0.35),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error_outline, color: Colors.red[700]),
+                          Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.onErrorContainer,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(color: Colors.red[700]),
+                              style: TextStyle(
+                                color: theme.colorScheme.onErrorContainer,
+                              ),
                             ),
                           ),
                         ],
@@ -391,7 +410,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           )
                         : Text(
-                            AppLocalizations.of(context).register,
+                            l10n.register,
                             style: const TextStyle(fontSize: 16),
                           ),
                   ),
@@ -404,11 +423,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
-                          AppLocalizations.of(context).registerWalletDivider,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                          l10n.registerWalletDivider,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                         ),
                       ),
@@ -416,29 +433,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-
-                  // MetaMask register
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _isLoading
-                          ? null
-                          : () => WalletAuthHandler.connectMetaMask(
-                                context,
-                                datasource: sl<AuthRemoteDataSource>(),
-                                onSuccess: _onWalletAuthSuccess,
-                              ),
-                      icon: const Icon(Icons.account_balance_wallet_outlined,
-                          color: Color(0xFFE2761B), size: 20),
-                      label: Text(AppLocalizations.of(context).registerWithMetaMask),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFFE2761B)),
-                        foregroundColor: const Color(0xFFE2761B),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
 
                   SizedBox(
                     width: double.infinity,
@@ -451,7 +445,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                       icon: const Icon(Icons.qr_code_2,
                           color: Color(0xFF5B8DEF), size: 20),
-                      label: const Text('WalletConnect (QR)'),
+                      label: Text(l10n.registerWalletConnectQr),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(color: Color(0xFF5B8DEF)),
@@ -474,7 +468,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                       icon: const Icon(Icons.link,
                           color: Color(0xFFEF0027), size: 20),
-                      label: Text(AppLocalizations.of(context).registerWithTronLink),
+                      label: Text(l10n.registerWithTronLink),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(color: Color(0xFFEF0027)),
@@ -488,14 +482,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(AppLocalizations.of(context).hasAccount),
+                      Text(l10n.hasAccount),
                       TextButton(
                         onPressed: _isLoading ? null : _navigateToLogin,
-                        child: Text(AppLocalizations.of(context).login),
+                        child: Text(l10n.login),
                       ),
                     ],
                   ),
                 ],
+                ),
               ),
             ),
           ),

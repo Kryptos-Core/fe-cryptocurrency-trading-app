@@ -9,6 +9,9 @@ class AppDropdownField<T> extends StatelessWidget {
   final double menuMaxHeight;
   final EdgeInsetsGeometry contentPadding;
 
+  /// Tighter field (e.g. AppBar toolbars) — smaller vertical padding and [isDense].
+  final bool dense;
+
   const AppDropdownField({
     super.key,
     required this.value,
@@ -18,10 +21,15 @@ class AppDropdownField<T> extends StatelessWidget {
     this.hintText,
     this.menuMaxHeight = 300,
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    this.dense = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectivePadding = dense
+        ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+        : contentPadding;
+
     return DropdownButtonFormField<T>(
       key: ValueKey<T?>(value),
       initialValue: value,
@@ -29,8 +37,8 @@ class AppDropdownField<T> extends StatelessWidget {
       menuMaxHeight: menuMaxHeight,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        contentPadding: contentPadding,
-        isDense: false,
+        contentPadding: effectivePadding,
+        isDense: dense,
         labelText: labelText,
       ),
       hint: hintText != null ? Text(hintText!) : null,

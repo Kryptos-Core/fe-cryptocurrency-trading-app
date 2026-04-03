@@ -89,6 +89,9 @@ class MarketRow extends StatelessWidget {
   final bool isFavorite;
   final String? favoriteTooltip;
 
+  /// Tighter card margin/padding for dense grids (e.g. two-column markets on wide screens).
+  final bool denseLayout;
+
   const MarketRow({
     super.key,
     required this.market,
@@ -97,6 +100,7 @@ class MarketRow extends StatelessWidget {
     this.onFavoriteTap,
     this.isFavorite = false,
     this.favoriteTooltip,
+    this.denseLayout = false,
   });
 
   /// When ticker is missing, show "—" so user knows data is loading/missing (not real 0).
@@ -120,15 +124,17 @@ class MarketRow extends StatelessWidget {
         : _noData;
     final lastPrice = hasTicker ? _formatPrice(ticker!.lastPrice) : _noData;
 
+    final hMargin = denseLayout ? 8.0 : 16.0;
+    final innerPadding = denseLayout ? 12.0 : 16.0;
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: hMargin, vertical: 4),
       child: InkWell(
         onTap: onTap,
         mouseCursor:
             onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(innerPadding),
           child: Row(
             children: [
               // Market Symbol

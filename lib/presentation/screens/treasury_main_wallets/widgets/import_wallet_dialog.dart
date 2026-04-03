@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_private_key_format.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/screens/profile_screen.dart';
@@ -15,15 +16,21 @@ class ImportWalletDialog extends StatefulWidget {
 }
 
 class _ImportWalletDialogState extends State<ImportWalletDialog> {
+  static const String _kInvalidMfaCode = 'INVALID_MFA_CODE';
+
   final _labelController = TextEditingController();
   final _privateKeyController = TextEditingController();
   final _mfaCodeController = TextEditingController();
   final _privateKeyFocus = FocusNode();
+  final _mfaFocus = FocusNode();
 
   bool _isSendingOtp = false;
   bool _isVerifyingOtp = false;
   bool _otpVerified = false;
+  /// Stays true after the first successful OTP confirm so label/private key stay visible if email OTP expires on import.
+  bool _walletFieldsUnlocked = false;
   String? _verifiedCode;
+  String? _mfaFieldError;
 
   @override
   void initState() {
@@ -32,6 +39,9 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
   }
 
   void _onOtpTextChanged() {
+    if (_mfaFieldError != null) {
+      setState(() => _mfaFieldError = null);
+    }
     if (!mounted || !_otpVerified || _verifiedCode == null) return;
     if (_mfaCodeController.text.trim() != _verifiedCode) {
       setState(() {
@@ -52,6 +62,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     if (success) {
+      if (mounted) setState(() => _mfaFieldError = null);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.treasuryImportWalletMfaSentSnack)),
       );
@@ -88,6 +99,8 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
       setState(() {
         _otpVerified = true;
         _verifiedCode = code;
+        _walletFieldsUnlocked = true;
+        _mfaFieldError = null;
       });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -126,6 +139,21 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
       return;
     }
 
+    final currentChain = context.read<TreasuryMainWalletProvider>().currentChain;
+    final formatIssue = detectTreasuryImportPrivateKeyFormatIssue(currentChain, pk);
+    if (formatIssue != null) {
+      final hint = switch (formatIssue) {
+        TreasuryImportPrivateKeyFormatIssue.tronAddressInsteadOfKey =>
+          l10n.treasuryImportWalletMistakeTronAddress,
+        TreasuryImportPrivateKeyFormatIssue.evmAddressInsteadOfKey =>
+          l10n.treasuryImportWalletMistakeEvmAddress,
+      };
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(hint)),
+      );
+      return;
+    }
+
     final provider = context.read<TreasuryMainWalletProvider>();
     final success = await provider.importMainWallet(
       label: label,
@@ -141,13 +169,31 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
         SnackBar(content: Text(l10n.treasuryImportWalletSuccessSnack)),
       );
     } else {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.treasuryImportWalletErrorSnack(provider.error ?? ''),
+      final failureCode = provider.importFailureCode;
+      if (failureCode == _kInvalidMfaCode) {
+        setState(() {
+          _otpVerified = false;
+          _verifiedCode = null;
+          _mfaFieldError = l10n.treasuryImportWalletMfaExpiredOnImport;
+        });
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.treasuryImportWalletMfaExpiredOnImportSnack),
+            behavior: SnackBarBehavior.floating,
           ),
-        ),
-      );
+        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _mfaFocus.requestFocus();
+        });
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.treasuryImportWalletErrorSnack(provider.error ?? ''),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -158,6 +204,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
     _privateKeyController.dispose();
     _mfaCodeController.dispose();
     _privateKeyFocus.dispose();
+    _mfaFocus.dispose();
     super.dispose();
   }
 
@@ -219,9 +266,11 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                 Expanded(
                   child: TextField(
                     controller: _mfaCodeController,
+                    focusNode: _mfaFocus,
                     enabled: !_otpVerified,
                     decoration: InputDecoration(
                       labelText: l10n.treasuryImportWalletMfaCode,
+                      errorText: _mfaFieldError,
                     ),
                   ),
                 ),
@@ -238,7 +287,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                 ),
               ],
             ),
-            if (_otpVerified) ...[
+            if (_walletFieldsUnlocked) ...[
               const SizedBox(height: 20),
               TextField(
                 controller: _labelController,

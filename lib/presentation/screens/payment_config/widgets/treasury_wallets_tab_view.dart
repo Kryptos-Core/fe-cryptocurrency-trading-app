@@ -205,7 +205,7 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
       children: [
         Expanded(
           child: TreasuryChainDropdown(
-            chains: kTreasuryOpsChainValues,
+            chains: treasuryOpsChainsForCurrentEnv(),
             value: provider.walletChain,
             allowAllOption: true,
             labelText: l10n.treasuryChainLabel,

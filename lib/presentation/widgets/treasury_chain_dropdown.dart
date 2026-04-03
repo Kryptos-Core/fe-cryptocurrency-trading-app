@@ -18,6 +18,7 @@ class TreasuryChainDropdown extends StatelessWidget {
     this.hintText,
     this.allOptionLabel,
     this.menuMaxHeight,
+    this.dense = false,
   });
 
   final List<String> chains;
@@ -29,6 +30,9 @@ class TreasuryChainDropdown extends StatelessWidget {
   final String? hintText;
   final String? allOptionLabel;
   final double? menuMaxHeight;
+
+  /// See [AppDropdownField.dense] — use in tight layouts (e.g. AppBar).
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +67,7 @@ class TreasuryChainDropdown extends StatelessWidget {
       labelText: labelText,
       hintText: hintText,
       menuMaxHeight: mh,
+      dense: dense,
       items: items,
       onChanged: onChanged,
     );

@@ -1,72 +1,50 @@
 # Kryptos Core — Flutter App
 
-Ứng dụng desktop/web/Android cho nền tảng giao dịch (**package:** `crypto_trading_app`). Giao tiếp với backend NestJS qua REST (**Dio**) và realtime (**Socket.IO**).
+Ứng dụng desktop / web / Android (**package:** `crypto_trading_app`). Gọi API NestJS qua REST (**Dio**) và realtime (**Socket.IO**).
 
 ## Yêu cầu
 
 - **Flutter SDK:** `>=3.0.0 <4.0.0` (xem [`pubspec.yaml`](pubspec.yaml))
-- **Dart:** đi kèm Flutter
-- **Android:** JDK 17, Android SDK (khi build/run Android)
+- **Android:** JDK 17 + Android SDK (khi build Android)
 - **Windows:** Visual Studio workload “Desktop development with C++” (khi build Windows)
-
-Kiểm tra môi trường:
 
 ```bash
 flutter doctor -v
 ```
 
-## Cài đặt
+## Cài đặt và chạy
 
 ```bash
 cd fe-cryptocurrency-trading-app
 flutter pub get
 ```
 
-### Cấu hình API (bắt buộc)
+**`.env` (bắt buộc):** copy từ `.env.example`, chỉnh `BASE_URL` (phải kèm `/api/v1`):
 
-```bash
-copy .env.example .env
-```
-
-Chỉnh `BASE_URL` trong `.env` (phải **kèm** `/api/v1`):
-
-| Môi trường chạy app | `BASE_URL` gợi ý |
-|---------------------|------------------|
+| Môi trường | `BASE_URL` gợi ý |
+|------------|------------------|
 | Windows / Chrome / Edge | `http://127.0.0.1:3000/api/v1` |
 | Android Emulator | `http://10.0.2.2:3000/api/v1` |
-| Máy thật (cùng WiFi) | `http://<IP-máy-chạy-BE>:3000/api/v1` |
-
-Ứng dụng load `.env` lúc khởi động (`flutter_dotenv`). Chi tiết logic URL: [`lib/core/constants/api_constants.dart`](lib/core/constants/api_constants.dart).
-
-### Localization
-
-Sau khi sửa `lib/l10n/*.arb`:
-
-```bash
-flutter gen-l10n
-```
-
-## Chạy ứng dụng
+| Thiết bị thật (cùng WiFi) | `http://<IP-máy-BE>:3000/api/v1` |
 
 ```bash
 # Thiết bị mặc định
 flutter run
 
-# Web (nhanh cho UI)
-flutter run -d chrome
-
-# Windows desktop
-flutter run -d windows
-
-# Liệt kê thiết bị
+flutter run -d chrome    # web
+flutter run -d windows   # Windows desktop
 flutter devices
 ```
 
 Trong session `flutter run`: `r` hot reload, `R` hot restart, `q` thoát.
 
-## Backend
+**Localization** — sau khi sửa `lib/l10n/*.arb`:
 
-API NestJS chạy từ thư mục backend **cùng workspace** (lệnh mẫu dưới đây giả định tên thư mục là `be-cryptocurrency-trading-app`). Khởi chạy tối thiểu:
+```bash
+flutter gen-l10n
+```
+
+## Backend (cùng workspace)
 
 ```bash
 cd ../be-cryptocurrency-trading-app
@@ -80,74 +58,32 @@ npm run start:dev
 
 Kiểm tra: `GET http://127.0.0.1:3000/api/v1/health`
 
-**Wallet / đăng nhập ví:** Trong `.env` đặt `WALLETCONNECT_PROJECT_ID` hoặc `REOWN_PROJECT_ID` (Reown Cloud) — **bắt buộc** cho Reown AppKit trên **Android/iOS**. Trên **desktop**, QR đăng nhập gọi `POST .../auth/wallet/wc/init` và poll `GET .../auth/wallet/wc/status/:sessionId` (prefix đầy đủ theo `BASE_URL`); khi phản hồi có `relayPairing: true`, ví quét qua relay thật. Server API cần **cùng** Project ID và khai báo biến trong whitelist `env.validation.ts` của backend để SignClient hoạt động. Chi tiết biến: [`.env.example`](.env.example).
+## Gỡ lỗi thường gặp
 
-## Khách (Guest) và tích xanh xác minh email
+**Connection refused / không gọi được API**
 
-**Guest** trên app là trạng thái **chưa đăng nhập** (không JWT); đây không phải một giá trị `role` lưu trên server. **Tích xanh** (`Icons.verified`) dưới/cạnh avatar trên màn Hồ sơ và drawer khi người dùng có `email_verified` trên backend (đã chứng minh inbox qua OTP — ví dụ bật 2FA hoặc xác minh email liên hệ cho tài khoản ví). Khác với cờ định danh KYC (`identity_verified`).
+- Backend đã chạy, đúng cổng (thường `3000`).
+- Emulator Android: dùng `10.0.2.2`, không dùng `localhost` của máy host.
+- `BASE_URL` trong `.env` có đuôi `/api/v1`.
 
-## Kiến trúc mã nguồn
+**401 sau một thời gian**
 
-```
-lib/
-├── main.dart
-├── core/                 # constants, DI (GetIt), network (Dio), utils
-├── data/                 # models, datasources, repository implementations
-├── domain/               # entities, repository contracts, use cases
-├── presentation/         # providers (Provider), widgets, một số màn feature
-├── screens/              # màn hình chính (home, admin, orders, wallets, …)
-├── gen_l10n/             # generated — không sửa tay
-└── l10n/                 # app_en.arb, app_vi.arb
-```
+- Token hết hạn — đăng nhập lại.
 
-Mô tả sâu hơn: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+**Đồ thị / cặp không có dữ liệu**
 
-## Công nghệ chính
+- Backend đã seed/sync markets; xem gợi ý trong [`.env.example`](.env.example).
 
-| Thành phần | Thư viện |
-|------------|----------|
-| State (UI) | `provider` |
-| Dependency injection | `get_it` |
-| HTTP | `dio` |
-| JSON models | `json_annotation` + `json_serializable` / `freezed` (nơi dùng) |
-| Lưu local | `shared_preferences`, `hive` |
-| Realtime | `socket_io_client` (namespace trading; origin từ `ApiConstants`) |
-| Biểu đồ | Lightweight Charts qua `webview_windows` (Windows) |
-| Đa ngôn ngữ | `flutter_localizations` + ARB |
-| Push (mobile) | `firebase_core`, `firebase_messaging`, local notifications |
-
-## Lệnh hữu ích
+**Lệnh khác**
 
 ```bash
 flutter analyze
 dart format lib
-
-# Sinh code (khi đổi model có annotation)
-dart run build_runner build --delete-conflicting-outputs
-
-flutter clean && flutter pub get   # khi build lỗi cache
+dart run build_runner build --delete-conflicting-outputs   # khi đổi model có annotation
+flutter clean && flutter pub get
 ```
 
-## Gỡ lỗi thường gặp
+## Tài liệu thêm
 
-**Không gọi được API / connection refused**
-
-- Backend đã chạy và đúng cổng `3000`.
-- Android emulator: dùng `10.0.2.2`, không dùng `localhost` của máy host.
-- Kiểm tra `BASE_URL` trong `.env` có đuôi `/api/v1`.
-
-**401 sau một thời gian**
-
-- Token hết hạn — đăng nhập lại; interceptor có thể đã xóa token và đưa về màn login.
-
-**Đồ thị / cặp không có dữ liệu**
-
-- Đảm bảo backend đã seed/sync markets; xem gợi ý trong [`.env.example`](.env.example) (đồng bộ exchange, khởi động lại BE nếu cần).
-
-## Nền tảng
-
-Dự án có **Windows**, **Web**, **Android**. Không có thư mục `ios/` trong repo hiện tại.
-
-## Script bổ sung
-
-- [`scripts/README-FLUTTER.md`](scripts/README-FLUTTER.md) — ghi chú script hỗ trợ Flutter (nếu có).
+- Kiến trúc & màn hình: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- Script hỗ trợ (nếu có): [`scripts/README-FLUTTER.md`](scripts/README-FLUTTER.md)
