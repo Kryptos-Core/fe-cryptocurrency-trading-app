@@ -5926,6 +5926,36 @@ abstract class AppLocalizations {
   /// **'Added at: {dateTime}'**
   String treasuryMainWalletPendingSubtitle(String dateTime);
 
+  /// No description provided for @treasuryMainWalletBalanceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {balance} {symbol}'**
+  String treasuryMainWalletBalanceLine(String balance, String symbol);
+
+  /// No description provided for @treasuryMainWalletLabelLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Label: {label}'**
+  String treasuryMainWalletLabelLine(String label);
+
+  /// No description provided for @treasuryMainWalletCopyAddressTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get treasuryMainWalletCopyAddressTooltip;
+
+  /// No description provided for @treasuryMainWalletCopiedAddressSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied to clipboard.'**
+  String get treasuryMainWalletCopiedAddressSnack;
+
+  /// No description provided for @treasuryMainWalletRevealPrivateKeyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Private key (email OTP)'**
+  String get treasuryMainWalletRevealPrivateKeyTooltip;
+
   /// No description provided for @treasuryMainWalletMenuCopyPrivateKey.
   ///
   /// In en, this message translates to:

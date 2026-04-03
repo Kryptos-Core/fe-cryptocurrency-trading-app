@@ -1120,6 +1120,22 @@
       "dateTime": { "type": "String" }
     }
   },
+  "treasuryMainWalletBalanceLine": "Số dư: {balance} {symbol}",
+  "@treasuryMainWalletBalanceLine": {
+    "placeholders": {
+      "balance": { "type": "String" },
+      "symbol": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletLabelLine": "Nhãn: {label}",
+  "@treasuryMainWalletLabelLine": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletCopyAddressTooltip": "Sao chép địa chỉ",
+  "treasuryMainWalletCopiedAddressSnack": "Đã sao chép địa chỉ.",
+  "treasuryMainWalletRevealPrivateKeyTooltip": "Private key (OTP email)",
   "treasuryMainWalletMenuCopyPrivateKey": "Sao chép private key",
   "treasuryMainWalletMenuEditLabel": "Sửa nhãn",
   "treasuryMainWalletMenuDelete": "Xóa ví",

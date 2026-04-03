@@ -3191,6 +3191,27 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String treasuryMainWalletBalanceLine(String balance, String symbol) {
+    return 'Balance: $balance $symbol';
+  }
+
+  @override
+  String treasuryMainWalletLabelLine(String label) {
+    return 'Label: $label';
+  }
+
+  @override
+  String get treasuryMainWalletCopyAddressTooltip => 'Copy address';
+
+  @override
+  String get treasuryMainWalletCopiedAddressSnack =>
+      'Address copied to clipboard.';
+
+  @override
+  String get treasuryMainWalletRevealPrivateKeyTooltip =>
+      'Private key (email OTP)';
+
+  @override
   String get treasuryMainWalletMenuCopyPrivateKey => 'Copy private key';
 
   @override

@@ -1220,6 +1220,22 @@
       "dateTime": { "type": "String" }
     }
   },
+  "treasuryMainWalletBalanceLine": "Balance: {balance} {symbol}",
+  "@treasuryMainWalletBalanceLine": {
+    "placeholders": {
+      "balance": { "type": "String" },
+      "symbol": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletLabelLine": "Label: {label}",
+  "@treasuryMainWalletLabelLine": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "treasuryMainWalletCopyAddressTooltip": "Copy address",
+  "treasuryMainWalletCopiedAddressSnack": "Address copied to clipboard.",
+  "treasuryMainWalletRevealPrivateKeyTooltip": "Private key (email OTP)",
   "treasuryMainWalletMenuCopyPrivateKey": "Copy private key",
   "treasuryMainWalletMenuEditLabel": "Edit label",
   "treasuryMainWalletMenuDelete": "Delete wallet",

@@ -3193,6 +3193,26 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String treasuryMainWalletBalanceLine(String balance, String symbol) {
+    return 'Số dư: $balance $symbol';
+  }
+
+  @override
+  String treasuryMainWalletLabelLine(String label) {
+    return 'Nhãn: $label';
+  }
+
+  @override
+  String get treasuryMainWalletCopyAddressTooltip => 'Sao chép địa chỉ';
+
+  @override
+  String get treasuryMainWalletCopiedAddressSnack => 'Đã sao chép địa chỉ.';
+
+  @override
+  String get treasuryMainWalletRevealPrivateKeyTooltip =>
+      'Private key (OTP email)';
+
+  @override
   String get treasuryMainWalletMenuCopyPrivateKey => 'Sao chép private key';
 
   @override

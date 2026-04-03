@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
-import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_menu_button.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_card.dart';
 
 class PendingMainWalletsTabView extends StatelessWidget {
   const PendingMainWalletsTabView({super.key});
@@ -12,6 +13,8 @@ class PendingMainWalletsTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final provider = context.watch<TreasuryMainWalletProvider>();
+    final auth = context.watch<AuthProvider>();
+    final canApprovePending = auth.isRiskOfficer;
     final wallets = provider.pendingWallets;
 
     if (provider.isLoading) {
@@ -25,7 +28,7 @@ class PendingMainWalletsTabView extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: provider.refreshAllWallets,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemCount: wallets.length,
         itemBuilder: (context, index) {
           final wallet = wallets[index];
@@ -34,31 +37,12 @@ class PendingMainWalletsTabView extends StatelessWidget {
           final dateStr = created != null
               ? DateFormat.yMMMd(locale).add_Hm().format(created)
               : l10n.treasuryMainWalletUnknownTime;
-          return Card(
-            child: ListTile(
-              title: Text('${wallet.chain} - ${wallet.address}'),
-              subtitle: Text(l10n.treasuryMainWalletPendingSubtitle(dateStr)),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.check, color: Colors.green),
-                    tooltip: l10n.treasuryMainWalletTooltipApprove,
-                    onPressed: () {
-                      provider.approveWallet(wallet.mainWalletId);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
-                    tooltip: l10n.treasuryMainWalletTooltipReject,
-                    onPressed: () {
-                      provider.rejectWallet(wallet.mainWalletId);
-                    },
-                  ),
-                  TreasuryMainWalletMenuButton(wallet: wallet),
-                ],
-              ),
-            ),
+          return TreasuryMainWalletCard(
+            wallet: wallet,
+            pendingAddedAtText: dateStr,
+            showApproveReject: canApprovePending,
+            onApprove: () => provider.approveWallet(wallet.mainWalletId),
+            onReject: () => provider.rejectWallet(wallet.mainWalletId),
           );
         },
       ),

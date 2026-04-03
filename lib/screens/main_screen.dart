@@ -645,6 +645,32 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: openManagedWallets,
                               ),
+                            if (auth.isRiskOfficer && !auth.canManagePaymentConfigs)
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 2),
+                                leading: Icon(
+                                  Icons.admin_panel_settings_outlined,
+                                  size: 22,
+                                  color: cs.primary,
+                                ),
+                                title: Text(l10n.drawerTreasuryMainWalletsTitle),
+                                subtitle: Text(
+                                  l10n.drawerTreasuryMainWalletsSubtitle,
+                                  style: subtitleStyle,
+                                ),
+                                mouseCursor: SystemMouseCursors.click,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const TreasuryMainWalletsScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
                             ListTile(
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 2),
