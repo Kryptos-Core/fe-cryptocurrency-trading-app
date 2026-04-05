@@ -83,9 +83,13 @@ class AuthProvider extends ChangeNotifier {
   bool get canReviewSecurityRequests =>
       hasPermission('users:security_review') || isAdmin || isRiskOfficer;
 
-  /// True for roles that can manually adjust user wallet balances (admin, risk officer).
+  /// True for roles that can adjust user balances, managed deposit wallets, and related ops
+  /// (admin, risk officer, finance manager — aligned with backend `WALLETS_MANAGE`).
   bool get canManageWallets =>
-      hasPermission('wallets:manage') || isAdmin || isRiskOfficer;
+      hasPermission('wallets:manage') ||
+      isAdmin ||
+      isRiskOfficer ||
+      isFinanceManager;
 
   /// True for roles that can manage payment gateway configurations (admin, finance manager).
   bool get canManagePaymentConfigs =>

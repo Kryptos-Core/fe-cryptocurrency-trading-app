@@ -63,6 +63,56 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
     }
   }
 
+  Future<void> _confirmClearDefault() async {
+    final l10n = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.managedWalletClearDefaultDepositTitle),
+        content: Text(l10n.managedWalletClearDefaultDepositBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.managedWalletClearDefaultDepositAction),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    final provider = context.read<ManagedWalletsProvider>();
+    final error = await provider.clearDepositDefault(_wallet.walletId);
+    if (!mounted) return;
+    if (error == null) {
+      showAppSnackBar(
+        context,
+        message: l10n.managedWalletClearDefaultDepositSuccess,
+        type: SnackBarType.success,
+      );
+      setState(() {
+        _wallet = ManagedWallet(
+          walletId: _wallet.walletId,
+          userId: _wallet.userId,
+          chain: _wallet.chain,
+          address: _wallet.address,
+          label: _wallet.label,
+          isDefaultDeposit: false,
+          defaultSetAt: null,
+          isActive: _wallet.isActive,
+          createdAt: _wallet.createdAt,
+          updatedAt: _wallet.updatedAt,
+        );
+      });
+    } else {
+      showAppSnackBar(context, message: error, type: SnackBarType.error);
+    }
+  }
+
   Future<void> _deactivate() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -75,7 +125,10 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(ctx).colorScheme.error,
+                foregroundColor: Theme.of(ctx).colorScheme.onError,
+              ),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(l10n.deactivateWalletAction),
             ),
@@ -120,12 +173,15 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text(
-              _wallet.truncatedAddress,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'monospace'),
+            Expanded(
+              child: Text(
+                _wallet.truncatedAddress,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontFamily: 'monospace'),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 8),
-            _ChainAppBarBadge(chain: _wallet.chain.label),
+            _ChainAppBarBadge(apiValue: _wallet.chain.apiValue),
           ],
         ),
         actions: [
@@ -139,14 +195,17 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
               onSelected: (action) {
                 if (action == _Action.deactivate) _deactivate();
               },
-              itemBuilder: (ctx) => [
+                itemBuilder: (ctx) => [
                 PopupMenuItem(
                   value: _Action.deactivate,
                   child: Row(
                     children: [
-                      const Icon(Icons.block, color: Colors.red, size: 18),
+                      Icon(Icons.block, color: Theme.of(ctx).colorScheme.error, size: 18),
                       const SizedBox(width: 8),
-                      Text(AppLocalizations.of(ctx).deactivateWalletAction, style: const TextStyle(color: Colors.red)),
+                      Text(
+                        AppLocalizations.of(ctx).deactivateWalletAction,
+                        style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+                      ),
                     ],
                   ),
                 ),
@@ -159,7 +218,8 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               children: [
                 _BalanceCard(
                   balance: provider.selectedBalance != null
@@ -173,6 +233,7 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
                   wallet: _wallet,
                   isSubmitting: provider.isSubmitting,
                   onSetDefault: _wallet.isDefaultDeposit ? null : _setDefault,
+                  onClearDefault: _wallet.isDefaultDeposit ? _confirmClearDefault : null,
                   onSend: _wallet.isActive ? _openSendSheet : null,
                 ),
                 const SizedBox(height: 24),
@@ -194,27 +255,27 @@ class _ManagedWalletDetailScreenState extends State<ManagedWalletDetailScreen> {
 enum _Action { deactivate }
 
 class _ChainAppBarBadge extends StatelessWidget {
-  final String chain;
+  final String apiValue;
 
-  const _ChainAppBarBadge({required this.chain});
+  const _ChainAppBarBadge({required this.apiValue});
 
   @override
   Widget build(BuildContext context) {
-    final isNile = chain.contains('Nile');
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: isNile ? Colors.teal.shade50 : Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: isNile ? Colors.teal.shade200 : Colors.orange.shade200),
+        color: scheme.tertiaryContainer.withValues(alpha: 0.42),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
       ),
       child: Text(
-        chain,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isNile ? Colors.teal.shade700 : Colors.orange.shade700,
-        ),
+        apiValue,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: scheme.onTertiaryContainer,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
       ),
     );
   }
@@ -232,21 +293,32 @@ class _BalanceCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.9)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               AppLocalizations.of(context).managedWalletOnchainBalance,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.outline),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 8),
             isLoading
                 ? const SizedBox(height: 32, child: Center(child: CircularProgressIndicator()))
                 : Text(
                     '$balance $symbol',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.onSurface,
                         ),
@@ -262,17 +334,62 @@ class _ActionRow extends StatelessWidget {
   final ManagedWallet wallet;
   final bool isSubmitting;
   final VoidCallback? onSetDefault;
+  final VoidCallback? onClearDefault;
   final VoidCallback? onSend;
 
   const _ActionRow({
     required this.wallet,
     required this.isSubmitting,
     this.onSetDefault,
+    this.onClearDefault,
     this.onSend,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+
+    if (wallet.isDefaultDeposit) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: null,
+                  icon: Icon(Icons.star_rounded, size: 18, color: scheme.primary),
+                  label: Text(l10n.managedWalletDefaultDeposit),
+                  style: OutlinedButton.styleFrom(foregroundColor: scheme.primary),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onSend,
+                  icon: const Icon(Icons.send_outlined, size: 18),
+                  label: Text(l10n.managedWalletSendTrx),
+                ),
+              ),
+            ],
+          ),
+          if (onClearDefault != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: isSubmitting ? null : onClearDefault,
+              icon: Icon(Icons.star_border_rounded, size: 18, color: scheme.error),
+              label: Text(l10n.managedWalletClearDefaultDeposit),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.error,
+                side: BorderSide(color: scheme.error.withValues(alpha: 0.55)),
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+
     return Row(
       children: [
         if (onSetDefault != null) ...[
@@ -280,17 +397,7 @@ class _ActionRow extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: isSubmitting ? null : onSetDefault,
               icon: const Icon(Icons.star_outline, size: 18),
-              label: Text(AppLocalizations.of(context).managedWalletSetDefault),
-            ),
-          ),
-          const SizedBox(width: 12),
-        ] else if (wallet.isDefaultDeposit) ...[
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.star, size: 18, color: Colors.green),
-              label: Text(AppLocalizations.of(context).managedWalletDefaultDeposit),
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
+              label: Text(l10n.managedWalletSetDefault),
             ),
           ),
           const SizedBox(width: 12),
@@ -298,8 +405,8 @@ class _ActionRow extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onSend,
-              icon: const Icon(Icons.send_outlined, size: 18),
-              label: Text(AppLocalizations.of(context).managedWalletSendTrx),
+            icon: const Icon(Icons.send_outlined, size: 18),
+            label: Text(l10n.managedWalletSendTrx),
           ),
         ),
       ],
@@ -363,14 +470,19 @@ class _TxListTile extends StatelessWidget {
     final isIncoming = tx.toAddress.toLowerCase() == walletAddress.toLowerCase();
     final colorScheme = Theme.of(context).colorScheme;
 
+    final incomingBg = colorScheme.primaryContainer.withValues(alpha: 0.55);
+    final outgoingBg = colorScheme.tertiaryContainer.withValues(alpha: 0.45);
+    final incomingFg = colorScheme.onPrimaryContainer;
+    final outgoingFg = colorScheme.onTertiaryContainer;
+
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(vertical: 4),
       leading: CircleAvatar(
-        backgroundColor: isIncoming ? Colors.green.shade50 : Colors.orange.shade50,
+        backgroundColor: isIncoming ? incomingBg : outgoingBg,
         child: Icon(
-          isIncoming ? Icons.call_received : Icons.call_made,
+          isIncoming ? Icons.call_received_rounded : Icons.call_made_rounded,
           size: 18,
-          color: isIncoming ? Colors.green.shade700 : Colors.orange.shade700,
+          color: isIncoming ? incomingFg : outgoingFg,
         ),
       ),
       title: Text(
@@ -379,14 +491,14 @@ class _TxListTile extends StatelessWidget {
       ),
       subtitle: Text(
         '${tx.createdAt.day}/${tx.createdAt.month}/${tx.createdAt.year}  •  ${tx.status}',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
       ),
       trailing: Text(
         '${isIncoming ? '+' : '-'}${FormatUtils.formatDecimalAmountDisplay(tx.amount)} TRX',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: isIncoming ? Colors.green.shade700 : Colors.orange.shade700,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: isIncoming ? incomingFg : outgoingFg,
+            ),
       ),
     );
   }

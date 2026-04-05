@@ -255,20 +255,37 @@ class _MainScreenState extends State<MainScreen> {
               tooltip: l10n.refresh,
             ),
           if (_currentIndex == 2 && isAuthenticated) ...[
-            // Treasury (Managed Wallets) — visible for users with canManageWallets permission
+            // Managed user-deposit wallets (Risk/Admin) or Payment / treasury ops (Finance Manager).
             Consumer<AuthProvider>(
               builder: (_, auth, __) {
-                if (!auth.canManageWallets) return const SizedBox.shrink();
+                if (!auth.canManageWallets && !auth.canManagePaymentConfigs) {
+                  return const SizedBox.shrink();
+                }
+                final opensManagedWallets = auth.canManageWallets;
                 return IconButton(
                   icon: const Icon(Icons.account_balance_outlined),
-                  tooltip: l10n.treasuryToolbarTooltip,
+                  tooltip: opensManagedWallets
+                      ? l10n.treasuryToolbarTooltip
+                      : l10n.drawerPaymentConfig,
                   onPressed: () {
+                    if (opensManagedWallets) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                            value: context.read<ManagedWalletsProvider>(),
+                            child: const ManagedWalletsScreen(),
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
-                          value: context.read<ManagedWalletsProvider>(),
-                          child: const ManagedWalletsScreen(),
+                        builder: (_) => ChangeNotifierProvider<PaymentConfigProvider>.value(
+                          value: context.read<PaymentConfigProvider>(),
+                          child: const PaymentConfigScreen(),
                         ),
                       ),
                     );
@@ -365,82 +382,7 @@ class _MainScreenState extends State<MainScreen> {
             padding: EdgeInsets.zero,
             children: [
               Consumer<AuthProvider>(
-                builder: (_, auth, __) => UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  accountName: Row(
-                    children: [
-                      Text(
-                        auth.currentUser?.fullName ?? l10n.appTitle,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          auth.role.displayName,
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                  accountEmail: Text(
-                    auth.currentUser?.email ?? '',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  currentAccountPicture: Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.white24,
-                        backgroundImage: auth.currentUser?.avatarUrl != null &&
-                                auth.currentUser!.avatarUrl!.isNotEmpty
-                            ? NetworkImage(auth.currentUser!.avatarUrl!)
-                            : null,
-                        child: auth.currentUser?.avatarUrl == null ||
-                                auth.currentUser!.avatarUrl!.isEmpty
-                            ? Text(
-                                (auth.currentUser?.fullName.isNotEmpty == true
-                                        ? auth.currentUser!.fullName[0]
-                                        : '?')
-                                    .toUpperCase(),
-                                style: const TextStyle(
-                                    fontSize: 28, color: Colors.white),
-                              )
-                            : null,
-                      ),
-                      if (auth.isEmailVerified)
-                        Positioned(
-                          right: -2,
-                          bottom: -2,
-                          child: Tooltip(
-                            message:
-                                AppLocalizations.of(context).profileEmailVerifiedTooltip,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.verified,
-                                size: 14,
-                                color: Colors.green.shade700,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+                builder: (_, auth, __) => _DrawerProfileHeader(auth: auth),
               ),
               // ── Chung: tiền tệ, công cụ, cài đặt ─────────────────────
               _DrawerSectionHeader(
@@ -904,6 +846,136 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 // ── Drawer layout helpers ─────────────────────────────────────────────────────
+
+/// Header trên cùng drawer: avatar + tên + vai trò + email (kích thước lớn hơn [UserAccountsDrawerHeader]).
+class _DrawerProfileHeader extends StatelessWidget {
+  const _DrawerProfileHeader({required this.auth});
+
+  final AuthProvider auth;
+
+  static const double _avatarRadius = 42;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final displayName = auth.currentUser?.fullName ?? l10n.appTitle;
+    final email = auth.currentUser?.email ?? '';
+    final avatarUrl = auth.currentUser?.avatarUrl;
+    final hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
+
+    return Material(
+      color: scheme.primary,
+      borderRadius: const BorderRadius.only(topLeft: Radius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: _avatarRadius,
+                  backgroundColor: Colors.white24,
+                  backgroundImage:
+                      hasAvatar ? NetworkImage(avatarUrl) : null,
+                  child: !hasAvatar
+                      ? Text(
+                          (auth.currentUser?.fullName.isNotEmpty == true
+                                  ? auth.currentUser!.fullName[0]
+                                  : '?')
+                              .toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        )
+                      : null,
+                ),
+                if (auth.isEmailVerified)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Tooltip(
+                      message: l10n.profileEmailVerifiedTooltip,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.verified,
+                          size: 18,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          height: 1.25,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          auth.role.displayName,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    email,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Tiêu đề nhóm menu (CHUNG, QUẢN TRỊ, …).
 class _DrawerSectionHeader extends StatelessWidget {

@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 
+/// List tile for managed deposit wallet — layout aligned with treasury / payment-config wallet cards.
 class ManagedWalletCard extends StatelessWidget {
   final ManagedWallet wallet;
   final VoidCallback? onTap;
@@ -15,87 +16,119 @@ class ManagedWalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final currentUserId = context.watch<AuthProvider>().currentUser?.id;
     final showOwnerHint = currentUserId != null &&
         wallet.userId.isNotEmpty &&
         wallet.userId != currentUserId;
 
     return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      elevation: 0,
+      color: scheme.surface,
       clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.9)),
+      ),
       child: InkWell(
         onTap: onTap,
         mouseCursor:
             onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _ChainChip(chain: wallet.chain),
-                        const SizedBox(width: 8),
-                        if (wallet.isDefaultDeposit)
-                          _DefaultBadge(colorScheme: colorScheme),
-                        if (!wallet.isActive) ...[
-                          const SizedBox(width: 8),
-                          _InactiveBadge(colorScheme: colorScheme),
-                        ],
-                      ],
-                    ),
-                    if (showOwnerHint) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        AppLocalizations.of(context).managedWalletOwnerHint(
-                          _shortUserId(wallet.userId),
-                        ),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.outline,
-                              fontFamily: 'monospace',
-                            ),
-                      ),
-                    ],
-                    const SizedBox(height: 6),
-                    Text(
-                      wallet.displayLabel,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        Text(
+                          wallet.displayLabel,
+                          style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w600,
+                            letterSpacing: 0.1,
                           ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            wallet.truncatedAddress,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontFamily: 'monospace',
-                                  color: colorScheme.outline,
-                                ),
-                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        InkWell(
-                          onTap: () => _copyAddress(context),
-                          mouseCursor: SystemMouseCursors.click,
-                          borderRadius: BorderRadius.circular(4),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Icon(Icons.copy, size: 14, color: colorScheme.outline),
-                          ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            _ManagedChainCapsule(
+                              label: wallet.chain.apiValue,
+                              scheme: scheme,
+                            ),
+                            if (wallet.isDefaultDeposit)
+                              _ManagedStatusCapsule(
+                                label: l10n.walletBadgeDefault,
+                                background: scheme.primary,
+                                foreground: scheme.onPrimary,
+                              ),
+                            if (!wallet.isActive)
+                              _ManagedStatusCapsule(
+                                label: l10n.walletBadgeInactive,
+                                background: scheme.surfaceContainerHighest,
+                                foreground: scheme.onSurfaceVariant,
+                              ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right_rounded, color: scheme.outline, size: 22),
+                ],
+              ),
+              if (showOwnerHint) ...[
+                const SizedBox(height: 8),
+                Text(
+                  l10n.managedWalletOwnerHint(_shortUserId(wallet.userId)),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              Text(
+                l10n.treasuryOpsPublicAddressLabel,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: colorScheme.outline),
+              const SizedBox(height: 4),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SelectableText(
+                      wallet.address,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontFamily: 'monospace',
+                        height: 1.45,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    tooltip: l10n.treasuryMainWalletCopyAddressTooltip,
+                    icon: Icon(Icons.copy_rounded, size: 18, color: scheme.outline),
+                    onPressed: () => _copyAddress(context, l10n),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -108,92 +141,70 @@ class ManagedWalletCard extends StatelessWidget {
     return '${id.substring(0, 8)}…${id.substring(id.length - 4)}';
   }
 
-  void _copyAddress(BuildContext context) {
+  void _copyAddress(BuildContext context, AppLocalizations l10n) {
     Clipboard.setData(ClipboardData(text: wallet.address));
     showAppSnackBar(
       context,
-      message: AppLocalizations.of(context).createWalletAddressCopied,
+      message: l10n.createWalletAddressCopied,
       type: SnackBarType.success,
       duration: const Duration(seconds: 2),
     );
   }
 }
 
-class _ChainChip extends StatelessWidget {
-  final BlockchainNetwork chain;
+class _ManagedChainCapsule extends StatelessWidget {
+  final String label;
+  final ColorScheme scheme;
 
-  const _ChainChip({required this.chain});
+  const _ManagedChainCapsule({required this.label, required this.scheme});
 
   @override
   Widget build(BuildContext context) {
-    final isNile = chain == BlockchainNetwork.tronNile;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: isNile ? Colors.teal.shade50 : Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: isNile ? Colors.teal.shade200 : Colors.orange.shade200,
-        ),
+        color: scheme.tertiaryContainer.withValues(alpha: 0.42),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
       ),
       child: Text(
-        chain.label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isNile ? Colors.teal.shade700 : Colors.orange.shade700,
-        ),
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: scheme.onTertiaryContainer,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
       ),
     );
   }
 }
 
-class _DefaultBadge extends StatelessWidget {
-  final ColorScheme colorScheme;
+class _ManagedStatusCapsule extends StatelessWidget {
+  final String label;
+  final Color background;
+  final Color foreground;
 
-  const _DefaultBadge({required this.colorScheme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.green.shade200),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.circle, size: 8, color: Colors.green.shade600),
-          const SizedBox(width: 4),
-          Text(
-            AppLocalizations.of(context).walletBadgeDefault,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green.shade700),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InactiveBadge extends StatelessWidget {
-  final ColorScheme colorScheme;
-
-  const _InactiveBadge({required this.colorScheme});
+  const _ManagedStatusCapsule({
+    required this.label,
+    required this.background,
+    required this.foreground,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade300),
+        color: background,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        AppLocalizations.of(context).walletBadgeInactive,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: foreground,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+            ),
       ),
     );
   }

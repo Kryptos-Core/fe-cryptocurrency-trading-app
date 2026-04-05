@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/utils/stale_query_policy.dart';
 import 'package:crypto_trading_app/data/datasources/payment_config_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/payment_method_config_model.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
 /// PaymentConfigProvider
 /// Manages payment method config state and real-time update events.
@@ -57,6 +58,18 @@ class PaymentConfigProvider extends ChangeNotifier {
   // ── Data loading ─────────────────────────────────────────────────────────
 
   /// [force] — true after pull-to-refresh, mutations, or WebSocket (bypass stale window).
+  /// Loads one config including decrypted [config] map (for edit UI).
+  Future<Map<String, dynamic>?> fetchConfigDetail(String configId) async {
+    _error = null;
+    try {
+      return await _dataSource.getConfigDetail(configId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
   Future<void> loadConfigs({bool force = false}) async {
     if (!force && isStaleQueryFresh(_configsFetchedAt) && _error == null) {
       return;
@@ -194,5 +207,50 @@ class PaymentConfigProvider extends ChangeNotifier {
   void clearLatestEvent() {
     _latestEvent = null;
     notifyListeners();
+  }
+
+  Duration? _primaryTransitioningGraceCountdown() {
+    final transitioning = _configs.where((c) => c.isTransitioning).toList();
+    if (transitioning.isEmpty) return null;
+    return transitioning.first.graceCountdown;
+  }
+
+  String _transitioningDepositBannerText({
+    required String Function(int minutes) minutesLine,
+    required String underOneMinute,
+    required String finalizePending,
+    required String unknownFallback,
+  }) {
+    final cd = _primaryTransitioningGraceCountdown();
+    if (cd != null) {
+      if (cd <= Duration.zero) return finalizePending;
+      if (cd.inMinutes >= 1) return minutesLine(cd.inMinutes);
+      return underOneMinute;
+    }
+    if (_latestEvent?.event == 'TRANSITIONING') {
+      final m = _latestEvent!.graceMins;
+      if (m != null && m > 0) return minutesLine(m);
+    }
+    return unknownFallback;
+  }
+
+  /// PayOS deposit screen banner (full sentence).
+  String payosTransitioningDepositBannerText(AppLocalizations l10n) {
+    return _transitioningDepositBannerText(
+      minutesLine: l10n.payosTransitioningBanner,
+      underOneMinute: l10n.payosTransitioningUnderOneMinute,
+      finalizePending: l10n.payosTransitioningFinalizePending,
+      unknownFallback: l10n.payosTransitioningGraceMinutes(0),
+    );
+  }
+
+  /// On-chain deposit screen banner (full sentence).
+  String onchainTransitioningDepositBannerText(AppLocalizations l10n) {
+    return _transitioningDepositBannerText(
+      minutesLine: l10n.onchainDepositTransitioningMinutes,
+      underOneMinute: l10n.onchainDepositTransitioningUnderOneMinute,
+      finalizePending: l10n.onchainDepositTransitioningFinalize,
+      unknownFallback: l10n.onchainDepositTransitioningUnknown,
+    );
   }
 }

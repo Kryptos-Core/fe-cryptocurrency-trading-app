@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/blockchain_public_error_localization.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -266,7 +267,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
       context,
       message: ok
           ? AppLocalizations.of(context).depositSubmittedSuccess
-          : (provider.error ?? AppLocalizations.of(context).requestFailed),
+          : localizeBlockchainDepositUserMessage(
+              AppLocalizations.of(context),
+              code: provider.blockchainApiErrorCode,
+              serverMessage: provider.error,
+            ),
       type: ok ? SnackBarType.success : SnackBarType.error,
     );
 
@@ -294,7 +299,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     if (response == null && provider.error != null) {
       showAppSnackBar(
         context,
-        message: provider.error!,
+        message: localizeBlockchainDepositUserMessage(
+          AppLocalizations.of(context),
+          code: provider.blockchainApiErrorCode,
+          serverMessage: provider.error,
+        ),
         type: SnackBarType.error,
       );
     }
@@ -350,9 +359,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Địa chỉ ví đang được cập nhật'
-                                '${paymentConfig.transitioningGraceMinsRemaining != null ? " (~${paymentConfig.transitioningGraceMinsRemaining} phút)" : ""}. '
-                                'QR code sẽ tự động làm mới khi hoàn tất.',
+                                paymentConfig.onchainTransitioningDepositBannerText(l10n),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w500, fontSize: 13),
                               ),
@@ -618,8 +625,20 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                         ),
                       ] else
                         Text(
-                          provider.error ?? l10n.couldNotLoadDepositAddress,
-                          style: const TextStyle(color: Colors.redAccent),
+                          (provider.error != null ||
+                                  provider.blockchainApiErrorCode != null)
+                              ? localizeBlockchainDepositUserMessage(
+                                  l10n,
+                                  code: provider.blockchainApiErrorCode,
+                                  serverMessage: provider.error,
+                                )
+                              : l10n.couldNotLoadDepositAddress,
+                          style: TextStyle(
+                            color: (provider.error != null ||
+                                    provider.blockchainApiErrorCode != null)
+                                ? Colors.redAccent
+                                : Colors.grey.shade700,
+                          ),
                         ),
                     ],
                   ),

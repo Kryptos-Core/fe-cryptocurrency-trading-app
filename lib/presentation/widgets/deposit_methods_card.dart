@@ -137,11 +137,13 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
     final colorScheme = Theme.of(context).colorScheme;
     final method = widget.method;
 
+    final canExpand = method.depositEnabled && method.hasAddress;
+
     return Column(
       children: [
         InkWell(
-          onTap: () => setState(() => _expanded = !_expanded),
-          mouseCursor: SystemMouseCursors.click,
+          onTap: canExpand ? () => setState(() => _expanded = !_expanded) : null,
+          mouseCursor: canExpand ? SystemMouseCursors.click : SystemMouseCursors.basic,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -159,6 +161,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                               method.label,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
+                                    color: method.depositEnabled ? null : colorScheme.onSurfaceVariant,
                                   ),
                             ),
                           ),
@@ -180,6 +183,17 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                             ),
                         ],
                       ),
+                      if (!method.depositEnabled)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            AppLocalizations.of(context).depositMethodUnavailable,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                  height: 1.35,
+                                ),
+                          ),
+                        ),
                       if (method.hasAddress)
                         Text(
                           method.truncatedAddress,
@@ -198,16 +212,17 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                     onPressed: () => _copyAddress(context, method.depositAddress!),
                     visualDensity: VisualDensity.compact,
                   ),
-                Icon(
-                  _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  size: 20,
-                  color: colorScheme.outline,
-                ),
+                if (canExpand)
+                  Icon(
+                    _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: colorScheme.outline,
+                  ),
               ],
             ),
           ),
         ),
-        if (_expanded && method.hasAddress) _QrSection(address: method.depositAddress!),
+        if (_expanded && canExpand) _QrSection(address: method.depositAddress!),
         const Divider(height: 1),
       ],
     );

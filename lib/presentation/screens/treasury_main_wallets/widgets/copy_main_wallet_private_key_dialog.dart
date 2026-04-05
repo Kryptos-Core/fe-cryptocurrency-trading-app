@@ -145,14 +145,21 @@ class _CopyMainWalletPrivateKeyDialogState extends State<CopyMainWalletPrivateKe
                   ),
             ),
             const SizedBox(height: 16),
+            Text(
+              l10n.treasuryImportWalletMfaCode,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 6),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: TextField(
                     controller: _mfaCodeController,
                     decoration: InputDecoration(
-                      labelText: l10n.treasuryImportWalletMfaCode,
+                      isDense: true,
                       errorText: _mfaFieldError,
                     ),
                   ),
@@ -178,13 +185,16 @@ class _CopyMainWalletPrivateKeyDialogState extends State<CopyMainWalletPrivateKe
           onPressed: isSubmitting ? null : () => Navigator.pop(context),
           child: Text(l10n.cancel),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: isSubmitting ? null : _revealAndCopy,
           child: isSubmitting
-              ? const SizedBox(
+              ? SizedBox(
                   height: 16,
                   width: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 )
               : Text(l10n.treasuryMainWalletRevealKeyCopy),
         ),

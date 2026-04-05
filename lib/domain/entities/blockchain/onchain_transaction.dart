@@ -27,6 +27,10 @@ extension OnchainTxTypeX on OnchainTxType {
         return OnchainTxType.withdrawal;
       case 'TRANSFER':
         return OnchainTxType.transfer;
+      // Treasury ops rows may appear in shared history feeds — show as transfer for traders.
+      case 'SWEEP':
+      case 'FUND':
+        return OnchainTxType.transfer;
       default:
         throw ArgumentError('Unsupported on-chain tx type: $value');
     }

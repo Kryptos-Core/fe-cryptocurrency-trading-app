@@ -28,7 +28,10 @@ class AuthorizationFailure extends Failure {
 
 /// Validation failures
 class ValidationFailure extends Failure {
-  const ValidationFailure({super.message = 'Validation Error'});
+  /// Optional API `code` from Nest `AppException` (e.g. `DEPOSIT_DEFAULT_NOT_CONFIGURED`).
+  final String? code;
+
+  const ValidationFailure({super.message = 'Validation Error', this.code});
 }
 
 /// Cache failures

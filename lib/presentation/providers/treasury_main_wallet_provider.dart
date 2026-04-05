@@ -285,18 +285,54 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteMainWallet(String mainWalletId) async {
+  Future<bool> requestMainWalletDeletion(String mainWalletId) async {
     _isSubmitting = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _dataSource.deleteMainWallet(mainWalletId);
+      await _dataSource.requestMainWalletDeletion(mainWalletId);
       await refreshAllWallets();
       return true;
     } on ServerException catch (e) {
       _error = e.message;
       return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> approveMainWalletDeletion(String mainWalletId) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.approveMainWalletDeletion(mainWalletId);
+      await refreshAllWallets();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> rejectMainWalletDeletion(String mainWalletId) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.rejectMainWalletDeletion(mainWalletId);
+      await refreshAllWallets();
+      return true;
     } catch (e) {
       _error = e.toString();
       return false;

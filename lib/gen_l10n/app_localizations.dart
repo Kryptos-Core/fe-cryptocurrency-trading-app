@@ -1868,6 +1868,30 @@ abstract class AppLocalizations {
   /// **'After sending tokens from your wallet to exchange deposit address, paste tx hash here.'**
   String get onchainDepositDesc;
 
+  /// No description provided for @onchainDepositTransitioningMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet addresses are updating (~{minutes} min left). The QR code will refresh automatically when done.'**
+  String onchainDepositTransitioningMinutes(int minutes);
+
+  /// No description provided for @onchainDepositTransitioningUnderOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.'**
+  String get onchainDepositTransitioningUnderOneMinute;
+
+  /// No description provided for @onchainDepositTransitioningFinalize.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet addresses are finishing activation. The QR code will refresh automatically when done.'**
+  String get onchainDepositTransitioningFinalize;
+
+  /// No description provided for @onchainDepositTransitioningUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet addresses are updating. The QR code will refresh automatically when done.'**
+  String get onchainDepositTransitioningUnknown;
+
   /// No description provided for @platformDepositAddress.
   ///
   /// In en, this message translates to:
@@ -3281,13 +3305,13 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryManagedScopeBanner.
   ///
   /// In en, this message translates to:
-  /// **'This list is for deposit defaults and risk-managed wallets. Operational hot wallets used for Fund/Sweep are in Payment configuration → Payment ops (Fund/Sweep).'**
+  /// **'This list is for deposit defaults and risk-managed wallets. Operational wallets: Payment configuration → Operational wallets.'**
   String get treasuryManagedScopeBanner;
 
   /// No description provided for @treasuryOpsScopeBanner.
   ///
   /// In en, this message translates to:
-  /// **'These wallets are for payment operations (fund from main, sweep back). User-facing deposit defaults are configured under User deposits & managed wallets (treasury icon on the toolbar).'**
+  /// **'Fund from main or sweep back to main. User deposit addresses: Deposits & managed wallets.'**
   String get treasuryOpsScopeBanner;
 
   /// No description provided for @paymentConfigTitle.
@@ -3305,7 +3329,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentConfigTreasuryWalletsTab.
   ///
   /// In en, this message translates to:
-  /// **'Payment ops (Fund/Sweep)'**
+  /// **'Operational wallets'**
   String get paymentConfigTreasuryWalletsTab;
 
   /// No description provided for @paymentConfigHistoryTab.
@@ -3416,6 +3440,24 @@ abstract class AppLocalizations {
   /// **'~{minutes} minutes remaining before activation'**
   String paymentConfigTransitioningRemaining(int minutes);
 
+  /// No description provided for @paymentConfigGraceUnderOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than one minute remaining before activation'**
+  String get paymentConfigGraceUnderOneMinute;
+
+  /// No description provided for @paymentConfigGraceFinalizePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace period ended — finishing activation…'**
+  String get paymentConfigGraceFinalizePending;
+
+  /// No description provided for @paymentConfigGraceUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace period in progress'**
+  String get paymentConfigGraceUnknown;
+
   /// No description provided for @paymentConfigVersionAndSort.
   ///
   /// In en, this message translates to:
@@ -3433,6 +3475,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get paymentConfigEditAction;
+
+  /// No description provided for @paymentConfigEditTypeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Type and network cannot be changed when editing.'**
+  String get paymentConfigEditTypeLocked;
+
+  /// No description provided for @paymentConfigDetailLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load configuration for editing.'**
+  String get paymentConfigDetailLoadFailed;
 
   /// No description provided for @paymentConfigStatusActiveUpper.
   ///
@@ -3953,26 +4007,26 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryOpsGuideTitle.
   ///
   /// In en, this message translates to:
-  /// **'What are Sweep and Fund?'**
+  /// **'Tip'**
   String get treasuryOpsGuideTitle;
 
-  /// No description provided for @treasurySweepMeaning.
+  /// No description provided for @treasuryOpsGuideSummary.
   ///
   /// In en, this message translates to:
-  /// **'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity. About 0.1 TRX is left on TRON wallets for fees/bandwidth.'**
-  String get treasurySweepMeaning;
+  /// **'Sweep: move funds to the main wallet. Fund: send from main to this wallet.'**
+  String get treasuryOpsGuideSummary;
 
-  /// No description provided for @treasuryFundMeaning.
+  /// No description provided for @treasuryOpsPublicAddressLabel.
   ///
   /// In en, this message translates to:
-  /// **'Fund: send assets from the main wallet to the selected wallet so it can process transactions.'**
-  String get treasuryFundMeaning;
+  /// **'Public address'**
+  String get treasuryOpsPublicAddressLabel;
 
-  /// No description provided for @treasuryOpsHowTo.
+  /// No description provided for @treasuryOpsAddressCopiedSnack.
   ///
   /// In en, this message translates to:
-  /// **'How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.'**
-  String get treasuryOpsHowTo;
+  /// **'Public address copied to clipboard.'**
+  String get treasuryOpsAddressCopiedSnack;
 
   /// No description provided for @treasuryStatusActive.
   ///
@@ -4208,11 +4262,107 @@ abstract class AppLocalizations {
   /// **'Failed'**
   String get treasuryHistoryStatusFailed;
 
+  /// No description provided for @treasuryHistoryLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get treasuryHistoryLoadMore;
+
+  /// No description provided for @apiErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get apiErrorGeneric;
+
+  /// No description provided for @apiErrorTxWalletNonZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep funds first (on-chain balance must be at most {maxAmount} {symbol})'**
+  String apiErrorTxWalletNonZeroBalance(String maxAmount, String symbol);
+
+  /// No description provided for @apiErrorTxWalletNonZeroBalanceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep funds first — reduce on-chain balance before deleting this wallet.'**
+  String get apiErrorTxWalletNonZeroBalanceShort;
+
+  /// No description provided for @apiErrorTxWalletUsdtNonZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Move TRC-20 USDT off this wallet before deleting it.'**
+  String get apiErrorTxWalletUsdtNonZero;
+
+  /// No description provided for @apiErrorTxWalletDefaultDepositDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Unset this wallet as the user deposit default before deleting it.'**
+  String get apiErrorTxWalletDefaultDepositDelete;
+
+  /// No description provided for @apiErrorTxWalletOperationInFlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for pending Fund or Sweep operations to finish before deleting this wallet.'**
+  String get apiErrorTxWalletOperationInFlight;
+
+  /// No description provided for @apiErrorTxWalletExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A transaction wallet with this chain and purpose already exists.'**
+  String get apiErrorTxWalletExists;
+
+  /// No description provided for @apiErrorTreasuryWalletInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'This transaction wallet is inactive.'**
+  String get apiErrorTreasuryWalletInactive;
+
+  /// No description provided for @apiErrorTreasuryWalletLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Another treasury operation is running on this wallet. Try again shortly.'**
+  String get apiErrorTreasuryWalletLocked;
+
+  /// No description provided for @apiErrorDefaultUserDepositDeactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot deactivate the current default user deposit wallet.'**
+  String get apiErrorDefaultUserDepositDeactivate;
+
   /// No description provided for @treasuryWalletCreatedSuccess.
   ///
   /// In en, this message translates to:
   /// **'Transaction wallet created'**
   String get treasuryWalletCreatedSuccess;
+
+  /// No description provided for @treasuryOpsDeleteWalletTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transaction wallet'**
+  String get treasuryOpsDeleteWalletTooltip;
+
+  /// No description provided for @treasuryOpsDeleteWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete transaction wallet?'**
+  String get treasuryOpsDeleteWalletTitle;
+
+  /// No description provided for @treasuryOpsDeleteWalletBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes this Fund/Sweep wallet from the system. You must sweep funds first (near-zero balance), finish any pending Fund/Sweep, and unset it as the user deposit default if applicable.'**
+  String get treasuryOpsDeleteWalletBody;
+
+  /// No description provided for @treasuryOpsDeleteWalletSuccessSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction wallet deleted.'**
+  String get treasuryOpsDeleteWalletSuccessSnack;
+
+  /// No description provided for @treasuryOpsDeleteWalletAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get treasuryOpsDeleteWalletAction;
 
   /// No description provided for @recommendedChainUpdated.
   ///
@@ -4339,6 +4489,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default Deposit'**
   String get managedWalletDefaultDeposit;
+
+  /// No description provided for @managedWalletClearDefaultDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove default'**
+  String get managedWalletClearDefaultDeposit;
+
+  /// No description provided for @managedWalletClearDefaultDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove default deposit?'**
+  String get managedWalletClearDefaultDepositTitle;
+
+  /// No description provided for @managedWalletClearDefaultDepositBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This chain will have no default deposit address until you set another wallet. On-chain deposits for this network stay disabled until then.'**
+  String get managedWalletClearDefaultDepositBody;
+
+  /// No description provided for @managedWalletClearDefaultDepositAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get managedWalletClearDefaultDepositAction;
+
+  /// No description provided for @managedWalletClearDefaultDepositSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Default deposit address removed.'**
+  String get managedWalletClearDefaultDepositSuccess;
 
   /// No description provided for @managedWalletSendTrx.
   ///
@@ -4543,6 +4723,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recommended'**
   String get depositMethodRecommended;
+
+  /// No description provided for @depositMethodUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit not available'**
+  String get depositMethodUnavailable;
 
   /// No description provided for @copyAddressTooltip.
   ///
@@ -5301,6 +5487,18 @@ abstract class AppLocalizations {
   /// **'Activation in {minutes} minute(s)'**
   String payosTransitioningGraceMinutes(int minutes);
 
+  /// No description provided for @payosTransitioningUnderOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'PayOS will be activated in less than a minute'**
+  String get payosTransitioningUnderOneMinute;
+
+  /// No description provided for @payosTransitioningFinalizePending.
+  ///
+  /// In en, this message translates to:
+  /// **'PayOS activation is finishing — please wait'**
+  String get payosTransitioningFinalizePending;
+
   /// No description provided for @dismiss.
   ///
   /// In en, this message translates to:
@@ -5926,6 +6124,12 @@ abstract class AppLocalizations {
   /// **'Added at: {dateTime}'**
   String treasuryMainWalletPendingSubtitle(String dateTime);
 
+  /// No description provided for @treasuryTrc20UsdtBalanceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'USDT (TRC-20): {balance}'**
+  String treasuryTrc20UsdtBalanceLine(String balance);
+
   /// No description provided for @treasuryMainWalletBalanceLine.
   ///
   /// In en, this message translates to:
@@ -5938,16 +6142,22 @@ abstract class AppLocalizations {
   /// **'Label: {label}'**
   String treasuryMainWalletLabelLine(String label);
 
+  /// No description provided for @treasuryMainWalletPublicAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Public address'**
+  String get treasuryMainWalletPublicAddressLabel;
+
   /// No description provided for @treasuryMainWalletCopyAddressTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Copy address'**
+  /// **'Copy public address'**
   String get treasuryMainWalletCopyAddressTooltip;
 
   /// No description provided for @treasuryMainWalletCopiedAddressSnack.
   ///
   /// In en, this message translates to:
-  /// **'Address copied to clipboard.'**
+  /// **'Public address copied to clipboard.'**
   String get treasuryMainWalletCopiedAddressSnack;
 
   /// No description provided for @treasuryMainWalletRevealPrivateKeyTooltip.
@@ -5971,7 +6181,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryMainWalletMenuDelete.
   ///
   /// In en, this message translates to:
-  /// **'Delete wallet'**
+  /// **'Request removal (Risk must approve)'**
   String get treasuryMainWalletMenuDelete;
 
   /// No description provided for @treasuryMainWalletRevealKeyTitle.
@@ -6019,26 +6229,50 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryMainWalletDeleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delete wallet?'**
+  /// **'Request wallet removal?'**
   String get treasuryMainWalletDeleteTitle;
 
   /// No description provided for @treasuryMainWalletDeleteBody.
   ///
   /// In en, this message translates to:
-  /// **'This removes the hot wallet from the system. You cannot delete the default wallet if there is another active wallet for the chain.'**
+  /// **'A Risk Officer must approve before the wallet is removed. You cannot request removal of the default wallet if another active wallet exists for the chain.'**
   String get treasuryMainWalletDeleteBody;
 
   /// No description provided for @treasuryMainWalletDeleteSuccessSnack.
   ///
   /// In en, this message translates to:
-  /// **'Wallet deleted.'**
+  /// **'Removal requested — pending Risk approval.'**
   String get treasuryMainWalletDeleteSuccessSnack;
 
   /// No description provided for @treasuryMainWalletDeleteAction.
   ///
   /// In en, this message translates to:
-  /// **'Delete'**
+  /// **'Submit request'**
   String get treasuryMainWalletDeleteAction;
+
+  /// No description provided for @treasuryMainWalletChipPendingDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending deletion'**
+  String get treasuryMainWalletChipPendingDeletion;
+
+  /// No description provided for @treasuryMainWalletPendingDeletionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Removal awaiting Risk Officer approval. This wallet is not used for Fund/Sweep until approved or cancelled.'**
+  String get treasuryMainWalletPendingDeletionHint;
+
+  /// No description provided for @treasuryMainWalletTooltipApproveDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve deletion (remove wallet)'**
+  String get treasuryMainWalletTooltipApproveDeletion;
+
+  /// No description provided for @treasuryMainWalletTooltipRejectDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject deletion (restore wallet)'**
+  String get treasuryMainWalletTooltipRejectDeletion;
 
   /// No description provided for @treasuryChainTronNile.
   ///

@@ -40,6 +40,10 @@ class ThemeProvider extends ChangeNotifier {
   ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: _seedColor),
+        scrollbarTheme: const ScrollbarThemeData(
+          thumbVisibility: WidgetStatePropertyAll(false),
+          trackVisibility: WidgetStatePropertyAll(false),
+        ),
       ).copyWith(
         iconButtonTheme: IconButtonThemeData(
           style: ButtonStyle(mouseCursor: _clickCursor),
@@ -63,6 +67,10 @@ class ThemeProvider extends ChangeNotifier {
         colorScheme: ColorScheme.fromSeed(
           seedColor: _seedColor,
           brightness: Brightness.dark,
+        ),
+        scrollbarTheme: const ScrollbarThemeData(
+          thumbVisibility: WidgetStatePropertyAll(false),
+          trackVisibility: WidgetStatePropertyAll(false),
         ),
       ).copyWith(
         iconButtonTheme: IconButtonThemeData(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/utils/stale_query_policy.dart';
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
@@ -20,6 +21,7 @@ class TreasuryProvider extends ChangeNotifier {
   bool _isLoadingHistory = false;
   bool _isSubmitting = false;
   String? _error;
+  String? _apiErrorCode;
 
   String? _walletChain;
   String? _walletPurpose;
@@ -30,7 +32,7 @@ class TreasuryProvider extends ChangeNotifier {
   String? _historyQuery;
   Timer? _realtimeRefreshDebounce;
 
-  static const int _historyPageSize = 20;
+  static const int _historyPageSize = 15;
   int _historyOpPage = 1;
   int _historyTxPage = 1;
   bool _opHasMore = false;
@@ -63,6 +65,9 @@ class TreasuryProvider extends ChangeNotifier {
   String? get historyType => _historyType;
   String? get historyStatus => _historyStatus;
   String? get historyQuery => _historyQuery;
+
+  /// Last API `code` from [ServerException] (e.g. `TX_WALLET_NON_ZERO_BALANCE`) for localized UI.
+  String? get apiErrorCode => _apiErrorCode;
 
   bool get hasMoreHistory => _opHasMore || _txHasMore;
   bool get isLoadingMoreHistory => _loadingMoreHistory;
@@ -157,6 +162,21 @@ class TreasuryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _resetDisplayedError() {
+    _error = null;
+    _apiErrorCode = null;
+  }
+
+  void _captureError(Object e) {
+    if (e is ServerException) {
+      _error = e.message;
+      _apiErrorCode = e.code;
+      return;
+    }
+    _error = e.toString();
+    _apiErrorCode = null;
+  }
+
   void setHistoryFilters({
     String? chain,
     String? type,
@@ -177,7 +197,7 @@ class TreasuryProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _mainWallets = [];
-      _error = e.toString();
+      _captureError(e);
       notifyListeners();
     }
   }
@@ -189,7 +209,7 @@ class TreasuryProvider extends ChangeNotifier {
     }
 
     _isLoadingWallets = true;
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
 
     try {
@@ -201,7 +221,7 @@ class TreasuryProvider extends ChangeNotifier {
       _walletsFetchKey = key;
       _walletsFetchedAt = DateTime.now();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
     } finally {
       _isLoadingWallets = false;
       notifyListeners();
@@ -235,7 +255,7 @@ class TreasuryProvider extends ChangeNotifier {
     _transactions = [];
 
     _isLoadingHistory = true;
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
 
     try {
@@ -277,7 +297,7 @@ class TreasuryProvider extends ChangeNotifier {
       _historyFetchKey = key;
       _historyFetchedAt = DateTime.now();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
     } finally {
       _isLoadingHistory = false;
       notifyListeners();
@@ -333,9 +353,29 @@ class TreasuryProvider extends ChangeNotifier {
 
       _prunePendingIfOperationTerminalInList();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
     } finally {
       _loadingMoreHistory = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteTransactionWallet(String walletId) async {
+    _isSubmitting = true;
+    _resetDisplayedError();
+    notifyListeners();
+
+    try {
+      await _dataSource.deleteTransactionWallet(walletId);
+      _pendingOnChainByWallet.remove(walletId);
+      _pendingWalletClearTimers.remove(walletId)?.cancel();
+      await loadWallets(force: true);
+      return true;
+    } catch (e) {
+      _captureError(e);
+      return false;
+    } finally {
+      _isSubmitting = false;
       notifyListeners();
     }
   }
@@ -346,7 +386,7 @@ class TreasuryProvider extends ChangeNotifier {
     String? label,
   }) async {
     _isSubmitting = true;
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
 
     try {
@@ -354,7 +394,7 @@ class TreasuryProvider extends ChangeNotifier {
       await loadWallets(force: true);
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSubmitting = false;
@@ -364,7 +404,7 @@ class TreasuryProvider extends ChangeNotifier {
 
   Future<bool> sweepWallet(String walletId, {String? mainWalletId}) async {
     _isSubmitting = true;
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
 
     try {
@@ -375,7 +415,7 @@ class TreasuryProvider extends ChangeNotifier {
       await refreshAll();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSubmitting = false;
@@ -388,7 +428,7 @@ class TreasuryProvider extends ChangeNotifier {
     required String amount,
   }) async {
     _isSubmitting = true;
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
 
     try {
@@ -399,7 +439,7 @@ class TreasuryProvider extends ChangeNotifier {
       await refreshAll();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSubmitting = false;
@@ -456,7 +496,7 @@ class TreasuryProvider extends ChangeNotifier {
   }
 
   void clearError() {
-    _error = null;
+    _resetDisplayedError();
     notifyListeners();
   }
 

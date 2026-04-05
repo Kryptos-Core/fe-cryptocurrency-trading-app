@@ -22,6 +22,8 @@ abstract class ManagedWalletsRepository {
 
   Future<Either<Failure, ManagedWallet>> setDepositDefault(String walletId);
 
+  Future<Either<Failure, ManagedWallet>> clearDepositDefault(String walletId);
+
   Future<Either<Failure, String>> setRecommendedChain(String chain);
 
   Future<Either<Failure, bool>> deactivateWallet(String walletId);

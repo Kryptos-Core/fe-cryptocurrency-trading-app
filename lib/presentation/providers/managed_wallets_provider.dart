@@ -153,6 +153,28 @@ class ManagedWalletsProvider extends ChangeNotifier {
     return errorMessage;
   }
 
+  Future<String?> clearDepositDefault(String walletId) async {
+    _setSubmitting(true);
+    String? errorMessage;
+    final result = await _repository.clearDepositDefault(walletId);
+    result.fold(
+      (f) {
+        errorMessage = _mapFailureToMessage(f);
+        _setError(errorMessage!);
+      },
+      (_) {
+        _error = null;
+      },
+    );
+    if (errorMessage == null) {
+      await fetchWallets();
+      await fetchDepositDefaults();
+      await fetchDepositMethods();
+    }
+    _setSubmitting(false);
+    return errorMessage;
+  }
+
   Future<String?> setRecommendedChain(String chain) async {
     _setSubmitting(true);
     String? errorMessage;

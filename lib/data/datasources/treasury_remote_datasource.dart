@@ -18,6 +18,8 @@ abstract class TreasuryRemoteDataSource {
 
   Future<TreasuryWalletModel> getWalletDetail(String walletId);
 
+  Future<void> deleteTransactionWallet(String walletId);
+
   Future<List<TreasuryMainWalletModel>> listMainWallets(String chain);
 
   Future<List<TreasuryMainWalletModel>> listPendingMainWallets();
@@ -44,7 +46,11 @@ abstract class TreasuryRemoteDataSource {
     String? label,
   });
 
-  Future<void> deleteMainWallet(String mainWalletId);
+  Future<TreasuryMainWalletModel> requestMainWalletDeletion(String mainWalletId);
+
+  Future<void> approveMainWalletDeletion(String mainWalletId);
+
+  Future<TreasuryMainWalletModel> rejectMainWalletDeletion(String mainWalletId);
 
   Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId});
 
@@ -85,6 +91,24 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
     throw const FormatException('Unexpected API response format');
   }
 
+  ServerException _dioServerError(DioException e, {required String defaultMessage}) {
+    final raw = e.response?.data;
+    if (raw is Map) {
+      final map = Map<String, dynamic>.from(raw);
+      final msg = map['message'];
+      final code = map['code'];
+      return ServerException(
+        message: msg is String && msg.isNotEmpty ? msg : defaultMessage,
+        statusCode: e.response?.statusCode,
+        code: code is String && code.isNotEmpty ? code : null,
+      );
+    }
+    return ServerException(
+      message: defaultMessage,
+      statusCode: e.response?.statusCode,
+    );
+  }
+
   @override
   Future<List<TreasuryWalletModel>> listWallets({String? chain, String? purpose}) async {
     try {
@@ -101,9 +125,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
           .map(TreasuryWalletModel.fromJson)
           .toList();
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to load treasury wallets',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to load treasury wallets');
     }
   }
 
@@ -124,9 +146,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return TreasuryWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to create treasury wallet',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to create treasury wallet');
     }
   }
 
@@ -136,9 +156,16 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final response = await dioClient.dio.get(ApiConstants.treasuryWalletById(walletId));
       return TreasuryWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to load treasury wallet detail',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to load treasury wallet detail');
+    }
+  }
+
+  @override
+  Future<void> deleteTransactionWallet(String walletId) async {
+    try {
+      await dioClient.dio.delete(ApiConstants.treasuryWalletById(walletId));
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Failed to delete treasury wallet');
     }
   }
 
@@ -155,9 +182,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
           .map(TreasuryMainWalletModel.fromJson)
           .toList();
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to load main wallets',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to load main wallets');
     }
   }
 
@@ -168,7 +193,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final raw = _unwrap<List<dynamic>>(response.data);
       return raw.whereType<Map<String, dynamic>>().map(TreasuryMainWalletModel.fromJson).toList();
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to load pending main wallets');
+      throw _dioServerError(e, defaultMessage: 'Failed to load pending main wallets');
     }
   }
 
@@ -191,19 +216,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      final data = e.response?.data;
-      String? apiCode;
-      var message = 'Failed to import main wallet';
-      if (data is Map<String, dynamic>) {
-        message = data['message'] as String? ?? message;
-        final c = data['code'];
-        if (c is String) apiCode = c;
-      }
-      throw ServerException(
-        message: message,
-        statusCode: e.response?.statusCode,
-        code: apiCode,
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to import main wallet');
     }
   }
 
@@ -213,7 +226,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletApprove(id));
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to approve main wallet');
+      throw _dioServerError(e, defaultMessage: 'Failed to approve main wallet');
     }
   }
 
@@ -223,7 +236,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletReject(id));
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to reject main wallet');
+      throw _dioServerError(e, defaultMessage: 'Failed to reject main wallet');
     }
   }
 
@@ -233,7 +246,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final response = await dioClient.dio.patch(ApiConstants.treasuryMainWalletSetDefault(id));
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to set default main wallet');
+      throw _dioServerError(e, defaultMessage: 'Failed to set default main wallet');
     }
   }
 
@@ -254,19 +267,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       }
       return pk;
     } on DioException catch (e) {
-      final data = e.response?.data;
-      String? apiCode;
-      var message = 'Failed to reveal private key';
-      if (data is Map<String, dynamic>) {
-        message = data['message'] as String? ?? message;
-        final c = data['code'];
-        if (c is String) apiCode = c;
-      }
-      throw ServerException(
-        message: message,
-        statusCode: e.response?.statusCode,
-        code: apiCode,
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to reveal private key');
     }
   }
 
@@ -282,16 +283,44 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to update main wallet');
+      throw _dioServerError(e, defaultMessage: 'Failed to update main wallet');
     }
   }
 
   @override
-  Future<void> deleteMainWallet(String mainWalletId) async {
+  Future<TreasuryMainWalletModel> requestMainWalletDeletion(String mainWalletId) async {
     try {
-      await dioClient.dio.delete(ApiConstants.treasuryMainWallet(mainWalletId));
+      final response = await dioClient.dio.patch(
+        ApiConstants.treasuryMainWalletRequestDeletion(mainWalletId),
+      );
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data?['message'] ?? 'Failed to delete main wallet');
+      throw _dioServerError(e, defaultMessage: 'Failed to request main wallet deletion');
+    }
+  }
+
+  @override
+  Future<void> approveMainWalletDeletion(String mainWalletId) async {
+    try {
+      await dioClient.dio.patch(
+        ApiConstants.treasuryMainWalletApproveDeletion(mainWalletId),
+        data: const <String, dynamic>{},
+      );
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Failed to approve main wallet deletion');
+    }
+  }
+
+  @override
+  Future<TreasuryMainWalletModel> rejectMainWalletDeletion(String mainWalletId) async {
+    try {
+      final response = await dioClient.dio.patch(
+        ApiConstants.treasuryMainWalletRejectDeletion(mainWalletId),
+        data: const <String, dynamic>{},
+      );
+      return TreasuryMainWalletModel.fromJson(_unwrap<Map<String, dynamic>>(response.data));
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Failed to reject main wallet deletion');
     }
   }
 
@@ -304,9 +333,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return _unwrap<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to enqueue sweep operation',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to enqueue sweep operation');
     }
   }
 
@@ -322,9 +349,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
       return _unwrap<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to enqueue fund operation',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to enqueue fund operation');
     }
   }
 
@@ -362,9 +387,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
         limit: (data['limit'] as num?)?.toInt() ?? limit,
       );
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to load treasury operations',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to load treasury operations');
     }
   }
 
@@ -402,9 +425,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
         limit: (data['limit'] as num?)?.toInt() ?? limit,
       );
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message'] ?? 'Failed to load treasury transactions',
-      );
+      throw _dioServerError(e, defaultMessage: 'Failed to load treasury transactions');
     }
   }
 }

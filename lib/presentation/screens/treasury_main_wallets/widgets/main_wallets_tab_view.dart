@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/import_wallet_dialog.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_card.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallets_empty_placeholder.dart';
 
 class MainWalletsTabView extends StatelessWidget {
   const MainWalletsTabView({super.key});
@@ -22,12 +23,23 @@ class MainWalletsTabView extends StatelessWidget {
         if (provider.isLoading)
           const Center(child: CircularProgressIndicator())
         else if (wallets.isEmpty)
-          Center(child: Text(l10n.treasuryMainWalletsEmptyActive))
+          RefreshIndicator(
+            onRefresh: provider.refreshAllWallets,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: TreasuryMainWalletsEmptyPlaceholder(message: l10n.treasuryMainWalletsEmptyActive),
+                ),
+              ],
+            ),
+          )
         else
           RefreshIndicator(
             onRefresh: provider.refreshAllWallets,
             child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
               itemCount: wallets.length,
               itemBuilder: (context, index) {
                 return TreasuryMainWalletCard(wallet: wallets[index]);
@@ -38,15 +50,16 @@ class MainWalletsTabView extends StatelessWidget {
           Positioned(
             bottom: 16,
             right: 16,
-            child: FloatingActionButton(
-              heroTag: 'importWalletBtn',
+            child: FloatingActionButton.extended(
+              heroTag: 'importMainWalletFab',
               onPressed: () {
-                showDialog(
+                showDialog<void>(
                   context: context,
                   builder: (context) => const ImportWalletDialog(),
                 );
               },
-              child: const Icon(Icons.add),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.treasuryImportWalletImport),
             ),
           ),
       ],

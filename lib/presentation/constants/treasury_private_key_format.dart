@@ -1,4 +1,5 @@
 /// Client-side checks so users do not paste a public address as a private key.
+library;
 
 enum TreasuryImportPrivateKeyFormatIssue {
   tronAddressInsteadOfKey,

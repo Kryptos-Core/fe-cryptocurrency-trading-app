@@ -420,8 +420,10 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
     final responseData = e.response?.data;
 
     String message = 'Server error';
+    String? apiCode;
     if (responseData is Map<String, dynamic>) {
       message = responseData['message']?.toString() ?? message;
+      apiCode = responseData['code']?.toString();
     } else if (e.message != null && e.message!.isNotEmpty) {
       message = e.message!;
     }
@@ -443,7 +445,7 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       return ConflictFailure(message: message);
     }
     if (statusCode == 400 || statusCode == 422) {
-      return ValidationFailure(message: message);
+      return ValidationFailure(message: message, code: apiCode);
     }
 
     return ServerFailure(message: message);

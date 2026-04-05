@@ -961,6 +961,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'After sending tokens from your wallet to exchange deposit address, paste tx hash here.';
 
   @override
+  String onchainDepositTransitioningMinutes(int minutes) {
+    return 'Wallet addresses are updating (~$minutes min left). The QR code will refresh automatically when done.';
+  }
+
+  @override
+  String get onchainDepositTransitioningUnderOneMinute =>
+      'Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.';
+
+  @override
+  String get onchainDepositTransitioningFinalize =>
+      'Wallet addresses are finishing activation. The QR code will refresh automatically when done.';
+
+  @override
+  String get onchainDepositTransitioningUnknown =>
+      'Wallet addresses are updating. The QR code will refresh automatically when done.';
+
+  @override
   String get platformDepositAddress => 'Platform deposit address';
 
   @override
@@ -1736,11 +1753,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryManagedScopeBanner =>
-      'This list is for deposit defaults and risk-managed wallets. Operational hot wallets used for Fund/Sweep are in Payment configuration → Payment ops (Fund/Sweep).';
+      'This list is for deposit defaults and risk-managed wallets. Operational wallets: Payment configuration → Operational wallets.';
 
   @override
   String get treasuryOpsScopeBanner =>
-      'These wallets are for payment operations (fund from main, sweep back). User-facing deposit defaults are configured under User deposits & managed wallets (treasury icon on the toolbar).';
+      'Fund from main or sweep back to main. User deposit addresses: Deposits & managed wallets.';
 
   @override
   String get paymentConfigTitle => 'Payment Configuration';
@@ -1749,7 +1766,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Methods';
 
   @override
-  String get paymentConfigTreasuryWalletsTab => 'Payment ops (Fund/Sweep)';
+  String get paymentConfigTreasuryWalletsTab => 'Operational wallets';
 
   @override
   String get paymentConfigHistoryTab => 'History';
@@ -1819,6 +1836,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get paymentConfigGraceUnderOneMinute =>
+      'Less than one minute remaining before activation';
+
+  @override
+  String get paymentConfigGraceFinalizePending =>
+      'Grace period ended — finishing activation…';
+
+  @override
+  String get paymentConfigGraceUnknown => 'Grace period in progress';
+
+  @override
   String paymentConfigVersionAndSort(int version, int sortOrder) {
     return 'Version: v$version · Order: $sortOrder';
   }
@@ -1830,6 +1858,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentConfigEditAction => 'Edit';
+
+  @override
+  String get paymentConfigEditTypeLocked =>
+      'Type and network cannot be changed when editing.';
+
+  @override
+  String get paymentConfigDetailLoadFailed =>
+      'Could not load configuration for editing.';
 
   @override
   String get paymentConfigStatusActiveUpper => 'ACTIVE';
@@ -2132,19 +2168,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'No transaction wallets yet. Tap \"Create wallet\" to start.';
 
   @override
-  String get treasuryOpsGuideTitle => 'What are Sweep and Fund?';
+  String get treasuryOpsGuideTitle => 'Tip';
 
   @override
-  String get treasurySweepMeaning =>
-      'Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity. About 0.1 TRX is left on TRON wallets for fees/bandwidth.';
+  String get treasuryOpsGuideSummary =>
+      'Sweep: move funds to the main wallet. Fund: send from main to this wallet.';
 
   @override
-  String get treasuryFundMeaning =>
-      'Fund: send assets from the main wallet to the selected wallet so it can process transactions.';
+  String get treasuryOpsPublicAddressLabel => 'Public address';
 
   @override
-  String get treasuryOpsHowTo =>
-      'How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.';
+  String get treasuryOpsAddressCopiedSnack =>
+      'Public address copied to clipboard.';
 
   @override
   String get treasuryStatusActive => 'ACTIVE';
@@ -2271,7 +2306,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryHistoryStatusFailed => 'Failed';
 
   @override
+  String get treasuryHistoryLoadMore => 'Load more';
+
+  @override
+  String get apiErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String apiErrorTxWalletNonZeroBalance(String maxAmount, String symbol) {
+    return 'Sweep funds first (on-chain balance must be at most $maxAmount $symbol)';
+  }
+
+  @override
+  String get apiErrorTxWalletNonZeroBalanceShort =>
+      'Sweep funds first — reduce on-chain balance before deleting this wallet.';
+
+  @override
+  String get apiErrorTxWalletUsdtNonZero =>
+      'Move TRC-20 USDT off this wallet before deleting it.';
+
+  @override
+  String get apiErrorTxWalletDefaultDepositDelete =>
+      'Unset this wallet as the user deposit default before deleting it.';
+
+  @override
+  String get apiErrorTxWalletOperationInFlight =>
+      'Wait for pending Fund or Sweep operations to finish before deleting this wallet.';
+
+  @override
+  String get apiErrorTxWalletExists =>
+      'A transaction wallet with this chain and purpose already exists.';
+
+  @override
+  String get apiErrorTreasuryWalletInactive =>
+      'This transaction wallet is inactive.';
+
+  @override
+  String get apiErrorTreasuryWalletLocked =>
+      'Another treasury operation is running on this wallet. Try again shortly.';
+
+  @override
+  String get apiErrorDefaultUserDepositDeactivate =>
+      'You cannot deactivate the current default user deposit wallet.';
+
+  @override
   String get treasuryWalletCreatedSuccess => 'Transaction wallet created';
+
+  @override
+  String get treasuryOpsDeleteWalletTooltip => 'Delete this transaction wallet';
+
+  @override
+  String get treasuryOpsDeleteWalletTitle => 'Delete transaction wallet?';
+
+  @override
+  String get treasuryOpsDeleteWalletBody =>
+      'Removes this Fund/Sweep wallet from the system. You must sweep funds first (near-zero balance), finish any pending Fund/Sweep, and unset it as the user deposit default if applicable.';
+
+  @override
+  String get treasuryOpsDeleteWalletSuccessSnack =>
+      'Transaction wallet deleted.';
+
+  @override
+  String get treasuryOpsDeleteWalletAction => 'Delete';
 
   @override
   String recommendedChainUpdated(String chain) {
@@ -2343,6 +2438,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get managedWalletDefaultDeposit => 'Default Deposit';
+
+  @override
+  String get managedWalletClearDefaultDeposit => 'Remove default';
+
+  @override
+  String get managedWalletClearDefaultDepositTitle => 'Remove default deposit?';
+
+  @override
+  String get managedWalletClearDefaultDepositBody =>
+      'This chain will have no default deposit address until you set another wallet. On-chain deposits for this network stay disabled until then.';
+
+  @override
+  String get managedWalletClearDefaultDepositAction => 'Remove';
+
+  @override
+  String get managedWalletClearDefaultDepositSuccess =>
+      'Default deposit address removed.';
 
   @override
   String get managedWalletSendTrx => 'Send TRX';
@@ -2448,6 +2560,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositMethodRecommended => 'Recommended';
+
+  @override
+  String get depositMethodUnavailable => 'Deposit not available';
 
   @override
   String get copyAddressTooltip => 'Copy address';
@@ -2857,6 +2972,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get payosTransitioningUnderOneMinute =>
+      'PayOS will be activated in less than a minute';
+
+  @override
+  String get payosTransitioningFinalizePending =>
+      'PayOS activation is finishing — please wait';
+
+  @override
   String get dismiss => 'Dismiss';
 
   @override
@@ -3191,6 +3314,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String treasuryTrc20UsdtBalanceLine(String balance) {
+    return 'USDT (TRC-20): $balance';
+  }
+
+  @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {
     return 'Balance: $balance $symbol';
   }
@@ -3201,11 +3329,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get treasuryMainWalletCopyAddressTooltip => 'Copy address';
+  String get treasuryMainWalletPublicAddressLabel => 'Public address';
+
+  @override
+  String get treasuryMainWalletCopyAddressTooltip => 'Copy public address';
 
   @override
   String get treasuryMainWalletCopiedAddressSnack =>
-      'Address copied to clipboard.';
+      'Public address copied to clipboard.';
 
   @override
   String get treasuryMainWalletRevealPrivateKeyTooltip =>
@@ -3218,7 +3349,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryMainWalletMenuEditLabel => 'Edit label';
 
   @override
-  String get treasuryMainWalletMenuDelete => 'Delete wallet';
+  String get treasuryMainWalletMenuDelete =>
+      'Request removal (Risk must approve)';
 
   @override
   String get treasuryMainWalletRevealKeyTitle => 'Copy private key';
@@ -3244,17 +3376,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryMainWalletLabelUpdatedSnack => 'Label updated.';
 
   @override
-  String get treasuryMainWalletDeleteTitle => 'Delete wallet?';
+  String get treasuryMainWalletDeleteTitle => 'Request wallet removal?';
 
   @override
   String get treasuryMainWalletDeleteBody =>
-      'This removes the hot wallet from the system. You cannot delete the default wallet if there is another active wallet for the chain.';
+      'A Risk Officer must approve before the wallet is removed. You cannot request removal of the default wallet if another active wallet exists for the chain.';
 
   @override
-  String get treasuryMainWalletDeleteSuccessSnack => 'Wallet deleted.';
+  String get treasuryMainWalletDeleteSuccessSnack =>
+      'Removal requested — pending Risk approval.';
 
   @override
-  String get treasuryMainWalletDeleteAction => 'Delete';
+  String get treasuryMainWalletDeleteAction => 'Submit request';
+
+  @override
+  String get treasuryMainWalletChipPendingDeletion => 'Pending deletion';
+
+  @override
+  String get treasuryMainWalletPendingDeletionHint =>
+      'Removal awaiting Risk Officer approval. This wallet is not used for Fund/Sweep until approved or cancelled.';
+
+  @override
+  String get treasuryMainWalletTooltipApproveDeletion =>
+      'Approve deletion (remove wallet)';
+
+  @override
+  String get treasuryMainWalletTooltipRejectDeletion =>
+      'Reject deletion (restore wallet)';
 
   @override
   String get treasuryChainTronNile => 'TRON — Nile testnet';

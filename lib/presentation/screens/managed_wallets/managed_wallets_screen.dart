@@ -47,7 +47,11 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
     final error = await provider.setRecommendedChain(chain);
     if (!mounted) return;
     if (error == null) {
-      showAppSnackBar(context, message: AppLocalizations.of(context).recommendedChainUpdated(chain), type: SnackBarType.success);
+      showAppSnackBar(
+        context,
+        message: AppLocalizations.of(context).recommendedChainUpdated(chain),
+        type: SnackBarType.success,
+      );
     } else {
       showAppSnackBar(context, message: error, type: SnackBarType.error);
     }
@@ -68,14 +72,15 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).treasuryTitle),
+        title: Text(l10n.treasuryTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadAll,
-            tooltip: AppLocalizations.of(context).refresh,
+            tooltip: l10n.refresh,
           ),
         ],
       ),
@@ -88,32 +93,90 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
           return RefreshIndicator(
             onRefresh: _loadAll,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
               children: [
                 const _ManagedScopeBanner(),
-                const SizedBox(height: 16),
-                _DepositDefaultsCard(
-                  depositDefaults: provider.depositDefaults,
-                  chainIds: managedWalletsChainsForCurrentEnv(),
+                const SizedBox(height: 12),
+                _ManagedSurfaceCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _ManagedCardHeader(
+                        icon: Icons.south_west_rounded,
+                        title: l10n.managedWalletsActiveDefaults,
+                      ),
+                      const SizedBox(height: 4),
+                      ..._depositDefaultBlocks(context, provider.depositDefaults, managedWalletsChainsForCurrentEnv()),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _ManagedSurfaceCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.star_outline_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.managedWalletsRecommendedChainTitle,
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.1,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.managedWalletsRecommendedChainDesc,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        height: 1.35,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (provider.isSubmitting)
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      TreasuryChainDropdown(
+                        chains: managedWalletsChainsForCurrentEnv(),
+                        value: provider.recommendedChain,
+                        labelText: l10n.managedWalletsRecommendedChainLabel,
+                        hintText: l10n.managedWalletsSelectChain,
+                        onChanged: provider.isSubmitting ? null : _onSetRecommendedChain,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
-                _RecommendedChainCard(
-                  currentChain: provider.recommendedChain,
-                  isSubmitting: provider.isSubmitting,
-                  onChanged: _onSetRecommendedChain,
-                ),
-                const SizedBox(height: 24),
                 Row(
                   children: [
                     Text(
-                      AppLocalizations.of(context).managedWalletsSection,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      l10n.managedWalletsSection,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.1,
+                          ),
                     ),
                     const Spacer(),
                     Text(
-                      AppLocalizations.of(context).managedWalletsTotalCount(provider.wallets.length),
+                      l10n.managedWalletsTotalCount(provider.wallets.length),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ],
@@ -123,15 +186,11 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                   const _EmptyWalletsState()
                 else
                   ...provider.wallets.map(
-                    (w) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ManagedWalletCard(
-                        wallet: w,
-                        onTap: () => _navigateToDetail(w),
-                      ),
+                    (w) => ManagedWalletCard(
+                      wallet: w,
+                      onTap: () => _navigateToDetail(w),
                     ),
                   ),
-                const SizedBox(height: 24),
               ],
             ),
           );
@@ -141,219 +200,218 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   }
 }
 
+List<Widget> _depositDefaultBlocks(
+  BuildContext context,
+  List<ManagedWallet> depositDefaults,
+  List<String> chainIds,
+) {
+  final l10n = AppLocalizations.of(context);
+  final scheme = Theme.of(context).colorScheme;
+  final widgets = <Widget>[];
+
+  for (var i = 0; i < chainIds.length; i++) {
+    final chainId = chainIds[i];
+    final defaultWallet =
+        depositDefaults.where((w) => w.chain.apiValue == chainId).firstOrNull;
+    final chainLabel = treasuryChainDisplayLabel(l10n, chainId);
+
+    if (i > 0) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Divider(height: 1, color: scheme.outlineVariant.withValues(alpha: 0.65)),
+        ),
+      );
+    }
+
+    widgets.add(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ManagedChainCapsule(label: chainLabel, scheme: scheme),
+          const SizedBox(height: 8),
+          if (defaultWallet != null)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SelectableText(
+                        defaultWallet.truncatedAddress,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontFamily: 'monospace',
+                              height: 1.4,
+                            ),
+                      ),
+                      if (defaultWallet.label != null && defaultWallet.label!.trim().isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            defaultWallet.label!.trim(),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Icon(Icons.radio_button_unchecked_rounded, size: 18, color: scheme.outline),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.managedWalletsNotConfigured,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  return widgets;
+}
+
 class _ManagedScopeBanner extends StatelessWidget {
   const _ManagedScopeBanner();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer.withValues(alpha: 0.35),
+        color: scheme.tertiaryContainer.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.25)),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.help_outline, size: 18, color: colorScheme.secondary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l10n.treasuryManageSubtitle,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.treasuryManagedScopeBanner,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.35),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DepositDefaultsCard extends StatelessWidget {
-  final List<ManagedWallet> depositDefaults;
-  final List<String> chainIds;
-
-  const _DepositDefaultsCard({
-    required this.depositDefaults,
-    required this.chainIds,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          Icon(Icons.account_balance_wallet_outlined, size: 20, color: scheme.tertiary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.input, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context).managedWalletsActiveDefaults,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  l10n.treasuryManageSubtitle,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.25,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l10n.treasuryManagedScopeBanner,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        height: 1.35,
+                      ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            ...chainIds.map((chainId) {
-              final defaultWallet = depositDefaults
-                  .where((w) => w.chain.apiValue == chainId)
-                  .firstOrNull;
-              return _DepositDefaultRow(
-                chainLabel: treasuryChainDisplayLabel(l10n, chainId),
-                wallet: defaultWallet,
-                colorScheme: colorScheme,
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DepositDefaultRow extends StatelessWidget {
-  final String chainLabel;
-  final ManagedWallet? wallet;
-  final ColorScheme colorScheme;
-
-  const _DepositDefaultRow({
-    required this.chainLabel,
-    required this.wallet,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              chainLabel,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
           ),
-          const SizedBox(width: 8),
-          if (wallet != null) ...[
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.green.shade600,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                wallet!.truncatedAddress,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                      color: colorScheme.onSurface,
-                    ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (wallet!.label != null)
-              Text(
-                ' (${wallet!.label})',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-              ),
-          ] else ...[
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              AppLocalizations.of(context).managedWalletsNotConfigured,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
-class _RecommendedChainCard extends StatelessWidget {
-  final String? currentChain;
-  final bool isSubmitting;
-  final ValueChanged<String?> onChanged;
+class _ManagedSurfaceCard extends StatelessWidget {
+  final Widget child;
 
-  const _RecommendedChainCard({
-    required this.currentChain,
-    required this.isSubmitting,
-    required this.onChanged,
-  });
+  const _ManagedSurfaceCard({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
+    final scheme = Theme.of(context).colorScheme;
     return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: scheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.9)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.star_outline, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context).managedWalletsRecommendedChainTitle,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                  ),
+        padding: const EdgeInsets.all(12),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _ManagedCardHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _ManagedCardHeader({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: scheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.1,
                 ),
-                if (isSubmitting)
-                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              AppLocalizations.of(context).managedWalletsRecommendedChainDesc,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-            ),
-            const SizedBox(height: 12),
-            TreasuryChainDropdown(
-              chains: managedWalletsChainsForCurrentEnv(),
-              value: currentChain,
-              labelText: l10n.managedWalletsRecommendedChainLabel,
-              hintText: l10n.managedWalletsSelectChain,
-              onChanged: isSubmitting ? null : onChanged,
-            ),
-          ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ManagedChainCapsule extends StatelessWidget {
+  final String label;
+  final ColorScheme scheme;
+
+  const _ManagedChainCapsule({required this.label, required this.scheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: scheme.tertiaryContainer.withValues(alpha: 0.42),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: scheme.onTertiaryContainer,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
         ),
       ),
     );
@@ -365,30 +423,30 @@ class _EmptyWalletsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Column(
-          children: [
-            Icon(Icons.account_balance_wallet_outlined, size: 56, color: colorScheme.outline),
-            const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context).managedWalletsNoWallets,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      child: Column(
+        children: [
+          Icon(Icons.account_balance_wallet_outlined, size: 48, color: scheme.outline),
+          const SizedBox(height: 12),
+          Text(
+            AppLocalizations.of(context).managedWalletsNoWallets,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              AppLocalizations.of(context).managedWalletsNoWalletsDesc,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                AppLocalizations.of(context).managedWalletsNoWalletsDesc,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

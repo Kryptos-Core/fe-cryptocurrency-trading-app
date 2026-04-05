@@ -5,8 +5,12 @@ class TreasuryWalletModel {
   final String purpose;
   final String? label;
   final bool isActive;
+  /// Backend: default on-chain deposit address for users on this chain.
+  final bool isDefaultUserDeposit;
   final String? balance;
   final String? symbol;
+  /// TRON: USDT (TRC-20) human balance from API
+  final String? usdtTrc20Balance;
   final DateTime? createdAt;
 
   const TreasuryWalletModel({
@@ -16,8 +20,10 @@ class TreasuryWalletModel {
     required this.purpose,
     required this.label,
     required this.isActive,
+    this.isDefaultUserDeposit = false,
     this.balance,
     this.symbol,
+    this.usdtTrc20Balance,
     this.createdAt,
   });
 
@@ -29,8 +35,13 @@ class TreasuryWalletModel {
       purpose: (json['purpose'] ?? 'BOTH').toString(),
       label: json['label']?.toString(),
       isActive: json['is_active'] != false && json['is_active'] != 0,
+      isDefaultUserDeposit: json['is_default_user_deposit'] == true ||
+          json['is_default_user_deposit'] == 1 ||
+          json['isDefaultUserDeposit'] == true,
       balance: json['balance']?.toString(),
       symbol: json['symbol']?.toString(),
+      usdtTrc20Balance: json['usdtTrc20Balance']?.toString() ??
+          json['usdt_trc20_balance']?.toString(),
       createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
     );
   }
@@ -130,6 +141,7 @@ class TreasuryMainWalletModel {
   final String? label;
   final String balance;
   final String symbol;
+  final String? usdtTrc20Balance;
   final bool isDefault;
   final String status;
   final DateTime? createdAt;
@@ -142,6 +154,7 @@ class TreasuryMainWalletModel {
     this.label,
     required this.balance,
     required this.symbol,
+    this.usdtTrc20Balance,
     required this.isDefault,
     required this.status,
     this.createdAt,
@@ -156,6 +169,8 @@ class TreasuryMainWalletModel {
       label: json['label']?.toString(),
       balance: (json['balance'] ?? '0').toString(),
       symbol: (json['symbol'] ?? '').toString(),
+      usdtTrc20Balance: json['usdtTrc20Balance']?.toString() ??
+          json['usdt_trc20_balance']?.toString(),
       isDefault: json['isDefault'] == true || json['is_default'] == true,
       status: (json['status'] ?? 'ACTIVE').toString(),
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,

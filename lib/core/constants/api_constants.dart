@@ -230,6 +230,8 @@ class ApiConstants {
   static String managedWalletTransactions(String walletId) => '$managedWallets/$walletId/transactions';
   static String managedWalletSend(String walletId) => '$managedWallets/$walletId/send';
   static String managedWalletSetDefault(String walletId) => '$managedWallets/$walletId/set-deposit-default';
+  static String managedWalletClearDepositDefault(String walletId) =>
+      '$managedWallets/$walletId/clear-deposit-default';
 
   // Deposit Methods — public endpoint (no auth required)
   static const String depositMethods = '/deposit/methods';
@@ -248,6 +250,12 @@ class ApiConstants {
   static String treasuryMainWalletApprove(String id) => '$treasury/main-wallets/$id/approve';
   static String treasuryMainWalletReject(String id) => '$treasury/main-wallets/$id/reject';
   static String treasuryMainWalletSetDefault(String id) => '$treasury/main-wallets/$id/set-default';
+  static String treasuryMainWalletRequestDeletion(String id) =>
+      '$treasury/main-wallets/$id/request-deletion';
+  static String treasuryMainWalletApproveDeletion(String id) =>
+      '$treasury/main-wallets/$id/approve-deletion';
+  static String treasuryMainWalletRejectDeletion(String id) =>
+      '$treasury/main-wallets/$id/reject-deletion';
   static String treasuryMainWalletRevealPrivateKey(String id) =>
       '$treasury/main-wallets/$id/reveal-private-key';
   static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';

@@ -122,6 +122,21 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
   }
 
   @override
+  Future<Either<Failure, ManagedWallet>> clearDepositDefault(String walletId) async {
+    try {
+      final response = await _dio.patch(
+        ApiConstants.managedWalletClearDepositDefault(walletId),
+      );
+      final data = _extractDataMap(response.data);
+      return Right(_parseManagedWallet(data));
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, String>> setRecommendedChain(String chain) async {
     try {
       await _dio.patch(
@@ -256,8 +271,10 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
     final responseData = e.response?.data;
 
     String message = 'Server error';
+    String? apiCode;
     if (responseData is Map<String, dynamic>) {
       message = responseData['message']?.toString() ?? message;
+      apiCode = responseData['code']?.toString();
     } else if (e.message != null && e.message!.isNotEmpty) {
       message = e.message!;
     }
@@ -272,7 +289,9 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
     if (statusCode == 401 || statusCode == 403) return AuthenticationFailure(message: message);
     if (statusCode == 404) return NotFoundFailure(message: message);
     if (statusCode == 409) return ConflictFailure(message: message);
-    if (statusCode == 400 || statusCode == 422) return ValidationFailure(message: message);
+    if (statusCode == 400 || statusCode == 422) {
+      return ValidationFailure(message: message, code: apiCode);
+    }
 
     return ServerFailure(message: message);
   }

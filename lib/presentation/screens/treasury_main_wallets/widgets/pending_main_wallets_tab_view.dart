@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_card.dart';
+import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallets_empty_placeholder.dart';
 
 class PendingMainWalletsTabView extends StatelessWidget {
   const PendingMainWalletsTabView({super.key});
@@ -22,13 +23,27 @@ class PendingMainWalletsTabView extends StatelessWidget {
     }
 
     if (wallets.isEmpty) {
-      return Center(child: Text(l10n.treasuryMainWalletsEmptyPending));
+      return RefreshIndicator(
+        onRefresh: provider.refreshAllWallets,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: TreasuryMainWalletsEmptyPlaceholder(
+                message: l10n.treasuryMainWalletsEmptyPending,
+                icon: Icons.hourglass_empty_outlined,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return RefreshIndicator(
       onRefresh: provider.refreshAllWallets,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         itemCount: wallets.length,
         itemBuilder: (context, index) {
           final wallet = wallets[index];
@@ -37,12 +52,23 @@ class PendingMainWalletsTabView extends StatelessWidget {
           final dateStr = created != null
               ? DateFormat.yMMMd(locale).add_Hm().format(created)
               : l10n.treasuryMainWalletUnknownTime;
+          final isDeletionPending = wallet.status.toUpperCase() == 'PENDING_DELETION';
           return TreasuryMainWalletCard(
             wallet: wallet,
             pendingAddedAtText: dateStr,
             showApproveReject: canApprovePending,
-            onApprove: () => provider.approveWallet(wallet.mainWalletId),
-            onReject: () => provider.rejectWallet(wallet.mainWalletId),
+            approveReviewTooltip: isDeletionPending
+                ? l10n.treasuryMainWalletTooltipApproveDeletion
+                : null,
+            rejectReviewTooltip: isDeletionPending
+                ? l10n.treasuryMainWalletTooltipRejectDeletion
+                : null,
+            onApprove: () => isDeletionPending
+                ? provider.approveMainWalletDeletion(wallet.mainWalletId)
+                : provider.approveWallet(wallet.mainWalletId),
+            onReject: () => isDeletionPending
+                ? provider.rejectMainWalletDeletion(wallet.mainWalletId)
+                : provider.rejectWallet(wallet.mainWalletId),
           );
         },
       ),

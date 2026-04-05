@@ -352,6 +352,15 @@
   "walletExtensionPrecheckSuccess": "Pre-check completed. Open extension, sign challenge, then paste signature below.",
   "submitOnchainDeposit": "Submit on-chain deposit",
   "onchainDepositDesc": "After sending tokens from your wallet to exchange deposit address, paste tx hash here.",
+  "onchainDepositTransitioningMinutes": "Wallet addresses are updating (~{minutes} min left). The QR code will refresh automatically when done.",
+  "@onchainDepositTransitioningMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "onchainDepositTransitioningUnderOneMinute": "Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.",
+  "onchainDepositTransitioningFinalize": "Wallet addresses are finishing activation. The QR code will refresh automatically when done.",
+  "onchainDepositTransitioningUnknown": "Wallet addresses are updating. The QR code will refresh automatically when done.",
   "platformDepositAddress": "Platform deposit address",
   "sendAssetsToAddress": "Send {network} assets to this address, then submit tx hash below.",
   "@sendAssetsToAddress": {
@@ -628,11 +637,11 @@
   "treasuryTitle": "User deposits & managed wallets",
   "treasuryManageSubtitle": "Default deposit addresses, priority chain, and company wallets for user-facing flows.",
   "treasuryToolbarTooltip": "User deposits & managed wallets — default addresses and priority chain",
-  "treasuryManagedScopeBanner": "This list is for deposit defaults and risk-managed wallets. Operational hot wallets used for Fund/Sweep are in Payment configuration → Payment ops (Fund/Sweep).",
-  "treasuryOpsScopeBanner": "These wallets are for payment operations (fund from main, sweep back). User-facing deposit defaults are configured under User deposits & managed wallets (treasury icon on the toolbar).",
+  "treasuryManagedScopeBanner": "This list is for deposit defaults and risk-managed wallets. Operational wallets: Payment configuration → Operational wallets.",
+  "treasuryOpsScopeBanner": "Fund from main or sweep back to main. User deposit addresses: Deposits & managed wallets.",
   "paymentConfigTitle": "Payment Configuration",
   "paymentConfigMethodsTab": "Methods",
-  "paymentConfigTreasuryWalletsTab": "Payment ops (Fund/Sweep)",
+  "paymentConfigTreasuryWalletsTab": "Operational wallets",
   "paymentConfigHistoryTab": "History",
   "paymentConfigAddMethod": "Add method",
   "paymentConfigEditConfigTitle": "Edit configuration",
@@ -676,6 +685,9 @@
       "minutes": { "type": "int" }
     }
   },
+  "paymentConfigGraceUnderOneMinute": "Less than one minute remaining before activation",
+  "paymentConfigGraceFinalizePending": "Grace period ended — finishing activation…",
+  "paymentConfigGraceUnknown": "Grace period in progress",
   "paymentConfigVersionAndSort": "Version: v{version} · Order: {sortOrder}",
   "@paymentConfigVersionAndSort": {
     "placeholders": {
@@ -690,6 +702,8 @@
     }
   },
   "paymentConfigEditAction": "Edit",
+  "paymentConfigEditTypeLocked": "Type and network cannot be changed when editing.",
+  "paymentConfigDetailLoadFailed": "Could not load configuration for editing.",
   "paymentConfigStatusActiveUpper": "ACTIVE",
   "paymentConfigStatusTransitioningUpper": "TRANSITIONING",
   "paymentConfigStatusInactiveUpper": "INACTIVE",
@@ -776,10 +790,10 @@
   "treasuryLabelOptional": "Label (optional)",
   "treasuryFilterAll": "All",
   "treasuryNoWalletsYet": "No transaction wallets yet. Tap \"Create wallet\" to start.",
-  "treasuryOpsGuideTitle": "What are Sweep and Fund?",
-  "treasurySweepMeaning": "Sweep: move assets from the selected wallet back to the main wallet to centralize liquidity. About 0.1 TRX is left on TRON wallets for fees/bandwidth.",
-  "treasuryFundMeaning": "Fund: send assets from the main wallet to the selected wallet so it can process transactions.",
-  "treasuryOpsHowTo": "How to use: if a wallet is low on funds, tap Fund and enter an amount; if it has excess funds, tap Sweep to move assets back to the main wallet.",
+  "treasuryOpsGuideTitle": "Tip",
+  "treasuryOpsGuideSummary": "Sweep: move funds to the main wallet. Fund: send from main to this wallet.",
+  "treasuryOpsPublicAddressLabel": "Public address",
+  "treasuryOpsAddressCopiedSnack": "Public address copied to clipboard.",
   "treasuryStatusActive": "ACTIVE",
   "treasuryStatusInactive": "INACTIVE",
   "treasuryBalanceLabel": "Balance",
@@ -824,7 +838,29 @@
   "treasuryHistoryStatusConfirming": "Confirming",
   "treasuryHistoryStatusCompleted": "Completed",
   "treasuryHistoryStatusFailed": "Failed",
+  "treasuryHistoryLoadMore": "Load more",
+  "apiErrorGeneric": "Something went wrong. Please try again.",
+  "apiErrorTxWalletNonZeroBalance": "Sweep funds first (on-chain balance must be at most {maxAmount} {symbol})",
+  "@apiErrorTxWalletNonZeroBalance": {
+    "placeholders": {
+      "maxAmount": { "type": "String" },
+      "symbol": { "type": "String" }
+    }
+  },
+  "apiErrorTxWalletNonZeroBalanceShort": "Sweep funds first — reduce on-chain balance before deleting this wallet.",
+  "apiErrorTxWalletUsdtNonZero": "Move TRC-20 USDT off this wallet before deleting it.",
+  "apiErrorTxWalletDefaultDepositDelete": "Unset this wallet as the user deposit default before deleting it.",
+  "apiErrorTxWalletOperationInFlight": "Wait for pending Fund or Sweep operations to finish before deleting this wallet.",
+  "apiErrorTxWalletExists": "A transaction wallet with this chain and purpose already exists.",
+  "apiErrorTreasuryWalletInactive": "This transaction wallet is inactive.",
+  "apiErrorTreasuryWalletLocked": "Another treasury operation is running on this wallet. Try again shortly.",
+  "apiErrorDefaultUserDepositDeactivate": "You cannot deactivate the current default user deposit wallet.",
   "treasuryWalletCreatedSuccess": "Transaction wallet created",
+  "treasuryOpsDeleteWalletTooltip": "Delete this transaction wallet",
+  "treasuryOpsDeleteWalletTitle": "Delete transaction wallet?",
+  "treasuryOpsDeleteWalletBody": "Removes this Fund/Sweep wallet from the system. You must sweep funds first (near-zero balance), finish any pending Fund/Sweep, and unset it as the user deposit default if applicable.",
+  "treasuryOpsDeleteWalletSuccessSnack": "Transaction wallet deleted.",
+  "treasuryOpsDeleteWalletAction": "Delete",
   "recommendedChainUpdated": "Recommended chain updated to {chain}",
   "@recommendedChainUpdated": { "placeholders": { "chain": { "type": "String" } } },
   "managedWalletsSection": "Wallets",
@@ -849,6 +885,11 @@
   "managedWalletOnchainBalance": "On-chain Balance",
   "managedWalletSetDefault": "Set as Default",
   "managedWalletDefaultDeposit": "Default Deposit",
+  "managedWalletClearDefaultDeposit": "Remove default",
+  "managedWalletClearDefaultDepositTitle": "Remove default deposit?",
+  "managedWalletClearDefaultDepositBody": "This chain will have no default deposit address until you set another wallet. On-chain deposits for this network stay disabled until then.",
+  "managedWalletClearDefaultDepositAction": "Remove",
+  "managedWalletClearDefaultDepositSuccess": "Default deposit address removed.",
   "managedWalletSendTrx": "Send TRX",
   "managedWalletTxHistory": "Transaction History",
   "managedWalletNoTx": "No transactions yet",
@@ -887,6 +928,7 @@
   "walletBadgeInactive": "INACTIVE",
   "depositMethodsTitle": "Platform Deposit Methods",
   "depositMethodRecommended": "Recommended",
+  "depositMethodUnavailable": "Deposit not available",
   "copyAddressTooltip": "Copy address",
 
   "marketMakerHubTitle": "Market Maker",
@@ -1069,6 +1111,8 @@
       "minutes": { "type": "int" }
     }
   },
+  "payosTransitioningUnderOneMinute": "PayOS will be activated in less than a minute",
+  "payosTransitioningFinalizePending": "PayOS activation is finishing — please wait",
   "dismiss": "Dismiss",
   "snackbarOk": "OK",
 
@@ -1220,6 +1264,12 @@
       "dateTime": { "type": "String" }
     }
   },
+  "treasuryTrc20UsdtBalanceLine": "USDT (TRC-20): {balance}",
+  "@treasuryTrc20UsdtBalanceLine": {
+    "placeholders": {
+      "balance": { "type": "String" }
+    }
+  },
   "treasuryMainWalletBalanceLine": "Balance: {balance} {symbol}",
   "@treasuryMainWalletBalanceLine": {
     "placeholders": {
@@ -1233,12 +1283,13 @@
       "label": { "type": "String" }
     }
   },
-  "treasuryMainWalletCopyAddressTooltip": "Copy address",
-  "treasuryMainWalletCopiedAddressSnack": "Address copied to clipboard.",
+  "treasuryMainWalletPublicAddressLabel": "Public address",
+  "treasuryMainWalletCopyAddressTooltip": "Copy public address",
+  "treasuryMainWalletCopiedAddressSnack": "Public address copied to clipboard.",
   "treasuryMainWalletRevealPrivateKeyTooltip": "Private key (email OTP)",
   "treasuryMainWalletMenuCopyPrivateKey": "Copy private key",
   "treasuryMainWalletMenuEditLabel": "Edit label",
-  "treasuryMainWalletMenuDelete": "Delete wallet",
+  "treasuryMainWalletMenuDelete": "Request removal (Risk must approve)",
   "treasuryMainWalletRevealKeyTitle": "Copy private key",
   "treasuryMainWalletRevealKeyHint": "Send OTP to your email, enter the code, then copy the key.",
   "treasuryMainWalletRevealKeyCopy": "Reveal and copy",
@@ -1246,10 +1297,14 @@
   "treasuryMainWalletEditLabelTitle": "Edit label",
   "treasuryMainWalletEditLabelSave": "Save",
   "treasuryMainWalletLabelUpdatedSnack": "Label updated.",
-  "treasuryMainWalletDeleteTitle": "Delete wallet?",
-  "treasuryMainWalletDeleteBody": "This removes the hot wallet from the system. You cannot delete the default wallet if there is another active wallet for the chain.",
-  "treasuryMainWalletDeleteSuccessSnack": "Wallet deleted.",
-  "treasuryMainWalletDeleteAction": "Delete",
+  "treasuryMainWalletDeleteTitle": "Request wallet removal?",
+  "treasuryMainWalletDeleteBody": "A Risk Officer must approve before the wallet is removed. You cannot request removal of the default wallet if another active wallet exists for the chain.",
+  "treasuryMainWalletDeleteSuccessSnack": "Removal requested — pending Risk approval.",
+  "treasuryMainWalletDeleteAction": "Submit request",
+  "treasuryMainWalletChipPendingDeletion": "Pending deletion",
+  "treasuryMainWalletPendingDeletionHint": "Removal awaiting Risk Officer approval. This wallet is not used for Fund/Sweep until approved or cancelled.",
+  "treasuryMainWalletTooltipApproveDeletion": "Approve deletion (remove wallet)",
+  "treasuryMainWalletTooltipRejectDeletion": "Reject deletion (restore wallet)",
   "treasuryChainTronNile": "TRON — Nile testnet",
   "treasuryChainTronMainnet": "TRON — Mainnet",
   "treasuryChainBscTestnet": "BNB Smart Chain — Testnet",

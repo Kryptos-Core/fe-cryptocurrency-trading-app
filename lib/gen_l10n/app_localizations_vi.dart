@@ -963,6 +963,23 @@ class AppLocalizationsVi extends AppLocalizations {
       'Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.';
 
   @override
+  String onchainDepositTransitioningMinutes(int minutes) {
+    return 'Địa chỉ ví đang được cập nhật (còn ~$minutes phút). Mã QR sẽ tự làm mới khi xong.';
+  }
+
+  @override
+  String get onchainDepositTransitioningUnderOneMinute =>
+      'Địa chỉ ví đang được cập nhật (còn dưới 1 phút). Mã QR sẽ tự làm mới khi xong.';
+
+  @override
+  String get onchainDepositTransitioningFinalize =>
+      'Địa chỉ ví đang hoàn tất kích hoạt. Mã QR sẽ tự làm mới khi xong.';
+
+  @override
+  String get onchainDepositTransitioningUnknown =>
+      'Địa chỉ ví đang được cập nhật. Mã QR sẽ tự làm mới khi xong.';
+
+  @override
   String get platformDepositAddress => 'Địa chỉ nạp của sàn';
 
   @override
@@ -1740,11 +1757,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryManagedScopeBanner =>
-      'Danh sách này dùng cho địa chỉ nạp mặc định và ví do risk quản lý. Ví nóng Fund/Sweep nằm ở Cấu hình thanh toán → Ví vận hành (Fund/Sweep).';
+      'Danh sách này cho địa chỉ nạp mặc định & ví risk. Ví vận hành nằm ở Cấu hình thanh toán → Ví vận hành.';
 
   @override
   String get treasuryOpsScopeBanner =>
-      'Đây là ví vận hành thanh toán (cấp vốn/gom về). Địa chỉ nạp cho người dùng được cấu hình ở màn «Nạp tiền & ví quản lý» (biểu tượng kho quỹ trên thanh công cụ).';
+      'Ví dùng để cấp vốn / gom về ví chính. Địa chỉ nạp cho user: màn Nạp & ví quản lý.';
 
   @override
   String get paymentConfigTitle => 'Cấu hình thanh toán';
@@ -1753,7 +1770,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Phương thức';
 
   @override
-  String get paymentConfigTreasuryWalletsTab => 'Ví vận hành (Fund/Sweep)';
+  String get paymentConfigTreasuryWalletsTab => 'Ví vận hành';
 
   @override
   String get paymentConfigHistoryTab => 'Lịch sử';
@@ -1823,6 +1840,17 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get paymentConfigGraceUnderOneMinute =>
+      'Còn dưới 1 phút trước khi kích hoạt';
+
+  @override
+  String get paymentConfigGraceFinalizePending =>
+      'Hết thời gian chờ — đang hoàn tất kích hoạt…';
+
+  @override
+  String get paymentConfigGraceUnknown => 'Đang trong thời gian chờ kích hoạt';
+
+  @override
   String paymentConfigVersionAndSort(int version, int sortOrder) {
     return 'Phiên bản: v$version · Sắp xếp: $sortOrder';
   }
@@ -1834,6 +1862,14 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get paymentConfigEditAction => 'Chỉnh sửa';
+
+  @override
+  String get paymentConfigEditTypeLocked =>
+      'Không đổi loại/mạng khi sửa — tạo phương thức mới nếu cần.';
+
+  @override
+  String get paymentConfigDetailLoadFailed =>
+      'Không tải được cấu hình để chỉnh sửa.';
 
   @override
   String get paymentConfigStatusActiveUpper => 'ĐANG HOẠT ĐỘNG';
@@ -2135,19 +2171,17 @@ class AppLocalizationsVi extends AppLocalizations {
       'Chưa có ví giao dịch. Nhấn \"Tạo ví giao dịch\" để bắt đầu.';
 
   @override
-  String get treasuryOpsGuideTitle => 'Sweep và Fund là gì?';
+  String get treasuryOpsGuideTitle => 'Gợi ý';
 
   @override
-  String get treasurySweepMeaning =>
-      'Sweep: gom tài sản từ ví đang chọn về ví trung tâm (main wallet) để tập trung thanh khoản. Trên TRON, hệ thống giữ lại khoảng 0,1 TRX trên ví để trả phí/băng thông.';
+  String get treasuryOpsGuideSummary =>
+      'Gom về: chuyển về ví chính. Cấp vốn: lấy từ ví chính sang ví này.';
 
   @override
-  String get treasuryFundMeaning =>
-      'Fund: cấp vốn từ ví trung tâm sang ví đang chọn để ví đó có tiền xử lý giao dịch.';
+  String get treasuryOpsPublicAddressLabel => 'Địa chỉ công khai (public)';
 
   @override
-  String get treasuryOpsHowTo =>
-      'Cách dùng: ví thiếu tiền thì bấm Fund và nhập số lượng; ví dư tiền thì bấm Sweep để chuyển ngược về ví trung tâm.';
+  String get treasuryOpsAddressCopiedSnack => 'Đã sao chép địa chỉ công khai.';
 
   @override
   String get treasuryStatusActive => 'ACTIVE';
@@ -2273,7 +2307,66 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryHistoryStatusFailed => 'Thất bại';
 
   @override
+  String get treasuryHistoryLoadMore => 'Tải thêm';
+
+  @override
+  String get apiErrorGeneric => 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+
+  @override
+  String apiErrorTxWalletNonZeroBalance(String maxAmount, String symbol) {
+    return 'Hãy gom về trước — số dư on-chain tối đa $maxAmount $symbol mới được xóa ví.';
+  }
+
+  @override
+  String get apiErrorTxWalletNonZeroBalanceShort =>
+      'Hãy gom về trước — cần giảm số dư on-chain trước khi xóa ví này.';
+
+  @override
+  String get apiErrorTxWalletUsdtNonZero =>
+      'Chuyển hết USDT TRC-20 ra khỏi ví này trước khi xóa.';
+
+  @override
+  String get apiErrorTxWalletDefaultDepositDelete =>
+      'Bỏ ví khỏi mặc định nạp tiền cho người dùng trước khi xóa.';
+
+  @override
+  String get apiErrorTxWalletOperationInFlight =>
+      'Chờ các lệnh Cấp vốn hoặc Gom về đang chạy xong rồi mới xóa ví.';
+
+  @override
+  String get apiErrorTxWalletExists =>
+      'Đã có ví giao dịch với chain và mục đích này.';
+
+  @override
+  String get apiErrorTreasuryWalletInactive =>
+      'Ví giao dịch này đang không hoạt động.';
+
+  @override
+  String get apiErrorTreasuryWalletLocked =>
+      'Đang có thao tác kho bạc khác trên ví này. Thử lại sau.';
+
+  @override
+  String get apiErrorDefaultUserDepositDeactivate =>
+      'Không thể vô hiệu hóa ví nạp tiền mặc định hiện tại.';
+
+  @override
   String get treasuryWalletCreatedSuccess => 'Đã tạo ví giao dịch';
+
+  @override
+  String get treasuryOpsDeleteWalletTooltip => 'Xóa ví giao dịch này';
+
+  @override
+  String get treasuryOpsDeleteWalletTitle => 'Xóa ví vận hành?';
+
+  @override
+  String get treasuryOpsDeleteWalletBody =>
+      'Xóa ví Fund/Sweep khỏi hệ thống. Cần gom về gần hết số dư, chờ xong mọi lệnh Fund/Sweep đang chạy, và bỏ ví khỏi mặc định nạp tiền (nếu đang là mặc định).';
+
+  @override
+  String get treasuryOpsDeleteWalletSuccessSnack => 'Đã xóa ví giao dịch.';
+
+  @override
+  String get treasuryOpsDeleteWalletAction => 'Xóa';
 
   @override
   String recommendedChainUpdated(String chain) {
@@ -2345,6 +2438,23 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get managedWalletDefaultDeposit => 'Nạp tiền mặc định';
+
+  @override
+  String get managedWalletClearDefaultDeposit => 'Gỡ mặc định';
+
+  @override
+  String get managedWalletClearDefaultDepositTitle => 'Gỡ ví nạp mặc định?';
+
+  @override
+  String get managedWalletClearDefaultDepositBody =>
+      'Chain này sẽ không còn địa chỉ nạp mặc định cho đến khi bạn chọn ví khác. Nạp on-chain cho mạng này tạm dừng cho đến lúc đó.';
+
+  @override
+  String get managedWalletClearDefaultDepositAction => 'Gỡ mặc định';
+
+  @override
+  String get managedWalletClearDefaultDepositSuccess =>
+      'Đã gỡ địa chỉ nạp mặc định.';
 
   @override
   String get managedWalletSendTrx => 'Gửi TRX';
@@ -2450,6 +2560,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get depositMethodRecommended => 'Khuyến nghị';
+
+  @override
+  String get depositMethodUnavailable => 'Chưa mở nạp';
 
   @override
   String get copyAddressTooltip => 'Sao chép địa chỉ';
@@ -2858,6 +2971,14 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get payosTransitioningUnderOneMinute =>
+      'PayOS sẽ được kích hoạt trong chưa đầy một phút';
+
+  @override
+  String get payosTransitioningFinalizePending =>
+      'Đang hoàn tất kích hoạt PayOS — vui lòng chờ';
+
+  @override
   String get dismiss => 'Bỏ qua';
 
   @override
@@ -3193,6 +3314,11 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String treasuryTrc20UsdtBalanceLine(String balance) {
+    return 'Tether USDT (TRC-20): $balance';
+  }
+
+  @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {
     return 'Số dư: $balance $symbol';
   }
@@ -3203,10 +3329,16 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get treasuryMainWalletCopyAddressTooltip => 'Sao chép địa chỉ';
+  String get treasuryMainWalletPublicAddressLabel =>
+      'Địa chỉ công khai (public)';
 
   @override
-  String get treasuryMainWalletCopiedAddressSnack => 'Đã sao chép địa chỉ.';
+  String get treasuryMainWalletCopyAddressTooltip =>
+      'Sao chép địa chỉ công khai';
+
+  @override
+  String get treasuryMainWalletCopiedAddressSnack =>
+      'Đã sao chép địa chỉ công khai.';
 
   @override
   String get treasuryMainWalletRevealPrivateKeyTooltip =>
@@ -3219,7 +3351,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryMainWalletMenuEditLabel => 'Sửa nhãn';
 
   @override
-  String get treasuryMainWalletMenuDelete => 'Xóa ví';
+  String get treasuryMainWalletMenuDelete => 'Yêu cầu xóa (cần Risk duyệt)';
 
   @override
   String get treasuryMainWalletRevealKeyTitle => 'Sao chép private key';
@@ -3245,17 +3377,33 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryMainWalletLabelUpdatedSnack => 'Đã cập nhật nhãn.';
 
   @override
-  String get treasuryMainWalletDeleteTitle => 'Xóa ví?';
+  String get treasuryMainWalletDeleteTitle => 'Gửi yêu cầu xóa ví?';
 
   @override
   String get treasuryMainWalletDeleteBody =>
-      'Xóa ví hot khỏi hệ thống. Không thể xóa ví mặc định nếu còn ví khác đang hoạt động trên cùng chain.';
+      'Risk Officer phải phê duyệt trước khi ví bị xóa khỏi hệ thống. Không thể yêu cầu xóa ví mặc định nếu còn ví active khác trên cùng chain.';
 
   @override
-  String get treasuryMainWalletDeleteSuccessSnack => 'Đã xóa ví.';
+  String get treasuryMainWalletDeleteSuccessSnack =>
+      'Đã gửi yêu cầu xóa — chờ Risk phê duyệt.';
 
   @override
-  String get treasuryMainWalletDeleteAction => 'Xóa';
+  String get treasuryMainWalletDeleteAction => 'Gửi yêu cầu';
+
+  @override
+  String get treasuryMainWalletChipPendingDeletion => 'Chờ duyệt xóa';
+
+  @override
+  String get treasuryMainWalletPendingDeletionHint =>
+      'Đang chờ Risk phê duyệt xóa. Ví không dùng cho Cấp vốn/Gom trong lúc này.';
+
+  @override
+  String get treasuryMainWalletTooltipApproveDeletion =>
+      'Phê duyệt xóa (gỡ ví khỏi hệ thống)';
+
+  @override
+  String get treasuryMainWalletTooltipRejectDeletion =>
+      'Từ chối xóa (khôi phục ví)';
 
   @override
   String get treasuryChainTronNile => 'TRON — Testnet Nile';

@@ -37,6 +37,7 @@ import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.d
 import 'package:crypto_trading_app/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/withdrawal_admin_remote_datasource.dart';
 
+import 'package:crypto_trading_app/core/ui/app_scroll_behavior.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
 void main() async {
@@ -197,6 +198,7 @@ class CryptoTradingApp extends StatelessWidget {
               ? 'Ứng dụng Giao dịch Crypto'
               : 'Crypto Trading App',
           debugShowCheckedModeBanner: false,
+          scrollBehavior: const AppScrollBehavior(),
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.themeMode,

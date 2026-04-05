@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
@@ -23,6 +24,51 @@ String _treasuryOnChainPendingTooltip(AppLocalizations l10n, String? operationId
     return l10n.treasuryPendingOnChainTooltipWithId(operationId);
   }
   return l10n.treasuryPendingOnChainTooltipGeneric;
+}
+
+Future<void> _confirmDeleteTransactionWallet(
+  BuildContext context,
+  TreasuryWalletModel wallet,
+  TreasuryProvider provider,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.treasuryOpsDeleteWalletTitle),
+      content: Text(l10n.treasuryOpsDeleteWalletBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.treasuryCancelAction),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.treasuryOpsDeleteWalletAction),
+        ),
+      ],
+    ),
+  );
+  if (confirm != true || !context.mounted) return;
+  final ok = await provider.deleteTransactionWallet(wallet.walletId);
+  if (!context.mounted) return;
+  if (ok) {
+    showAppSnackBar(
+      context,
+      message: l10n.treasuryOpsDeleteWalletSuccessSnack,
+      type: SnackBarType.success,
+    );
+  } else {
+    showAppSnackBar(
+      context,
+      message: localizeTreasuryApiError(
+        l10n,
+        code: provider.apiErrorCode,
+        message: provider.error ?? l10n.treasuryFundFailed,
+      ),
+      type: SnackBarType.error,
+    );
+  }
 }
 
 void _showTreasuryQueuedSnackBar(
@@ -179,6 +225,7 @@ class _TreasuryWalletsTabViewState extends State<TreasuryWalletsTabView> {
                 ...wallets.map(
                   (wallet) => _TreasuryWalletCard(
                     wallet: wallet,
+                    isSubmitting: provider.isSubmitting,
                     showOnChainPending:
                         provider.isWalletPendingOnChain(wallet.walletId),
                     pendingOperationId:
@@ -299,13 +346,9 @@ class _TreasuryOpsGuideCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(l10n.treasurySweepMeaning),
-          const SizedBox(height: 6),
-          Text(l10n.treasuryFundMeaning),
-          const SizedBox(height: 6),
           Text(
-            l10n.treasuryOpsHowTo,
-            style: const TextStyle(fontSize: 12, color: Colors.black87),
+            l10n.treasuryOpsGuideSummary,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.35),
           ),
         ],
       ),
@@ -315,11 +358,13 @@ class _TreasuryOpsGuideCard extends StatelessWidget {
 
 class _TreasuryWalletCard extends StatelessWidget {
   final TreasuryWalletModel wallet;
+  final bool isSubmitting;
   final bool showOnChainPending;
   final String? pendingOperationId;
 
   const _TreasuryWalletCard({
     required this.wallet,
+    required this.isSubmitting,
     this.showOnChainPending = false,
     this.pendingOperationId,
   });
@@ -328,6 +373,10 @@ class _TreasuryWalletCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<TreasuryProvider>();
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final canDelete = !showOnChainPending &&
+        !isSubmitting &&
+        !wallet.isDefaultUserDeposit;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
@@ -343,6 +392,32 @@ class _TreasuryWalletCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
+                if (wallet.isDefaultUserDeposit) ...[
+                  Container(
+                    margin: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.circle, size: 8, color: Colors.green.shade600),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.walletBadgeDefault,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
@@ -360,7 +435,15 @@ class _TreasuryWalletCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text('${wallet.chain} · ${wallet.purpose}', style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 2),
+            const SizedBox(height: 8),
+            Text(
+              l10n.treasuryOpsPublicAddressLabel,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 4),
             Row(
               children: [
                 Expanded(
@@ -385,8 +468,22 @@ class _TreasuryWalletCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-              '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
+                ),
+                if (wallet.usdtTrc20Balance != null &&
+                    wallet.chain.startsWith('TRON_')) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.treasuryTrc20UsdtBalanceLine(
+                      _formatBalance(wallet.usdtTrc20Balance!),
+                    ),
+                  ),
+                ],
+              ],
             ),
             if (showOnChainPending) ...[
               const SizedBox(height: 8),
@@ -434,7 +531,11 @@ class _TreasuryWalletCard extends StatelessWidget {
                           ok: ok,
                           primaryQueued: l10n.treasurySweepQueued,
                           primaryFailed: l10n.treasurySweepFailed,
-                          errorMessage: provider.error,
+                          errorMessage: localizeTreasuryApiError(
+                            l10n,
+                            code: provider.apiErrorCode,
+                            message: provider.error,
+                          ),
                         );
                       },
                       icon: const Icon(Icons.call_made, size: 16),
@@ -470,6 +571,16 @@ class _TreasuryWalletCard extends StatelessWidget {
                                   '${l10n.treasuryBalanceLabel}: ${_formatBalance(mainWallet.balance)} ${mainWallet.symbol}',
                                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
+                                if (mainWallet.usdtTrc20Balance != null &&
+                                    mainWallet.chain.startsWith('TRON_')) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    l10n.treasuryTrc20UsdtBalanceLine(
+                                      _formatBalance(mainWallet.usdtTrc20Balance!),
+                                    ),
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  ),
+                                ],
                                 const SizedBox(height: 12),
                               ],
                               TextField(
@@ -504,7 +615,11 @@ class _TreasuryWalletCard extends StatelessWidget {
                         ok: ok,
                         primaryQueued: l10n.treasuryFundQueued,
                         primaryFailed: l10n.treasuryFundFailed,
-                        errorMessage: provider.error,
+                        errorMessage: localizeTreasuryApiError(
+                          l10n,
+                          code: provider.apiErrorCode,
+                          message: provider.error,
+                        ),
                       );
                     },
                     icon: const Icon(Icons.south_west, size: 16),
@@ -513,6 +628,39 @@ class _TreasuryWalletCard extends StatelessWidget {
                 ),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Tooltip(
+              message: wallet.isDefaultUserDeposit
+                  ? l10n.apiErrorTxWalletDefaultDepositDelete
+                  : l10n.treasuryOpsDeleteWalletTooltip,
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: canDelete
+                      ? () => _confirmDeleteTransactionWallet(context, wallet, provider)
+                      : null,
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: canDelete
+                        ? scheme.error
+                        : scheme.onSurfaceVariant.withValues(alpha: 0.38),
+                  ),
+                  label: Text(l10n.treasuryOpsDeleteWalletAction),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: canDelete
+                        ? scheme.error
+                        : scheme.onSurfaceVariant.withValues(alpha: 0.38),
+                    minimumSize: const Size.fromHeight(48),
+                    side: BorderSide(
+                      color: canDelete
+                          ? scheme.error.withValues(alpha: 0.55)
+                          : scheme.outline.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -524,7 +672,7 @@ class _TreasuryWalletCard extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: wallet.address));
     showAppSnackBar(
       context,
-      message: AppLocalizations.of(context).createWalletAddressCopied,
+      message: AppLocalizations.of(context).treasuryOpsAddressCopiedSnack,
       type: SnackBarType.success,
       duration: const Duration(seconds: 2),
     );

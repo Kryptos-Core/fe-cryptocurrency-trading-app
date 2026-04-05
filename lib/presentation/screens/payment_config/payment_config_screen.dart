@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.dart';
 import 'package:crypto_trading_app/data/models/payment_method_config_model.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -12,10 +13,25 @@ import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/t
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_settings_tab_view.dart';
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
 
+String _paymentConfigDetailStr(dynamic v) {
+  if (v == null) return '';
+  if (v is num) return v.toString();
+  return v.toString();
+}
+
+String _paymentConfigGraceLine(PaymentMethodConfigModel config, AppLocalizations l10n) {
+  if (!config.isTransitioning) return '';
+  final cd = config.graceCountdown;
+  if (cd == null) return l10n.paymentConfigGraceUnknown;
+  if (cd <= Duration.zero) return l10n.paymentConfigGraceFinalizePending;
+  if (cd.inMinutes >= 1) return l10n.paymentConfigTransitioningRemaining(cd.inMinutes);
+  return l10n.paymentConfigGraceUnderOneMinute;
+}
+
 /// Payment Method Config Screen — accessible only to ADMIN and FINANCE_MANAGER.
 /// Allows dynamic management of PayOS credentials, blockchain hot wallet keys,
 /// and network settings without restarting the server.
-/// The Treasury ops tab lists `/treasury` transaction wallets (Fund/Sweep), not `/managed-wallets`.
+/// The Treasury ops tab lists `/treasury` transaction wallets, not `/managed-wallets`.
 class PaymentConfigScreen extends StatefulWidget {
   const PaymentConfigScreen({super.key});
 
@@ -199,7 +215,16 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       );
     } else if (provider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error!), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            localizeTreasuryApiError(
+              l10n,
+              code: provider.apiErrorCode,
+              message: provider.error,
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -318,6 +343,8 @@ class _PaymentConfigTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Consumer<PaymentConfigProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading && provider.configs.isEmpty) {
@@ -325,35 +352,75 @@ class _PaymentConfigTabView extends StatelessWidget {
         }
 
         if (provider.error != null && provider.configs.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(provider.error!, textAlign: TextAlign.center),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => provider.loadConfigs(force: true),
-                    child: Text(l10n.retry),
+          return RefreshIndicator(
+            onRefresh: () => provider.loadConfigs(force: true),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline_rounded, size: 48, color: scheme.error),
+                          const SizedBox(height: 16),
+                          Text(
+                            provider.error!,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FilledButton.tonalIcon(
+                            onPressed: () => provider.loadConfigs(force: true),
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: Text(l10n.retry),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }
 
         if (provider.configs.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Text(
-                l10n.paymentConfigEmptyMessage,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
+          return RefreshIndicator(
+            onRefresh: () => provider.loadConfigs(force: true),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.payment_outlined, size: 48, color: scheme.outline),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.paymentConfigEmptyMessage,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -361,9 +428,9 @@ class _PaymentConfigTabView extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: () => provider.loadConfigs(force: true),
           child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
             itemCount: provider.configs.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final screenState = context.findAncestorStateOfType<_PaymentConfigScreenState>();
               final config = provider.configs[index];
@@ -399,20 +466,25 @@ class _PaymentConfigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context);
-    final statusColor = config.isActive
-        ? Colors.green
-        : config.isTransitioning
-            ? Colors.orange
-            : Colors.grey;
 
     return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.9)),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -420,64 +492,109 @@ class _PaymentConfigCard extends StatelessWidget {
                     children: [
                       Text(
                         config.displayName,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1,
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${config.typeLabel} · ${config.network}',
-                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      const SizedBox(height: 6),
+                      _PaymentTypeNetworkLine(
+                        typeLabel: config.typeLabel,
+                        network: config.network,
+                        scheme: scheme,
                       ),
                     ],
                   ),
                 ),
-                _StatusChip(status: config.status, color: statusColor),
+                const SizedBox(width: 8),
+                _PaymentConfigStatusCapsule(status: config.status, scheme: scheme),
               ],
             ),
-            if (config.isTransitioning && config.graceMinsRemaining != null) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.hourglass_top, size: 16, color: Colors.orange),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.paymentConfigTransitioningRemaining(config.graceMinsRemaining ?? 0),
-                    style: const TextStyle(color: Colors.orange, fontSize: 13),
-                  ),
-                ],
+            if (config.isTransitioning) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: scheme.tertiaryContainer.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: scheme.outline.withValues(alpha: 0.22)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.hourglass_top_rounded, size: 18, color: scheme.onTertiaryContainer),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _paymentConfigGraceLine(config, l10n),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onTertiaryContainer,
+                          height: 1.35,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-            const SizedBox(height: 4),
+            const SizedBox(height: 10),
             Text(
               l10n.paymentConfigVersionAndSort(config.configVersion, config.sortOrder),
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                height: 1.35,
+              ),
             ),
             if (config.activatedAt != null)
-              Text(
-                l10n.paymentConfigActivatedAt(_formatDate(config.activatedAt!)),
-                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  l10n.paymentConfigActivatedAt(_formatDate(config.activatedAt!)),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
               ),
-            const Divider(height: 20),
+            const SizedBox(height: 10),
+            Divider(height: 1, color: scheme.outlineVariant.withValues(alpha: 0.65)),
+            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 TextButton.icon(
                   onPressed: onEdit,
-                  icon: const Icon(Icons.edit, size: 16),
-                  label: Text(l10n.paymentConfigEditAction),
+                  icon: Icon(Icons.edit_outlined, size: 18, color: scheme.primary),
+                  label: Text(
+                    l10n.paymentConfigEditAction,
+                    style: TextStyle(fontWeight: FontWeight.w600, color: scheme.primary),
+                  ),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const Spacer(),
                 if (!config.isActive && !config.isTransitioning)
                   FilledButton.icon(
                     onPressed: onActivate,
-                    icon: const Icon(Icons.play_arrow, size: 16),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    ),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: Text(l10n.paymentConfigActivateAction),
                   )
                 else if (config.isActive)
                   OutlinedButton.icon(
                     onPressed: onDeactivate,
-                    style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                    icon: const Icon(Icons.stop, size: 16),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: scheme.error,
+                      side: BorderSide(color: scheme.error.withValues(alpha: 0.55)),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    ),
+                    icon: Icon(Icons.pause_circle_outline_rounded, size: 18, color: scheme.error),
                     label: Text(l10n.paymentConfigDeactivateAction),
                   ),
               ],
@@ -494,11 +611,46 @@ class _PaymentConfigCard extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  final String status;
-  final Color color;
+class _PaymentTypeNetworkLine extends StatelessWidget {
+  const _PaymentTypeNetworkLine({
+    required this.typeLabel,
+    required this.network,
+    required this.scheme,
+  });
 
-  const _StatusChip({required this.status, required this.color});
+  final String typeLabel;
+  final String network;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: scheme.tertiaryContainer.withValues(alpha: 0.42),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
+        ),
+        child: Text(
+          '$typeLabel · $network',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: scheme.onTertiaryContainer,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.15,
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentConfigStatusCapsule extends StatelessWidget {
+  const _PaymentConfigStatusCapsule({required this.status, required this.scheme});
+
+  final String status;
+  final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
@@ -509,16 +661,28 @@ class _StatusChip extends StatelessWidget {
       _ => l10n.paymentConfigStatusInactiveUpper,
     };
 
+    final (Color bg, Color fg) = switch (status) {
+      'ACTIVE' => (scheme.primary, scheme.onPrimary),
+      'TRANSITIONING' => (
+          scheme.tertiaryContainer.withValues(alpha: 0.9),
+          scheme.onTertiaryContainer,
+        ),
+      _ => (scheme.surfaceContainerHighest, scheme.onSurfaceVariant),
+    };
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: fg,
+              letterSpacing: 0.2,
+            ),
       ),
     );
   }
@@ -567,6 +731,8 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
 
   bool _showSensitiveFields = false;
   bool _isSubmitting = false;
+  bool _loadingDetail = false;
+  String? _detailLoadError;
 
   void _onCurrencySuffixControllersChanged() {
     if (mounted) setState(() {});
@@ -598,6 +764,74 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     };
     _payosQuoteSymbolCtrl.addListener(_onCurrencySuffixControllersChanged);
     _nativeCurrencyCtrl.addListener(_onCurrencySuffixControllersChanged);
+    _loadingDetail = widget.configId != null;
+    if (widget.configId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadExistingDetail());
+    }
+  }
+
+  Future<void> _loadExistingDetail() async {
+    if (widget.configId == null || !mounted) return;
+    setState(() {
+      _loadingDetail = true;
+      _detailLoadError = null;
+    });
+    final provider = context.read<PaymentConfigProvider>();
+    final raw = await provider.fetchConfigDetail(widget.configId!);
+    if (!mounted) return;
+    if (raw == null) {
+      setState(() {
+        _loadingDetail = false;
+        _detailLoadError = provider.error;
+      });
+      return;
+    }
+    _applyRawDetail(raw);
+    setState(() => _loadingDetail = false);
+  }
+
+  void _applyRawDetail(Map<String, dynamic> raw) {
+    final type = raw['type'] as String? ?? _type;
+    final network = raw['network'] as String? ?? _network;
+    _type = type;
+    _network = network;
+    _isMainnet = network == 'MAINNET';
+
+    final dn = raw['display_name'];
+    if (dn != null) _displayNameCtrl.text = dn.toString();
+
+    final gm = raw['grace_period_minutes'];
+    if (gm != null) _graceMinsCtrl.text = gm.toString();
+
+    final cfgAny = raw['config'];
+    if (cfgAny is! Map) return;
+    final cfg = Map<String, dynamic>.from(cfgAny);
+
+    if (type == 'PAYOS') {
+      _payosClientIdCtrl.text = _paymentConfigDetailStr(cfg['clientId']);
+      _payosApiKeyCtrl.text = _paymentConfigDetailStr(cfg['apiKey']);
+      _payosChecksumKeyCtrl.text = _paymentConfigDetailStr(cfg['checksumKey']);
+      _payosReturnUrlCtrl.text = _paymentConfigDetailStr(cfg['returnUrl']);
+      _payosCancelUrlCtrl.text = _paymentConfigDetailStr(cfg['cancelUrl']);
+      _payosFiatSymbolCtrl.text = _paymentConfigDetailStr(cfg['fiatSymbol']).isEmpty
+          ? 'VND'
+          : _paymentConfigDetailStr(cfg['fiatSymbol']);
+      _payosQuoteSymbolCtrl.text = _paymentConfigDetailStr(cfg['quoteCurrencySymbol']).isEmpty
+          ? 'USDT'
+          : _paymentConfigDetailStr(cfg['quoteCurrencySymbol']);
+      _payosRateCtrl.text = _paymentConfigDetailStr(cfg['fiatToQuoteRate']);
+      _payosSpreadCtrl.text = _paymentConfigDetailStr(cfg['fxSpreadBps']);
+    } else {
+      _rpcUrlCtrl.text = _paymentConfigDetailStr(cfg['rpcUrl']);
+      _hotWalletKeyCtrl.text = _paymentConfigDetailStr(cfg['hotWalletPrivateKey']);
+      _nativeCurrencyCtrl.text = _paymentConfigDetailStr(cfg['nativeCurrencySymbol']);
+      _withdrawMaxCtrl.text = _paymentConfigDetailStr(cfg['withdrawAutoMax']);
+      _fxFallbackRateCtrl.text = _paymentConfigDetailStr(cfg['fxFallbackRate']);
+      final im = cfg['isMainnet'];
+      if (im is bool) {
+        _isMainnet = im;
+      }
+    }
   }
 
   @override
@@ -655,33 +889,63 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                   ),
                 ],
               ),
+              if (widget.configId != null && _loadingDetail) ...[
+                const SizedBox(height: 40),
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ] else if (widget.configId != null && _detailLoadError != null) ...[
+                const SizedBox(height: 24),
+                Text(
+                  _detailLoadError!.isEmpty
+                      ? l10n.paymentConfigDetailLoadFailed
+                      : _detailLoadError!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {
+                    setState(() => _detailLoadError = null);
+                    _loadExistingDetail();
+                  },
+                  child: Text(l10n.retry),
+                ),
+              ] else ...[
               const SizedBox(height: 16),
               // Type selector
               DropdownButtonFormField<String>(
+                key: ValueKey<String>('pm_cfg_type_${widget.configId ?? "new"}_$_type'),
                 initialValue: _type,
                 decoration: InputDecoration(
                   labelText: l10n.paymentConfigMethodTypeLabel,
                   border: const OutlineInputBorder(),
+                  helperText: widget.configId != null ? l10n.paymentConfigEditTypeLocked : null,
                 ),
                 items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() {
-                      _type = v;
-                      _network = _networks[v]!.first;
-                      _nativeCurrencyCtrl.text = switch (v) {
-                        'ETH' => 'ETH',
-                        'TRON' => 'TRX',
-                        'SOL' => 'SOL',
-                        _ => '',
-                      };
-                    });
-                  }
-                },
+                onChanged: widget.configId != null
+                    ? null
+                    : (v) {
+                        if (v != null) {
+                          setState(() {
+                            _type = v;
+                            _network = _networks[v]!.first;
+                            _nativeCurrencyCtrl.text = switch (v) {
+                              'ETH' => 'ETH',
+                              'TRON' => 'TRX',
+                              'SOL' => 'SOL',
+                              _ => '',
+                            };
+                          });
+                        }
+                      },
               ),
               const SizedBox(height: 12),
               // Network selector
               DropdownButtonFormField<String>(
+                key: ValueKey<String>('pm_cfg_net_${widget.configId ?? "new"}_${_type}_$_network'),
                 initialValue: _network,
                 decoration: InputDecoration(
                   labelText: l10n.paymentConfigNetworkLabel,
@@ -690,14 +954,16 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                 items: (_networks[_type] ?? [])
                     .map((n) => DropdownMenuItem(value: n, child: Text(n)))
                     .toList(),
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() {
-                      _network = v;
-                      _isMainnet = v == 'MAINNET';
-                    });
-                  }
-                },
+                onChanged: widget.configId != null
+                    ? null
+                    : (v) {
+                        if (v != null) {
+                          setState(() {
+                            _network = v;
+                            _isMainnet = v == 'MAINNET';
+                          });
+                        }
+                      },
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -782,6 +1048,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
                             : l10n.paymentConfigSaveChangesAction,
                       ),
               ),
+              ],
             ],
           ),
         ),

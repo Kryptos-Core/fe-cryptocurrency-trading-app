@@ -348,11 +348,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
               backgroundColor: Colors.orange.shade100,
               leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
               content: Text(
-                paymentConfig.transitioningGraceMinsRemaining != null
-                    ? l10n.payosTransitioningBanner(
-                        paymentConfig.transitioningGraceMinsRemaining!,
-                      )
-                    : l10n.payosTransitioningGraceMinutes(0),
+                paymentConfig.payosTransitioningDepositBannerText(l10n),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               actions: [

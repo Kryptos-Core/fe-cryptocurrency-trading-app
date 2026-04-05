@@ -22,6 +22,8 @@ class BlockchainProvider extends ChangeNotifier {
   bool _isSubmitting = false;
   bool _isFetchingDepositAddress = false;
   String? _error;
+  /// Last API `code` from a deposit-address / preview / submit failure (trader-safe messaging).
+  String? _blockchainApiErrorCode;
 
   // ============ WalletConnect Session State ============
   WcSessionProposal? _activeWcSession;
@@ -37,6 +39,7 @@ class BlockchainProvider extends ChangeNotifier {
   bool get isSubmitting => _isSubmitting;
   bool get isFetchingDepositAddress => _isFetchingDepositAddress;
   String? get error => _error;
+  String? get blockchainApiErrorCode => _blockchainApiErrorCode;
 
   // WalletConnect getters
   WcSessionProposal? get activeWcSession => _activeWcSession;
@@ -56,6 +59,7 @@ class BlockchainProvider extends ChangeNotifier {
 
     _isFetchingDepositAddress = true;
     _error = null;
+    _blockchainApiErrorCode = null;
     notifyListeners();
 
     final result = await _blockchainRepository.getDepositAddress(chain);
@@ -63,6 +67,8 @@ class BlockchainProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
+        _blockchainApiErrorCode =
+            failure is ValidationFailure ? failure.code : null;
         _error = _mapFailureToMessage(failure);
       },
       (response) {
@@ -82,6 +88,7 @@ class BlockchainProvider extends ChangeNotifier {
   ) async {
     _isSubmitting = true;
     _error = null;
+    _blockchainApiErrorCode = null;
     notifyListeners();
 
     final result = await _blockchainRepository.previewDeposit(chain, txHash);
@@ -89,6 +96,8 @@ class BlockchainProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
+        _blockchainApiErrorCode =
+            failure is ValidationFailure ? failure.code : null;
         _error = _mapFailureToMessage(failure);
       },
       (response) {
@@ -218,6 +227,7 @@ class BlockchainProvider extends ChangeNotifier {
   }) async {
     _isSubmitting = true;
     _error = null;
+    _blockchainApiErrorCode = null;
     notifyListeners();
 
     final result = await _blockchainRepository.submitDeposit(
@@ -231,6 +241,8 @@ class BlockchainProvider extends ChangeNotifier {
     var success = false;
     result.fold(
       (failure) {
+        _blockchainApiErrorCode =
+            failure is ValidationFailure ? failure.code : null;
         _error = _mapFailureToMessage(failure);
       },
       (tx) {
@@ -428,6 +440,7 @@ class BlockchainProvider extends ChangeNotifier {
 
   void clearError() {
     _error = null;
+    _blockchainApiErrorCode = null;
     notifyListeners();
   }
 

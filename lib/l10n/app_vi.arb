@@ -317,6 +317,15 @@
   "walletExtensionPrecheckSuccess": "Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.",
   "submitOnchainDeposit": "Gửi nạp tiền on-chain",
   "onchainDepositDesc": "Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.",
+  "onchainDepositTransitioningMinutes": "Địa chỉ ví đang được cập nhật (còn ~{minutes} phút). Mã QR sẽ tự làm mới khi xong.",
+  "@onchainDepositTransitioningMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "onchainDepositTransitioningUnderOneMinute": "Địa chỉ ví đang được cập nhật (còn dưới 1 phút). Mã QR sẽ tự làm mới khi xong.",
+  "onchainDepositTransitioningFinalize": "Địa chỉ ví đang hoàn tất kích hoạt. Mã QR sẽ tự làm mới khi xong.",
+  "onchainDepositTransitioningUnknown": "Địa chỉ ví đang được cập nhật. Mã QR sẽ tự làm mới khi xong.",
   "platformDepositAddress": "Địa chỉ nạp của sàn",
   "sendAssetsToAddress": "Gửi tài sản {network} đến địa chỉ này, sau đó gửi tx hash bên dưới.",
   "onlyTransferSelectedChain": "Chỉ chuyển trên chain đã chọn. Gửi nhầm chain có thể gây mất vĩnh viễn.",
@@ -567,11 +576,11 @@
   "treasuryTitle": "Nạp tiền & ví quản lý",
   "treasuryManageSubtitle": "Địa chỉ nạp mặc định, chain ưu tiên và ví công ty cho luồng hiển thị cho người dùng.",
   "treasuryToolbarTooltip": "Nạp tiền & ví quản lý — địa chỉ nạp mặc định và chain ưu tiên",
-  "treasuryManagedScopeBanner": "Danh sách này dùng cho địa chỉ nạp mặc định và ví do risk quản lý. Ví nóng Fund/Sweep nằm ở Cấu hình thanh toán → Ví vận hành (Fund/Sweep).",
-  "treasuryOpsScopeBanner": "Đây là ví vận hành thanh toán (cấp vốn/gom về). Địa chỉ nạp cho người dùng được cấu hình ở màn «Nạp tiền & ví quản lý» (biểu tượng kho quỹ trên thanh công cụ).",
+  "treasuryManagedScopeBanner": "Danh sách này cho địa chỉ nạp mặc định & ví risk. Ví vận hành nằm ở Cấu hình thanh toán → Ví vận hành.",
+  "treasuryOpsScopeBanner": "Ví dùng để cấp vốn / gom về ví chính. Địa chỉ nạp cho user: màn Nạp & ví quản lý.",
   "paymentConfigTitle": "Cấu hình thanh toán",
   "paymentConfigMethodsTab": "Phương thức",
-  "paymentConfigTreasuryWalletsTab": "Ví vận hành (Fund/Sweep)",
+  "paymentConfigTreasuryWalletsTab": "Ví vận hành",
   "paymentConfigHistoryTab": "Lịch sử",
   "paymentConfigAddMethod": "Thêm phương thức",
   "paymentConfigEditConfigTitle": "Chỉnh sửa cấu hình",
@@ -590,9 +599,14 @@
   "paymentConfigDeactivateAction": "Vô hiệu hóa",
   "paymentConfigDeactivatedSuccess": "Đã vô hiệu hóa",
   "paymentConfigTransitioningRemaining": "Còn ~{minutes} phút trước khi kích hoạt",
+  "paymentConfigGraceUnderOneMinute": "Còn dưới 1 phút trước khi kích hoạt",
+  "paymentConfigGraceFinalizePending": "Hết thời gian chờ — đang hoàn tất kích hoạt…",
+  "paymentConfigGraceUnknown": "Đang trong thời gian chờ kích hoạt",
   "paymentConfigVersionAndSort": "Phiên bản: v{version} · Sắp xếp: {sortOrder}",
   "paymentConfigActivatedAt": "Kích hoạt: {datetime}",
   "paymentConfigEditAction": "Chỉnh sửa",
+  "paymentConfigEditTypeLocked": "Không đổi loại/mạng khi sửa — tạo phương thức mới nếu cần.",
+  "paymentConfigDetailLoadFailed": "Không tải được cấu hình để chỉnh sửa.",
   "paymentConfigStatusActiveUpper": "ĐANG HOẠT ĐỘNG",
   "paymentConfigStatusTransitioningUpper": "ĐANG CHUYỂN ĐỔI",
   "paymentConfigStatusInactiveUpper": "KHÔNG HOẠT ĐỘNG",
@@ -679,10 +693,10 @@
   "treasuryLabelOptional": "Nhãn (tuỳ chọn)",
   "treasuryFilterAll": "Tất cả",
   "treasuryNoWalletsYet": "Chưa có ví giao dịch. Nhấn \"Tạo ví giao dịch\" để bắt đầu.",
-  "treasuryOpsGuideTitle": "Sweep và Fund là gì?",
-  "treasurySweepMeaning": "Sweep: gom tài sản từ ví đang chọn về ví trung tâm (main wallet) để tập trung thanh khoản. Trên TRON, hệ thống giữ lại khoảng 0,1 TRX trên ví để trả phí/băng thông.",
-  "treasuryFundMeaning": "Fund: cấp vốn từ ví trung tâm sang ví đang chọn để ví đó có tiền xử lý giao dịch.",
-  "treasuryOpsHowTo": "Cách dùng: ví thiếu tiền thì bấm Fund và nhập số lượng; ví dư tiền thì bấm Sweep để chuyển ngược về ví trung tâm.",
+  "treasuryOpsGuideTitle": "Gợi ý",
+  "treasuryOpsGuideSummary": "Gom về: chuyển về ví chính. Cấp vốn: lấy từ ví chính sang ví này.",
+  "treasuryOpsPublicAddressLabel": "Địa chỉ công khai (public)",
+  "treasuryOpsAddressCopiedSnack": "Đã sao chép địa chỉ công khai.",
   "treasuryStatusActive": "ACTIVE",
   "treasuryStatusInactive": "INACTIVE",
   "treasuryBalanceLabel": "Số dư",
@@ -727,7 +741,29 @@
   "treasuryHistoryStatusConfirming": "Đang xác nhận chuỗi",
   "treasuryHistoryStatusCompleted": "Hoàn tất",
   "treasuryHistoryStatusFailed": "Thất bại",
+  "treasuryHistoryLoadMore": "Tải thêm",
+  "apiErrorGeneric": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+  "apiErrorTxWalletNonZeroBalance": "Hãy gom về trước — số dư on-chain tối đa {maxAmount} {symbol} mới được xóa ví.",
+  "@apiErrorTxWalletNonZeroBalance": {
+    "placeholders": {
+      "maxAmount": { "type": "String" },
+      "symbol": { "type": "String" }
+    }
+  },
+  "apiErrorTxWalletNonZeroBalanceShort": "Hãy gom về trước — cần giảm số dư on-chain trước khi xóa ví này.",
+  "apiErrorTxWalletUsdtNonZero": "Chuyển hết USDT TRC-20 ra khỏi ví này trước khi xóa.",
+  "apiErrorTxWalletDefaultDepositDelete": "Bỏ ví khỏi mặc định nạp tiền cho người dùng trước khi xóa.",
+  "apiErrorTxWalletOperationInFlight": "Chờ các lệnh Cấp vốn hoặc Gom về đang chạy xong rồi mới xóa ví.",
+  "apiErrorTxWalletExists": "Đã có ví giao dịch với chain và mục đích này.",
+  "apiErrorTreasuryWalletInactive": "Ví giao dịch này đang không hoạt động.",
+  "apiErrorTreasuryWalletLocked": "Đang có thao tác kho bạc khác trên ví này. Thử lại sau.",
+  "apiErrorDefaultUserDepositDeactivate": "Không thể vô hiệu hóa ví nạp tiền mặc định hiện tại.",
   "treasuryWalletCreatedSuccess": "Đã tạo ví giao dịch",
+  "treasuryOpsDeleteWalletTooltip": "Xóa ví giao dịch này",
+  "treasuryOpsDeleteWalletTitle": "Xóa ví vận hành?",
+  "treasuryOpsDeleteWalletBody": "Xóa ví Fund/Sweep khỏi hệ thống. Cần gom về gần hết số dư, chờ xong mọi lệnh Fund/Sweep đang chạy, và bỏ ví khỏi mặc định nạp tiền (nếu đang là mặc định).",
+  "treasuryOpsDeleteWalletSuccessSnack": "Đã xóa ví giao dịch.",
+  "treasuryOpsDeleteWalletAction": "Xóa",
   "recommendedChainUpdated": "Đã cập nhật chain ưu tiên thành {chain}",
   "managedWalletsSection": "Ví",
   "managedWalletsTotalCount": "{count} ví",
@@ -750,6 +786,11 @@
   "managedWalletOnchainBalance": "Số dư on-chain",
   "managedWalletSetDefault": "Đặt làm mặc định",
   "managedWalletDefaultDeposit": "Nạp tiền mặc định",
+  "managedWalletClearDefaultDeposit": "Gỡ mặc định",
+  "managedWalletClearDefaultDepositTitle": "Gỡ ví nạp mặc định?",
+  "managedWalletClearDefaultDepositBody": "Chain này sẽ không còn địa chỉ nạp mặc định cho đến khi bạn chọn ví khác. Nạp on-chain cho mạng này tạm dừng cho đến lúc đó.",
+  "managedWalletClearDefaultDepositAction": "Gỡ mặc định",
+  "managedWalletClearDefaultDepositSuccess": "Đã gỡ địa chỉ nạp mặc định.",
   "managedWalletSendTrx": "Gửi TRX",
   "managedWalletTxHistory": "Lịch sử giao dịch",
   "managedWalletNoTx": "Chưa có giao dịch nào",
@@ -787,6 +828,7 @@
   "walletBadgeInactive": "KHÔNG HOẠT ĐỘNG",
   "depositMethodsTitle": "Phương thức nạp tiền của sàn",
   "depositMethodRecommended": "Khuyến nghị",
+  "depositMethodUnavailable": "Chưa mở nạp",
   "copyAddressTooltip": "Sao chép địa chỉ",
 
   "marketMakerHubTitle": "Khu vực Market Maker",
@@ -969,6 +1011,8 @@
       "minutes": { "type": "int" }
     }
   },
+  "payosTransitioningUnderOneMinute": "PayOS sẽ được kích hoạt trong chưa đầy một phút",
+  "payosTransitioningFinalizePending": "Đang hoàn tất kích hoạt PayOS — vui lòng chờ",
   "dismiss": "Bỏ qua",
   "snackbarOk": "Đồng ý",
 
@@ -1120,6 +1164,12 @@
       "dateTime": { "type": "String" }
     }
   },
+  "treasuryTrc20UsdtBalanceLine": "Tether USDT (TRC-20): {balance}",
+  "@treasuryTrc20UsdtBalanceLine": {
+    "placeholders": {
+      "balance": { "type": "String" }
+    }
+  },
   "treasuryMainWalletBalanceLine": "Số dư: {balance} {symbol}",
   "@treasuryMainWalletBalanceLine": {
     "placeholders": {
@@ -1133,12 +1183,13 @@
       "label": { "type": "String" }
     }
   },
-  "treasuryMainWalletCopyAddressTooltip": "Sao chép địa chỉ",
-  "treasuryMainWalletCopiedAddressSnack": "Đã sao chép địa chỉ.",
+  "treasuryMainWalletPublicAddressLabel": "Địa chỉ công khai (public)",
+  "treasuryMainWalletCopyAddressTooltip": "Sao chép địa chỉ công khai",
+  "treasuryMainWalletCopiedAddressSnack": "Đã sao chép địa chỉ công khai.",
   "treasuryMainWalletRevealPrivateKeyTooltip": "Private key (OTP email)",
   "treasuryMainWalletMenuCopyPrivateKey": "Sao chép private key",
   "treasuryMainWalletMenuEditLabel": "Sửa nhãn",
-  "treasuryMainWalletMenuDelete": "Xóa ví",
+  "treasuryMainWalletMenuDelete": "Yêu cầu xóa (cần Risk duyệt)",
   "treasuryMainWalletRevealKeyTitle": "Sao chép private key",
   "treasuryMainWalletRevealKeyHint": "Gửi OTP về email, nhập mã, rồi sao chép khóa.",
   "treasuryMainWalletRevealKeyCopy": "Hiện và sao chép",
@@ -1146,10 +1197,14 @@
   "treasuryMainWalletEditLabelTitle": "Sửa nhãn",
   "treasuryMainWalletEditLabelSave": "Lưu",
   "treasuryMainWalletLabelUpdatedSnack": "Đã cập nhật nhãn.",
-  "treasuryMainWalletDeleteTitle": "Xóa ví?",
-  "treasuryMainWalletDeleteBody": "Xóa ví hot khỏi hệ thống. Không thể xóa ví mặc định nếu còn ví khác đang hoạt động trên cùng chain.",
-  "treasuryMainWalletDeleteSuccessSnack": "Đã xóa ví.",
-  "treasuryMainWalletDeleteAction": "Xóa",
+  "treasuryMainWalletDeleteTitle": "Gửi yêu cầu xóa ví?",
+  "treasuryMainWalletDeleteBody": "Risk Officer phải phê duyệt trước khi ví bị xóa khỏi hệ thống. Không thể yêu cầu xóa ví mặc định nếu còn ví active khác trên cùng chain.",
+  "treasuryMainWalletDeleteSuccessSnack": "Đã gửi yêu cầu xóa — chờ Risk phê duyệt.",
+  "treasuryMainWalletDeleteAction": "Gửi yêu cầu",
+  "treasuryMainWalletChipPendingDeletion": "Chờ duyệt xóa",
+  "treasuryMainWalletPendingDeletionHint": "Đang chờ Risk phê duyệt xóa. Ví không dùng cho Cấp vốn/Gom trong lúc này.",
+  "treasuryMainWalletTooltipApproveDeletion": "Phê duyệt xóa (gỡ ví khỏi hệ thống)",
+  "treasuryMainWalletTooltipRejectDeletion": "Từ chối xóa (khôi phục ví)",
   "treasuryChainTronNile": "TRON — Testnet Nile",
   "treasuryChainTronMainnet": "TRON — Mainnet",
   "treasuryChainBscTestnet": "BNB Smart Chain — Testnet",
