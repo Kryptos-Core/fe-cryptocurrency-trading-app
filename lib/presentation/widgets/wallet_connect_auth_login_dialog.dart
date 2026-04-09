@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,45 +20,6 @@ import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_deeplink_launcher.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_qr_session_card.dart';
-
-// #region agent log
-void _wcAuthAgentIngest(
-  String location,
-  String message,
-  String hypothesisId,
-  Map<String, dynamic> data,
-) {
-  unawaited(
-    Dio(
-      BaseOptions(
-        connectTimeout: const Duration(milliseconds: 800),
-        receiveTimeout: const Duration(milliseconds: 800),
-      ),
-    )
-        .post(
-          'http://127.0.0.1:7396/ingest/05053a01-7b62-4741-8e05-a56dba01ee1a',
-          data: {
-            'sessionId': 'cb6ec4',
-            'location': location,
-            'message': message,
-            'hypothesisId': hypothesisId,
-            'data': data,
-            'timestamp': DateTime.now().millisecondsSinceEpoch,
-          },
-          options: Options(
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Debug-Session-Id': 'cb6ec4',
-            },
-          ),
-        )
-        .catchError(
-          (Object _) =>
-              Response<dynamic>(requestOptions: RequestOptions(path: '')),
-        ),
-  );
-}
-// #endregion
 
 /// Đăng nhập bằng ví:
 /// - **Web:** TronLink extension; QR WalletConnect trong mục mở rộng.
@@ -392,18 +352,6 @@ class _WalletConnectAuthLoginDialogState
           }
           if (data.status == WcSessionStatus.expired ||
               data.status == WcSessionStatus.failed) {
-            // #region agent log
-            _wcAuthAgentIngest(
-              'wallet_connect_auth_login_dialog.dart:_startPoll',
-              'poll terminal wc auth status',
-              'H6',
-              {
-                'status': data.status.name,
-                'sessionId': sid,
-                'expiresAtMs': data.expiresAtMs,
-              },
-            );
-            // #endregion
             _stopPoll();
           }
         },
@@ -438,37 +386,11 @@ class _WalletConnectAuthLoginDialogState
       );
     });
     if (_init != null) {
-      // #region agent log
-      final init = _init!;
-      _wcAuthAgentIngest(
-        'wallet_connect_auth_login_dialog.dart:_createSession',
-        'FE WC auth init completed',
-        'H1-FE',
-        {
-          'chain': _chain.apiValue,
-          'relayPairing': init.relayPairing,
-          'sessionId': init.sessionId,
-          'expiresInSec': init.expiresIn,
-        },
-      );
-      // #endregion
       _startPoll();
     }
   }
 
   void _onSessionExpiredUi() {
-    // #region agent log
-    _wcAuthAgentIngest(
-      'wallet_connect_auth_login_dialog.dart:_onSessionExpiredUi',
-      'UI session expired callback',
-      'H7',
-      {
-        'chain': _chain.apiValue,
-        'sessionId': _init?.sessionId,
-        'relayPairing': _init?.relayPairing,
-      },
-    );
-    // #endregion
     _stopPoll();
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);

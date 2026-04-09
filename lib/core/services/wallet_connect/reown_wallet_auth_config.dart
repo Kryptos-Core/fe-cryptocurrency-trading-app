@@ -41,12 +41,23 @@ class ReownWalletAuthConfig {
         ),
       };
 
-  static PairingMetadata get defaultMetadata => const PairingMetadata(
-        name: 'Kryptos Core',
-        description: 'Cryptocurrency trading',
-        url: 'https://reown.com',
-        icons: ['https://reown.com/reown-logo.svg'],
-      );
+  /// WalletConnect pairing metadata; override with `.env` APP_NAME, APP_URL, APP_ICON_URL.
+  static PairingMetadata get pairingMetadata {
+    final name = dotenv.env['APP_NAME']?.trim();
+    final url = dotenv.env['APP_URL']?.trim();
+    final icon = dotenv.env['APP_ICON_URL']?.trim();
+    return PairingMetadata(
+      name: (name != null && name.isNotEmpty) ? name : 'Kryptos Core',
+      description: 'Cryptocurrency trading',
+      url: (url != null && url.isNotEmpty) ? url : 'https://reown.com',
+      icons: [
+        if (icon != null && icon.isNotEmpty)
+          icon
+        else
+          'https://reown.com/reown-logo.svg',
+      ],
+    );
+  }
 
   /// Tạo modal; gọi [ReownAppKitModal.init] ở ngoài. [dispose] khi không dùng.
   static ReownAppKitModal createModal(
@@ -56,7 +67,7 @@ class ReownWalletAuthConfig {
     return ReownAppKitModal(
       context: context,
       projectId: projectId,
-      metadata: defaultMetadata,
+      metadata: pairingMetadata,
       optionalNamespaces: optionalNamespacesEvmSepolia,
       enableAnalytics: false,
       disconnectOnDispose: true,

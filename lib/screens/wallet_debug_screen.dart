@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 
 /// Debug screen to verify JWT user and token info
 class WalletDebugScreen extends StatelessWidget {
@@ -14,78 +16,92 @@ class WalletDebugScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Card(
-              elevation: 2,
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'User Info',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
+        child: Consumer<AuthProvider>(
+          builder: (context, auth, _) {
+            final u = auth.currentUser;
+            final userHint = u != null
+                ? 'Logged in as: ${u.email}\nUser id (JWT): ${u.id}\nUse this id in SQL / API checks below.'
+                : 'Not signed in. Log in to see your user id and email from the session.';
+            final walletSql = u != null
+                ? "SELECT user_id, currency_id, available, frozen FROM wallets WHERE user_id = '${u.id}';"
+                : 'Sign in first; then query wallets with your user_id from the users table or JWT.';
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'User Info',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          userHint,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Check console logs for:\n🐛 Data: {user_id: 2, email: yen@example.com, ...}\n\nYour JWT user_id should match wallet seed.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            const Text(
-              '⚠️ Debug Checklist:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildCheckItem(
-              'Database seed matches this user ID?',
-              'Run: SELECT user_id, currency_id, available, frozen FROM wallets WHERE user_id = 2;',
-            ),
-            _buildCheckItem(
-              'Currency mapping correct?',
-              'Run: SELECT currency_id, symbol FROM currencies WHERE symbol IN (\'BTC\',\'ETH\',\'USDT\',\'BNB\');',
-            ),
-            _buildCheckItem(
-              'Backend .env database correct?',
-              'Ensure backend is connected to the same DB where you ran seed-wallets.sql',
-            ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            const Text(
-              '📝 Expected Seed for User 2:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '''• currencyId=1 (BTC): available 0.25
-• currencyId=2 (ETH): available 8
-• currencyId=3 (BNB): available 120
-• currencyId=4 (SOL): available 150''',
-              style: TextStyle(fontFamily: 'monospace'),
-            ),
-          ],
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  '⚠️ Debug Checklist:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildCheckItem(
+                  'Wallet rows for this user?',
+                  walletSql,
+                ),
+                _buildCheckItem(
+                  'Currency mapping correct?',
+                  r"SELECT currency_id, symbol FROM currencies WHERE symbol IN ('BTC','ETH','USDT','BNB');",
+                ),
+                _buildCheckItem(
+                  'Backend .env database correct?',
+                  'Ensure the API uses the same database you inspect in SQL.',
+                ),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  '📝 Balances',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  u != null
+                      ? 'Use the app Wallets screen or GET /wallets (with your token) — do not rely on fixed seed numbers here.'
+                      : 'Sign in to verify balances in the app or via the API.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
