@@ -4092,4 +4092,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get wcLinkedWalletAddedToList =>
       'The wallet has been added to your linked list.';
+
+  @override
+  String get onchainOperatorSandboxBanner =>
+      'On-chain deployment is in Sandbox mode. Use test networks only — not real mainnet funds.';
+
+  @override
+  String get onchainSandboxShort => 'Sandbox';
 }

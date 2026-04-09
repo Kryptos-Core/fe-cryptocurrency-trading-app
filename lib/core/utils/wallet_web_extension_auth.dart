@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -23,9 +24,11 @@ Future<bool> loginWithWebBrowserExtension(
   if (!kIsWeb || !context.mounted) return false;
 
   final kind = metaMask ? _WebWalletKind.metamask : _WebWalletKind.tronlink;
+  final sandbox =
+      parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.sandbox;
   final chain = metaMask
-      ? BlockchainNetwork.ethSepolia
-      : BlockchainNetwork.tronNile;
+      ? (sandbox ? BlockchainNetwork.ethSepolia : BlockchainNetwork.ethMainnet)
+      : (sandbox ? BlockchainNetwork.tronNile : BlockchainNetwork.tronMainnet);
 
   final address = metaMask
       ? await metaMaskGetAddressOnWeb()

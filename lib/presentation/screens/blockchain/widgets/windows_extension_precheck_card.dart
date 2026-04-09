@@ -40,10 +40,7 @@ class WindowsExtensionPrecheckCardState
     _skipConfirmInSession = false;
   }
 
-  bool get _isTronNetwork {
-    return widget.network == BlockchainNetwork.tronNile ||
-        widget.network == BlockchainNetwork.tronShasta;
-  }
+  bool get _isTronNetwork => widget.network.isTronFamily;
 
   Future<void> _openTronLinkExtensionPage() async {
     final l10n = AppLocalizations.of(context);

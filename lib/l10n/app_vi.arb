@@ -1497,5 +1497,7 @@
   },
   "wcStoreGooglePlay": "Google Play",
   "wcStoreAppStore": "App Store",
-  "wcLinkedWalletAddedToList": "Ví đã được thêm vào danh sách liên kết."
+  "wcLinkedWalletAddedToList": "Ví đã được thêm vào danh sách liên kết.",
+  "onchainOperatorSandboxBanner": "Hệ thống đang chế độ Sandbox (on-chain). Chỉ dùng testnet — không phải tiền mainnet thật.",
+  "onchainSandboxShort": "Sandbox"
 }

@@ -4087,4 +4087,11 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get wcLinkedWalletAddedToList =>
       'Ví đã được thêm vào danh sách liên kết.';
+
+  @override
+  String get onchainOperatorSandboxBanner =>
+      'Hệ thống đang chế độ Sandbox (on-chain). Chỉ dùng testnet — không phải tiền mainnet thật.';
+
+  @override
+  String get onchainSandboxShort => 'Sandbox';
 }

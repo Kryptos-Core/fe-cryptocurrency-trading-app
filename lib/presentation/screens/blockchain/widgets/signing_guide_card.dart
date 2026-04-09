@@ -16,10 +16,15 @@ class SigningGuideCard extends StatelessWidget {
 
   String _walletNameForNetwork() {
     switch (network) {
+      case BlockchainNetwork.ethMainnet:
       case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
         return 'MetaMask';
+      case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
         return 'Phantom';
+      case BlockchainNetwork.tronMainnet:
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return 'TronLink';
@@ -36,18 +41,23 @@ class SigningGuideCard extends StatelessWidget {
     }
 
     switch (network) {
+      case BlockchainNetwork.ethMainnet:
       case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
         return [
           l10n.walletGuideNativeEthStep1,
           l10n.walletGuideNativeEthStep2,
           l10n.walletGuideNativeEthStep3,
         ];
+      case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
         return [
           l10n.walletGuideNativeSolStep1,
           l10n.walletGuideNativeSolStep2,
           l10n.walletGuideNativeSolStep3,
         ];
+      case BlockchainNetwork.tronMainnet:
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return [
@@ -68,18 +78,23 @@ class SigningGuideCard extends StatelessWidget {
     }
 
     switch (network) {
+      case BlockchainNetwork.ethMainnet:
       case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
         return [
           l10n.walletGuideWebEthStep1,
           l10n.walletGuideWebEthStep2,
           l10n.walletGuideWebEthStep3,
         ];
+      case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
         return [
           l10n.walletGuideWebSolStep1,
           l10n.walletGuideWebSolStep2,
           l10n.walletGuideWebSolStep3,
         ];
+      case BlockchainNetwork.tronMainnet:
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return [

@@ -324,10 +324,15 @@ class WalletServiceFactory {
     }
 
     switch (network) {
+      case BlockchainNetwork.ethMainnet:
       case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
         return _metamaskWalletService;
+      case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
         return _phantomWalletService;
+      case BlockchainNetwork.tronMainnet:
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return _tronLinkWalletService;

@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
 import 'wc_qr_session_card.dart';
@@ -52,13 +53,25 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   bool get _hasPendingSession =>
       _session != null && !_session!.isExpired && !_isCompleted;
 
-  bool get _isEvmChain =>
-      _selectedChain == BlockchainNetwork.ethSepolia ||
-      _selectedChain == BlockchainNetwork.solanaDevnet;
+  bool get _supportsWalletConnectRelay {
+    switch (_selectedChain) {
+      case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.solanaMainnet:
+      case BlockchainNetwork.solanaDevnet:
+        return true;
+      case BlockchainNetwork.tronMainnet:
+      case BlockchainNetwork.tronNile:
+      case BlockchainNetwork.tronShasta:
+        return false;
+    }
+  }
 
   Future<void> _initiateWcSession() async {
     final l10n = AppLocalizations.of(context);
-    if (!_isEvmChain) {
+    if (!_supportsWalletConnectRelay) {
       setState(() {
         _errorMessage = l10n.wcWcSupportsEvmSolanaTron;
       });
@@ -291,12 +304,17 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   Widget _buildNetworkSelector(ThemeData theme, AppLocalizations l10n) {
-    // Chỉ hiện EVM chains cho WC
+    // EVM + Solana qua WalletConnect relay; Tron qua extension (web)
     final wcChains = [
+      BlockchainNetwork.ethMainnet,
       BlockchainNetwork.ethSepolia,
+      BlockchainNetwork.bscMainnet,
+      BlockchainNetwork.bscChapel,
+      BlockchainNetwork.solanaMainnet,
       BlockchainNetwork.solanaDevnet,
     ];
     final tronChains = [
+      BlockchainNetwork.tronMainnet,
       BlockchainNetwork.tronNile,
       BlockchainNetwork.tronShasta,
     ];
@@ -308,6 +326,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        OnchainSandboxOperatorBanner(l10n: l10n),
         Text(
           l10n.wcLinkChooseBlockchain,
           style: theme.textTheme.labelLarge!.copyWith(
@@ -322,7 +341,9 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             final isSelected = _selectedChain == chain;
             final isTron = tronChains.contains(chain);
             return ChoiceChip(
-              label: Text(chain.label),
+              label: Text(
+                onchainNetworkFilterChipLabel(chain, l10n.onchainSandboxShort),
+              ),
               selected: isSelected,
               onSelected: (_) => setState(() => _selectedChain = chain),
               avatar: isTron
@@ -404,8 +425,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   Widget _buildConnectButton(ThemeData theme, AppLocalizations l10n) {
-    final isTron = _selectedChain == BlockchainNetwork.tronNile ||
-        _selectedChain == BlockchainNetwork.tronShasta;
+    final isTron = _selectedChain.isTronFamily;
 
     if (isTron && !_showExtensionTab) {
       return Container(
@@ -435,8 +455,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   Widget _buildExtensionFallback(ThemeData theme, AppLocalizations l10n) {
-    final isTron = _selectedChain == BlockchainNetwork.tronNile ||
-        _selectedChain == BlockchainNetwork.tronShasta;
+    final isTron = _selectedChain.isTronFamily;
 
     if (!isTron) return const SizedBox.shrink();
 

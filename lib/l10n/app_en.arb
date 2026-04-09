@@ -1597,5 +1597,7 @@
   },
   "wcStoreGooglePlay": "Google Play",
   "wcStoreAppStore": "App Store",
-  "wcLinkedWalletAddedToList": "The wallet has been added to your linked list."
+  "wcLinkedWalletAddedToList": "The wallet has been added to your linked list.",
+  "onchainOperatorSandboxBanner": "On-chain deployment is in Sandbox mode. Use test networks only — not real mainnet funds.",
+  "onchainSandboxShort": "Sandbox"
 }

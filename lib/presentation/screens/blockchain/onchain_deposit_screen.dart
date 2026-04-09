@@ -16,6 +16,8 @@ import 'package:crypto_trading_app/presentation/providers/blockchain_provider.da
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/deposit_methods_card.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_network_dropdown_menu_child.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 class OnchainDepositScreen extends StatefulWidget {
@@ -456,6 +458,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                OnchainSandboxOperatorBanner(l10n: l10n),
                 AppDropdownField<BlockchainNetwork>(
                   value: _selectedNetwork,
                   menuMaxHeight: 300,
@@ -465,9 +468,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
-                          child: Text(
-                            network.label,
-                            overflow: TextOverflow.ellipsis,
+                          child: OnchainNetworkDropdownMenuChild(
+                            network: network,
+                            l10n: l10n,
                           ),
                         ),
                       )

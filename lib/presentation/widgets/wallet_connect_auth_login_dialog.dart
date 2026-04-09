@@ -19,6 +19,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposa
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_deeplink_launcher.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_qr_session_card.dart';
 
 /// Đăng nhập bằng ví:
@@ -45,7 +46,11 @@ class WalletConnectAuthLoginDialog extends StatefulWidget {
 class _WalletConnectAuthLoginDialogState
     extends State<WalletConnectAuthLoginDialog> {
   static const _wcChains = [
+    BlockchainNetwork.ethMainnet,
     BlockchainNetwork.ethSepolia,
+    BlockchainNetwork.bscMainnet,
+    BlockchainNetwork.bscChapel,
+    BlockchainNetwork.solanaMainnet,
     BlockchainNetwork.solanaDevnet,
   ];
 
@@ -135,13 +140,56 @@ class _WalletConnectAuthLoginDialogState
     }
   }
 
+  /// Chuỗi EVM + CAIP-2 để gọi `personal_sign` (ưu tiên account đầu khớp enum app).
+  (BlockchainNetwork, String)? _resolvedReownEvmAuth(
+    ReownAppKitModalSession session,
+  ) {
+    final accounts = session.getAccounts(namespace: 'eip155');
+    if (accounts != null) {
+      for (final acc in accounts) {
+        final parts = acc.split(':');
+        if (parts.length >= 3 && parts[0] == 'eip155') {
+          final caip = '${parts[0]}:${parts[1]}';
+          final net = BlockchainNetworkX.tryFromEvmCaip2(caip);
+          if (net != null) {
+            return (net, caip);
+          }
+        }
+      }
+    }
+    final rawId = session.chainId;
+    final caip = rawId.startsWith('eip155:')
+        ? rawId
+        : 'eip155:$rawId';
+    final net = BlockchainNetworkX.tryFromEvmCaip2(caip);
+    if (net != null) {
+      return (net, caip);
+    }
+    return null;
+  }
+
   Future<void> _completeLoginAfterReownConnect() async {
     if (!mounted || _reownAuthBusy || _reownModal == null) return;
     final session = _reownModal!.session;
     final topic = session?.topic;
     if (topic == null || topic.isEmpty) return;
+    if (session == null) return;
 
-    final address = session!.getAddress('eip155');
+    final evm = _resolvedReownEvmAuth(session);
+    if (evm == null) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        showAppSnackBar(
+          context,
+          message: l10n.wcReownSessionNoEvmAddress,
+          type: SnackBarType.warning,
+        );
+      }
+      return;
+    }
+
+    final (chain, caip2) = evm;
+    final address = session.getAddress('eip155');
     if (address == null || address.isEmpty) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
@@ -157,7 +205,7 @@ class _WalletConnectAuthLoginDialogState
     setState(() => _reownAuthBusy = true);
     try {
       final nonce = await _authDs.walletNonce(
-        chain: BlockchainNetwork.ethSepolia.apiValue,
+        chain: chain.apiValue,
         address: address,
       );
       if (!mounted) return;
@@ -165,7 +213,7 @@ class _WalletConnectAuthLoginDialogState
       final hexMsg = _utf8MessageToHex0x(nonce.message);
       final sig = await _reownModal!.request(
         topic: topic,
-        chainId: ReownWalletAuthConfig.sepoliaCaip2,
+        chainId: caip2,
         request: SessionRequestParams(
           method: 'personal_sign',
           params: [hexMsg, address],
@@ -186,7 +234,7 @@ class _WalletConnectAuthLoginDialogState
 
       final auth = context.read<AuthProvider>();
       final result = await auth.loginWithWallet(
-        chain: BlockchainNetwork.ethSepolia.apiValue,
+        chain: chain.apiValue,
         address: address,
         signature: sigStr,
       );
@@ -525,7 +573,9 @@ class _WalletConnectAuthLoginDialogState
           children: _wcChains.map((c) {
             final selected = _chain == c;
             return ChoiceChip(
-              label: Text(c.label),
+              label: Text(
+                onchainNetworkFilterChipLabel(c, l10n.onchainSandboxShort),
+              ),
               selected: selected,
               onSelected: _loadingInit || proposal != null
                   ? null
@@ -727,6 +777,7 @@ class _WalletConnectAuthLoginDialogState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    OnchainSandboxOperatorBanner(l10n: l10n),
                     if (kIsWeb) ...[
                       Card(
                         margin: EdgeInsets.zero,

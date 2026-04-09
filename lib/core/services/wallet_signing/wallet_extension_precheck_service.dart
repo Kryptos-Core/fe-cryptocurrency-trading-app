@@ -58,7 +58,10 @@ class WalletExtensionPrecheckService {
 
   WalletExtensionTarget? targetForNetwork(BlockchainNetwork network) {
     switch (network) {
+      case BlockchainNetwork.ethMainnet:
       case BlockchainNetwork.ethSepolia:
+      case BlockchainNetwork.bscMainnet:
+      case BlockchainNetwork.bscChapel:
         return const WalletExtensionTarget(
           name: 'MetaMask',
           installUrl: 'https://metamask.io/download/',
@@ -66,6 +69,7 @@ class WalletExtensionPrecheckService {
             'https://chromewebstore.google.com/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn',
           ],
         );
+      case BlockchainNetwork.tronMainnet:
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return const WalletExtensionTarget(
@@ -76,8 +80,15 @@ class WalletExtensionPrecheckService {
             'https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec',
           ],
         );
-      default:
-        return null;
+      case BlockchainNetwork.solanaMainnet:
+      case BlockchainNetwork.solanaDevnet:
+        return const WalletExtensionTarget(
+          name: 'Phantom',
+          installUrl: 'https://phantom.app/download',
+          extensionPageUrls: <String>[
+            'https://chromewebstore.google.com/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa',
+          ],
+        );
     }
   }
 

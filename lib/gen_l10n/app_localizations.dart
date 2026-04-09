@@ -7503,6 +7503,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The wallet has been added to your linked list.'**
   String get wcLinkedWalletAddedToList;
+
+  /// No description provided for @onchainOperatorSandboxBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain deployment is in Sandbox mode. Use test networks only — not real mainnet funds.'**
+  String get onchainOperatorSandboxBanner;
+
+  /// No description provided for @onchainSandboxShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox'**
+  String get onchainSandboxShort;
 }
 
 class _AppLocalizationsDelegate

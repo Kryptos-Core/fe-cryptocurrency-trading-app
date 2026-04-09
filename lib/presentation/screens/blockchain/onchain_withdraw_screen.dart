@@ -10,6 +10,8 @@ import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transactio
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_network_dropdown_menu_child.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
   const OnchainWithdrawScreen({super.key});
@@ -252,6 +254,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 const SizedBox(height: 8),
                 Text(l10n.withdrawalDestinationDesc),
                 const SizedBox(height: 16),
+                OnchainSandboxOperatorBanner(l10n: l10n),
                 AppDropdownField<BlockchainNetwork>(
                   value: _selectedNetwork,
                   menuMaxHeight: 300,
@@ -261,9 +264,9 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
-                          child: Text(
-                            network.label,
-                            overflow: TextOverflow.ellipsis,
+                          child: OnchainNetworkDropdownMenuChild(
+                            network: network,
+                            l10n: l10n,
                           ),
                         ),
                       )
@@ -359,7 +362,12 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                     ),
                     ...BlockchainNetwork.values.map(
                       (network) => ChoiceChip(
-                        label: Text(network.label),
+                        label: Text(
+                          onchainNetworkFilterChipLabel(
+                            network,
+                            l10n.onchainSandboxShort,
+                          ),
+                        ),
                         selected: _txFilterNetwork == network,
                         onSelected: (_) =>
                             setState(() => _txFilterNetwork = network),

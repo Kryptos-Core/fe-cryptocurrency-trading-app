@@ -36,18 +36,14 @@ class WalletChallengeSection extends StatelessWidget {
   });
 
   bool get _showWindowsNativeTronNotice {
-    final isTronNetwork = network == BlockchainNetwork.tronNile ||
-        network == BlockchainNetwork.tronShasta;
-    return !isWebDialog && isTronNetwork;
+    return !isWebDialog && network.isTronFamily;
   }
 
   String _step2Label(AppLocalizations l10n) {
     if (testMode) return l10n.copyChallengManual;
     if (isWebDialog) return l10n.openExtensionSign;
 
-    final isNativeTron = network == BlockchainNetwork.tronNile ||
-        network == BlockchainNetwork.tronShasta;
-    if (isNativeTron) {
+    if (network.isTronFamily) {
       return l10n.openWalletManualSign;
     }
 

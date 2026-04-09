@@ -218,7 +218,8 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                 const SizedBox(height: 16),
                 Text(
                   widget.qrFooterText ??
-                      (widget.session.chain == BlockchainNetwork.solanaDevnet
+                      (widget.session.chain.networkFamily ==
+                              OnChainNetworkFamily.solana
                           ? l10n.wcQrScanHintSolana
                           : l10n.wcQrScanHintEvm),
                   style: theme.textTheme.bodySmall!.copyWith(
