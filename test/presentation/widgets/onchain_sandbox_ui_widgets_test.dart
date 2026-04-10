@@ -98,14 +98,14 @@ void main() {
             builder: (context) {
               final l10n = AppLocalizations.of(context)!;
               return OnchainNetworkDropdownMenuChild(
-                network: BlockchainNetwork.ethSepolia,
+                network: BlockchainNetwork.bscChapel,
                 l10n: l10n,
               );
             },
           ),
         ),
       );
-      expect(find.text('Ethereum (Sepolia)'), findsOneWidget);
+      expect(find.text('BSC (Chapel)'), findsOneWidget);
       expect(find.text('Sandbox'), findsOneWidget);
     });
 
@@ -124,6 +124,25 @@ void main() {
         ),
       );
       expect(find.text('Ethereum (mainnet)'), findsOneWidget);
+      expect(find.text('Sandbox'), findsNothing);
+    });
+
+    testWidgets('suppressSandboxSuffix hides testnet Sandbox tag', (tester) async {
+      await tester.pumpWidget(
+        appWithBanner(
+          Builder(
+            builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return OnchainNetworkDropdownMenuChild(
+                network: BlockchainNetwork.bscChapel,
+                l10n: l10n,
+                suppressSandboxSuffix: true,
+              );
+            },
+          ),
+        ),
+      );
+      expect(find.text('BSC (Chapel)'), findsOneWidget);
       expect(find.text('Sandbox'), findsNothing);
     });
   });

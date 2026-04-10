@@ -59,7 +59,6 @@ class WalletExtensionPrecheckService {
   WalletExtensionTarget? targetForNetwork(BlockchainNetwork network) {
     switch (network) {
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
         return const WalletExtensionTarget(

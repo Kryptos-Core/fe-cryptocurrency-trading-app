@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/copy_main_wallet_private_key_dialog.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/edit_main_wallet_label_dialog.dart';
 
@@ -192,6 +193,29 @@ class TreasuryMainWalletCard extends StatelessWidget {
                     onPressed: onReject,
                   ),
                 ],
+                if (isPendingDeletion && !isPendingTab && auth.isAdmin) ...[
+                  const SizedBox(width: 4),
+                  IconButton.filledTonal(
+                    visualDensity: VisualDensity.compact,
+                    style: IconButton.styleFrom(
+                      backgroundColor: scheme.primaryContainer.withValues(alpha: 0.65),
+                      foregroundColor: scheme.onPrimaryContainer,
+                    ),
+                    icon: const Icon(Icons.check_rounded, size: 22),
+                    tooltip: l10n.treasuryMainWalletTooltipApproveDeletion,
+                    onPressed: () => provider.approveMainWalletDeletion(wallet.mainWalletId),
+                  ),
+                  IconButton.filledTonal(
+                    visualDensity: VisualDensity.compact,
+                    style: IconButton.styleFrom(
+                      backgroundColor: scheme.errorContainer.withValues(alpha: 0.65),
+                      foregroundColor: scheme.onErrorContainer,
+                    ),
+                    icon: const Icon(Icons.close_rounded, size: 22),
+                    tooltip: l10n.treasuryMainWalletTooltipRejectDeletion,
+                    onPressed: () => provider.rejectMainWalletDeletion(wallet.mainWalletId),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 6),
@@ -337,7 +361,7 @@ class _ChainLine extends StatelessWidget {
           border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
         ),
         child: Text(
-          chain,
+          treasuryWalletCreationDisplayLabel(AppLocalizations.of(context), chain),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: scheme.onTertiaryContainer,
                 fontWeight: FontWeight.w600,

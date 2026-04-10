@@ -4,7 +4,7 @@ import 'package:crypto_trading_app/domain/models/runtime_setting_row.dart';
 import 'package:crypto_trading_app/domain/models/system_config.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
-import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_setting_row_l10n.dart';
+import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_setting_card.dart';
 
 /// Platform runtime settings (RPC URLs, limits, symbols) — GET/PATCH `/system-configs/runtime`.
 class RuntimeSettingsTabView extends StatefulWidget {
@@ -67,20 +67,13 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
     }
   }
 
-  String _sectionTitle(AppLocalizations l10n, ConfigCategory cat) {
-    switch (cat) {
-      case ConfigCategory.TECH:
-        return l10n.paymentConfigRuntimeSectionTech;
-      case ConfigCategory.FINANCE:
-        return l10n.paymentConfigRuntimeSectionFinance;
-      case ConfigCategory.CORE:
-        return l10n.paymentConfigRuntimeSectionCore;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Consumer<RuntimeSettingsProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading && provider.rows.isEmpty) {
@@ -93,13 +86,19 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(l10n.paymentConfigRuntimeLoadFailed),
+                  Icon(Icons.error_outline_rounded, size: 48, color: scheme.error),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.paymentConfigRuntimeLoadFailed,
+                    style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 8),
                   Text(provider.error!, textAlign: TextAlign.center),
                   const SizedBox(height: 16),
-                  FilledButton(
+                  FilledButton.tonalIcon(
                     onPressed: () => provider.load(force: true),
-                    child: Text(l10n.retry),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -113,7 +112,7 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
         for (final r in provider.rows) {
           byCategory.putIfAbsent(r.category, () => []).add(r);
         }
-        final order = [ConfigCategory.CORE, ConfigCategory.TECH, ConfigCategory.FINANCE];
+        const order = [ConfigCategory.CORE, ConfigCategory.TECH, ConfigCategory.FINANCE];
 
         return Column(
           children: [
@@ -125,34 +124,40 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
                 ],
               ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                children: [
-                  Text(
-                    l10n.paymentConfigRuntimeIntro,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  for (final cat in order)
-                    if (byCategory[cat] != null) ...[
-                      Text(
-                        _sectionTitle(l10n, cat),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...byCategory[cat]!.map((r) => _buildRow(context, l10n, r)),
-                      const SizedBox(height: 16),
-                    ],
-                ],
+              child: RefreshIndicator(
+                onRefresh: () => provider.load(force: true),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  children: [
+                    _RuntimeIntroBanner(l10n: l10n, scheme: scheme, textTheme: textTheme),
+                    const SizedBox(height: 16),
+                    ..._runtimeSectionWidgets(
+                      l10n: l10n,
+                      textTheme: textTheme,
+                      order: order,
+                      byCategory: byCategory,
+                      controllers: _controllers,
+                      onValueChanged: () => setState(() {}),
+                    ),
+                    const SizedBox(height: 88),
+                  ],
+                ),
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: SizedBox(
+            Material(
+              elevation: 0,
+              color: scheme.surface,
+              child: SafeArea(
+                top: false,
+                child: Container(
                   width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.85)),
+                    ),
+                  ),
                   child: FilledButton(
                     onPressed: provider.isSaving ? null : () => _save(context, provider),
                     child: provider.isSaving
@@ -171,64 +176,99 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
       },
     );
   }
+}
 
-  Widget _buildRow(BuildContext context, AppLocalizations l10n, RuntimeSettingRow r) {
-    final ctrl = _controllers[r.key]!;
-    final sourceLabel = r.valueSource == 'environment'
-        ? l10n.paymentConfigRuntimeSourceEnv
-        : l10n.paymentConfigRuntimeSourceDb;
-    final rowTitle = RuntimeSettingRowL10n.name(l10n, r);
-    final rowDesc = RuntimeSettingRowL10n.description(l10n, r);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    rowTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Text(
-                  sourceLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ],
-            ),
-            if (rowDesc != null && rowDesc.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                rowDesc,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-              ),
-            ],
-            const SizedBox(height: 6),
-            Text(
-              r.key,
-              style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: ctrl,
-              readOnly: r.isReadOnly,
-              maxLines: r.key.contains('URL') || r.key.contains('HOST') ? 2 : 1,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                isDense: true,
-                suffixText: RuntimeSettingRowL10n.dataTypeSuffix(l10n, r.type),
-              ),
-            ),
-          ],
+List<Widget> _runtimeSectionWidgets({
+  required AppLocalizations l10n,
+  required TextTheme textTheme,
+  required List<ConfigCategory> order,
+  required Map<ConfigCategory, List<RuntimeSettingRow>> byCategory,
+  required Map<String, TextEditingController> controllers,
+  required VoidCallback onValueChanged,
+}) {
+  final widgets = <Widget>[];
+  var first = true;
+  for (final cat in order) {
+    final rows = byCategory[cat];
+    if (rows == null || rows.isEmpty) continue;
+    if (!first) {
+      widgets.add(const SizedBox(height: 12));
+    }
+    first = false;
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          _runtimeSectionTitle(l10n, cat),
+          style: textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
         ),
+      ),
+    );
+    for (final r in rows) {
+      widgets.add(
+        RuntimeSettingCard(
+          key: ValueKey(r.key),
+          row: r,
+          controller: controllers[r.key]!,
+          l10n: l10n,
+          onValueChanged: onValueChanged,
+        ),
+      );
+    }
+  }
+  return widgets;
+}
+
+String _runtimeSectionTitle(AppLocalizations l10n, ConfigCategory cat) {
+  switch (cat) {
+    case ConfigCategory.TECH:
+      return l10n.paymentConfigRuntimeSectionTech;
+    case ConfigCategory.FINANCE:
+      return l10n.paymentConfigRuntimeSectionFinance;
+    case ConfigCategory.CORE:
+      return l10n.paymentConfigRuntimeSectionCore;
+  }
+}
+
+class _RuntimeIntroBanner extends StatelessWidget {
+  const _RuntimeIntroBanner({
+    required this.l10n,
+    required this.scheme,
+    required this.textTheme,
+  });
+
+  final AppLocalizations l10n;
+  final ColorScheme scheme;
+  final TextTheme textTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.tertiaryContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.tune_rounded, size: 22, color: scheme.tertiary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.paymentConfigRuntimeIntro,
+              style: textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

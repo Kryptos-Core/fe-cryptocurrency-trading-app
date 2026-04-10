@@ -47,7 +47,6 @@ class _WalletConnectAuthLoginDialogState
     extends State<WalletConnectAuthLoginDialog> {
   static const _wcChains = [
     BlockchainNetwork.ethMainnet,
-    BlockchainNetwork.ethSepolia,
     BlockchainNetwork.bscMainnet,
     BlockchainNetwork.bscChapel,
     BlockchainNetwork.solanaMainnet,
@@ -57,7 +56,7 @@ class _WalletConnectAuthLoginDialogState
   final _addressCtrl = TextEditingController();
   final _signatureCtrl = TextEditingController();
 
-  BlockchainNetwork _chain = BlockchainNetwork.ethSepolia;
+  BlockchainNetwork _chain = BlockchainNetwork.bscChapel;
   WcAuthInitResult? _init;
   DateTime? _expiresAt;
   WcSessionStatus _status = WcSessionStatus.pending;
@@ -67,7 +66,7 @@ class _WalletConnectAuthLoginDialogState
   Timer? _pollTimer;
   bool _webExtensionBusy = false;
 
-  /// Backend trả address + signature (SignClient Sepolia) — ẩn form dán tay.
+  /// Backend trả address + signature từ SignClient — ẩn form dán tay.
   bool _pollHasServerSignature = false;
   bool _wcAutoVerifyBusy = false;
   String? _wcAutoVerifyDedupeKey;

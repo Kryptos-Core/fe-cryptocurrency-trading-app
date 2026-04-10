@@ -17,7 +17,6 @@ class SigningGuideCard extends StatelessWidget {
   String _walletNameForNetwork() {
     switch (network) {
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
         return 'MetaMask';
@@ -42,7 +41,6 @@ class SigningGuideCard extends StatelessWidget {
 
     switch (network) {
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
         return [
@@ -79,7 +77,6 @@ class SigningGuideCard extends StatelessWidget {
 
     switch (network) {
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
         return [

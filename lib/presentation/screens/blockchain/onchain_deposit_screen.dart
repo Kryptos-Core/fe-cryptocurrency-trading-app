@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -12,12 +13,16 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/presentation/widgets/deposit_address_empty_placeholder.dart';
 import 'package:crypto_trading_app/presentation/widgets/deposit_methods_card.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_tx_filter_chip.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 
 class OnchainDepositScreen extends StatefulWidget {
@@ -28,10 +33,15 @@ class OnchainDepositScreen extends StatefulWidget {
 }
 
 class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
+  /// Banner sandbox đã giải thích testnet — bỏ nhãn “Sandbox” trong dropdown.
+  bool get _suppressSandboxInNetworkDropdown =>
+      dotenv.isInitialized &&
+      parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.sandbox;
+
   final _formKey = GlobalKey<FormState>();
   final _txHashController = TextEditingController();
   final _amountController = TextEditingController();
-  BlockchainNetwork _selectedNetwork = BlockchainNetwork.ethSepolia;
+  late BlockchainNetwork _selectedNetwork;
   BlockchainNetwork? _txFilterNetwork;
   OnchainTxType? _txFilterType;
   bool _sortNewestFirst = true;
@@ -47,8 +57,19 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedNetwork = onchainDepositWithdrawNetworksForCurrentEnv().first;
     _txHashController.addListener(_onTxHashChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final picker = context.read<OnchainChainPickerProvider>();
+      await picker.ensureLoaded();
+      if (!mounted) return;
+      final nets = picker.onchainDepositWithdrawNetworks;
+      if (nets.isNotEmpty && !nets.contains(_selectedNetwork)) {
+        setState(() {
+          _selectedNetwork = nets.first;
+          _depositAddress = null;
+        });
+      }
       _loadDepositAddress();
       _paymentConfigProvider = context.read<PaymentConfigProvider>();
       _paymentConfigProvider!.addListener(_onPaymentConfigChanged);
@@ -298,7 +319,12 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
       _depositAddress = response;
     });
 
-    if (response == null && provider.error != null) {
+    if (response == null &&
+        provider.error != null &&
+        !suppressDepositAddressUnavailableSnackBar(
+          code: provider.blockchainApiErrorCode,
+          serverMessage: provider.error,
+        )) {
       showAppSnackBar(
         context,
         message: localizeBlockchainDepositUserMessage(
@@ -325,6 +351,30 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     );
   }
 
+  Widget _depositAddressEmptyPlaceholder(
+    BlockchainProvider provider,
+    AppLocalizations l10n,
+  ) {
+    final hasErrorOrCode =
+        provider.error != null || provider.blockchainApiErrorCode != null;
+    final message = hasErrorOrCode
+        ? localizeBlockchainDepositUserMessage(
+            l10n,
+            code: provider.blockchainApiErrorCode,
+            serverMessage: provider.error,
+          )
+        : l10n.couldNotLoadDepositAddress;
+    final kind = resolveDepositAddressEmptyKind(
+      hasErrorOrCode: hasErrorOrCode,
+      code: provider.blockchainApiErrorCode,
+      serverMessage: provider.error,
+    );
+    return DepositAddressEmptyPlaceholder(
+      message: message,
+      kind: kind,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -337,6 +387,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
+        final networks =
+            context.watch<OnchainChainPickerProvider>().onchainDepositWithdrawNetworks;
         final filteredTransactions =
             _filteredTransactions(provider.recentTransactions);
 
@@ -374,30 +426,37 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 Text(
                   l10n.submitOnchainDeposit,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(l10n.onchainDepositDesc),
-                const SizedBox(height: 16),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.onchainDepositDesc,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 const DepositMethodsCard(),
                 const SizedBox(height: 12),
                 // ── FX Conversion Hint ──
                 // Giải thích cho user: coin nạp sẽ được quy đổi → USDT vào Ví Tiền
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEAF2FD),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFF90B8F5)),
                   ),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Icon(
-                        Icons.account_balance_wallet_outlined,
-                        size: 18,
+                        Icons.info_outline,
+                        size: 16,
                         color: Color(0xFF0A5DC2),
                       ),
                       const SizedBox(width: 8),
@@ -407,6 +466,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF0A3A8A),
+                            height: 1.25,
                           ),
                         ),
                       ),
@@ -416,33 +476,26 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.payosNeedFiatTitle,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              l10n.payosNeedFiatDesc,
-                            ),
-                          ],
+                        child: Text(
+                          '${l10n.payosNeedFiatTitle} ${l10n.payosNeedFiatDesc}',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            height: 1.3,
+                            color: Colors.grey.shade800,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       FilledButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -464,13 +517,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   menuMaxHeight: 300,
                   labelText: l10n.networkLabel,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  items: BlockchainNetwork.values
+                  items: networks
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
                           child: OnchainNetworkDropdownMenuChild(
                             network: network,
                             l10n: l10n,
+                            suppressSandboxSuffix: _suppressSandboxInNetworkDropdown,
                           ),
                         ),
                       )
@@ -627,22 +681,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                           ],
                         ),
                       ] else
-                        Text(
-                          (provider.error != null ||
-                                  provider.blockchainApiErrorCode != null)
-                              ? localizeBlockchainDepositUserMessage(
-                                  l10n,
-                                  code: provider.blockchainApiErrorCode,
-                                  serverMessage: provider.error,
-                                )
-                              : l10n.couldNotLoadDepositAddress,
-                          style: TextStyle(
-                            color: (provider.error != null ||
-                                    provider.blockchainApiErrorCode != null)
-                                ? Colors.redAccent
-                                : Colors.grey.shade700,
-                          ),
-                        ),
+                        _depositAddressEmptyPlaceholder(provider, l10n),
                     ],
                   ),
                 ),
@@ -748,18 +787,20 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 const SizedBox(height: 8),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    ChoiceChip(
-                      label: Text(l10n.allNetworks),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.allNetworks,
                       selected: _txFilterNetwork == null,
                       onSelected: (_) =>
                           setState(() => _txFilterNetwork = null),
                     ),
-                    ...BlockchainNetwork.values.map(
-                      (network) => ChoiceChip(
-                        label: Text(network.label),
+                    ...networks.map(
+                      (network) => onchainTxFilterChip(
+                        context: context,
+                        label: onchainRecentTxNetworkChipLabel(network),
                         selected: _txFilterNetwork == network,
                         onSelected: (_) =>
                             setState(() => _txFilterNetwork = network),
@@ -769,17 +810,19 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 const SizedBox(height: 10),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    ChoiceChip(
-                      label: Text(l10n.allTypes),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.allTypes,
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
                     ...OnchainTxType.values.map(
-                      (type) => ChoiceChip(
-                        label: Text(_typeLabel(type)),
+                      (type) => onchainTxFilterChip(
+                        context: context,
+                        label: _typeLabel(type),
                         selected: _txFilterType == type,
                         onSelected: (_) => setState(() => _txFilterType = type),
                       ),
@@ -794,15 +837,17 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     const Spacer(),
-                    ChoiceChip(
-                      label: Text(l10n.sortNewest),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.sortNewest,
                       selected: _sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = true),
                     ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: Text(l10n.sortOldest),
+                    const SizedBox(width: 6),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.sortOldest,
                       selected: !_sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = false),

@@ -186,8 +186,8 @@
   "payosWaitingWebhook": "Waiting for PayOS webhook...",
   "payosPaymentUpdated": "Payment successful. Balance and history have been updated.",
   "payosOrderProcessing": "Order is being processed. The system will auto-update when PayOS webhook arrives.",
-  "payosNeedFiatTitle": "Need fiat deposit instead?",
-  "payosNeedFiatDesc": "Use PayOS to top up VND, then return to trade or transfer funds.",
+  "payosNeedFiatTitle": "Fiat (VND)?",
+  "payosNeedFiatDesc": "PayOS — then return to trade here.",
   "openOnchainWalletFlow": "Open On-chain Wallet Flow",
   "fiatWithdrawBankTitle": "Withdraw to bank (USDT)",
   "fiatWithdrawBankSubtitle": "Link a Vietnamese bank account, then request withdrawal. Requires verified user role.",
@@ -218,7 +218,7 @@
   "linkWalletWeb": "Link Wallet (Web)",
   "linkFirstWallet": "Link Your First Wallet",
   "noLinkedWalletsTitle": "No linked wallets yet",
-  "noLinkedWalletsMessage": "Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.",
+  "noLinkedWalletsMessage": "Connect a Tron, Solana, or BSC (Chapel) wallet first so deposit and withdrawal flows have a verified destination.",
   "unlinkWalletTitle": "Unlink wallet",
   "confirmUnlinkWallet": "Are you sure you want to unlink {address}?",
   "@confirmUnlinkWallet": {
@@ -297,7 +297,7 @@
   "walletGuideWebTestStep2": "Sign the exact challenge text in your extension or wallet app.",
   "walletGuideWebTestStep3": "Paste signature into the Signature field and click Verify Link.",
   "walletGuideNativeEthStep1": "Install MetaMask browser extension and unlock it.",
-  "walletGuideNativeEthStep2": "Use an account on Sepolia network that matches the wallet address you entered.",
+  "walletGuideNativeEthStep2": "Use an account on BNB Smart Chain (Chapel testnet) that matches the wallet address you entered.",
   "walletGuideNativeEthStep3": "Click Step 2 to trigger deep-link; if nothing opens, sign manually in MetaMask and paste signature below.",
   "walletGuideNativeSolStep1": "Install Phantom extension or desktop app and unlock it.",
   "walletGuideNativeSolStep2": "Switch wallet to Solana Devnet and use the same address you entered.",
@@ -350,8 +350,8 @@
     }
   },
   "walletExtensionPrecheckSuccess": "Pre-check completed. Open extension, sign challenge, then paste signature below.",
-  "submitOnchainDeposit": "Submit on-chain deposit",
-  "onchainDepositDesc": "After sending tokens from your wallet to exchange deposit address, paste tx hash here.",
+  "submitOnchainDeposit": "On-chain deposit",
+  "onchainDepositDesc": "Send to the platform address, then paste the tx hash below.",
   "onchainDepositTransitioningMinutes": "Wallet addresses are updating (~{minutes} min left). The QR code will refresh automatically when done.",
   "@onchainDepositTransitioningMinutes": {
     "placeholders": {
@@ -632,7 +632,7 @@
   "cashWalletSectionSubtitle": "Receives all deposits • Use to buy coins",
   "coinAssetsSectionTitle": "Assets",
   "coinAssetsSectionSubtitle": "Coins from trading",
-  "depositOnchainHint": "Funds will be converted to USDT and credited to your Cash Wallet",
+  "depositOnchainHint": "Credited as USDT to your cash wallet",
 
   "treasuryTitle": "User deposits & managed wallets",
   "treasuryManageSubtitle": "Default deposit addresses, priority chain, and company wallets for user-facing flows.",
@@ -739,6 +739,10 @@
   "paymentConfigRuntimeTypeInteger": "integer",
   "paymentConfigRuntimeTypeBoolean": "boolean",
   "paymentConfigRuntimeTypeFloat": "float",
+  "paymentConfigRuntimeValueHint": "Current value",
+  "paymentConfigRuntimeTechKeySection": "System variable",
+  "paymentConfigRuntimeValueOn": "On",
+  "paymentConfigRuntimeValueOff": "Off",
   "runtimeSettingWalletSyncIntervalName": "Wallet sync interval (ms)",
   "runtimeSettingWalletSyncIntervalDesc": "Interval for wallet sync workers (milliseconds).",
   "runtimeSettingWalletReconciliationThresholdName": "Reconciliation discrepancy threshold",
@@ -751,16 +755,10 @@
   "runtimeSettingTronDefaultNetworkDesc": "TRON_NILE or TRON_SHASTA. Changing may require API restart for some processes.",
   "runtimeSettingSolanaDevnetUrlName": "Solana Devnet RPC URL",
   "runtimeSettingSolanaDevnetUrlDesc": "JSON RPC endpoint for Solana devnet.",
-  "runtimeSettingEthSepoliaRpcUrlName": "Ethereum Sepolia RPC URL",
-  "runtimeSettingEthSepoliaRpcUrlDesc": "JSON-RPC URL for Sepolia testnet.",
-  "runtimeSettingEthSepoliaChainIdName": "Ethereum Sepolia chain ID",
-  "runtimeSettingEthSepoliaChainIdDesc": "EIP-155 chain ID for Sepolia (e.g. 11155111).",
   "runtimeSettingBlockchainAllowTestSignatureName": "Allow test signature bypass",
   "runtimeSettingBlockchainAllowTestSignatureDesc": "When true (non-production rules apply), linking may accept TEST_SIG:: payloads. Editing from UI is blocked in production unless ALLOW_UI_TEST_SIGNATURE=true.",
   "runtimeSettingBlockchainWithdrawAutoMaxName": "Global auto-approve withdraw max (native)",
   "runtimeSettingBlockchainWithdrawAutoMaxDesc": "Default max native amount for auto-processed withdrawals.",
-  "runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName": "Auto max withdraw — ETH Sepolia",
-  "runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc": "Per-chain cap for ETH_SEPOLIA; falls back to global when empty.",
   "runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName": "Auto max withdraw — Solana devnet",
   "runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc": "Per-chain cap for SOLANA_DEVNET; falls back to global when empty.",
   "runtimeSettingBlockchainWithdrawAutoMaxTronNileName": "Auto max withdraw — Tron Nile",
@@ -784,6 +782,9 @@
   "treasuryCreateWalletFab": "Create wallet",
   "treasuryCreateWalletDialogTitle": "Create transaction wallet",
   "treasuryCreateWalletCta": "Create wallet",
+  "treasuryCreateWalletNetworkTronTrc20Testnet": "Tron (testnet, TRC-20)",
+  "treasuryCreateWalletNetworkSolanaSplDevnet": "Solana (devnet, SPL)",
+  "treasuryCreateWalletNetworkBscMetaMaskChapel": "BNB Smart Chain Chapel (MetaMask)",
   "treasuryChainLabel": "Chain",
   "treasuryPurposeLabel": "Purpose",
   "treasuryTypeLabel": "Type",
@@ -928,7 +929,7 @@
   "walletBadgeInactive": "INACTIVE",
   "depositMethodsTitle": "Platform Deposit Methods",
   "depositMethodRecommended": "Recommended",
-  "depositMethodUnavailable": "Deposit not available",
+  "depositMethodUnavailable": "Not available",
   "copyAddressTooltip": "Copy address",
 
   "marketMakerHubTitle": "Market Maker",
@@ -1312,7 +1313,6 @@
   "treasuryChainSolanaDevnet": "Solana — Devnet",
   "treasuryChainSolanaMainnet": "Solana — Mainnet",
   "treasuryChainTronShasta": "TRON — Shasta testnet",
-  "treasuryChainEthSepolia": "Ethereum — Sepolia",
   "treasuryChainEthMainnet": "Ethereum — Mainnet",
   "treasuryImportWalletDialogTitle": "Import main wallet ({chainName})",
   "@treasuryImportWalletDialogTitle": {
@@ -1320,6 +1320,9 @@
       "chainName": { "type": "String" }
     }
   },
+  "treasuryImportWalletDialogHeading": "Import main wallet",
+  "treasuryImportWalletDialogChainLabel": "Network",
+  "treasuryImportWalletOtpVerifiedBanner": "Email verified — enter your wallet details below.",
   "treasuryImportWalletLabelOptional": "Label (optional)",
   "treasuryImportWalletPrivateKey": "Private key",
   "treasuryImportWalletMfaCode": "MFA code",
@@ -1345,7 +1348,7 @@
   "treasuryImportWalletPrivateKeyRequired": "Private key is required.",
   "treasuryImportWalletMistakeTronAddress": "This looks like a TRON address (starts with T), not a private key. Paste the 64-character hex private key from your wallet export.",
   "treasuryImportWalletMistakeEvmAddress": "This looks like an EVM wallet address (0x…), not a private key. Paste the 64-character hex private key from your wallet export.",
-  "treasuryImportWalletSuccessSnack": "Wallet imported to pending approvals.",
+  "treasuryImportWalletSuccessSnack": "Main wallet imported and activated.",
   "treasuryImportWalletErrorSnack": "Error: {error}",
   "@treasuryImportWalletErrorSnack": {
     "placeholders": {
@@ -1509,7 +1512,7 @@
       "error": { "type": "String" }
     }
   },
-  "wcReownSessionNoEvmAddress": "Session has no EVM address (eip155). Choose an EVM wallet / Sepolia.",
+  "wcReownSessionNoEvmAddress": "Session has no EVM address (eip155). Choose an EVM wallet (e.g. BSC Chapel or Ethereum mainnet).",
   "wcReownNoSignature": "Wallet did not return a signature.",
   "wcReownLoginError": "Wallet login error: {error}",
   "@wcReownLoginError": {
@@ -1517,7 +1520,7 @@
       "error": { "type": "String" }
     }
   },
-  "wcReownQrDescription": "Open QR, connect your phone wallet, then sign the login message (Sepolia).",
+  "wcReownQrDescription": "Open QR, connect your phone wallet, then sign the login message.",
   "wcReownOpenQrButton": "Open WalletConnect QR (Reown)",
   "wcAdvancedLegacyQrTitle": "Other: Server QR code",
   "wcAdvancedLegacyQrSubtitle": "If you prefer not to use Reown above",
@@ -1572,7 +1575,7 @@
   "wcSessionCreateFailed": "Could not create WalletConnect session. Try again.",
   "wcSessionExpiredNewQr": "Session expired. Please create a new QR code.",
   "wcSessionWcFailedRetry": "WalletConnect failed (connection or signing). Create a new QR code or try again.",
-  "wcWcSupportsEvmSolanaTron": "WalletConnect supports Ethereum Sepolia and Solana Devnet. For Tron, use the TronLink extension on Chrome.",
+  "wcWcSupportsEvmSolanaTron": "WalletConnect supports BSC Chapel, Ethereum mainnet, and Solana Devnet. For Tron, use the TronLink extension on Chrome.",
   "wcSignWithTronlinkExtension": "Sign with TronLink extension",
   "wcTronlinkSignFailed": "TronLink signing failed.",
   "wcTronlinkSignMessage": "TronLink link wallet",

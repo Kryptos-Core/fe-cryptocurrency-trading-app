@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.da
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
@@ -780,6 +781,7 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
 
     return Column(
       children: [
@@ -787,12 +789,13 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
           children: [
             Expanded(
               child: TreasuryChainDropdown(
-                chains: treasuryHistoryFilterChainsForCurrentEnv(),
+                chains: chainPicker.treasuryHistoryFilterChains,
                 value: provider.historyChain,
                 allowAllOption: true,
                 labelText: l10n.treasuryChainLabel,
                 hintText: l10n.treasuryFilterAll,
                 menuMaxHeight: menuHeight,
+                displayLabelForChain: treasuryWalletCreationDisplayLabel,
                 onChanged: (value) async {
                   provider.setHistoryFilters(
                     chain: value,

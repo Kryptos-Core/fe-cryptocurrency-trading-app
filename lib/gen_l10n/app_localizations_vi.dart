@@ -573,11 +573,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.';
 
   @override
-  String get payosNeedFiatTitle => 'Muốn nạp tiền pháp định thay thế?';
+  String get payosNeedFiatTitle => 'Nạp VND?';
 
   @override
-  String get payosNeedFiatDesc =>
-      'Dùng PayOS để nạp VND, sau đó quay lại giao dịch hoặc chuyển tiền.';
+  String get payosNeedFiatDesc => 'PayOS — sau đó quay lại giao dịch.';
 
   @override
   String get openOnchainWalletFlow => 'Mở luồng ví On-chain';
@@ -670,7 +669,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noLinkedWalletsMessage =>
-      'Hãy kết nối ví Tron, Solana hoặc Sepolia trước để có đích nạp và rút tiền đã xác minh.';
+      'Hãy kết nối ví Tron, Solana hoặc BSC (Chapel) trước để có đích nạp và rút tiền đã xác minh.';
 
   @override
   String get unlinkWalletTitle => 'Hủy liên kết ví';
@@ -828,7 +827,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get walletGuideNativeEthStep2 =>
-      'Dùng tài khoản trên mạng Sepolia khớp với địa chỉ ví đã nhập.';
+      'Dùng tài khoản BNB Smart Chain (Chapel testnet) khớp với địa chỉ ví đã nhập.';
 
   @override
   String get walletGuideNativeEthStep3 =>
@@ -956,11 +955,11 @@ class AppLocalizationsVi extends AppLocalizations {
       'Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.';
 
   @override
-  String get submitOnchainDeposit => 'Gửi nạp tiền on-chain';
+  String get submitOnchainDeposit => 'Nạp on-chain';
 
   @override
   String get onchainDepositDesc =>
-      'Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.';
+      'Gửi token tới địa chỉ sàn, dán tx hash bên dưới.';
 
   @override
   String onchainDepositTransitioningMinutes(int minutes) {
@@ -1741,8 +1740,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get coinAssetsSectionSubtitle => 'Coin sở hữu từ giao dịch';
 
   @override
-  String get depositOnchainHint =>
-      'Tiền sẽ được quy đổi sang USDT và cộng vào Ví Tiền';
+  String get depositOnchainHint => 'Tự động quy USDT vào Ví tiền';
 
   @override
   String get treasuryTitle => 'Nạp tiền & ví quản lý';
@@ -1982,6 +1980,18 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigRuntimeTypeFloat => 'số thực';
 
   @override
+  String get paymentConfigRuntimeValueHint => 'Giá trị hiện tại';
+
+  @override
+  String get paymentConfigRuntimeTechKeySection => 'Tên biến hệ thống';
+
+  @override
+  String get paymentConfigRuntimeValueOn => 'Bật';
+
+  @override
+  String get paymentConfigRuntimeValueOff => 'Tắt';
+
+  @override
   String get runtimeSettingWalletSyncIntervalName => 'Chu kỳ đồng bộ ví (ms)';
 
   @override
@@ -2025,20 +2035,6 @@ class AppLocalizationsVi extends AppLocalizations {
       'Endpoint JSON RPC cho Solana devnet.';
 
   @override
-  String get runtimeSettingEthSepoliaRpcUrlName => 'URL RPC Ethereum Sepolia';
-
-  @override
-  String get runtimeSettingEthSepoliaRpcUrlDesc =>
-      'URL JSON-RPC cho testnet Sepolia.';
-
-  @override
-  String get runtimeSettingEthSepoliaChainIdName => 'Chain ID Ethereum Sepolia';
-
-  @override
-  String get runtimeSettingEthSepoliaChainIdDesc =>
-      'Chain ID EIP-155 cho Sepolia (ví dụ 11155111).';
-
-  @override
   String get runtimeSettingBlockchainAllowTestSignatureName =>
       'Cho phép bỏ qua chữ ký thử (test)';
 
@@ -2053,14 +2049,6 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get runtimeSettingBlockchainWithdrawAutoMaxDesc =>
       'Số native tối đa mặc định cho các lệnh rút được xử lý tự động.';
-
-  @override
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName =>
-      'Giới hạn rút tự động — ETH Sepolia';
-
-  @override
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc =>
-      'Trần theo chuỗi cho ETH_SEPOLIA; để trống sẽ dùng giới hạn toàn cục.';
 
   @override
   String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName =>
@@ -2150,6 +2138,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryCreateWalletCta => 'Tạo ví';
+
+  @override
+  String get treasuryCreateWalletNetworkTronTrc20Testnet =>
+      'Tron (testnet, TRC-20)';
+
+  @override
+  String get treasuryCreateWalletNetworkSolanaSplDevnet =>
+      'Solana (devnet, SPL)';
+
+  @override
+  String get treasuryCreateWalletNetworkBscMetaMaskChapel =>
+      'BNB Smart Chain Chapel (MetaMask)';
 
   @override
   String get treasuryChainLabel => 'Chain';
@@ -2562,7 +2562,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get depositMethodRecommended => 'Khuyến nghị';
 
   @override
-  String get depositMethodUnavailable => 'Chưa mở nạp';
+  String get depositMethodUnavailable => 'Chưa hỗ trợ';
 
   @override
   String get copyAddressTooltip => 'Sao chép địa chỉ';
@@ -3427,15 +3427,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryChainTronShasta => 'TRON — Testnet Shasta';
 
   @override
-  String get treasuryChainEthSepolia => 'Ethereum — Sepolia';
-
-  @override
   String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
 
   @override
   String treasuryImportWalletDialogTitle(String chainName) {
     return 'Nhập ví chính ($chainName)';
   }
+
+  @override
+  String get treasuryImportWalletDialogHeading => 'Nhập ví chính';
+
+  @override
+  String get treasuryImportWalletDialogChainLabel => 'Mạng';
+
+  @override
+  String get treasuryImportWalletOtpVerifiedBanner =>
+      'Đã xác minh email — nhập thông tin ví bên dưới.';
 
   @override
   String get treasuryImportWalletLabelOptional => 'Nhãn (tuỳ chọn)';
@@ -3493,7 +3500,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryImportWalletSuccessSnack =>
-      'Đã thêm ví vào danh sách chờ duyệt.';
+      'Đã nhập và kích hoạt ví chính.';
 
   @override
   String treasuryImportWalletErrorSnack(String error) {
@@ -3859,7 +3866,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcReownSessionNoEvmAddress =>
-      'Session không có địa chỉ EVM (eip155). Chọn ví EVM / Sepolia.';
+      'Session không có địa chỉ EVM (eip155). Chọn ví EVM (ví dụ BSC Chapel hoặc Ethereum mainnet).';
 
   @override
   String get wcReownNoSignature => 'Ví không trả về chữ ký.';
@@ -3871,7 +3878,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcReownQrDescription =>
-      'Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập (Sepolia).';
+      'Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập.';
 
   @override
   String get wcReownOpenQrButton => 'Mở QR WalletConnect (Reown)';
@@ -4049,7 +4056,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcWcSupportsEvmSolanaTron =>
-      'WalletConnect hỗ trợ ETH Sepolia và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.';
+      'WalletConnect hỗ trợ BSC Chapel, Ethereum mainnet và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.';
 
   @override
   String get wcSignWithTronlinkExtension => 'Ký bằng TronLink Extension';

@@ -12,12 +12,9 @@ import 'package:reown_appkit/reown_appkit.dart';
 class ReownWalletAuthConfig {
   ReownWalletAuthConfig._();
 
-  static const String sepoliaCaip2 = 'eip155:11155111';
-
   /// Chuỗi EVM dùng cho optional namespace (đăng nhập / personal_sign).
   static const List<String> evmAuthCaip2Chains = [
     'eip155:1',
-    sepoliaCaip2,
     'eip155:56',
     'eip155:97',
   ];

@@ -16,7 +16,7 @@ class WcSessionProposal {
   /// Chain mà session này được tạo cho
   final BlockchainNetwork chain;
 
-  /// CAIP-2 chain identifier (e.g. "eip155:11155111" cho ETH Sepolia)
+  /// CAIP-2 chain identifier (e.g. "eip155:97" cho BSC Chapel)
   final String caip2Chain;
 
   const WcSessionProposal({
@@ -52,7 +52,7 @@ class WcSessionProposal {
       sessionId: json['sessionId'] as String,
       wcUri: json['wcUri'] as String,
       expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
-      chain: BlockchainNetworkX.fromApiValue(json['chain'] as String? ?? 'ETH_SEPOLIA'),
+      chain: BlockchainNetworkX.fromApiValue(json['chain'] as String? ?? 'BSC_CHAPEL'),
       caip2Chain: json['caip2Chain'] as String? ?? '',
     );
   }

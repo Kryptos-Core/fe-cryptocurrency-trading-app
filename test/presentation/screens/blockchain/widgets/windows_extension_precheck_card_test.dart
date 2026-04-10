@@ -11,7 +11,7 @@ class _PrecheckHarness extends StatefulWidget {
 
   const _PrecheckHarness({
     required this.service,
-    this.network = BlockchainNetwork.ethSepolia,
+    this.network = BlockchainNetwork.bscChapel,
   });
 
   @override

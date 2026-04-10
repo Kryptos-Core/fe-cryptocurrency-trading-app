@@ -19,16 +19,10 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingTronDefaultNetworkName;
       case 'SOLANA_DEVNET_URL':
         return l10n.runtimeSettingSolanaDevnetUrlName;
-      case 'ETH_SEPOLIA_RPC_URL':
-        return l10n.runtimeSettingEthSepoliaRpcUrlName;
-      case 'ETH_SEPOLIA_CHAIN_ID':
-        return l10n.runtimeSettingEthSepoliaChainIdName;
       case 'BLOCKCHAIN_ALLOW_TEST_SIGNATURE':
         return l10n.runtimeSettingBlockchainAllowTestSignatureName;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX':
         return l10n.runtimeSettingBlockchainWithdrawAutoMaxName;
-      case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_ETH_SEPOLIA':
-        return l10n.runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_SOLANA_DEVNET':
         return l10n.runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_TRON_NILE':
@@ -68,16 +62,10 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingTronDefaultNetworkDesc;
       case 'SOLANA_DEVNET_URL':
         return l10n.runtimeSettingSolanaDevnetUrlDesc;
-      case 'ETH_SEPOLIA_RPC_URL':
-        return l10n.runtimeSettingEthSepoliaRpcUrlDesc;
-      case 'ETH_SEPOLIA_CHAIN_ID':
-        return l10n.runtimeSettingEthSepoliaChainIdDesc;
       case 'BLOCKCHAIN_ALLOW_TEST_SIGNATURE':
         return l10n.runtimeSettingBlockchainAllowTestSignatureDesc;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX':
         return l10n.runtimeSettingBlockchainWithdrawAutoMaxDesc;
-      case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_ETH_SEPOLIA':
-        return l10n.runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_SOLANA_DEVNET':
         return l10n.runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc;
       case 'BLOCKCHAIN_WITHDRAW_AUTO_MAX_TRON_NILE':

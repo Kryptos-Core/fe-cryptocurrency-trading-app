@@ -27,6 +27,7 @@ import 'package:crypto_trading_app/presentation/providers/payment_config_provide
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
 import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
@@ -169,16 +170,23 @@ class CryptoTradingApp extends StatelessWidget {
             repository: di.sl<SystemConfigRepository>(),
           ),
         ),
+        ChangeNotifierProvider<OnchainChainPickerProvider>(
+          create: (_) => OnchainChainPickerProvider(
+            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+          ),
+        ),
         ChangeNotifierProvider<TreasuryProvider>(
           create: (_) => TreasuryProvider(
             dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
           ),
         ),
         ChangeNotifierProvider<TreasuryMainWalletProvider>(
-          create: (_) => TreasuryMainWalletProvider(
+          create: (context) => TreasuryMainWalletProvider(
             dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
             authRepo: di.sl(),
             tokenService: di.sl(),
+            chainPicker: context.read<OnchainChainPickerProvider>(),
+            roleResolver: () => context.read<AuthProvider>().role,
           ),
         ),
         ChangeNotifierProvider<MarketMakerProvider>(

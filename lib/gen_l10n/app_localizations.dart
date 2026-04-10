@@ -1211,13 +1211,13 @@ abstract class AppLocalizations {
   /// No description provided for @payosNeedFiatTitle.
   ///
   /// In en, this message translates to:
-  /// **'Need fiat deposit instead?'**
+  /// **'Fiat (VND)?'**
   String get payosNeedFiatTitle;
 
   /// No description provided for @payosNeedFiatDesc.
   ///
   /// In en, this message translates to:
-  /// **'Use PayOS to top up VND, then return to trade or transfer funds.'**
+  /// **'PayOS — then return to trade here.'**
   String get payosNeedFiatDesc;
 
   /// No description provided for @openOnchainWalletFlow.
@@ -1397,7 +1397,7 @@ abstract class AppLocalizations {
   /// No description provided for @noLinkedWalletsMessage.
   ///
   /// In en, this message translates to:
-  /// **'Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.'**
+  /// **'Connect a Tron, Solana, or BSC (Chapel) wallet first so deposit and withdrawal flows have a verified destination.'**
   String get noLinkedWalletsMessage;
 
   /// No description provided for @unlinkWalletTitle.
@@ -1661,7 +1661,7 @@ abstract class AppLocalizations {
   /// No description provided for @walletGuideNativeEthStep2.
   ///
   /// In en, this message translates to:
-  /// **'Use an account on Sepolia network that matches the wallet address you entered.'**
+  /// **'Use an account on BNB Smart Chain (Chapel testnet) that matches the wallet address you entered.'**
   String get walletGuideNativeEthStep2;
 
   /// No description provided for @walletGuideNativeEthStep3.
@@ -1859,13 +1859,13 @@ abstract class AppLocalizations {
   /// No description provided for @submitOnchainDeposit.
   ///
   /// In en, this message translates to:
-  /// **'Submit on-chain deposit'**
+  /// **'On-chain deposit'**
   String get submitOnchainDeposit;
 
   /// No description provided for @onchainDepositDesc.
   ///
   /// In en, this message translates to:
-  /// **'After sending tokens from your wallet to exchange deposit address, paste tx hash here.'**
+  /// **'Send to the platform address, then paste the tx hash below.'**
   String get onchainDepositDesc;
 
   /// No description provided for @onchainDepositTransitioningMinutes.
@@ -3281,7 +3281,7 @@ abstract class AppLocalizations {
   /// No description provided for @depositOnchainHint.
   ///
   /// In en, this message translates to:
-  /// **'Funds will be converted to USDT and credited to your Cash Wallet'**
+  /// **'Credited as USDT to your cash wallet'**
   String get depositOnchainHint;
 
   /// No description provided for @treasuryTitle.
@@ -3698,6 +3698,30 @@ abstract class AppLocalizations {
   /// **'float'**
   String get paymentConfigRuntimeTypeFloat;
 
+  /// No description provided for @paymentConfigRuntimeValueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Current value'**
+  String get paymentConfigRuntimeValueHint;
+
+  /// No description provided for @paymentConfigRuntimeTechKeySection.
+  ///
+  /// In en, this message translates to:
+  /// **'System variable'**
+  String get paymentConfigRuntimeTechKeySection;
+
+  /// No description provided for @paymentConfigRuntimeValueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get paymentConfigRuntimeValueOn;
+
+  /// No description provided for @paymentConfigRuntimeValueOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get paymentConfigRuntimeValueOff;
+
   /// No description provided for @runtimeSettingWalletSyncIntervalName.
   ///
   /// In en, this message translates to:
@@ -3770,30 +3794,6 @@ abstract class AppLocalizations {
   /// **'JSON RPC endpoint for Solana devnet.'**
   String get runtimeSettingSolanaDevnetUrlDesc;
 
-  /// No description provided for @runtimeSettingEthSepoliaRpcUrlName.
-  ///
-  /// In en, this message translates to:
-  /// **'Ethereum Sepolia RPC URL'**
-  String get runtimeSettingEthSepoliaRpcUrlName;
-
-  /// No description provided for @runtimeSettingEthSepoliaRpcUrlDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'JSON-RPC URL for Sepolia testnet.'**
-  String get runtimeSettingEthSepoliaRpcUrlDesc;
-
-  /// No description provided for @runtimeSettingEthSepoliaChainIdName.
-  ///
-  /// In en, this message translates to:
-  /// **'Ethereum Sepolia chain ID'**
-  String get runtimeSettingEthSepoliaChainIdName;
-
-  /// No description provided for @runtimeSettingEthSepoliaChainIdDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'EIP-155 chain ID for Sepolia (e.g. 11155111).'**
-  String get runtimeSettingEthSepoliaChainIdDesc;
-
   /// No description provided for @runtimeSettingBlockchainAllowTestSignatureName.
   ///
   /// In en, this message translates to:
@@ -3817,18 +3817,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default max native amount for auto-processed withdrawals.'**
   String get runtimeSettingBlockchainWithdrawAutoMaxDesc;
-
-  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto max withdraw — ETH Sepolia'**
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName;
-
-  /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Per-chain cap for ETH_SEPOLIA; falls back to global when empty.'**
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc;
 
   /// No description provided for @runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName.
   ///
@@ -3967,6 +3955,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create wallet'**
   String get treasuryCreateWalletCta;
+
+  /// No description provided for @treasuryCreateWalletNetworkTronTrc20Testnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tron (testnet, TRC-20)'**
+  String get treasuryCreateWalletNetworkTronTrc20Testnet;
+
+  /// No description provided for @treasuryCreateWalletNetworkSolanaSplDevnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Solana (devnet, SPL)'**
+  String get treasuryCreateWalletNetworkSolanaSplDevnet;
+
+  /// No description provided for @treasuryCreateWalletNetworkBscMetaMaskChapel.
+  ///
+  /// In en, this message translates to:
+  /// **'BNB Smart Chain Chapel (MetaMask)'**
+  String get treasuryCreateWalletNetworkBscMetaMaskChapel;
 
   /// No description provided for @treasuryChainLabel.
   ///
@@ -4727,7 +4733,7 @@ abstract class AppLocalizations {
   /// No description provided for @depositMethodUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Deposit not available'**
+  /// **'Not available'**
   String get depositMethodUnavailable;
 
   /// No description provided for @copyAddressTooltip.
@@ -6316,12 +6322,6 @@ abstract class AppLocalizations {
   /// **'TRON — Shasta testnet'**
   String get treasuryChainTronShasta;
 
-  /// No description provided for @treasuryChainEthSepolia.
-  ///
-  /// In en, this message translates to:
-  /// **'Ethereum — Sepolia'**
-  String get treasuryChainEthSepolia;
-
   /// No description provided for @treasuryChainEthMainnet.
   ///
   /// In en, this message translates to:
@@ -6333,6 +6333,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import main wallet ({chainName})'**
   String treasuryImportWalletDialogTitle(String chainName);
+
+  /// No description provided for @treasuryImportWalletDialogHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Import main wallet'**
+  String get treasuryImportWalletDialogHeading;
+
+  /// No description provided for @treasuryImportWalletDialogChainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get treasuryImportWalletDialogChainLabel;
+
+  /// No description provided for @treasuryImportWalletOtpVerifiedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified — enter your wallet details below.'**
+  String get treasuryImportWalletOtpVerifiedBanner;
 
   /// No description provided for @treasuryImportWalletLabelOptional.
   ///
@@ -6427,7 +6445,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryImportWalletSuccessSnack.
   ///
   /// In en, this message translates to:
-  /// **'Wallet imported to pending approvals.'**
+  /// **'Main wallet imported and activated.'**
   String get treasuryImportWalletSuccessSnack;
 
   /// No description provided for @treasuryImportWalletErrorSnack.
@@ -7099,7 +7117,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcReownSessionNoEvmAddress.
   ///
   /// In en, this message translates to:
-  /// **'Session has no EVM address (eip155). Choose an EVM wallet / Sepolia.'**
+  /// **'Session has no EVM address (eip155). Choose an EVM wallet (e.g. BSC Chapel or Ethereum mainnet).'**
   String get wcReownSessionNoEvmAddress;
 
   /// No description provided for @wcReownNoSignature.
@@ -7117,7 +7135,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcReownQrDescription.
   ///
   /// In en, this message translates to:
-  /// **'Open QR, connect your phone wallet, then sign the login message (Sepolia).'**
+  /// **'Open QR, connect your phone wallet, then sign the login message.'**
   String get wcReownQrDescription;
 
   /// No description provided for @wcReownOpenQrButton.
@@ -7441,7 +7459,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcWcSupportsEvmSolanaTron.
   ///
   /// In en, this message translates to:
-  /// **'WalletConnect supports Ethereum Sepolia and Solana Devnet. For Tron, use the TronLink extension on Chrome.'**
+  /// **'WalletConnect supports BSC Chapel, Ethereum mainnet, and Solana Devnet. For Tron, use the TronLink extension on Chrome.'**
   String get wcWcSupportsEvmSolanaTron;
 
   /// No description provided for @wcSignWithTronlinkExtension.

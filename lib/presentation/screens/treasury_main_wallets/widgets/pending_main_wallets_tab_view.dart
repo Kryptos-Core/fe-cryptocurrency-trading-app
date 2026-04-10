@@ -15,7 +15,8 @@ class PendingMainWalletsTabView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final provider = context.watch<TreasuryMainWalletProvider>();
     final auth = context.watch<AuthProvider>();
-    final canApprovePending = auth.isRiskOfficer;
+    // Finance / Risk no longer use this tab; only Admin reviews legacy PENDING_APPROVAL / mixed queue.
+    final canApprovePending = auth.isAdmin;
     final wallets = provider.pendingWallets;
 
     if (provider.isLoading) {

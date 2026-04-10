@@ -6,7 +6,6 @@ enum BlockchainNetwork {
   solanaMainnet,
   solanaDevnet,
   ethMainnet,
-  ethSepolia,
   bscMainnet,
   bscChapel,
 }
@@ -26,6 +25,8 @@ OnChainOperatorMode parseOnChainOperatorMode(Map<String, String>? env) {
 }
 
 /// Nhãn ChoiceChip / filter mạng: thêm `(sandboxShort)` khi [BlockchainNetwork.isSandbox].
+///
+/// Dùng khi **không** có banner sandbox cùng màn (ví dụ dialog liên kết ví).
 String onchainNetworkFilterChipLabel(
   BlockchainNetwork network,
   String sandboxShortL10n,
@@ -35,6 +36,10 @@ String onchainNetworkFilterChipLabel(
   }
   return '${network.label} ($sandboxShortL10n)';
 }
+
+/// Nhãn chip lọc mạng trên màn nạp/rút: chỉ [BlockchainNetwork.label] — tránh lặp
+/// “(Sandbox)” khi đã có [OnchainSandboxOperatorBanner] phía trên.
+String onchainRecentTxNetworkChipLabel(BlockchainNetwork network) => network.label;
 
 extension BlockchainNetworkX on BlockchainNetwork {
   String get apiValue {
@@ -51,8 +56,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
         return 'SOLANA_DEVNET';
       case BlockchainNetwork.ethMainnet:
         return 'ETH_MAINNET';
-      case BlockchainNetwork.ethSepolia:
-        return 'ETH_SEPOLIA';
       case BlockchainNetwork.bscMainnet:
         return 'BSC_MAINNET';
       case BlockchainNetwork.bscChapel:
@@ -74,8 +77,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
         return 'Solana (devnet)';
       case BlockchainNetwork.ethMainnet:
         return 'Ethereum (mainnet)';
-      case BlockchainNetwork.ethSepolia:
-        return 'Ethereum (Sepolia)';
       case BlockchainNetwork.bscMainnet:
         return 'BSC (mainnet)';
       case BlockchainNetwork.bscChapel:
@@ -94,7 +95,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
       case BlockchainNetwork.solanaDevnet:
         return 'SOL';
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
         return 'ETH';
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
@@ -107,7 +107,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
       case BlockchainNetwork.solanaDevnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscChapel:
         return true;
       default:
@@ -131,8 +130,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
     switch (this) {
       case BlockchainNetwork.ethMainnet:
         return 'eip155:1';
-      case BlockchainNetwork.ethSepolia:
-        return 'eip155:11155111';
       case BlockchainNetwork.bscMainnet:
         return 'eip155:56';
       case BlockchainNetwork.bscChapel:
@@ -149,7 +146,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
       case BlockchainNetwork.tronShasta:
         return OnChainNetworkFamily.tron;
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
         return OnChainNetworkFamily.evmEth;
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
@@ -170,7 +166,7 @@ extension BlockchainNetworkX on BlockchainNetwork {
       case OnChainNetworkFamily.tron:
         return sandbox ? BlockchainNetwork.tronNile : BlockchainNetwork.tronMainnet;
       case OnChainNetworkFamily.evmEth:
-        return sandbox ? BlockchainNetwork.ethSepolia : BlockchainNetwork.ethMainnet;
+        return sandbox ? BlockchainNetwork.bscChapel : BlockchainNetwork.ethMainnet;
       case OnChainNetworkFamily.evmBsc:
         return sandbox ? BlockchainNetwork.bscChapel : BlockchainNetwork.bscMainnet;
       case OnChainNetworkFamily.solana:
@@ -184,8 +180,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
     switch (caip2) {
       case 'eip155:1':
         return BlockchainNetwork.ethMainnet;
-      case 'eip155:11155111':
-        return BlockchainNetwork.ethSepolia;
       case 'eip155:56':
         return BlockchainNetwork.bscMainnet;
       case 'eip155:97':
@@ -195,7 +189,7 @@ extension BlockchainNetworkX on BlockchainNetwork {
     }
   }
 
-  static BlockchainNetwork fromApiValue(String value) {
+  static BlockchainNetwork? tryFromApiValue(String value) {
     switch (value.toUpperCase()) {
       case 'TRON_MAINNET':
         return BlockchainNetwork.tronMainnet;
@@ -209,14 +203,20 @@ extension BlockchainNetworkX on BlockchainNetwork {
         return BlockchainNetwork.solanaDevnet;
       case 'ETH_MAINNET':
         return BlockchainNetwork.ethMainnet;
-      case 'ETH_SEPOLIA':
-        return BlockchainNetwork.ethSepolia;
       case 'BSC_MAINNET':
         return BlockchainNetwork.bscMainnet;
       case 'BSC_CHAPEL':
         return BlockchainNetwork.bscChapel;
       default:
-        throw ArgumentError('Unsupported blockchain network: $value');
+        return null;
     }
+  }
+
+  static BlockchainNetwork fromApiValue(String value) {
+    final resolved = tryFromApiValue(value);
+    if (resolved == null) {
+      throw ArgumentError('Unsupported blockchain network: $value');
+    }
+    return resolved;
   }
 }

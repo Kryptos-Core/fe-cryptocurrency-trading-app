@@ -16,7 +16,7 @@ class _ChallengeHarness extends StatefulWidget {
     required this.showWindowsPrecheck,
     required this.testMode,
     required this.isWebDialog,
-    this.network = BlockchainNetwork.ethSepolia,
+    this.network = BlockchainNetwork.bscChapel,
   });
 
   @override

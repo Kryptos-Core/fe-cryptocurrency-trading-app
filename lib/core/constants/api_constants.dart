@@ -263,6 +263,8 @@ class ApiConstants {
   static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';
   static const String treasuryOperations = '$treasury/operations';
   static const String treasuryTransactions = '$treasury/transactions';
+  /// Env-driven chain lists for admin dropdowns (treasury / hot wallet / withdrawal / managed wallets).
+  static const String treasuryChainPickerOptions = '$treasury/chain-picker-options';
 
   // Market Maker Endpoints
   static const String marketMakerConfig = '/market-maker/config';

@@ -31,7 +31,7 @@ void main() {
   testWidgets('renders browser guide title and ETH web steps', (tester) async {
     await tester.pumpWidget(
       _buildHarness(
-        network: BlockchainNetwork.ethSepolia,
+        network: BlockchainNetwork.bscChapel,
         isWebDialog: true,
         testMode: false,
       ),

@@ -6,7 +6,9 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/deposit_method.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/utils/deposit_methods_recommended_chain.dart';
 
 /// Public widget — shows platform deposit methods (no auth required).
 /// Embeds in OnchainDepositScreen above the submission form.
@@ -25,6 +27,7 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ManagedWalletsProvider>().fetchDepositMethods();
+      context.read<OnchainChainPickerProvider>().ensureLoaded();
       _paymentConfigProvider = context.read<PaymentConfigProvider>();
       _paymentConfigProvider!.addListener(_onPaymentConfigChanged);
     });
@@ -46,8 +49,8 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ManagedWalletsProvider>(
-      builder: (context, provider, _) {
+    return Consumer2<ManagedWalletsProvider, OnchainChainPickerProvider>(
+      builder: (context, provider, chainPicker, _) {
         if (provider.isLoading && provider.depositMethods == null) {
           return const Card(
             child: Padding(
@@ -62,12 +65,20 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
           return const SizedBox.shrink();
         }
 
+        final headerRecommended = resolveDepositMethodsHeaderRecommendedChain(
+          apiRecommended: methods.recommendedChain,
+          onchainDepositWithdrawCodes: chainPicker.onchainDepositWithdrawChainCodes,
+          tronDefaultFromPickerApi: chainPicker.rawOptions?.tronDefaultNetwork,
+        );
+
         return Card(
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _CardHeader(recommendedChain: methods.recommendedChain),
+              _CardHeader(
+                recommendedChain: headerRecommended,
+              ),
               const Divider(height: 1),
               ...methods.methods.map(
                 (method) => _DepositMethodTile(method: method),
@@ -105,8 +116,8 @@ class _CardHeader extends StatelessWidget {
             const Spacer(),
             Chip(
               label: Text(
-                recommendedChain!,
-                style: const TextStyle(fontSize: 11),
+                _ChainBadge.shortTagForApiChain(recommendedChain!),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
               ),
               avatar: const Icon(Icons.star, size: 14),
               padding: EdgeInsets.zero,
@@ -148,7 +159,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                _ChainBadge(chain: method.chain),
+                _ChainBadge(apiChain: method.chain),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -282,28 +293,99 @@ class _QrSection extends StatelessWidget {
 }
 
 class _ChainBadge extends StatelessWidget {
-  final String chain;
+  final String apiChain;
 
-  const _ChainBadge({required this.chain});
+  const _ChainBadge({required this.apiChain});
+
+  /// Compact label for headers and row badges (API chain code → short UI tag).
+  static String shortTagForApiChain(String raw) => _palette(raw).label;
+
+  /// Short tag for API chain codes (must not infer "Shasta" for every non-Nile row).
+  static ({String label, Color bg, Color border, Color fg}) _palette(String raw) {
+    switch (raw.toUpperCase()) {
+      case 'TRON_MAINNET':
+        return (
+          label: 'MAINNET',
+          bg: Colors.blue.shade50,
+          border: Colors.blue.shade200,
+          fg: Colors.blue.shade800,
+        );
+      case 'TRON_NILE':
+        return (
+          label: 'NILE',
+          bg: Colors.teal.shade50,
+          border: Colors.teal.shade200,
+          fg: Colors.teal.shade700,
+        );
+      case 'TRON_SHASTA':
+        return (
+          label: 'SHASTA',
+          bg: Colors.orange.shade50,
+          border: Colors.orange.shade200,
+          fg: Colors.orange.shade700,
+        );
+      case 'ETH_MAINNET':
+        return (
+          label: 'ETH',
+          bg: Colors.blueGrey.shade50,
+          border: Colors.blueGrey.shade200,
+          fg: Colors.blueGrey.shade800,
+        );
+      case 'BSC_CHAPEL':
+        return (
+          label: 'CHAPEL',
+          bg: Colors.amber.shade50,
+          border: Colors.amber.shade200,
+          fg: Colors.amber.shade900,
+        );
+      case 'BSC_MAINNET':
+        return (
+          label: 'BSC',
+          bg: Colors.amber.shade50,
+          border: Colors.amber.shade300,
+          fg: Colors.amber.shade900,
+        );
+      case 'SOLANA_DEVNET':
+        return (
+          label: 'DEVNET',
+          bg: Colors.purple.shade50,
+          border: Colors.purple.shade200,
+          fg: Colors.purple.shade800,
+        );
+      case 'SOLANA_MAINNET':
+        return (
+          label: 'SOL',
+          bg: Colors.deepPurple.shade50,
+          border: Colors.deepPurple.shade200,
+          fg: Colors.deepPurple.shade800,
+        );
+      default:
+        final short = raw.length > 10 ? raw.substring(0, 10) : raw;
+        return (
+          label: short,
+          bg: Colors.grey.shade100,
+          border: Colors.grey.shade300,
+          fg: Colors.grey.shade800,
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isNile = chain.contains('NILE');
+    final p = _palette(apiChain);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isNile ? Colors.teal.shade50 : Colors.orange.shade50,
+        color: p.bg,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: isNile ? Colors.teal.shade200 : Colors.orange.shade200,
-        ),
+        border: Border.all(color: p.border),
       ),
       child: Text(
-        isNile ? 'NILE' : 'SHASTA',
+        p.label,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: isNile ? Colors.teal.shade700 : Colors.orange.shade700,
+          color: p.fg,
         ),
       ),
     );

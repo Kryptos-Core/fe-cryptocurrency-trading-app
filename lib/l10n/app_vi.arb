@@ -186,8 +186,8 @@
   "payosWaitingWebhook": "Đang chờ webhook PayOS...",
   "payosPaymentUpdated": "Thanh toán thành công. Số dư và lịch sử đã được cập nhật.",
   "payosOrderProcessing": "Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.",
-  "payosNeedFiatTitle": "Muốn nạp tiền pháp định thay thế?",
-  "payosNeedFiatDesc": "Dùng PayOS để nạp VND, sau đó quay lại giao dịch hoặc chuyển tiền.",
+  "payosNeedFiatTitle": "Nạp VND?",
+  "payosNeedFiatDesc": "PayOS — sau đó quay lại giao dịch.",
   "openOnchainWalletFlow": "Mở luồng ví On-chain",
   "fiatWithdrawBankTitle": "Rút USDT về ngân hàng",
   "fiatWithdrawBankSubtitle": "Liên kết STK ngân hàng VN, sau đó tạo yêu cầu rút. Cần tài khoản VERIFIED_USER.",
@@ -218,7 +218,7 @@
   "linkWalletWeb": "Liên kết ví (Web)",
   "linkFirstWallet": "Liên kết ví đầu tiên",
   "noLinkedWalletsTitle": "Chưa có ví nào được liên kết",
-  "noLinkedWalletsMessage": "Hãy kết nối ví Tron, Solana hoặc Sepolia trước để có đích nạp và rút tiền đã xác minh.",
+  "noLinkedWalletsMessage": "Hãy kết nối ví Tron, Solana hoặc BSC (Chapel) trước để có đích nạp và rút tiền đã xác minh.",
   "unlinkWalletTitle": "Hủy liên kết ví",
   "confirmUnlinkWallet": "Bạn có chắc muốn hủy liên kết {address}?",
   "walletUnlinkedSuccess": "Đã hủy liên kết ví thành công",
@@ -262,7 +262,7 @@
   "walletGuideWebTestStep2": "Ký nội dung thử thách chính xác trong extension hoặc ứng dụng ví.",
   "walletGuideWebTestStep3": "Dán chữ ký vào ô Chữ ký và nhấn Xác minh liên kết.",
   "walletGuideNativeEthStep1": "Cài đặt extension MetaMask trên trình duyệt và mở khóa.",
-  "walletGuideNativeEthStep2": "Dùng tài khoản trên mạng Sepolia khớp với địa chỉ ví đã nhập.",
+  "walletGuideNativeEthStep2": "Dùng tài khoản BNB Smart Chain (Chapel testnet) khớp với địa chỉ ví đã nhập.",
   "walletGuideNativeEthStep3": "Nhấn Bước 2 để kích hoạt deep-link; nếu không mở được, ký thủ công trong MetaMask rồi dán chữ ký.",
   "walletGuideNativeSolStep1": "Cài đặt extension hoặc ứng dụng Phantom và mở khóa.",
   "walletGuideNativeSolStep2": "Chuyển ví sang Solana Devnet và dùng địa chỉ đã nhập.",
@@ -315,8 +315,8 @@
     }
   },
   "walletExtensionPrecheckSuccess": "Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.",
-  "submitOnchainDeposit": "Gửi nạp tiền on-chain",
-  "onchainDepositDesc": "Sau khi gửi token từ ví đến địa chỉ nạp của sàn, dán tx hash vào đây.",
+  "submitOnchainDeposit": "Nạp on-chain",
+  "onchainDepositDesc": "Gửi token tới địa chỉ sàn, dán tx hash bên dưới.",
   "onchainDepositTransitioningMinutes": "Địa chỉ ví đang được cập nhật (còn ~{minutes} phút). Mã QR sẽ tự làm mới khi xong.",
   "@onchainDepositTransitioningMinutes": {
     "placeholders": {
@@ -571,7 +571,7 @@
   "cashWalletSectionSubtitle": "Nhận toàn bộ tiền nạp • Dùng để mua coin",
   "coinAssetsSectionTitle": "Tài sản",
   "coinAssetsSectionSubtitle": "Coin sở hữu từ giao dịch",
-  "depositOnchainHint": "Tiền sẽ được quy đổi sang USDT và cộng vào Ví Tiền",
+  "depositOnchainHint": "Tự động quy USDT vào Ví tiền",
 
   "treasuryTitle": "Nạp tiền & ví quản lý",
   "treasuryManageSubtitle": "Địa chỉ nạp mặc định, chain ưu tiên và ví công ty cho luồng hiển thị cho người dùng.",
@@ -642,6 +642,10 @@
   "paymentConfigRuntimeTypeInteger": "số nguyên",
   "paymentConfigRuntimeTypeBoolean": "boolean",
   "paymentConfigRuntimeTypeFloat": "số thực",
+  "paymentConfigRuntimeValueHint": "Giá trị hiện tại",
+  "paymentConfigRuntimeTechKeySection": "Tên biến hệ thống",
+  "paymentConfigRuntimeValueOn": "Bật",
+  "paymentConfigRuntimeValueOff": "Tắt",
   "runtimeSettingWalletSyncIntervalName": "Chu kỳ đồng bộ ví (ms)",
   "runtimeSettingWalletSyncIntervalDesc": "Khoảng thời gian cho worker đồng bộ ví (milliseconds).",
   "runtimeSettingWalletReconciliationThresholdName": "Ngưỡng chênh lệch đối soát",
@@ -654,16 +658,10 @@
   "runtimeSettingTronDefaultNetworkDesc": "TRON_NILE hoặc TRON_SHASTA. Đổi giá trị có thể cần khởi động lại API cho một số tiến trình.",
   "runtimeSettingSolanaDevnetUrlName": "URL RPC Solana Devnet",
   "runtimeSettingSolanaDevnetUrlDesc": "Endpoint JSON RPC cho Solana devnet.",
-  "runtimeSettingEthSepoliaRpcUrlName": "URL RPC Ethereum Sepolia",
-  "runtimeSettingEthSepoliaRpcUrlDesc": "URL JSON-RPC cho testnet Sepolia.",
-  "runtimeSettingEthSepoliaChainIdName": "Chain ID Ethereum Sepolia",
-  "runtimeSettingEthSepoliaChainIdDesc": "Chain ID EIP-155 cho Sepolia (ví dụ 11155111).",
   "runtimeSettingBlockchainAllowTestSignatureName": "Cho phép bỏ qua chữ ký thử (test)",
   "runtimeSettingBlockchainAllowTestSignatureDesc": "Khi bật (áp dụng quy tắc ngoài production), liên kết có thể chấp nhận payload TEST_SIG::. Trên production, chỉnh từ UI bị chặn trừ khi ALLOW_UI_TEST_SIGNATURE=true.",
   "runtimeSettingBlockchainWithdrawAutoMaxName": "Giới hạn rút tự động toàn cục (native)",
   "runtimeSettingBlockchainWithdrawAutoMaxDesc": "Số native tối đa mặc định cho các lệnh rút được xử lý tự động.",
-  "runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName": "Giới hạn rút tự động — ETH Sepolia",
-  "runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc": "Trần theo chuỗi cho ETH_SEPOLIA; để trống sẽ dùng giới hạn toàn cục.",
   "runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName": "Giới hạn rút tự động — Solana devnet",
   "runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetDesc": "Trần theo chuỗi cho SOLANA_DEVNET; để trống sẽ dùng giới hạn toàn cục.",
   "runtimeSettingBlockchainWithdrawAutoMaxTronNileName": "Giới hạn rút tự động — Tron Nile",
@@ -687,6 +685,9 @@
   "treasuryCreateWalletFab": "Tạo ví giao dịch",
   "treasuryCreateWalletDialogTitle": "Tạo ví giao dịch",
   "treasuryCreateWalletCta": "Tạo ví",
+  "treasuryCreateWalletNetworkTronTrc20Testnet": "Tron (testnet, TRC-20)",
+  "treasuryCreateWalletNetworkSolanaSplDevnet": "Solana (devnet, SPL)",
+  "treasuryCreateWalletNetworkBscMetaMaskChapel": "BNB Smart Chain Chapel (MetaMask)",
   "treasuryChainLabel": "Chain",
   "treasuryPurposeLabel": "Mục đích",
   "treasuryTypeLabel": "Loại",
@@ -828,7 +829,7 @@
   "walletBadgeInactive": "KHÔNG HOẠT ĐỘNG",
   "depositMethodsTitle": "Phương thức nạp tiền của sàn",
   "depositMethodRecommended": "Khuyến nghị",
-  "depositMethodUnavailable": "Chưa mở nạp",
+  "depositMethodUnavailable": "Chưa hỗ trợ",
   "copyAddressTooltip": "Sao chép địa chỉ",
 
   "marketMakerHubTitle": "Khu vực Market Maker",
@@ -1212,7 +1213,6 @@
   "treasuryChainSolanaDevnet": "Solana — Devnet",
   "treasuryChainSolanaMainnet": "Solana — Mainnet",
   "treasuryChainTronShasta": "TRON — Testnet Shasta",
-  "treasuryChainEthSepolia": "Ethereum — Sepolia",
   "treasuryChainEthMainnet": "Ethereum — Mainnet",
   "treasuryImportWalletDialogTitle": "Nhập ví chính ({chainName})",
   "@treasuryImportWalletDialogTitle": {
@@ -1220,6 +1220,9 @@
       "chainName": { "type": "String" }
     }
   },
+  "treasuryImportWalletDialogHeading": "Nhập ví chính",
+  "treasuryImportWalletDialogChainLabel": "Mạng",
+  "treasuryImportWalletOtpVerifiedBanner": "Đã xác minh email — nhập thông tin ví bên dưới.",
   "treasuryImportWalletLabelOptional": "Nhãn (tuỳ chọn)",
   "treasuryImportWalletPrivateKey": "Khóa bí mật",
   "treasuryImportWalletMfaCode": "Mã MFA",
@@ -1245,7 +1248,7 @@
   "treasuryImportWalletPrivateKeyRequired": "Cần nhập khóa bí mật.",
   "treasuryImportWalletMistakeTronAddress": "Chuỗi này giống địa chỉ TRON (bắt đầu bằng T), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.",
   "treasuryImportWalletMistakeEvmAddress": "Chuỗi này giống địa chỉ ví EVM (0x…), không phải private key. Hãy dán khóa hex 64 ký tự khi xuất từ ví.",
-  "treasuryImportWalletSuccessSnack": "Đã thêm ví vào danh sách chờ duyệt.",
+  "treasuryImportWalletSuccessSnack": "Đã nhập và kích hoạt ví chính.",
   "treasuryImportWalletErrorSnack": "Lỗi: {error}",
   "@treasuryImportWalletErrorSnack": {
     "placeholders": {
@@ -1409,7 +1412,7 @@
       "error": { "type": "String" }
     }
   },
-  "wcReownSessionNoEvmAddress": "Session không có địa chỉ EVM (eip155). Chọn ví EVM / Sepolia.",
+  "wcReownSessionNoEvmAddress": "Session không có địa chỉ EVM (eip155). Chọn ví EVM (ví dụ BSC Chapel hoặc Ethereum mainnet).",
   "wcReownNoSignature": "Ví không trả về chữ ký.",
   "wcReownLoginError": "Lỗi đăng nhập WC: {error}",
   "@wcReownLoginError": {
@@ -1417,7 +1420,7 @@
       "error": { "type": "String" }
     }
   },
-  "wcReownQrDescription": "Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập (Sepolia).",
+  "wcReownQrDescription": "Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập.",
   "wcReownOpenQrButton": "Mở QR WalletConnect (Reown)",
   "wcAdvancedLegacyQrTitle": "Khác: QR từ server",
   "wcAdvancedLegacyQrSubtitle": "Khi không dùng nút Reown phía trên",
@@ -1472,7 +1475,7 @@
   "wcSessionCreateFailed": "Không thể tạo phiên WalletConnect. Thử lại.",
   "wcSessionExpiredNewQr": "Session đã hết hạn. Vui lòng tạo QR Code mới.",
   "wcSessionWcFailedRetry": "WalletConnect thất bại (kết nối hoặc ký). Hãy tạo QR mới hoặc thử lại.",
-  "wcWcSupportsEvmSolanaTron": "WalletConnect hỗ trợ ETH Sepolia và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.",
+  "wcWcSupportsEvmSolanaTron": "WalletConnect hỗ trợ BSC Chapel, Ethereum mainnet và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.",
   "wcSignWithTronlinkExtension": "Ký bằng TronLink Extension",
   "wcTronlinkSignFailed": "TronLink signing thất bại.",
   "wcTronlinkSignMessage": "TronLink liên kết ví",

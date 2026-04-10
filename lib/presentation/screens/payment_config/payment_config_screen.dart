@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/data/models/payment_method_config_model.dart'
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_create_wallet_sheet.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_history_tab_view.dart';
@@ -76,9 +77,13 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
         await context.read<PaymentConfigProvider>().loadConfigs();
         break;
       case 1:
+        await context.read<OnchainChainPickerProvider>().ensureLoaded();
+        if (!mounted) return;
         await context.read<TreasuryProvider>().loadWallets();
         break;
       case 2:
+        await context.read<OnchainChainPickerProvider>().ensureLoaded();
+        if (!mounted) return;
         await context.read<TreasuryProvider>().loadHistory();
         break;
       case 3:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
@@ -22,7 +23,7 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
   @override
   void initState() {
     super.initState();
-    _chain = treasuryOpsChainsForCurrentEnv().first;
+    _chain = treasuryOpsWalletCreationChainsForCurrentEnv().first;
   }
 
   @override
@@ -34,6 +35,13 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
+    final chains = chainPicker.treasuryOpsChains;
+    if (!chains.contains(_chain) && chains.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _chain = chains.first);
+      });
+    }
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -52,9 +60,10 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
             ),
             const SizedBox(height: 12),
             TreasuryChainDropdown(
-              chains: treasuryOpsChainsForCurrentEnv(),
+              chains: chains,
               value: _chain,
               labelText: l10n.treasuryChainLabel,
+              displayLabelForChain: treasuryWalletCreationDisplayLabel,
               onChanged: (v) {
                 if (v == null) return;
                 setState(() => _chain = v);

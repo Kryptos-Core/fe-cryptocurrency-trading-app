@@ -8,10 +8,7 @@ void main() {
         BlockchainNetworkX.tryFromEvmCaip2('eip155:1'),
         BlockchainNetwork.ethMainnet,
       );
-      expect(
-        BlockchainNetworkX.tryFromEvmCaip2('eip155:11155111'),
-        BlockchainNetwork.ethSepolia,
-      );
+      expect(BlockchainNetworkX.tryFromEvmCaip2('eip155:11155111'), isNull);
       expect(
         BlockchainNetworkX.tryFromEvmCaip2('eip155:56'),
         BlockchainNetwork.bscMainnet,
@@ -26,6 +23,12 @@ void main() {
       expect(BlockchainNetworkX.tryFromEvmCaip2(null), isNull);
       expect(BlockchainNetworkX.tryFromEvmCaip2(''), isNull);
       expect(BlockchainNetworkX.tryFromEvmCaip2('eip155:99999'), isNull);
+    });
+  });
+
+  group('BlockchainNetworkX.tryFromApiValue', () {
+    test('legacy ETH_SEPOLIA string is not mapped', () {
+      expect(BlockchainNetworkX.tryFromApiValue('ETH_SEPOLIA'), isNull);
     });
   });
 
@@ -94,6 +97,18 @@ void main() {
     });
   });
 
+  group('BlockchainNetworkX.resolveForFamily', () {
+    test('EVM_ETH sandbox maps to BSC Chapel (Sepolia removed from product)', () {
+      expect(
+        BlockchainNetworkX.resolveForFamily(
+          OnChainNetworkFamily.evmEth,
+          OnChainOperatorMode.sandbox,
+        ),
+        BlockchainNetwork.bscChapel,
+      );
+    });
+  });
+
   group('onchainNetworkFilterChipLabel', () {
     test('mainnet unchanged', () {
       expect(
@@ -104,8 +119,17 @@ void main() {
 
     test('sandbox chain gets parenthesized suffix', () {
       expect(
-        onchainNetworkFilterChipLabel(BlockchainNetwork.ethSepolia, 'Sandbox'),
-        'Ethereum (Sepolia) (Sandbox)',
+        onchainNetworkFilterChipLabel(BlockchainNetwork.bscChapel, 'Sandbox'),
+        'BSC (Chapel) (Sandbox)',
+      );
+    });
+  });
+
+  group('onchainRecentTxNetworkChipLabel', () {
+    test('matches plain network label (no sandbox suffix)', () {
+      expect(
+        onchainRecentTxNetworkChipLabel(BlockchainNetwork.bscChapel),
+        BlockchainNetwork.bscChapel.label,
       );
     });
   });

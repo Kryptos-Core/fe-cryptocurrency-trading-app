@@ -5,9 +5,9 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 
 void main() {
   group('WalletExtensionPrecheckService', () {
-    test('maps ETH network to MetaMask target', () {
+    test('maps EVM testnet (BSC Chapel) to MetaMask target', () {
       final service = WalletExtensionPrecheckService();
-      final target = service.targetForNetwork(BlockchainNetwork.ethSepolia);
+      final target = service.targetForNetwork(BlockchainNetwork.bscChapel);
 
       expect(target, isNotNull);
       expect(target!.name, 'MetaMask');
@@ -34,7 +34,7 @@ void main() {
       final service = WalletExtensionPrecheckService();
 
       final required = service.requiresPrecheck(
-        network: BlockchainNetwork.ethSepolia,
+        network: BlockchainNetwork.bscChapel,
         isWebDialog: false,
         isTestMode: false,
         isWeb: false,
@@ -48,7 +48,7 @@ void main() {
       final service = WalletExtensionPrecheckService();
 
       final ethRequired = service.requiresPrecheck(
-        network: BlockchainNetwork.ethSepolia,
+        network: BlockchainNetwork.bscChapel,
         isWebDialog: false,
         isTestMode: false,
         isWeb: false,

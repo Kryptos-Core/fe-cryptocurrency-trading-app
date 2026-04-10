@@ -19,6 +19,7 @@ class TreasuryChainDropdown extends StatelessWidget {
     this.allOptionLabel,
     this.menuMaxHeight,
     this.dense = false,
+    this.displayLabelForChain,
   });
 
   final List<String> chains;
@@ -34,11 +35,18 @@ class TreasuryChainDropdown extends StatelessWidget {
   /// See [AppDropdownField.dense] — use in tight layouts (e.g. AppBar).
   final bool dense;
 
+  /// When set, overrides [treasuryChainDisplayLabel] per chain (e.g. create-wallet ecosystem labels).
+  final String Function(AppLocalizations l10n, String chain)? displayLabelForChain;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final mh =
         menuMaxHeight ?? MediaQuery.sizeOf(context).height * 0.35;
+
+    // Avoid DropdownButton assert when API value is not in [chains] (e.g. env drift).
+    final safeValue =
+        value != null && chains.contains(value) ? value : null;
 
     final items = <DropdownMenuItem<String?>>[
       if (allowAllOption)
@@ -54,7 +62,9 @@ class TreasuryChainDropdown extends StatelessWidget {
         (v) => DropdownMenuItem<String?>(
           value: v,
           child: Text(
-            treasuryChainDisplayLabel(l10n, v),
+            displayLabelForChain != null
+                ? displayLabelForChain!(l10n, v)
+                : treasuryChainDisplayLabel(l10n, v),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -63,7 +73,7 @@ class TreasuryChainDropdown extends StatelessWidget {
     ];
 
     return AppDropdownField<String?>(
-      value: value,
+      value: safeValue,
       labelText: labelText,
       hintText: hintText,
       menuMaxHeight: mh,

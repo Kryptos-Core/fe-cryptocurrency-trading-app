@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
@@ -8,10 +9,13 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
+import 'package:crypto_trading_app/presentation/widgets/onchain_tx_filter_chip.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
   const OnchainWithdrawScreen({super.key});
@@ -21,10 +25,14 @@ class OnchainWithdrawScreen extends StatefulWidget {
 }
 
 class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
+  bool get _suppressSandboxInNetworkDropdown =>
+      dotenv.isInitialized &&
+      parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.sandbox;
+
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
 
-  BlockchainNetwork _selectedNetwork = BlockchainNetwork.ethSepolia;
+  late BlockchainNetwork _selectedNetwork;
   String? _selectedWalletId;
   BlockchainNetwork? _txFilterNetwork;
   OnchainTxType? _txFilterType;
@@ -174,7 +182,18 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _selectedNetwork = onchainDepositWithdrawNetworksForCurrentEnv().first;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final picker = context.read<OnchainChainPickerProvider>();
+      await picker.ensureLoaded();
+      if (!mounted) return;
+      final nets = picker.onchainDepositWithdrawNetworks;
+      if (nets.isNotEmpty && !nets.contains(_selectedNetwork)) {
+        setState(() {
+          _selectedNetwork = nets.first;
+          _selectedWalletId = null;
+        });
+      }
       context.read<BlockchainProvider>().fetchLinkedWallets();
     });
   }
@@ -224,6 +243,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
         final l10n = AppLocalizations.of(context);
+        final networks =
+            context.watch<OnchainChainPickerProvider>().onchainDepositWithdrawNetworks;
         final wallets = provider.linkedWallets
             .where(
               (wallet) =>
@@ -260,13 +281,14 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   menuMaxHeight: 300,
                   labelText: l10n.networkLabel,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  items: BlockchainNetwork.values
+                  items: networks
                       .map(
                         (network) => DropdownMenuItem(
                           value: network,
                           child: OnchainNetworkDropdownMenuChild(
                             network: network,
                             l10n: l10n,
+                            suppressSandboxSuffix: _suppressSandboxInNetworkDropdown,
                           ),
                         ),
                       )
@@ -351,23 +373,20 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 ),
                 const SizedBox(height: 8),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    ChoiceChip(
-                      label: Text(l10n.allNetworks),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.allNetworks,
                       selected: _txFilterNetwork == null,
                       onSelected: (_) =>
                           setState(() => _txFilterNetwork = null),
                     ),
-                    ...BlockchainNetwork.values.map(
-                      (network) => ChoiceChip(
-                        label: Text(
-                          onchainNetworkFilterChipLabel(
-                            network,
-                            l10n.onchainSandboxShort,
-                          ),
-                        ),
+                    ...networks.map(
+                      (network) => onchainTxFilterChip(
+                        context: context,
+                        label: onchainRecentTxNetworkChipLabel(network),
                         selected: _txFilterNetwork == network,
                         onSelected: (_) =>
                             setState(() => _txFilterNetwork = network),
@@ -377,17 +396,19 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 ),
                 const SizedBox(height: 10),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    ChoiceChip(
-                      label: Text(l10n.allTypes),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.allTypes,
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
                     ...OnchainTxType.values.map(
-                      (type) => ChoiceChip(
-                        label: Text(_typeLabel(type)),
+                      (type) => onchainTxFilterChip(
+                        context: context,
+                        label: _typeLabel(type),
                         selected: _txFilterType == type,
                         onSelected: (_) => setState(() => _txFilterType = type),
                       ),
@@ -402,15 +423,17 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                       style: TextStyle(color: Colors.grey.shade700),
                     ),
                     const Spacer(),
-                    ChoiceChip(
-                      label: Text(l10n.sortNewest),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.sortNewest,
                       selected: _sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = true),
                     ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: Text(l10n.sortOldest),
+                    const SizedBox(width: 6),
+                    onchainTxFilterChip(
+                      context: context,
+                      label: l10n.sortOldest,
                       selected: !_sortNewestFirst,
                       onSelected: (_) =>
                           setState(() => _sortNewestFirst = false),

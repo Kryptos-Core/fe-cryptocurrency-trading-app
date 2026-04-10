@@ -1,23 +1,38 @@
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/enums/user_role.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/utils/treasury_main_wallets_ui_policy.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 
 class TreasuryMainWalletProvider extends ChangeNotifier {
   final TreasuryRemoteDataSource _dataSource;
   final AuthRepository _authRepo;
   final TokenService _tokenService;
+  final OnchainChainPickerProvider? _chainPicker;
+  final UserRole Function() _roleResolver;
 
   TreasuryMainWalletProvider({
     required TreasuryRemoteDataSource dataSource,
     required AuthRepository authRepo,
     required TokenService tokenService,
+    OnchainChainPickerProvider? chainPicker,
+    required UserRole Function() roleResolver,
   })  : _dataSource = dataSource,
         _authRepo = authRepo,
-        _tokenService = tokenService;
+        _tokenService = tokenService,
+        _chainPicker = chainPicker,
+        _roleResolver = roleResolver;
+
+  bool get _includePendingWallets =>
+      treasuryMainWalletsShowsPendingTab(_roleResolver());
+
+  List<String> _allowedMainWalletChains() =>
+      _chainPicker?.treasuryMainWalletChains ?? treasuryMainWalletChainsForCurrentEnv();
 
   List<TreasuryMainWalletModel> _mainWallets = [];
   List<TreasuryMainWalletModel> _pendingWallets = [];
@@ -42,7 +57,7 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
   String get currentChain => _currentChain;
 
   void setChain(String chain) {
-    if (!isTreasuryMainWalletChainAllowedForCurrentEnv(chain)) return;
+    if (!_allowedMainWalletChains().contains(chain)) return;
     if (_currentChain == chain) return;
     _currentChain = chain;
     loadMainWallets();
@@ -65,6 +80,10 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
   }
 
   Future<void> loadPendingWallets() async {
+    if (!_includePendingWallets) {
+      _pendingWallets = [];
+      return;
+    }
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -88,9 +107,13 @@ class TreasuryMainWalletProvider extends ChangeNotifier {
 
     try {
       final main = await _dataSource.listMainWallets(_currentChain);
-      final pending = await _dataSource.listPendingMainWallets();
       _mainWallets = main;
-      _pendingWallets = pending;
+      if (_includePendingWallets) {
+        final pending = await _dataSource.listPendingMainWallets();
+        _pendingWallets = pending;
+      } else {
+        _pendingWallets = [];
+      }
     } catch (e) {
       _error = e.toString();
     } finally {

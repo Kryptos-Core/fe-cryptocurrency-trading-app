@@ -13,7 +13,9 @@ import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/link_wallet_dialog.dart';
+import '../../../../support/stub_treasury_remote_data_source.dart';
 
 /// Fake repository để test UI — tất cả WC methods trả về stub hợp lệ
 class _FakeBlockchainRepository implements BlockchainRepository {
@@ -28,7 +30,7 @@ class _FakeBlockchainRepository implements BlockchainRepository {
       wcUri: 'wc:abc123@2?relay-protocol=irn&symKey=xyz',
       expiresAt: DateTime.now().add(const Duration(minutes: 5)),
       chain: chain,
-      caip2Chain: 'eip155:11155111',
+      caip2Chain: 'eip155:97',
     ));
   }
 
@@ -125,9 +127,27 @@ Widget _buildTestApp() {
   final provider = BlockchainProvider(
     blockchainRepository: const _FakeBlockchainRepository(),
   );
+  final chainPicker = OnchainChainPickerProvider(
+    dataSource: StubTreasuryRemoteDataSource(
+      chainPickerJson: {
+        'operatorMode': 'sandbox',
+        'tronDefaultNetwork': 'TRON_NILE',
+        'pickers': {
+          'onchain_deposit_withdraw': [
+            'BSC_CHAPEL',
+            'SOLANA_DEVNET',
+            'TRON_NILE',
+          ],
+        },
+      },
+    ),
+  );
 
   return MultiProvider(
     providers: [
+      ChangeNotifierProvider<OnchainChainPickerProvider>.value(
+        value: chainPicker,
+      ),
       ChangeNotifierProvider<BlockchainProvider>.value(value: provider),
     ],
     child: const MaterialApp(

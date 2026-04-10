@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/treasury_main_wallets_ui_policy.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/screens/treasury_main_wallets/widgets/main_wallets_tab_view.dart';
@@ -14,32 +17,49 @@ class TreasuryMainWalletsScreen extends StatefulWidget {
   State<TreasuryMainWalletsScreen> createState() => _TreasuryMainWalletsScreenState();
 }
 
-class _TreasuryMainWalletsScreenState extends State<TreasuryMainWalletsScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _TreasuryMainWalletsScreenState extends State<TreasuryMainWalletsScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      context.read<TreasuryMainWalletProvider>().refreshAllWallets();
+      final chainPicker = context.read<OnchainChainPickerProvider>();
+      final mainWallet = context.read<TreasuryMainWalletProvider>();
+      await chainPicker.ensureLoaded();
+      if (!mounted) return;
+      final allowed = chainPicker.treasuryMainWalletChains;
+      if (allowed.isNotEmpty && !allowed.contains(mainWallet.currentChain)) {
+        mainWallet.setChain(allowed.first);
+      }
+      if (!mounted) return;
+      await mainWallet.refreshAllWallets();
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final provider = context.watch<TreasuryMainWalletProvider>();
+    final auth = context.watch<AuthProvider>();
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
+    final mainWalletChains = chainPicker.treasuryMainWalletChains;
     final scheme = Theme.of(context).colorScheme;
     final menuMaxHeight = MediaQuery.sizeOf(context).height * 0.4;
+    final showPendingTab = treasuryMainWalletsShowsPendingTab(auth.role);
+
+    final chainDropdown = Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: TreasuryChainDropdown(
+        chains: mainWalletChains,
+        value: provider.currentChain,
+        labelText: l10n.treasuryChainLabel,
+        menuMaxHeight: menuMaxHeight,
+        displayLabelForChain: treasuryWalletCreationDisplayLabel,
+        onChanged: (val) {
+          if (val != null) provider.setChain(val);
+        },
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -52,58 +72,57 @@ class _TreasuryMainWalletsScreenState extends State<TreasuryMainWalletsScreen>
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: TreasuryChainDropdown(
-              chains: treasuryMainWalletChainsForCurrentEnv(),
-              value: provider.currentChain,
-              labelText: l10n.treasuryChainLabel,
-              menuMaxHeight: menuMaxHeight,
-              onChanged: (val) {
-                if (val != null) provider.setChain(val);
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Material(
-            color: scheme.surface,
-            child: TabBar(
-              controller: _tabController,
-              dividerColor: scheme.outlineVariant.withValues(alpha: 0.5),
-              tabs: [
-                Tab(
-                  child: Text(
-                    l10n.treasuryMainWalletsTabActive,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
+      body: showPendingTab
+          ? DefaultTabController(
+              length: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  chainDropdown,
+                  const SizedBox(height: 8),
+                  Material(
+                    color: scheme.surface,
+                    child: TabBar(
+                      dividerColor: scheme.outlineVariant.withValues(alpha: 0.5),
+                      tabs: [
+                        Tab(
+                          child: Text(
+                            l10n.treasuryMainWalletsTabActive,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            l10n.treasuryMainWalletsTabPending,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Tab(
-                  child: Text(
-                    l10n.treasuryMainWalletsTabPending,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
+                  const Expanded(
+                    child: TabBarView(
+                      children: [
+                        MainWalletsTabView(),
+                        PendingMainWalletsTabView(),
+                      ],
+                    ),
                   ),
-                ),
+                ],
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                chainDropdown,
+                const SizedBox(height: 8),
+                const Expanded(child: MainWalletsTabView()),
               ],
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: const [
-                MainWalletsTabView(),
-                PendingMainWalletsTabView(),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

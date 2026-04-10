@@ -208,20 +208,45 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
     super.dispose();
   }
 
+  static const double _radius = 20;
+  static const double _fieldRadius = 12;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final l10n = AppLocalizations.of(context);
     final auth = context.watch<AuthProvider>();
+
+    final dialogShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(_radius),
+    );
+
     if (!auth.hasRealEmailForOtp) {
       return AlertDialog(
-        title: Text(l10n.contactEmailRequiredForOtpShort),
-        content: Text(l10n.contactEmailRequiredForOtpBody),
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: cs.surface,
+        shape: dialogShape,
+        icon: Icon(Icons.mark_email_unread_outlined, color: cs.primary, size: 28),
+        title: Text(
+          l10n.contactEmailRequiredForOtpShort,
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          l10n.contactEmailRequiredForOtpBody,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: cs.onSurfaceVariant,
+            height: 1.45,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.end,
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(l10n.cancel),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -240,98 +265,186 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
         context.watch<TreasuryMainWalletProvider>().isSubmitting;
     final currentChain =
         context.watch<TreasuryMainWalletProvider>().currentChain;
-    final chainLabel = treasuryChainDisplayLabel(l10n, currentChain);
+    final chainLabel = treasuryWalletCreationDisplayLabel(l10n, currentChain);
 
     final otpBusy = _isSendingOtp || isSubmitting;
     final canConfirmOtp =
         !_otpVerified && !_isVerifyingOtp && !otpBusy;
 
+    final outlineDecoration = ({String? label, String? error, String? helper}) =>
+        InputDecoration(
+          labelText: label,
+          errorText: error,
+          helperText: helper,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(_fieldRadius)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+            borderSide: BorderSide(color: cs.outline),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+            borderSide: BorderSide(color: cs.primary, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+            borderSide: BorderSide(color: cs.error),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+            borderSide: BorderSide(color: cs.error, width: 2),
+          ),
+        );
+
     return AlertDialog(
-      title: Text(l10n.treasuryImportWalletDialogTitle(chainLabel)),
+      surfaceTintColor: Colors.transparent,
+      backgroundColor: cs.surface,
+      shape: dialogShape,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      constraints: const BoxConstraints(maxWidth: 420),
+      icon: Icon(Icons.account_balance_wallet_outlined, color: cs.primary, size: 28),
+      title: Text(
+        l10n.treasuryImportWalletDialogHeading,
+        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l10n.treasuryImportWalletOtpStepHint,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+              l10n.treasuryImportWalletDialogChainLabel,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Chip(
+                avatar: Icon(Icons.hub_outlined, size: 18, color: cs.primary),
+                label: Text(chainLabel),
+                backgroundColor: cs.surfaceContainerHighest,
+                side: BorderSide(color: cs.outlineVariant),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
             const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _mfaCodeController,
-                    focusNode: _mfaFocus,
-                    enabled: !_otpVerified,
-                    decoration: InputDecoration(
-                      labelText: l10n.treasuryImportWalletMfaCode,
-                      errorText: _mfaFieldError,
-                    ),
+            Text(
+              l10n.treasuryImportWalletOtpStepHint,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                height: 1.45,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _mfaCodeController,
+              focusNode: _mfaFocus,
+              enabled: !_otpVerified,
+              keyboardType: TextInputType.number,
+              decoration: outlineDecoration(
+                label: l10n.treasuryImportWalletMfaCode,
+                error: _mfaFieldError,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton.icon(
+                onPressed: otpBusy || _otpVerified ? null : _sendMfaOtp,
+                icon: _isSendingOtp
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: cs.primary,
+                        ),
+                      )
+                    : Icon(Icons.mark_email_read_outlined, size: 20, color: cs.primary),
+                label: Text(l10n.treasuryImportWalletSendOtp),
+              ),
+            ),
+            if (_otpVerified) ...[
+              const SizedBox(height: 16),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(_fieldRadius),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.verified_outlined, color: cs.primary, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.treasuryImportWalletOtpVerifiedBanner,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: cs.onPrimaryContainer,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: otpBusy || _otpVerified ? null : _sendMfaOtp,
-                  child: _isSendingOtp
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.treasuryImportWalletSendOtp),
-                ),
-              ],
-            ),
+              ),
+            ],
             if (_walletFieldsUnlocked) ...[
               const SizedBox(height: 20),
               TextField(
                 controller: _labelController,
-                decoration: InputDecoration(
-                  labelText: l10n.treasuryImportWalletLabelOptional,
-                ),
+                decoration: outlineDecoration(label: l10n.treasuryImportWalletLabelOptional),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextField(
                 controller: _privateKeyController,
                 focusNode: _privateKeyFocus,
-                decoration: InputDecoration(
-                  labelText: l10n.treasuryImportWalletPrivateKey,
-                ),
+                decoration: outlineDecoration(label: l10n.treasuryImportWalletPrivateKey),
                 obscureText: true,
               ),
             ],
           ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.end,
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       actions: [
         TextButton(
           onPressed: isSubmitting ? null : () => Navigator.pop(context),
           child: Text(l10n.cancel),
         ),
         if (!_otpVerified)
-          ElevatedButton(
+          FilledButton(
             onPressed: canConfirmOtp ? _confirmOtp : null,
             child: _isVerifyingOtp
-                ? const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                ? SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: cs.onPrimary,
+                    ),
                   )
                 : Text(l10n.treasuryImportWalletConfirmOtp),
           )
         else
-          ElevatedButton(
+          FilledButton(
             onPressed: isSubmitting ? null : _submit,
             child: isSubmitting
-                ? const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                ? SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: cs.onPrimary,
+                    ),
                   )
                 : Text(l10n.treasuryImportWalletImport),
           ),

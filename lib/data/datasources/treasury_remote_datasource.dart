@@ -1,6 +1,8 @@
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
+import 'package:crypto_trading_app/core/utils/api_response_error_message.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
+import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:dio/dio.dart';
 
@@ -76,6 +78,9 @@ abstract class TreasuryRemoteDataSource {
     int page = 1,
     int limit = 20,
   });
+
+  /// Server-driven chain codes for dropdowns (mirrors ONCHAIN_OPERATOR_MODE / TRON_DEFAULT_NETWORK).
+  Future<ChainPickerOptionsModel> getChainPickerOptions();
 }
 
 class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
@@ -98,7 +103,7 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       final msg = map['message'];
       final code = map['code'];
       return ServerException(
-        message: msg is String && msg.isNotEmpty ? msg : defaultMessage,
+        message: backendErrorMessageOrDefault(msg, defaultMessage),
         statusCode: e.response?.statusCode,
         code: code is String && code.isNotEmpty ? code : null,
       );
@@ -426,6 +431,18 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
       );
     } on DioException catch (e) {
       throw _dioServerError(e, defaultMessage: 'Failed to load treasury transactions');
+    }
+  }
+
+  @override
+  Future<ChainPickerOptionsModel> getChainPickerOptions() async {
+    try {
+      final response = await dioClient.dio.get(ApiConstants.treasuryChainPickerOptions);
+      return ChainPickerOptionsModel.fromJson(
+        _unwrap<Map<String, dynamic>>(response.data),
+      );
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Failed to load chain picker options');
     }
   }
 }

@@ -573,11 +573,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Order is being processed. The system will auto-update when PayOS webhook arrives.';
 
   @override
-  String get payosNeedFiatTitle => 'Need fiat deposit instead?';
+  String get payosNeedFiatTitle => 'Fiat (VND)?';
 
   @override
-  String get payosNeedFiatDesc =>
-      'Use PayOS to top up VND, then return to trade or transfer funds.';
+  String get payosNeedFiatDesc => 'PayOS — then return to trade here.';
 
   @override
   String get openOnchainWalletFlow => 'Open On-chain Wallet Flow';
@@ -670,7 +669,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noLinkedWalletsMessage =>
-      'Connect a Tron, Solana, or Sepolia wallet first so deposit and withdrawal flows have a verified destination.';
+      'Connect a Tron, Solana, or BSC (Chapel) wallet first so deposit and withdrawal flows have a verified destination.';
 
   @override
   String get unlinkWalletTitle => 'Unlink wallet';
@@ -827,7 +826,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletGuideNativeEthStep2 =>
-      'Use an account on Sepolia network that matches the wallet address you entered.';
+      'Use an account on BNB Smart Chain (Chapel testnet) that matches the wallet address you entered.';
 
   @override
   String get walletGuideNativeEthStep3 =>
@@ -954,11 +953,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pre-check completed. Open extension, sign challenge, then paste signature below.';
 
   @override
-  String get submitOnchainDeposit => 'Submit on-chain deposit';
+  String get submitOnchainDeposit => 'On-chain deposit';
 
   @override
   String get onchainDepositDesc =>
-      'After sending tokens from your wallet to exchange deposit address, paste tx hash here.';
+      'Send to the platform address, then paste the tx hash below.';
 
   @override
   String onchainDepositTransitioningMinutes(int minutes) {
@@ -1737,8 +1736,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coinAssetsSectionSubtitle => 'Coins from trading';
 
   @override
-  String get depositOnchainHint =>
-      'Funds will be converted to USDT and credited to your Cash Wallet';
+  String get depositOnchainHint => 'Credited as USDT to your cash wallet';
 
   @override
   String get treasuryTitle => 'User deposits & managed wallets';
@@ -1978,6 +1976,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigRuntimeTypeFloat => 'float';
 
   @override
+  String get paymentConfigRuntimeValueHint => 'Current value';
+
+  @override
+  String get paymentConfigRuntimeTechKeySection => 'System variable';
+
+  @override
+  String get paymentConfigRuntimeValueOn => 'On';
+
+  @override
+  String get paymentConfigRuntimeValueOff => 'Off';
+
+  @override
   String get runtimeSettingWalletSyncIntervalName =>
       'Wallet sync interval (ms)';
 
@@ -2022,20 +2032,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'JSON RPC endpoint for Solana devnet.';
 
   @override
-  String get runtimeSettingEthSepoliaRpcUrlName => 'Ethereum Sepolia RPC URL';
-
-  @override
-  String get runtimeSettingEthSepoliaRpcUrlDesc =>
-      'JSON-RPC URL for Sepolia testnet.';
-
-  @override
-  String get runtimeSettingEthSepoliaChainIdName => 'Ethereum Sepolia chain ID';
-
-  @override
-  String get runtimeSettingEthSepoliaChainIdDesc =>
-      'EIP-155 chain ID for Sepolia (e.g. 11155111).';
-
-  @override
   String get runtimeSettingBlockchainAllowTestSignatureName =>
       'Allow test signature bypass';
 
@@ -2050,14 +2046,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get runtimeSettingBlockchainWithdrawAutoMaxDesc =>
       'Default max native amount for auto-processed withdrawals.';
-
-  @override
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaName =>
-      'Auto max withdraw — ETH Sepolia';
-
-  @override
-  String get runtimeSettingBlockchainWithdrawAutoMaxEthSepoliaDesc =>
-      'Per-chain cap for ETH_SEPOLIA; falls back to global when empty.';
 
   @override
   String get runtimeSettingBlockchainWithdrawAutoMaxSolanaDevnetName =>
@@ -2147,6 +2135,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryCreateWalletCta => 'Create wallet';
+
+  @override
+  String get treasuryCreateWalletNetworkTronTrc20Testnet =>
+      'Tron (testnet, TRC-20)';
+
+  @override
+  String get treasuryCreateWalletNetworkSolanaSplDevnet =>
+      'Solana (devnet, SPL)';
+
+  @override
+  String get treasuryCreateWalletNetworkBscMetaMaskChapel =>
+      'BNB Smart Chain Chapel (MetaMask)';
 
   @override
   String get treasuryChainLabel => 'Chain';
@@ -2562,7 +2562,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get depositMethodRecommended => 'Recommended';
 
   @override
-  String get depositMethodUnavailable => 'Deposit not available';
+  String get depositMethodUnavailable => 'Not available';
 
   @override
   String get copyAddressTooltip => 'Copy address';
@@ -3426,15 +3426,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryChainTronShasta => 'TRON — Shasta testnet';
 
   @override
-  String get treasuryChainEthSepolia => 'Ethereum — Sepolia';
-
-  @override
   String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
 
   @override
   String treasuryImportWalletDialogTitle(String chainName) {
     return 'Import main wallet ($chainName)';
   }
+
+  @override
+  String get treasuryImportWalletDialogHeading => 'Import main wallet';
+
+  @override
+  String get treasuryImportWalletDialogChainLabel => 'Network';
+
+  @override
+  String get treasuryImportWalletOtpVerifiedBanner =>
+      'Email verified — enter your wallet details below.';
 
   @override
   String get treasuryImportWalletLabelOptional => 'Label (optional)';
@@ -3492,7 +3499,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryImportWalletSuccessSnack =>
-      'Wallet imported to pending approvals.';
+      'Main wallet imported and activated.';
 
   @override
   String treasuryImportWalletErrorSnack(String error) {
@@ -3860,7 +3867,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wcReownSessionNoEvmAddress =>
-      'Session has no EVM address (eip155). Choose an EVM wallet / Sepolia.';
+      'Session has no EVM address (eip155). Choose an EVM wallet (e.g. BSC Chapel or Ethereum mainnet).';
 
   @override
   String get wcReownNoSignature => 'Wallet did not return a signature.';
@@ -3872,7 +3879,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wcReownQrDescription =>
-      'Open QR, connect your phone wallet, then sign the login message (Sepolia).';
+      'Open QR, connect your phone wallet, then sign the login message.';
 
   @override
   String get wcReownOpenQrButton => 'Open WalletConnect QR (Reown)';
@@ -4054,7 +4061,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wcWcSupportsEvmSolanaTron =>
-      'WalletConnect supports Ethereum Sepolia and Solana Devnet. For Tron, use the TronLink extension on Chrome.';
+      'WalletConnect supports BSC Chapel, Ethereum mainnet, and Solana Devnet. For Tron, use the TronLink extension on Chrome.';
 
   @override
   String get wcSignWithTronlinkExtension => 'Sign with TronLink extension';

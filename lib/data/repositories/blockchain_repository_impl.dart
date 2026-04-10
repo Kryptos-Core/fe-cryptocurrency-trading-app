@@ -168,7 +168,7 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       final data = _extractDataMap(response.data);
 
       final chain = BlockchainNetworkX.fromApiValue(
-        data['chain']?.toString() ?? 'ETH_SEPOLIA',
+        data['chain']?.toString() ?? 'BSC_CHAPEL',
       );
 
       return Right(
@@ -338,7 +338,7 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
     return LinkedWallet(
       linkId: json['linkId']?.toString() ?? '',
       chain: BlockchainNetworkX.fromApiValue(
-        json['chain']?.toString() ?? 'ETH_SEPOLIA',
+        json['chain']?.toString() ?? 'BSC_CHAPEL',
       ),
       address: json['address']?.toString() ?? '',
       label: json['label']?.toString(),
@@ -351,7 +351,7 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
 
   OnchainTransaction _parseOnchainTransaction(Map<String, dynamic> json) {
     final chain = BlockchainNetworkX.fromApiValue(
-      json['chain']?.toString() ?? 'ETH_SEPOLIA',
+      json['chain']?.toString() ?? 'BSC_CHAPEL',
     );
     final status = OnchainTxStatusX.fromApiValue(
       json['status']?.toString() ?? 'PENDING',

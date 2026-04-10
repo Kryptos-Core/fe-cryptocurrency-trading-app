@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/data/models/admin_withdrawal_model.dart';
-import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/screens/withdrawal_management/withdrawal_detail_screen.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
@@ -29,7 +29,9 @@ class _WithdrawalManagementScreenState extends State<WithdrawalManagementScreen>
   void initState() {
     super.initState();
     _tabs = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<OnchainChainPickerProvider>().ensureLoaded();
+      if (!mounted) return;
       final p = context.read<WithdrawalManagementProvider>();
       p.loadWithdrawals(status: 'PENDING', page: 1);
       p.loadStats();
@@ -203,6 +205,8 @@ class _FilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
+    final withdrawalChains = chainPicker.withdrawalAdminFilterChains;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: Column(
@@ -253,7 +257,7 @@ class _FilterBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   TreasuryChainDropdown(
-                    chains: withdrawalFilterChainsForCurrentEnv(),
+                    chains: withdrawalChains,
                     value: p.filterChain,
                     allowAllOption: true,
                     allOptionLabel: l10n.adminFilterAll,

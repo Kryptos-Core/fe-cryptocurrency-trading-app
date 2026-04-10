@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
@@ -20,7 +21,7 @@ import 'wc_session_poller.dart';
 ///  - TronLink: giữ extension web flow (xử lý riêng)
 ///
 /// Flow:
-///  1. User chọn network (ETH Sepolia...)
+///  1. User chọn network (BSC Chapel / Solana / Tron…)
 ///  2. App gọi BE /wc/init → nhận wcUri
 ///  3. Hiển thị QR / deep link
 ///  4. Poller kiểm tra status mỗi 2s
@@ -34,7 +35,8 @@ class LinkWalletDialog extends StatefulWidget {
 
 class _LinkWalletDialogState extends State<LinkWalletDialog>
     with SingleTickerProviderStateMixin {
-  BlockchainNetwork _selectedChain = BlockchainNetwork.ethSepolia;
+  late BlockchainNetwork _selectedChain;
+  BlockchainProvider? _blockchainProvider;
   WcSessionProposal? _session;
   bool _isLoading = false;
   String? _errorMessage;
@@ -53,10 +55,36 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   bool get _hasPendingSession =>
       _session != null && !_session!.isExpired && !_isCompleted;
 
+  @override
+  void initState() {
+    super.initState();
+    // Default until [OnchainChainPickerProvider] resolves BE order (matches nạp/rút).
+    _selectedChain = BlockchainNetwork.bscChapel;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final picker = context.read<OnchainChainPickerProvider>();
+      await picker.ensureLoaded();
+      if (!mounted) return;
+      final wc = picker.walletConnectLinkNetworksFromApi;
+      final tron = picker.tronExtensionLinkNetworksFromApi;
+      final all = [...wc, if (_showExtensionTab) ...tron];
+      if (all.isEmpty) return;
+      setState(() {
+        if (!all.contains(_selectedChain)) {
+          _selectedChain = wc.isNotEmpty ? wc.first : tron.first;
+        }
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _blockchainProvider ??= context.read<BlockchainProvider>();
+  }
+
   bool get _supportsWalletConnectRelay {
     switch (_selectedChain) {
       case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
       case BlockchainNetwork.solanaMainnet:
@@ -129,7 +157,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
 
   @override
   void dispose() {
-    context.read<BlockchainProvider>().clearWcSession();
+    _blockchainProvider?.clearWcSession();
     super.dispose();
   }
 
@@ -304,79 +332,96 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   Widget _buildNetworkSelector(ThemeData theme, AppLocalizations l10n) {
-    // EVM + Solana qua WalletConnect relay; Tron qua extension (web)
-    final wcChains = [
-      BlockchainNetwork.ethMainnet,
-      BlockchainNetwork.ethSepolia,
-      BlockchainNetwork.bscMainnet,
-      BlockchainNetwork.bscChapel,
-      BlockchainNetwork.solanaMainnet,
-      BlockchainNetwork.solanaDevnet,
-    ];
-    final tronChains = [
-      BlockchainNetwork.tronMainnet,
-      BlockchainNetwork.tronNile,
-      BlockchainNetwork.tronShasta,
-    ];
-    final allChains = [
-      ...wcChains,
-      if (_showExtensionTab) ...tronChains,
-    ];
+    return Consumer<OnchainChainPickerProvider>(
+      builder: (context, picker, _) {
+        final wcChains = picker.walletConnectLinkNetworksFromApi;
+        final tronChains = picker.tronExtensionLinkNetworksFromApi;
+        final allChains = [
+          ...wcChains,
+          if (_showExtensionTab) ...tronChains,
+        ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnchainSandboxOperatorBanner(l10n: l10n),
-        Text(
-          l10n.wcLinkChooseBlockchain,
-          style: theme.textTheme.labelLarge!.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: allChains.map((chain) {
-            final isSelected = _selectedChain == chain;
-            final isTron = tronChains.contains(chain);
-            return ChoiceChip(
-              label: Text(
-                onchainNetworkFilterChipLabel(chain, l10n.onchainSandboxShort),
-              ),
-              selected: isSelected,
-              onSelected: (_) => setState(() => _selectedChain = chain),
-              avatar: isTron
-                  ? const Icon(Icons.extension, size: 16)
-                  : const Icon(Icons.qr_code, size: 16),
-              tooltip: isTron
-                  ? l10n.wcTooltipTronlinkChrome
-                  : l10n.wcTooltipWalletConnect,
-            );
-          }).toList(),
-        ),
-        // Warning khi chọn Tron (chỉ hỗ trợ qua extension web)
-        if (tronChains.contains(_selectedChain))
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline,
-                    size: 14,
-                    color: theme.colorScheme.primary.withOpacity(0.7)),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    l10n.wcTronChromeExtensionWebOnly,
-                    style: theme.textTheme.bodySmall!.copyWith(
-                      color: theme.colorScheme.primary.withOpacity(0.7),
-                    ),
+        if (allChains.isEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              OnchainSandboxOperatorBanner(l10n: l10n),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  l10n.requestFailed,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
                   ),
                 ),
-              ],
+              ),
+            ],
+          );
+        }
+
+        if (!allChains.contains(_selectedChain)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _selectedChain =
+                  wcChains.isNotEmpty ? wcChains.first : tronChains.first;
+            });
+          });
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OnchainSandboxOperatorBanner(l10n: l10n),
+            Text(
+              l10n.wcLinkChooseBlockchain,
+              style: theme.textTheme.labelLarge!.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-      ],
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: allChains.map((chain) {
+                final isSelected = _selectedChain == chain;
+                final isTron = tronChains.contains(chain);
+                return ChoiceChip(
+                  label: Text(chain.label),
+                  selected: isSelected,
+                  onSelected: (_) => setState(() => _selectedChain = chain),
+                  avatar: isTron
+                      ? const Icon(Icons.extension, size: 16)
+                      : const Icon(Icons.qr_code, size: 16),
+                  tooltip: isTron
+                      ? l10n.wcTooltipTronlinkChrome
+                      : l10n.wcTooltipWalletConnect,
+                );
+              }).toList(),
+            ),
+            if (tronChains.contains(_selectedChain))
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        size: 14,
+                        color: theme.colorScheme.primary.withOpacity(0.7)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l10n.wcTronChromeExtensionWebOnly,
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.primary.withOpacity(0.7),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

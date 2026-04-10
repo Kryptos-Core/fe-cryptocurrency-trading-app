@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
@@ -248,15 +249,17 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
     return Row(
       children: [
         Expanded(
           child: TreasuryChainDropdown(
-            chains: treasuryOpsChainsForCurrentEnv(),
+            chains: chainPicker.treasuryOpsChains,
             value: provider.walletChain,
             allowAllOption: true,
             labelText: l10n.treasuryChainLabel,
             hintText: l10n.treasuryFilterAll,
+            displayLabelForChain: treasuryWalletCreationDisplayLabel,
             onChanged: (value) async {
               provider.setWalletFilters(
                   chain: value, purpose: provider.walletPurpose);
@@ -385,11 +388,30 @@ class _TreasuryWalletCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    wallet.label?.isNotEmpty == true ? wallet.label! : wallet.shortAddress,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        wallet.shortAddress,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      if (wallet.label?.trim().isNotEmpty == true &&
+                          wallet.label!.trim() != wallet.address)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            '${l10n.treasuryLabelOptional}: ${wallet.label!.trim()}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onSurfaceVariant,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 if (wallet.isDefaultUserDeposit) ...[

@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/managed_wallet/managed_wallet.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/managed_wallet_detail_screen.dart';
 import 'package:crypto_trading_app/presentation/screens/managed_wallets/widgets/managed_wallet_card.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
@@ -23,8 +24,10 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAll();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<OnchainChainPickerProvider>().ensureLoaded();
+      if (!mounted) return;
+      await _loadAll();
     });
   }
 
@@ -73,6 +76,8 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final chainPicker = context.watch<OnchainChainPickerProvider>();
+    final mwChains = chainPicker.managedWalletsChains;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.treasuryTitle),
@@ -107,7 +112,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                         title: l10n.managedWalletsActiveDefaults,
                       ),
                       const SizedBox(height: 4),
-                      ..._depositDefaultBlocks(context, provider.depositDefaults, managedWalletsChainsForCurrentEnv()),
+                      ..._depositDefaultBlocks(context, provider.depositDefaults, mwChains),
                     ],
                   ),
                 ),
@@ -153,7 +158,7 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                       ),
                       const SizedBox(height: 12),
                       TreasuryChainDropdown(
-                        chains: managedWalletsChainsForCurrentEnv(),
+                        chains: mwChains,
                         value: provider.recommendedChain,
                         labelText: l10n.managedWalletsRecommendedChainLabel,
                         hintText: l10n.managedWalletsSelectChain,

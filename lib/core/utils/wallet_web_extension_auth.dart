@@ -27,7 +27,7 @@ Future<bool> loginWithWebBrowserExtension(
   final sandbox =
       parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.sandbox;
   final chain = metaMask
-      ? (sandbox ? BlockchainNetwork.ethSepolia : BlockchainNetwork.ethMainnet)
+      ? (sandbox ? BlockchainNetwork.bscChapel : BlockchainNetwork.ethMainnet)
       : (sandbox ? BlockchainNetwork.tronNile : BlockchainNetwork.tronMainnet);
 
   final address = metaMask
