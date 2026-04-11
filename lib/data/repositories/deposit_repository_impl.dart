@@ -11,6 +11,15 @@ class DepositRepositoryImpl implements DepositRepository {
   });
 
   @override
+  Future<Map<String, dynamic>> getCheckoutMeta() async {
+    try {
+      return await remoteDataSource.getCheckoutMeta();
+    } on ServerException catch (e) {
+      throw ServerException(message: e.message);
+    }
+  }
+
+  @override
   Future<List<Deposit>> getMyDeposits() async {
     try {
       final models = await remoteDataSource.getMyDeposits();

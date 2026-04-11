@@ -2,9 +2,11 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/data/models/market_maker_config_model.dart';
+import 'package:crypto_trading_app/data/models/market_maker_form_defaults_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class MarketMakerRemoteDataSource {
+  Future<MarketMakerFormDefaultsModel> getFormDefaults();
   Future<List<MarketMakerConfigModel>> listConfigs();
   Future<MarketMakerConfigModel> upsertConfig(String pairId, Map<String, dynamic> payload);
   Future<void> deleteConfig(String pairId);
@@ -20,6 +22,19 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
   final DioClient dioClient;
 
   MarketMakerRemoteDataSourceImpl({required this.dioClient});
+
+  @override
+  Future<MarketMakerFormDefaultsModel> getFormDefaults() async {
+    try {
+      final response = await dioClient.dio.get(ApiConstants.marketMakerDefaults);
+      final map = _unwrap<Map<String, dynamic>>(response.data);
+      return MarketMakerFormDefaultsModel.fromJson(map);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message'] ?? 'Failed to load MM defaults',
+      );
+    }
+  }
 
   T _unwrap<T>(dynamic payload) {
     if (payload is Map<String, dynamic> && payload['data'] is T) {

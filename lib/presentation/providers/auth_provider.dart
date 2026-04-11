@@ -22,6 +22,8 @@ class AuthProvider extends ChangeNotifier {
 
   User? _currentUser;
   UserRole _role = UserRole.trader;
+  /// Raw `role` claim từ JWT (hoặc user.role sau login) — để hiển thị khi [_role] là [UserRole.unrecognized].
+  String? _roleClaimRaw;
   List<String> _permissions = [];
   bool _identityVerified = false;
   bool _emailVerifiedFromJwt = false;
@@ -41,6 +43,10 @@ class AuthProvider extends ChangeNotifier {
 
   User? get currentUser => _currentUser;
   UserRole get role => _role;
+  String? get roleClaimRaw => _roleClaimRaw;
+  /// Nhãn role cho UI (drawer): humanize mã mới khi chưa có enum.
+  String get roleDisplayLabel =>
+      UserRole.formatDisplayLabel(_role, rawRoleClaim: _roleClaimRaw);
   List<String> get permissions => _permissions;
   bool get isAuthenticated => _isAuthenticated;
 
@@ -112,7 +118,8 @@ class AuthProvider extends ChangeNotifier {
     final claims = _decodeJwt(token);
     if (claims.isEmpty) return;
 
-    _role = UserRole.fromString(claims['role'] as String?);
+    _roleClaimRaw = _normalizeRoleRaw(claims['role'] as String?);
+    _role = UserRole.fromString(_roleClaimRaw);
     _permissions = _parsePermissions(claims['permissions']);
     _identityVerified = _parseIdentityVerified(claims);
     _emailVerifiedFromJwt = _parseEmailVerified(claims);
@@ -184,6 +191,7 @@ class AuthProvider extends ChangeNotifier {
     await _tokenService.clearTokens();
     _currentUser = null;
     _role = UserRole.trader;
+    _roleClaimRaw = null;
     _permissions = [];
     _identityVerified = false;
     _emailVerifiedFromJwt = false;
@@ -221,15 +229,22 @@ class AuthProvider extends ChangeNotifier {
     );
     _currentUser = authResponse.user;
     final claims = _decodeJwt(authResponse.accessToken);
-    _role = UserRole.fromString(
-      claims['role'] as String? ?? authResponse.user.role,
-    );
+    final claimRole = claims['role'] as String?;
+    _roleClaimRaw = _normalizeRoleRaw(claimRole) ??
+        _normalizeRoleRaw(authResponse.user.role);
+    _role = UserRole.fromString(claimRole ?? authResponse.user.role);
     _permissions = _parsePermissions(claims['permissions']);
     _identityVerified = _parseIdentityVerified(claims);
     _emailVerifiedFromJwt = _parseEmailVerified(claims);
     _isAuthenticated = true;
     notifyListeners();
     return const Right(null);
+  }
+
+  String? _normalizeRoleRaw(String? value) {
+    final t = value?.trim();
+    if (t == null || t.isEmpty) return null;
+    return t;
   }
 
   /// Base64url-decode the JWT payload section without verifying the signature.

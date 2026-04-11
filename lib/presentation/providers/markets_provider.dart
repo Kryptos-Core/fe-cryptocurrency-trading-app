@@ -637,6 +637,7 @@ class MarketsProvider extends ChangeNotifier {
     required String pairId,
     String? range,
     int limit = 100,
+    String? locale,
   }) async {
     if (range != null) {
       _selectedInterval = ApiConstants.intervalForRange(range);
@@ -649,6 +650,7 @@ class MarketsProvider extends ChangeNotifier {
       pairId: pairId,
       range: range,
       limit: range != null ? 500 : limit,
+      locale: locale,
     );
 
     result.fold(

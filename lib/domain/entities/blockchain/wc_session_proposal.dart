@@ -52,7 +52,10 @@ class WcSessionProposal {
       sessionId: json['sessionId'] as String,
       wcUri: json['wcUri'] as String,
       expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
-      chain: BlockchainNetworkX.fromApiValue(json['chain'] as String? ?? 'BSC_CHAPEL'),
+      chain: BlockchainNetworkX.resolveFromApiValue(
+        json['chain']?.toString(),
+        fallback: BlockchainNetwork.bscChapel,
+      ),
       caip2Chain: json['caip2Chain'] as String? ?? '',
     );
   }

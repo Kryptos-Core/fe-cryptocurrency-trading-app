@@ -555,8 +555,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get payosEnterAmount => 'Vui lòng nhập số tiền.';
 
   @override
-  String get payosInvalidAmountMin =>
-      'Số tiền không hợp lệ. Tối thiểu là 10,000 VND.';
+  String payosInvalidAmountMin(int minVnd) {
+    return 'Số tiền không hợp lệ. Tối thiểu là $minVnd VND.';
+  }
+
+  @override
+  String payosInvalidAmountMax(int maxVnd) {
+    return 'Số tiền không hợp lệ. Tối đa là $maxVnd VND.';
+  }
+
+  @override
+  String payosMinAmountHintDynamic(String minFormatted) {
+    return 'Tối thiểu $minFormatted';
+  }
 
   @override
   String get payosOpenLinkFailed => 'Không thể mở liên kết thanh toán.';
@@ -4104,4 +4115,19 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get onchainSandboxShort => 'Sandbox';
+
+  @override
+  String get onchainTxStatusPending => 'Đang chờ';
+
+  @override
+  String get onchainTxStatusConfirming => 'Đang xác nhận';
+
+  @override
+  String get onchainTxStatusCompleted => 'Hoàn thành';
+
+  @override
+  String get onchainTxStatusFailed => 'Thất bại';
+
+  @override
+  String get onchainTxStatusUnknown => 'Không xác định';
 }

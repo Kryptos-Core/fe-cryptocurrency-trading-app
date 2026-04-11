@@ -556,7 +556,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payosEnterAmount => 'Please enter an amount.';
 
   @override
-  String get payosInvalidAmountMin => 'Invalid amount. Minimum is 10,000 VND.';
+  String payosInvalidAmountMin(int minVnd) {
+    return 'Invalid amount. Minimum is $minVnd VND.';
+  }
+
+  @override
+  String payosInvalidAmountMax(int maxVnd) {
+    return 'Invalid amount. Maximum is $maxVnd VND.';
+  }
+
+  @override
+  String payosMinAmountHintDynamic(String minFormatted) {
+    return 'Minimum $minFormatted';
+  }
 
   @override
   String get payosOpenLinkFailed => 'Could not open payment link.';
@@ -4109,4 +4121,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onchainSandboxShort => 'Sandbox';
+
+  @override
+  String get onchainTxStatusPending => 'Pending';
+
+  @override
+  String get onchainTxStatusConfirming => 'Confirming';
+
+  @override
+  String get onchainTxStatusCompleted => 'Completed';
+
+  @override
+  String get onchainTxStatusFailed => 'Failed';
+
+  @override
+  String get onchainTxStatusUnknown => 'Unknown';
 }

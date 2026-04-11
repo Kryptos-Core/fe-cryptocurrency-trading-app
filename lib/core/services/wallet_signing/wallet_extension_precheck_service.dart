@@ -59,8 +59,25 @@ class WalletExtensionPrecheckService {
   WalletExtensionTarget? targetForNetwork(BlockchainNetwork network) {
     switch (network) {
       case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.baseMainnet:
+      case BlockchainNetwork.baseSepolia:
+      case BlockchainNetwork.arbitrumMainnet:
+      case BlockchainNetwork.arbitrumSepolia:
+      case BlockchainNetwork.optimismMainnet:
+      case BlockchainNetwork.optimismSepolia:
+      case BlockchainNetwork.polygonMainnet:
+      case BlockchainNetwork.polygonAmoy:
+      case BlockchainNetwork.avalancheMainnet:
+      case BlockchainNetwork.avalancheFuji:
+      case BlockchainNetwork.gnosisMainnet:
+      case BlockchainNetwork.gnosisChiado:
+      case BlockchainNetwork.lineaMainnet:
+      case BlockchainNetwork.lineaSepolia:
+      case BlockchainNetwork.fantomMainnet:
+      case BlockchainNetwork.fantomTestnet:
         return const WalletExtensionTarget(
           name: 'MetaMask',
           installUrl: 'https://metamask.io/download/',
@@ -88,6 +105,9 @@ class WalletExtensionPrecheckService {
             'https://chromewebstore.google.com/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa',
           ],
         );
+      case BlockchainNetwork.tonMainnet:
+      case BlockchainNetwork.tonTestnet:
+        return null;
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 
 abstract class PaymentConfigRemoteDataSource {
   Future<List<PaymentMethodConfigModel>> listConfigs();
+  Future<Map<String, dynamic>> getFormOptions();
   /// Decrypted credentials in `config` — admin edit form only.
   Future<Map<String, dynamic>> getConfigDetail(String id);
   Future<PaymentMethodConfigModel> createConfig(Map<String, dynamic> payload);
@@ -25,6 +26,21 @@ class PaymentConfigRemoteDataSourceImpl implements PaymentConfigRemoteDataSource
     }
     if (payload is T) return payload;
     throw const FormatException('Unexpected API response format');
+  }
+
+  @override
+  Future<Map<String, dynamic>> getFormOptions() async {
+    try {
+      final response = await dioClient.dio.get(ApiConstants.paymentConfigOptions);
+      final raw = _unwrap<Map<String, dynamic>>(response.data);
+      return Map<String, dynamic>.from(raw);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data?['message'] ?? 'Failed to load payment config options',
+      );
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   @override

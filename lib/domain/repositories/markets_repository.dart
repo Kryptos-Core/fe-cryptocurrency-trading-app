@@ -78,6 +78,7 @@ abstract class MarketsRepository {
     String? startTime,
     String? endTime,
     int limit = 100,
+    String? locale,
   });
 
   /// Create market pair (Admin only)

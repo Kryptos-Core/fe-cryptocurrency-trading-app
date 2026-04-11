@@ -218,6 +218,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
     String? startTime,
     String? endTime,
     int limit = 100,
+    String? locale,
   }) async {
     try {
       final ohlcvModels = await remoteDataSource.getOHLCV(
@@ -226,6 +227,7 @@ class MarketsRepositoryImpl implements MarketsRepository {
         startTime: startTime,
         endTime: endTime,
         limit: limit,
+        locale: locale,
       );
 
       final ohlcv = ohlcvModels.map((model) => model.toEntity()).toList();

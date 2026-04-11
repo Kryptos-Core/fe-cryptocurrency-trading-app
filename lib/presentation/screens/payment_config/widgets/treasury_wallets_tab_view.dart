@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
@@ -250,6 +251,15 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final chainPicker = context.watch<OnchainChainPickerProvider>();
+    final enums = context.watch<AdminEnumsProvider>();
+    final purposeItems = enums.treasuryWalletPurposes
+        .map(
+          (p) => DropdownMenuItem<String>(
+            value: p,
+            child: Text(p),
+          ),
+        )
+        .toList();
     return Row(
       children: [
         Expanded(
@@ -273,11 +283,7 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
             value: provider.walletPurpose,
             labelText: l10n.treasuryPurposeLabel,
             hintText: l10n.treasuryFilterAll,
-            items: const [
-              DropdownMenuItem(value: 'DEPOSIT', child: Text('DEPOSIT')),
-              DropdownMenuItem(value: 'WITHDRAWAL', child: Text('WITHDRAWAL')),
-              DropdownMenuItem(value: 'BOTH', child: Text('BOTH')),
-            ],
+                       items: purposeItems,
             onChanged: (value) async {
               provider.setWalletFilters(chain: provider.walletChain, purpose: value);
               await provider.loadWallets(force: true);

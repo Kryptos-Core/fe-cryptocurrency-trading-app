@@ -88,9 +88,44 @@
             pairId: null,
             pairName: '--',
             interval: '1m',
+            locale: 'en-US',
             lastPrice: 0,
             lastCandle: null,
         };
+
+        function utcDateFromTime(time) {
+            if (typeof time === 'number') return new Date(time * 1000);
+            const y = time.year;
+            const m = (time.month || 1) - 1;
+            const d = time.day || 1;
+            return new Date(Date.UTC(y, m, d));
+        }
+
+        function createTimeTickFormatter() {
+            return (time, tickMarkType) => {
+                const t = utcDateFromTime(time);
+                const loc = ChartState.locale || 'en-US';
+                const safeFmt = (opts) => {
+                    try {
+                        return new Intl.DateTimeFormat(loc, { timeZone: 'UTC', ...opts }).format(t);
+                    } catch (e) {
+                        const y = t.getUTCFullYear();
+                        const M = String(t.getUTCMonth() + 1).padStart(2, '0');
+                        const d = String(t.getUTCDate()).padStart(2, '0');
+                        const h = String(t.getUTCHours()).padStart(2, '0');
+                        const m = String(t.getUTCMinutes()).padStart(2, '0');
+                        if (tickMarkType === 0) return String(y);
+                        if (tickMarkType === 1) return M + '/' + y;
+                        if (tickMarkType === 2) return d + '/' + M;
+                        return h + ':' + m;
+                    }
+                };
+                if (tickMarkType === 0) return safeFmt({ year: 'numeric' });
+                if (tickMarkType === 1) return safeFmt({ month: 'short', year: 'numeric' });
+                if (tickMarkType === 2) return safeFmt({ month: 'short', day: 'numeric' });
+                return safeFmt({ hour: '2-digit', minute: '2-digit', hour12: false });
+            };
+        }
 
         function intervalToSeconds(interval) {
             const map = { '1m': 60, '5m': 300, '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 };
@@ -207,18 +242,7 @@
                     timeVisible: true,
                     secondsVisible: false,
                     borderVisible: true,
-                    tickMarkFormatter: (time, tickMarkType, locale) => {
-                        const t = typeof time === 'number' ? new Date(time * 1000) : new Date(time.year, (time.month || 1) - 1, time.day || 1);
-                        const y = t.getUTCFullYear();
-                        const M = String(t.getUTCMonth() + 1).padStart(2, '0');
-                        const d = String(t.getUTCDate()).padStart(2, '0');
-                        const h = String(t.getUTCHours()).padStart(2, '0');
-                        const m = String(t.getUTCMinutes()).padStart(2, '0');
-                        if (tickMarkType === 0) return String(y);
-                        if (tickMarkType === 1) return M + '/' + y;
-                        if (tickMarkType === 2) return d + '/' + M;
-                        return h + ':' + m;
-                    },
+                    tickMarkFormatter: createTimeTickFormatter(),
                 },
                 rightPriceScale: {
                     borderVisible: true,
@@ -320,10 +344,21 @@
             document.getElementById('candle-count').textContent = '0';
         }
 
+        function setLocale(tag) {
+            const t = (tag && String(tag).trim()) || 'en-US';
+            ChartState.locale = t.replace(/_/g, '-');
+            if (ChartState.chart) {
+                ChartState.chart.timeScale().applyOptions({
+                    tickMarkFormatter: createTimeTickFormatter(),
+                });
+            }
+        }
+
         window.LWChartAPI = {
             addCandle,
             setCandles,
             clearChart,
+            setLocale,
             getState: () => ({ ...ChartState }),
             isReady: () => ChartState.chart !== null,
         };

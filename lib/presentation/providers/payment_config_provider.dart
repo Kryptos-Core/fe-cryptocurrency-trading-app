@@ -23,6 +23,22 @@ class PaymentConfigProvider extends ChangeNotifier {
   String? _error;
   DateTime? _configsFetchedAt;
 
+  static const List<String> _defaultFormTypes = [
+    'PAYOS',
+    'ETH',
+    'TRON',
+    'SOL',
+  ];
+  static const Map<String, List<String>> _defaultNetworksByType = {
+    'PAYOS': ['MAINNET'],
+    'ETH': ['SEPOLIA', 'MAINNET'],
+    'TRON': ['NILE', 'SHASTA', 'MAINNET'],
+    'SOL': ['DEVNET', 'MAINNET'],
+  };
+
+  List<String>? _formTypes;
+  Map<String, List<String>>? _networksByType;
+
   /// Latest payment config event received via WebSocket.
   PaymentConfigEvent? _latestEvent;
 
@@ -55,7 +71,41 @@ class PaymentConfigProvider extends ChangeNotifier {
   String? get error => _error;
   PaymentConfigEvent? get latestEvent => _latestEvent;
 
+  List<String> get formTypes => _formTypes ?? _defaultFormTypes;
+
+  Map<String, List<String>> get networksByType =>
+      _networksByType ?? _defaultNetworksByType;
+
+  List<String> networksForType(String type) =>
+      networksByType[type] ?? const ['MAINNET'];
+
   // ── Data loading ─────────────────────────────────────────────────────────
+
+  /// Types and networks for admin create/edit form (GET /payment-configs/options).
+  Future<void> loadFormOptions({bool force = false}) async {
+    if (_formTypes != null && !force) return;
+    try {
+      final raw = await _dataSource.getFormOptions();
+      final typesRaw = raw['types'];
+      if (typesRaw is List && typesRaw.isNotEmpty) {
+        _formTypes = typesRaw.map((e) => e.toString()).toList();
+      }
+      final nbt = raw['networksByType'];
+      if (nbt is Map && nbt.isNotEmpty) {
+        _networksByType = nbt.map(
+          (k, v) => MapEntry(
+            k.toString(),
+            v is List
+                ? v.map((e) => e.toString()).toList()
+                : const <String>[],
+          ),
+        );
+      }
+      notifyListeners();
+    } catch (_) {
+      // Keep [_defaultFormTypes] / [_defaultNetworksByType].
+    }
+  }
 
   /// [force] — true after pull-to-refresh, mutations, or WebSocket (bypass stale window).
   /// Loads one config including decrypted [config] map (for edit UI).

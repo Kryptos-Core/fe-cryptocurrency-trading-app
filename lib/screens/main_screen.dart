@@ -948,7 +948,7 @@ class _DrawerProfileHeader extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
-                          auth.role.displayName,
+                          auth.roleDisplayLabel,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,

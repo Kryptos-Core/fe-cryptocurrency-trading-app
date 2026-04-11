@@ -137,7 +137,8 @@ List<BlockchainNetwork> walletConnectLinkNetworksForCurrentEnv() {
       : kOnchainActionableSandboxCodes(treasurySandboxDefaultTronChain());
   return codes
       .where((c) => !c.startsWith('TRON_'))
-      .map(BlockchainNetworkX.fromApiValue)
+      .map(BlockchainNetworkX.tryFromApiValue)
+      .whereType<BlockchainNetwork>()
       .toList(growable: false);
 }
 
@@ -169,7 +170,10 @@ List<BlockchainNetwork> onchainDepositWithdrawNetworksForCurrentEnv() {
   final codes = treasuryChainsUseMainnetOnly
       ? kOnchainActionableProductionCodes
       : kOnchainActionableSandboxCodes(treasurySandboxDefaultTronChain());
-  return codes.map(BlockchainNetworkX.fromApiValue).toList(growable: false);
+  return codes
+      .map(BlockchainNetworkX.tryFromApiValue)
+      .whereType<BlockchainNetwork>()
+      .toList(growable: false);
 }
 
 /// Friendly labels for the create-wallet sheet (ecosystem / wallet type), while values stay API enums.

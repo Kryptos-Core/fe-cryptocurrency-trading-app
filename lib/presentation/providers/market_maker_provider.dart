@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/data/models/market_maker_config_model.dart';
+import 'package:crypto_trading_app/data/models/market_maker_form_defaults_model.dart';
 
 class MarketMakerProvider extends ChangeNotifier {
   final MarketMakerRemoteDataSource _dataSource;
@@ -10,12 +11,14 @@ class MarketMakerProvider extends ChangeNotifier {
 
   List<MarketMakerConfigModel> _configs = [];
   List<MarketMakerPairOption> _pairs = [];
+  MarketMakerFormDefaultsModel? _formDefaults;
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _error;
 
   List<MarketMakerConfigModel> get configs => _configs;
   List<MarketMakerPairOption> get pairs => _pairs;
+  MarketMakerFormDefaultsModel? get formDefaults => _formDefaults;
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
   String? get error => _error;
@@ -39,8 +42,14 @@ class MarketMakerProvider extends ChangeNotifier {
       ]);
       _pairs = result[0] as List<MarketMakerPairOption>;
       _configs = result[1] as List<MarketMakerConfigModel>;
+      try {
+        _formDefaults = await _dataSource.getFormDefaults();
+      } catch (_) {
+        _formDefaults = null;
+      }
     } catch (e) {
       _error = e.toString();
+      _formDefaults = null;
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/core/utils/blockchain_public_error_localizati
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
@@ -925,7 +926,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      tx.status.apiValue,
+                                      onchainTxStatusUiLabel(l10n, tx.status),
                                       style: TextStyle(
                                         color: _txStatusFg(tx.status),
                                         fontSize: 12,

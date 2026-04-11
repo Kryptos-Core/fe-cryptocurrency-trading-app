@@ -82,9 +82,10 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
         _maxPositionBaseCtrl.text = config.maxPositionBase ?? '';
         _isActive = config.isActive;
       } else {
-        _spreadBpsCtrl.text = '10';
-        _spreadAlertBpsCtrl.text = '20';
-        _orderAmountCtrl.text = '0.001';
+        final d = provider.formDefaults;
+        _spreadBpsCtrl.text = '${d?.spreadBps ?? 10}';
+        _spreadAlertBpsCtrl.text = '${d?.spreadAlertThresholdBps ?? 20}';
+        _orderAmountCtrl.text = d?.orderAmount ?? '0.001';
         _stopLossPctCtrl.clear();
         _maxPositionBaseCtrl.clear();
         _isActive = true;

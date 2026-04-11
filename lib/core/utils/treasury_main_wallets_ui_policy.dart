@@ -11,6 +11,7 @@ bool treasuryMainWalletsShowsPendingTab(UserRole role) {
     case UserRole.admin:
     case UserRole.supportAgent:
     case UserRole.marketMaker:
+    case UserRole.unrecognized:
       return true;
   }
 }

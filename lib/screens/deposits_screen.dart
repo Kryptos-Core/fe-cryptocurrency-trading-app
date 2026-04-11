@@ -68,7 +68,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DepositsProvider>().fetchMyDeposits();
+      final p = context.read<DepositsProvider>();
+      p.fetchMyDeposits();
+      p.loadCheckoutMeta();
     });
   }
 
@@ -88,10 +90,19 @@ class _DepositsScreenState extends State<DepositsScreen> {
       return;
     }
 
+    final deposits = context.read<DepositsProvider>();
+    final minVnd = deposits.effectivePayosMinAmountFiat;
     final amount = _parseAmountFromInput(amountText);
-    if (amount == null || amount < 10000) {
+    if (amount == null || amount < minVnd) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.payosInvalidAmountMin)),
+        SnackBar(content: Text(l10n.payosInvalidAmountMin(minVnd))),
+      );
+      return;
+    }
+    final maxVnd = deposits.effectivePayosMaxAmountFiat;
+    if (maxVnd != null && amount > maxVnd) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.payosInvalidAmountMax(maxVnd))),
       );
       return;
     }
@@ -99,7 +110,7 @@ class _DepositsScreenState extends State<DepositsScreen> {
     // Open a blank tab immediately on user click to reduce popup-blocker risk on web.
     final preopenedTab = kIsWeb ? preopenCheckoutTab() : null;
 
-    final provider = context.read<DepositsProvider>();
+    final provider = deposits;
     final session = await provider.createDepositLink(amount);
     final checkoutUrl = session?.checkoutUrl;
     final orderCode = session?.orderCode;
@@ -390,7 +401,11 @@ class _DepositsScreenState extends State<DepositsScreen> {
                         InputDecoration(
                           labelText: l10n.payosAmountLabel,
                           border: const OutlineInputBorder(),
-                          hintText: l10n.payosMinAmountHint,
+                          hintText: l10n.payosMinAmountHintDynamic(
+                            NumberFormat('#,###').format(
+                              provider.effectivePayosMinAmountFiat,
+                            ),
+                          ),
                         ),
                         currencySymbol: 'VND',
                       ),

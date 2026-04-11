@@ -157,10 +157,12 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
     _chartProvider!.setInterval('1m');
 
     // Chart init: loads from cache first, then fetches OHLCV (range 1d for initial load)
+    final ohlcvLocale = Localizations.localeOf(context).toLanguageTag();
     await _initializeChart(
       widget.pairId,
       _chartProvider!,
       _marketsProvider,
+      ohlcvLocale,
     );
   }
 
@@ -168,6 +170,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
     String pairId,
     ChartProvider chartProvider,
     MarketsProvider marketsProvider,
+    String ohlcvLocale,
   ) async {
     try {
       final wsUrl = ApiConstants.webSocketUrl;
@@ -197,6 +200,7 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
         pairId: pairId,
         range: '1d',
         limit: 500,
+        locale: ohlcvLocale,
       );
 
       final interval = marketsProvider.selectedInterval;
@@ -753,10 +757,12 @@ class _ChartRangeRow extends StatelessWidget {
     final chartProvider = context.read<ChartProvider>();
     final interval = ApiConstants.intervalForRange(range);
 
+    final ohlcvLocale = Localizations.localeOf(context).toLanguageTag();
     await marketsProvider.fetchOHLCV(
       pairId: pairId,
       range: range,
       limit: 500,
+      locale: ohlcvLocale,
     );
 
     final ohlcv = marketsProvider.ohlcv;
@@ -877,6 +883,7 @@ class _ChartContentWidget extends StatelessWidget {
         candles: chartProvider.candles,
         pairSymbol: market?.symbol ?? 'UNKNOWN',
         interval: chartProvider.selectedInterval,
+        localeTag: Localizations.localeOf(context).toLanguageTag(),
         onCandleTap: (index) {
           // TODO: Show candle details in bottom sheet
         },

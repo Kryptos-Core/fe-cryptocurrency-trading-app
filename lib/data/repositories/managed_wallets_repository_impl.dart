@@ -191,12 +191,10 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
   }
 
   ManagedWallet _parseManagedWallet(Map<String, dynamic> json) {
-    BlockchainNetwork chain;
-    try {
-      chain = BlockchainNetworkX.fromApiValue(json['chain']?.toString() ?? 'TRON_MAINNET');
-    } catch (_) {
-      chain = BlockchainNetwork.tronMainnet;
-    }
+    final chain = BlockchainNetworkX.resolveFromApiValue(
+      json['chain']?.toString(),
+      fallback: BlockchainNetwork.tronMainnet,
+    );
 
     final isDefault = json['isDefaultDeposit'] ?? json['is_default_deposit'];
     final isActiveVal = json['isActive'] ?? json['is_active'];

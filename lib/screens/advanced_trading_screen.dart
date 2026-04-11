@@ -41,10 +41,12 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
 
     // Load historical data from markets provider
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!context.mounted) return;
       final marketsProvider = context.read<MarketsProvider>();
+      final ohlcvLocale = Localizations.localeOf(context).toLanguageTag();
 
       // Fetch historical OHLCV data
-      await marketsProvider.fetchOHLCV(pairId: widget.pairId);
+      await marketsProvider.fetchOHLCV(pairId: widget.pairId, locale: ohlcvLocale);
 
       // Load into chart
       if (marketsProvider.ohlcv.isNotEmpty) {
@@ -199,24 +201,29 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   }
 
   Widget _buildChart(ChartProvider chartProvider) {
-    return Container(
-      height: 400,
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey[300]!, width: 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: chartProvider.isLoading && chartProvider.candles.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : LightweightChartsWidget(
-              candles: chartProvider.candles,
-              pairSymbol: 'Pair ${chartProvider.selectedPairId ?? 0}',
-              interval: chartProvider.selectedInterval,
-              onCandleTap: (index) {
-                setState(() => _selectedCandleIndex = index);
-              },
-            ),
+    return Builder(
+      builder: (context) {
+        return Container(
+          height: 400,
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey[300]!, width: 1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: chartProvider.isLoading && chartProvider.candles.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : LightweightChartsWidget(
+                  candles: chartProvider.candles,
+                  pairSymbol: 'Pair ${chartProvider.selectedPairId ?? 0}',
+                  interval: chartProvider.selectedInterval,
+                  localeTag: Localizations.localeOf(context).toLanguageTag(),
+                  onCandleTap: (index) {
+                    setState(() => _selectedCandleIndex = index);
+                  },
+                ),
+        );
+      },
     );
   }
 

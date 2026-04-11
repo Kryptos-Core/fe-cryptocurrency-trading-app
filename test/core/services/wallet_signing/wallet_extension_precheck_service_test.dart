@@ -44,10 +44,10 @@ void main() {
       expect(required, isFalse);
     });
 
-    test('requires precheck on windows for ETH and TRON only', () {
+    test('requires precheck on windows when network maps to extension target', () {
       final service = WalletExtensionPrecheckService();
 
-      final ethRequired = service.requiresPrecheck(
+      final evmRequired = service.requiresPrecheck(
         network: BlockchainNetwork.bscChapel,
         isWebDialog: false,
         isTestMode: false,
@@ -68,10 +68,18 @@ void main() {
         isWeb: false,
         platform: TargetPlatform.windows,
       );
+      final tonRequired = service.requiresPrecheck(
+        network: BlockchainNetwork.tonTestnet,
+        isWebDialog: false,
+        isTestMode: false,
+        isWeb: false,
+        platform: TargetPlatform.windows,
+      );
 
-      expect(ethRequired, isTrue);
+      expect(evmRequired, isTrue);
       expect(tronRequired, isTrue);
-      expect(solRequired, isFalse);
+      expect(solRequired, isTrue);
+      expect(tonRequired, isFalse);
     });
 
     test('opens install page using injected opener', () async {

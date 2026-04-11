@@ -14,6 +14,7 @@ void main() {
       expect(treasuryMainWalletsShowsPendingTab(UserRole.supportAgent), isTrue);
       expect(treasuryMainWalletsShowsPendingTab(UserRole.marketMaker), isTrue);
       expect(treasuryMainWalletsShowsPendingTab(UserRole.trader), isTrue);
+      expect(treasuryMainWalletsShowsPendingTab(UserRole.unrecognized), isTrue);
     });
   });
 }

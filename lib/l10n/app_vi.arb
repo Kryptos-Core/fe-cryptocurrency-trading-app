@@ -181,7 +181,24 @@
   "payosNoTransactions": "Chưa có giao dịch nạp tiền nào.",
   "payosOrderCode": "Mã đơn",
   "payosEnterAmount": "Vui lòng nhập số tiền.",
-  "payosInvalidAmountMin": "Số tiền không hợp lệ. Tối thiểu là 10,000 VND.",
+  "payosInvalidAmountMin": "Số tiền không hợp lệ. Tối thiểu là {minVnd} VND.",
+  "@payosInvalidAmountMin": {
+    "placeholders": {
+      "minVnd": { "type": "int" }
+    }
+  },
+  "payosInvalidAmountMax": "Số tiền không hợp lệ. Tối đa là {maxVnd} VND.",
+  "@payosInvalidAmountMax": {
+    "placeholders": {
+      "maxVnd": { "type": "int" }
+    }
+  },
+  "payosMinAmountHintDynamic": "Tối thiểu {minFormatted}",
+  "@payosMinAmountHintDynamic": {
+    "placeholders": {
+      "minFormatted": { "type": "String" }
+    }
+  },
   "payosOpenLinkFailed": "Không thể mở liên kết thanh toán.",
   "payosWaitingWebhook": "Đang chờ webhook PayOS...",
   "payosPaymentUpdated": "Thanh toán thành công. Số dư và lịch sử đã được cập nhật.",
@@ -1503,5 +1520,10 @@
   "wcStoreAppStore": "App Store",
   "wcLinkedWalletAddedToList": "Ví đã được thêm vào danh sách liên kết.",
   "onchainOperatorSandboxBanner": "Hệ thống đang chế độ Sandbox (on-chain). Chỉ dùng testnet — không phải tiền mainnet thật.",
-  "onchainSandboxShort": "Sandbox"
+  "onchainSandboxShort": "Sandbox",
+  "onchainTxStatusPending": "Đang chờ",
+  "onchainTxStatusConfirming": "Đang xác nhận",
+  "onchainTxStatusCompleted": "Hoàn thành",
+  "onchainTxStatusFailed": "Thất bại",
+  "onchainTxStatusUnknown": "Không xác định"
 }

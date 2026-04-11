@@ -1,0 +1,17 @@
+import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+
+String onchainTxStatusUiLabel(AppLocalizations l10n, OnchainTxStatus status) {
+  switch (status) {
+    case OnchainTxStatus.pending:
+      return l10n.onchainTxStatusPending;
+    case OnchainTxStatus.confirming:
+      return l10n.onchainTxStatusConfirming;
+    case OnchainTxStatus.completed:
+      return l10n.onchainTxStatusCompleted;
+    case OnchainTxStatus.failed:
+      return l10n.onchainTxStatusFailed;
+    case OnchainTxStatus.unknown:
+      return l10n.onchainTxStatusUnknown;
+  }
+}

@@ -241,6 +241,7 @@ class FakeMarketsRepository implements MarketsRepository {
     String? startTime,
     String? endTime,
     int limit = 100,
+    String? locale,
   }) async {
     return const Right([]);
   }

@@ -6,12 +6,13 @@ import 'package:crypto_trading_app/core/utils/avatar_url_helper.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'admin_user_detail_screen.dart';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-List<(String, String?)> _roles(AppLocalizations l10n) => [
+List<(String, String?)> _rolesFallback(AppLocalizations l10n) => [
   (l10n.adminUserListRoleAll, null),
   (l10n.adminUserListRoleTrader, 'TRADER'),
   (l10n.adminUserListRoleMarketMaker, 'MARKET_MAKER'),
@@ -21,12 +22,47 @@ List<(String, String?)> _roles(AppLocalizations l10n) => [
   (l10n.adminUserListRoleAdmin, 'ADMIN'),
 ];
 
-List<(String, String?)> _statuses(AppLocalizations l10n) => [
+List<(String, String?)> _rolesFromEnums(
+  AppLocalizations l10n,
+  List<String> values,
+) {
+  if (values.isEmpty) return _rolesFallback(l10n);
+  return [
+    (l10n.adminUserListRoleAll, null),
+    ...values.map((r) => (UserRoleChip.roleLabel(l10n, r), r)),
+  ];
+}
+
+String _adminUserStatusFilterLabel(AppLocalizations l10n, String v) {
+  switch (v) {
+    case 'ACTIVE':
+      return l10n.adminUserListStatusActive;
+    case 'BANNED':
+      return l10n.adminUserListStatusBanned;
+    case 'PENDING':
+      return l10n.adminUserListStatusPending;
+    default:
+      return v.replaceAll('_', ' ').toLowerCase();
+  }
+}
+
+List<(String, String?)> _statusesFallback(AppLocalizations l10n) => [
   (l10n.adminFilterAll, null),
   (l10n.adminUserListStatusActive, 'ACTIVE'),
   (l10n.adminUserListStatusBanned, 'BANNED'),
   (l10n.adminUserListStatusPending, 'PENDING'),
 ];
+
+List<(String, String?)> _statusesFromEnums(
+  AppLocalizations l10n,
+  List<String> values,
+) {
+  if (values.isEmpty) return _statusesFallback(l10n);
+  return [
+    (l10n.adminFilterAll, null),
+    ...values.map((s) => (_adminUserStatusFilterLabel(l10n, s), s)),
+  ];
+}
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +85,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminEnumsProvider>().ensureLoaded();
       context.read<AdminUsersProvider>().fetchUsers(refresh: true);
     });
     _scrollController.addListener(_onScroll);
@@ -206,6 +243,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   Widget _buildFilterSection(BuildContext context, AppLocalizations l10n) {
     const filterPadding =
         EdgeInsets.symmetric(horizontal: 12, vertical: 10);
+    final enums = context.watch<AdminEnumsProvider>();
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         return Padding(
@@ -218,7 +256,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 labelText: l10n.adminUserListRoleLabel,
                 menuMaxHeight: 320,
                 contentPadding: filterPadding,
-                items: _roles(l10n)
+                items: _rolesFromEnums(l10n, enums.userRoles)
                     .map(
                       (e) => DropdownMenuItem<String?>(
                         value: e.$2,
@@ -237,7 +275,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 labelText: l10n.adminUserListStatusLabel,
                 menuMaxHeight: 240,
                 contentPadding: filterPadding,
-                items: _statuses(l10n)
+                items: _statusesFromEnums(l10n, enums.userStatuses)
                     .map(
                       (e) => DropdownMenuItem<String?>(
                         value: e.$2,

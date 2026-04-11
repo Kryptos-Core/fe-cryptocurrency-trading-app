@@ -23,6 +23,7 @@ import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dar
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
 import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
@@ -156,6 +157,9 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AdminUsersProvider>.value(
           value: di.sl<AdminUsersProvider>(),
+        ),
+        ChangeNotifierProvider<AdminEnumsProvider>.value(
+          value: di.sl<AdminEnumsProvider>(),
         ),
         ChangeNotifierProvider<AdminTransactionsProvider>.value(
           value: di.sl<AdminTransactionsProvider>(),

@@ -54,6 +54,9 @@ class ApiConstants {
   /// Health check: GET returns { "ok": true, "timestamp": "..." }. Use to verify backend is running.
   static const String health = '/health';
 
+  /// JWT: reference values for admin filters (orders, deposits, withdrawals, users, treasury).
+  static const String adminEnums = '/enums';
+
   // Dashboard Endpoint
   /// Aggregated dashboard data: top markets + portfolio summary + wallet balances.
   static const String dashboard = '/dashboard';
@@ -191,6 +194,10 @@ class ApiConstants {
   static String walletBalance(String walletId) => '$wallets/$walletId/balance';
   static String walletLedger(String walletId) => '$wallets/$walletId/ledger';
 
+  // Deposits (PayOS fiat)
+  static const String deposits = '/deposits';
+  static const String depositsCheckoutMeta = '$deposits/checkout-meta';
+
   // Admin Wallet Adjustment Endpoints (Điều chỉnh số dư thủ công)
   static const String walletsAdminAdjust = '/wallets/admin/adjust';
   static String walletsAdminAdjustmentHistory(String userId) =>
@@ -238,6 +245,7 @@ class ApiConstants {
 
   // Payment Config Endpoints (ADMIN / FINANCE_MANAGER only)
   static const String paymentConfigs = '/payment-configs';
+  static const String paymentConfigOptions = '/payment-configs/options';
   static String paymentConfigById(String id) => '/payment-configs/$id';
   static String paymentConfigActivate(String id) => '/payment-configs/$id/activate';
 
@@ -267,6 +275,7 @@ class ApiConstants {
   static const String treasuryChainPickerOptions = '$treasury/chain-picker-options';
 
   // Market Maker Endpoints
+  static const String marketMakerDefaults = '/market-maker/defaults';
   static const String marketMakerConfig = '/market-maker/config';
   static String marketMakerConfigByPair(String pairId) => '/market-maker/config/$pairId';
   static String marketMakerPlace(String pairId) => '/market-maker/place/$pairId';

@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
@@ -489,7 +490,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      tx.status.apiValue,
+                                      onchainTxStatusUiLabel(l10n, tx.status),
                                       style: TextStyle(
                                         color: _txStatusFg(tx.status),
                                         fontSize: 12,

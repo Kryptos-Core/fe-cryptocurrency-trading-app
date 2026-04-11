@@ -13,6 +13,7 @@ import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/t
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/treasury_wallets_tab_view.dart';
 import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_settings_tab_view.dart';
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 
 String _paymentConfigDetailStr(dynamic v) {
   if (v == null) return '';
@@ -54,6 +55,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
     _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      context.read<AdminEnumsProvider>().ensureLoaded();
       _lastEnsuredTabIndex = _tabController.index;
       _ensureTabData(_tabController.index);
     });
@@ -725,6 +727,8 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
   final _payosQuoteSymbolCtrl = TextEditingController(text: 'USDT');
   final _payosRateCtrl = TextEditingController(text: '0.00004');
   final _payosSpreadCtrl = TextEditingController(text: '0');
+  final _payosMinDepositCtrl = TextEditingController(text: '10000');
+  final _payosMaxDepositCtrl = TextEditingController();
 
   // Blockchain fields
   final _rpcUrlCtrl = TextEditingController();
@@ -742,14 +746,6 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
   void _onCurrencySuffixControllersChanged() {
     if (mounted) setState(() {});
   }
-
-  final List<String> _types = ['PAYOS', 'ETH', 'TRON', 'SOL'];
-  final Map<String, List<String>> _networks = {
-    'PAYOS': ['MAINNET'],
-    'ETH': ['SEPOLIA', 'MAINNET'],
-    'TRON': ['NILE', 'SHASTA', 'MAINNET'],
-    'SOL': ['DEVNET', 'MAINNET'],
-  };
 
   @override
   void initState() {
@@ -770,9 +766,13 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     _payosQuoteSymbolCtrl.addListener(_onCurrencySuffixControllersChanged);
     _nativeCurrencyCtrl.addListener(_onCurrencySuffixControllersChanged);
     _loadingDetail = widget.configId != null;
-    if (widget.configId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadExistingDetail());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<PaymentConfigProvider>().loadFormOptions();
+      if (widget.configId != null) {
+        _loadExistingDetail();
+      }
+    });
   }
 
   Future<void> _loadExistingDetail() async {
@@ -826,6 +826,11 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           : _paymentConfigDetailStr(cfg['quoteCurrencySymbol']);
       _payosRateCtrl.text = _paymentConfigDetailStr(cfg['fiatToQuoteRate']);
       _payosSpreadCtrl.text = _paymentConfigDetailStr(cfg['fxSpreadBps']);
+      final minDep = _paymentConfigDetailStr(cfg['minDepositAmountFiat']);
+      _payosMinDepositCtrl.text =
+          minDep.isEmpty ? '10000' : minDep;
+      _payosMaxDepositCtrl.text =
+          _paymentConfigDetailStr(cfg['maxDepositAmountFiat']);
     } else {
       _rpcUrlCtrl.text = _paymentConfigDetailStr(cfg['rpcUrl']);
       _hotWalletKeyCtrl.text = _paymentConfigDetailStr(cfg['hotWalletPrivateKey']);
@@ -854,6 +859,8 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     _payosQuoteSymbolCtrl.dispose();
     _payosRateCtrl.dispose();
     _payosSpreadCtrl.dispose();
+    _payosMinDepositCtrl.dispose();
+    _payosMaxDepositCtrl.dispose();
     _rpcUrlCtrl.dispose();
     _hotWalletKeyCtrl.dispose();
     _withdrawMaxCtrl.dispose();
@@ -865,6 +872,10 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final pm = context.watch<PaymentConfigProvider>();
+    final types = pm.formTypes;
+    final networks = pm.networksByType;
+    final networkChoices = networks[_type] ?? const ['MAINNET'];
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -923,20 +934,21 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               // Type selector
               DropdownButtonFormField<String>(
                 key: ValueKey<String>('pm_cfg_type_${widget.configId ?? "new"}_$_type'),
-                initialValue: _type,
+                initialValue: types.contains(_type) ? _type : types.first,
                 decoration: InputDecoration(
                   labelText: l10n.paymentConfigMethodTypeLabel,
                   border: const OutlineInputBorder(),
                   helperText: widget.configId != null ? l10n.paymentConfigEditTypeLocked : null,
                 ),
-                items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                items: types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                 onChanged: widget.configId != null
                     ? null
                     : (v) {
                         if (v != null) {
                           setState(() {
                             _type = v;
-                            _network = _networks[v]!.first;
+                            final next = pm.networksForType(v);
+                            _network = next.isNotEmpty ? next.first : 'MAINNET';
                             _nativeCurrencyCtrl.text = switch (v) {
                               'ETH' => 'ETH',
                               'TRON' => 'TRX',
@@ -951,12 +963,14 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               // Network selector
               DropdownButtonFormField<String>(
                 key: ValueKey<String>('pm_cfg_net_${widget.configId ?? "new"}_${_type}_$_network'),
-                initialValue: _network,
+                initialValue: networkChoices.contains(_network)
+                    ? _network
+                    : networkChoices.first,
                 decoration: InputDecoration(
                   labelText: l10n.paymentConfigNetworkLabel,
                   border: const OutlineInputBorder(),
                 ),
-                items: (_networks[_type] ?? [])
+                items: networkChoices
                     .map((n) => DropdownMenuItem(value: n, child: Text(n)))
                     .toList(),
                 onChanged: widget.configId != null
@@ -1140,6 +1154,30 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
             ),
           ),
         ]),
+        const SizedBox(height: 10),
+        Row(children: [
+          Expanded(
+            child: TextFormField(
+              controller: _payosMinDepositCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Min deposit (fiat, integer)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextFormField(
+              controller: _payosMaxDepositCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Max deposit (fiat, optional)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ]),
       ];
   }
 
@@ -1220,6 +1258,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
         'quoteCurrencySymbol': _payosQuoteSymbolCtrl.text.trim().toUpperCase(),
         'fiatToQuoteRate': _payosRateCtrl.text.trim(),
         'fxSpreadBps': _payosSpreadCtrl.text.trim(),
+        'minDepositAmountFiat': _payosMinDepositCtrl.text.trim(),
+        if (_payosMaxDepositCtrl.text.trim().isNotEmpty)
+          'maxDepositAmountFiat': _payosMaxDepositCtrl.text.trim(),
       };
     }
     return {

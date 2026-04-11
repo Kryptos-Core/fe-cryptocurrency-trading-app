@@ -325,8 +325,25 @@ class WalletServiceFactory {
 
     switch (network) {
       case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.baseMainnet:
+      case BlockchainNetwork.baseSepolia:
+      case BlockchainNetwork.arbitrumMainnet:
+      case BlockchainNetwork.arbitrumSepolia:
+      case BlockchainNetwork.optimismMainnet:
+      case BlockchainNetwork.optimismSepolia:
+      case BlockchainNetwork.polygonMainnet:
+      case BlockchainNetwork.polygonAmoy:
+      case BlockchainNetwork.avalancheMainnet:
+      case BlockchainNetwork.avalancheFuji:
+      case BlockchainNetwork.gnosisMainnet:
+      case BlockchainNetwork.gnosisChiado:
+      case BlockchainNetwork.lineaMainnet:
+      case BlockchainNetwork.lineaSepolia:
+      case BlockchainNetwork.fantomMainnet:
+      case BlockchainNetwork.fantomTestnet:
         return _metamaskWalletService;
       case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
@@ -335,6 +352,9 @@ class WalletServiceFactory {
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return _tronLinkWalletService;
+      case BlockchainNetwork.tonMainnet:
+      case BlockchainNetwork.tonTestnet:
+        return _manualTestWalletService;
     }
   }
 }

@@ -17,8 +17,25 @@ class SigningGuideCard extends StatelessWidget {
   String _walletNameForNetwork() {
     switch (network) {
       case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.baseMainnet:
+      case BlockchainNetwork.baseSepolia:
+      case BlockchainNetwork.arbitrumMainnet:
+      case BlockchainNetwork.arbitrumSepolia:
+      case BlockchainNetwork.optimismMainnet:
+      case BlockchainNetwork.optimismSepolia:
+      case BlockchainNetwork.polygonMainnet:
+      case BlockchainNetwork.polygonAmoy:
+      case BlockchainNetwork.avalancheMainnet:
+      case BlockchainNetwork.avalancheFuji:
+      case BlockchainNetwork.gnosisMainnet:
+      case BlockchainNetwork.gnosisChiado:
+      case BlockchainNetwork.lineaMainnet:
+      case BlockchainNetwork.lineaSepolia:
+      case BlockchainNetwork.fantomMainnet:
+      case BlockchainNetwork.fantomTestnet:
         return 'MetaMask';
       case BlockchainNetwork.solanaMainnet:
       case BlockchainNetwork.solanaDevnet:
@@ -27,6 +44,9 @@ class SigningGuideCard extends StatelessWidget {
       case BlockchainNetwork.tronNile:
       case BlockchainNetwork.tronShasta:
         return 'TronLink';
+      case BlockchainNetwork.tonMainnet:
+      case BlockchainNetwork.tonTestnet:
+        return 'TON Wallet';
     }
   }
 
@@ -41,8 +61,25 @@ class SigningGuideCard extends StatelessWidget {
 
     switch (network) {
       case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.baseMainnet:
+      case BlockchainNetwork.baseSepolia:
+      case BlockchainNetwork.arbitrumMainnet:
+      case BlockchainNetwork.arbitrumSepolia:
+      case BlockchainNetwork.optimismMainnet:
+      case BlockchainNetwork.optimismSepolia:
+      case BlockchainNetwork.polygonMainnet:
+      case BlockchainNetwork.polygonAmoy:
+      case BlockchainNetwork.avalancheMainnet:
+      case BlockchainNetwork.avalancheFuji:
+      case BlockchainNetwork.gnosisMainnet:
+      case BlockchainNetwork.gnosisChiado:
+      case BlockchainNetwork.lineaMainnet:
+      case BlockchainNetwork.lineaSepolia:
+      case BlockchainNetwork.fantomMainnet:
+      case BlockchainNetwork.fantomTestnet:
         return [
           l10n.walletGuideNativeEthStep1,
           l10n.walletGuideNativeEthStep2,
@@ -63,6 +100,13 @@ class SigningGuideCard extends StatelessWidget {
           l10n.walletGuideNativeTronStep2,
           l10n.walletGuideNativeTronStep3,
         ];
+      case BlockchainNetwork.tonMainnet:
+      case BlockchainNetwork.tonTestnet:
+        return [
+          l10n.walletGuideTestStep1,
+          l10n.walletGuideNativeTestStep2,
+          l10n.walletGuideNativeTestStep3,
+        ];
     }
   }
 
@@ -77,8 +121,25 @@ class SigningGuideCard extends StatelessWidget {
 
     switch (network) {
       case BlockchainNetwork.ethMainnet:
+      case BlockchainNetwork.ethSepolia:
       case BlockchainNetwork.bscMainnet:
       case BlockchainNetwork.bscChapel:
+      case BlockchainNetwork.baseMainnet:
+      case BlockchainNetwork.baseSepolia:
+      case BlockchainNetwork.arbitrumMainnet:
+      case BlockchainNetwork.arbitrumSepolia:
+      case BlockchainNetwork.optimismMainnet:
+      case BlockchainNetwork.optimismSepolia:
+      case BlockchainNetwork.polygonMainnet:
+      case BlockchainNetwork.polygonAmoy:
+      case BlockchainNetwork.avalancheMainnet:
+      case BlockchainNetwork.avalancheFuji:
+      case BlockchainNetwork.gnosisMainnet:
+      case BlockchainNetwork.gnosisChiado:
+      case BlockchainNetwork.lineaMainnet:
+      case BlockchainNetwork.lineaSepolia:
+      case BlockchainNetwork.fantomMainnet:
+      case BlockchainNetwork.fantomTestnet:
         return [
           l10n.walletGuideWebEthStep1,
           l10n.walletGuideWebEthStep2,
@@ -98,6 +159,13 @@ class SigningGuideCard extends StatelessWidget {
           l10n.walletGuideWebTronStep1,
           l10n.walletGuideWebTronStep2,
           l10n.walletGuideWebTronStep3,
+        ];
+      case BlockchainNetwork.tonMainnet:
+      case BlockchainNetwork.tonTestnet:
+        return [
+          l10n.walletGuideTestStep1,
+          l10n.walletGuideWebTestStep2,
+          l10n.walletGuideWebTestStep3,
         ];
     }
   }

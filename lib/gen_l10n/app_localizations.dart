@@ -1181,8 +1181,20 @@ abstract class AppLocalizations {
   /// No description provided for @payosInvalidAmountMin.
   ///
   /// In en, this message translates to:
-  /// **'Invalid amount. Minimum is 10,000 VND.'**
-  String get payosInvalidAmountMin;
+  /// **'Invalid amount. Minimum is {minVnd} VND.'**
+  String payosInvalidAmountMin(int minVnd);
+
+  /// No description provided for @payosInvalidAmountMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount. Maximum is {maxVnd} VND.'**
+  String payosInvalidAmountMax(int maxVnd);
+
+  /// No description provided for @payosMinAmountHintDynamic.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum {minFormatted}'**
+  String payosMinAmountHintDynamic(String minFormatted);
 
   /// No description provided for @payosOpenLinkFailed.
   ///
@@ -7539,6 +7551,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sandbox'**
   String get onchainSandboxShort;
+
+  /// No description provided for @onchainTxStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get onchainTxStatusPending;
+
+  /// No description provided for @onchainTxStatusConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get onchainTxStatusConfirming;
+
+  /// No description provided for @onchainTxStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get onchainTxStatusCompleted;
+
+  /// No description provided for @onchainTxStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get onchainTxStatusFailed;
+
+  /// No description provided for @onchainTxStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get onchainTxStatusUnknown;
 }
 
 class _AppLocalizationsDelegate

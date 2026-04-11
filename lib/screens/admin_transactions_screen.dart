@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/core/di/injection_container.dart' show sl;
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/data/models/user_model.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'admin_user_detail_screen.dart';
@@ -24,6 +25,105 @@ String _adminReconcileStoppedReasonLabel(AppLocalizations l10n, String code) {
     default:
       return code;
   }
+}
+
+List<(String, String?)> _adminOrderStatusFilterChoices(
+  AppLocalizations l10n,
+  List<String> apiValues,
+) {
+  String label(String v) {
+    switch (v) {
+      case 'OPEN':
+        return l10n.orderStatusOpen;
+      case 'PARTIAL':
+        return l10n.orderStatusPartial;
+      case 'FILLED':
+        return l10n.orderStatusFilled;
+      case 'CANCELLED':
+        return l10n.orderStatusCancelled;
+      case 'REJECTED':
+        return l10n.orderStatusRejected;
+      default:
+        return v;
+    }
+  }
+  if (apiValues.isEmpty) {
+    return [
+      (l10n.adminFilterAll, null),
+      (l10n.orderStatusOpen, 'OPEN'),
+      (l10n.orderStatusPartial, 'PARTIAL'),
+      (l10n.orderStatusFilled, 'FILLED'),
+      (l10n.orderStatusCancelled, 'CANCELLED'),
+      (l10n.orderStatusRejected, 'REJECTED'),
+    ];
+  }
+  return [
+    (l10n.adminFilterAll, null),
+    ...apiValues.map((v) => (label(v), v)),
+  ];
+}
+
+List<(String, String?)> _adminDepositStatusFilterChoices(
+  AppLocalizations l10n,
+  List<String> apiValues,
+) {
+  String label(String v) {
+    switch (v) {
+      case 'PENDING':
+        return l10n.depositStatusPending;
+      case 'PAID':
+        return l10n.depositStatusPaid;
+      case 'CANCELLED':
+        return l10n.depositStatusCancelled;
+      default:
+        return v;
+    }
+  }
+  if (apiValues.isEmpty) {
+    return [
+      (l10n.adminFilterAll, null),
+      (l10n.depositStatusPending, 'PENDING'),
+      (l10n.depositStatusPaid, 'PAID'),
+      (l10n.depositStatusCancelled, 'CANCELLED'),
+    ];
+  }
+  return [
+    (l10n.adminFilterAll, null),
+    ...apiValues.map((v) => (label(v), v)),
+  ];
+}
+
+List<(String, String?)> _adminWithdrawalStatusFilterChoices(
+  AppLocalizations l10n,
+  List<String> apiValues,
+) {
+  String label(String v) {
+    switch (v) {
+      case 'PENDING':
+        return l10n.withdrawalStatusPending;
+      case 'CONFIRMING':
+        return l10n.withdrawalStatusConfirming;
+      case 'COMPLETED':
+        return l10n.withdrawalStatusCompleted;
+      case 'FAILED':
+        return l10n.withdrawalStatusFailed;
+      default:
+        return v;
+    }
+  }
+  if (apiValues.isEmpty) {
+    return [
+      (l10n.adminFilterAll, null),
+      (l10n.withdrawalStatusPending, 'PENDING'),
+      (l10n.withdrawalStatusConfirming, 'CONFIRMING'),
+      (l10n.withdrawalStatusCompleted, 'COMPLETED'),
+      (l10n.withdrawalStatusFailed, 'FAILED'),
+    ];
+  }
+  return [
+    (l10n.adminFilterAll, null),
+    ...apiValues.map((v) => (label(v), v)),
+  ];
 }
 
 class AdminTransactionsScreen extends StatefulWidget {
@@ -43,6 +143,7 @@ class _AdminTransactionsScreenState extends State<AdminTransactionsScreen>
     super.initState();
     _tabs = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminEnumsProvider>().ensureLoaded();
       final p = context.read<AdminTransactionsProvider>();
       p.fetchOrders(refresh: true);
       p.fetchDeposits(refresh: true);
@@ -101,15 +202,6 @@ class _OrdersTabState extends State<_OrdersTab>
   Timer? _debounce;
 
   String? _selectedStatus;
-
-  static List<(String, String?)> _orderStatuses(AppLocalizations l10n) => [
-    (l10n.adminFilterAll, null),
-    (l10n.orderStatusOpen, 'OPEN'),
-    (l10n.orderStatusPartial, 'PARTIAL'),
-    (l10n.orderStatusFilled, 'FILLED'),
-    (l10n.orderStatusCancelled, 'CANCELLED'),
-    (l10n.orderStatusRejected, 'REJECTED'),
-  ];
 
   @override
   void initState() {
@@ -219,6 +311,7 @@ class _OrdersTabState extends State<_OrdersTab>
 
   Widget _buildFilterBar() {
     final l10n = AppLocalizations.of(context);
+    final enums = context.watch<AdminEnumsProvider>();
     return Consumer<AdminTransactionsProvider>(
       builder: (context, provider, _) {
         return Padding(
@@ -304,7 +397,10 @@ class _OrdersTabState extends State<_OrdersTab>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _orderStatuses(l10n).map((s) {
+                  children: _adminOrderStatusFilterChoices(
+                    l10n,
+                    enums.orderStatuses,
+                  ).map((s) {
                     final sel = _selectedStatus == s.$2;
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
@@ -397,13 +493,6 @@ class _DepositsTabState extends State<_DepositsTab>
   Timer? _debounce;
   String? _selectedStatus;
 
-  static List<(String, String?)> _depositStatuses(AppLocalizations l10n) => [
-    (l10n.adminFilterAll, null),
-    (l10n.depositStatusPending, 'PENDING'),
-    (l10n.depositStatusPaid, 'PAID'),
-    (l10n.depositStatusCancelled, 'CANCELLED'),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -435,6 +524,8 @@ class _DepositsTabState extends State<_DepositsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final l10n = AppLocalizations.of(context);
+    final enums = context.watch<AdminEnumsProvider>();
     return Column(
       children: [
         Padding(
@@ -445,7 +536,7 @@ class _DepositsTabState extends State<_DepositsTab>
                 controller: _userController,
                 onChanged: _onUserSearch,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context).filterByUserId,
+                  hintText: l10n.filterByUserId,
                   prefixIcon: const Icon(Icons.person_search_outlined),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -458,7 +549,10 @@ class _DepositsTabState extends State<_DepositsTab>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _depositStatuses(AppLocalizations.of(context)).map((s) {
+                  children: _adminDepositStatusFilterChoices(
+                    l10n,
+                    enums.depositStatuses,
+                  ).map((s) {
                     final sel = _selectedStatus == s.$2;
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
@@ -555,14 +649,6 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
   Timer? _debounce;
   String? _selectedStatus;
 
-  static List<(String, String?)> _withdrawalStatuses(AppLocalizations l10n) => [
-    (l10n.adminFilterAll, null),
-    (l10n.withdrawalStatusPending, 'PENDING'),
-    (l10n.withdrawalStatusConfirming, 'CONFIRMING'),
-    (l10n.withdrawalStatusCompleted, 'COMPLETED'),
-    (l10n.withdrawalStatusFailed, 'FAILED'),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -594,6 +680,8 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final l10n = AppLocalizations.of(context);
+    final enums = context.watch<AdminEnumsProvider>();
     return Column(
       children: [
         Padding(
@@ -604,7 +692,7 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
                 controller: _userController,
                 onChanged: _onUserSearch,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context).filterByUserId,
+                  hintText: l10n.filterByUserId,
                   prefixIcon: const Icon(Icons.person_search_outlined),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
@@ -617,7 +705,10 @@ class _WithdrawalsTabState extends State<_WithdrawalsTab>
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _withdrawalStatuses(AppLocalizations.of(context)).map((s) {
+                  children: _adminWithdrawalStatusFilterChoices(
+                    l10n,
+                    enums.withdrawalStatuses,
+                  ).map((s) {
                     final sel = _selectedStatus == s.$2;
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),

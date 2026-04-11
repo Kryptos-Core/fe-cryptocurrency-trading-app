@@ -452,11 +452,14 @@ extension BlockchainNetworkX on BlockchainNetwork {
     }
   }
 
-  static BlockchainNetwork fromApiValue(String value) {
-    final resolved = tryFromApiValue(value);
-    if (resolved == null) {
-      throw ArgumentError('Unsupported blockchain network: $value');
-    }
-    return resolved;
+  /// Parses API chain code; uses [fallback] when [raw] is null, empty, or unknown.
+  ///
+  /// Prefer this over throwing parsers so new backend chains do not crash the app.
+  static BlockchainNetwork resolveFromApiValue(
+    String? raw, {
+    required BlockchainNetwork fallback,
+  }) {
+    if (raw == null || raw.isEmpty) return fallback;
+    return tryFromApiValue(raw) ?? fallback;
   }
 }

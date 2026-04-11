@@ -80,6 +80,7 @@ abstract class MarketsRemoteDataSource {
     String? startTime,
     String? endTime,
     int limit = 100,
+    String? locale,
   });
 
   /// Create market pair (Admin only)
@@ -729,9 +730,12 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     String? startTime,
     String? endTime,
     int limit = 100,
+    String? locale,
   }) async {
     try {
       final effectiveLimit = range != null ? 500 : limit;
+      final loc = locale?.trim() ?? '';
+      final hasLocale = loc.isNotEmpty;
       final response = await dio.get(
         ApiConstants.marketOHLCV(pairId),
         queryParameters: {
@@ -739,7 +743,13 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
           if (startTime != null && range == null) 'start_time': startTime,
           if (endTime != null && range == null) 'end_time': endTime,
           'limit': effectiveLimit,
+          if (hasLocale) 'locale': loc,
         },
+        options: Options(
+          headers: {
+            if (hasLocale) 'Accept-Language': loc,
+          },
+        ),
       );
 
       if (response.statusCode == 200) {

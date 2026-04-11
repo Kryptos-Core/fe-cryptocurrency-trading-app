@@ -31,8 +31,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       final data = _extractDataMap(response.data);
       return Right(
         DepositAddressResponse(
-          chain: BlockchainNetworkX.fromApiValue(
-            data['chain']?.toString() ?? chain.apiValue,
+          chain: BlockchainNetworkX.resolveFromApiValue(
+            data['chain']?.toString(),
+            fallback: chain,
           ),
           depositAddress: data['depositAddress']?.toString() ?? '',
           note: data['note']?.toString(),
@@ -62,8 +63,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       final data = _extractDataMap(response.data);
       return Right(
         DepositPreviewResponse(
-          chain: BlockchainNetworkX.fromApiValue(
-            data['chain']?.toString() ?? chain.apiValue,
+          chain: BlockchainNetworkX.resolveFromApiValue(
+            data['chain']?.toString(),
+            fallback: chain,
           ),
           txHash: data['txHash']?.toString() ?? txHash,
           status: data['status']?.toString() ?? 'PENDING',
@@ -131,8 +133,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       return Right(
         VerifyLinkResponse(
           linkId: data['linkId']?.toString() ?? '',
-          chain: BlockchainNetworkX.fromApiValue(
-            data['chain']?.toString() ?? chain.apiValue,
+          chain: BlockchainNetworkX.resolveFromApiValue(
+            data['chain']?.toString(),
+            fallback: chain,
           ),
           address: data['address']?.toString() ?? address,
           status: data['status']?.toString() ?? 'VERIFIED',
@@ -167,8 +170,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       final response = await _dio.get(ApiConstants.blockchainWalletBalance(linkId));
       final data = _extractDataMap(response.data);
 
-      final chain = BlockchainNetworkX.fromApiValue(
-        data['chain']?.toString() ?? 'BSC_CHAPEL',
+      final chain = BlockchainNetworkX.resolveFromApiValue(
+        data['chain']?.toString(),
+        fallback: BlockchainNetwork.bscChapel,
       );
 
       return Right(
@@ -320,8 +324,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
       return Right(
         VerifyLinkResponse(
           linkId: data['linkId']?.toString() ?? '',
-          chain: BlockchainNetworkX.fromApiValue(
-            data['chain']?.toString() ?? chain.apiValue,
+          chain: BlockchainNetworkX.resolveFromApiValue(
+            data['chain']?.toString(),
+            fallback: chain,
           ),
           address: data['address']?.toString() ?? address,
           status: data['status']?.toString() ?? 'VERIFIED',
@@ -337,8 +342,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
   LinkedWallet _parseLinkedWallet(Map<String, dynamic> json) {
     return LinkedWallet(
       linkId: json['linkId']?.toString() ?? '',
-      chain: BlockchainNetworkX.fromApiValue(
-        json['chain']?.toString() ?? 'BSC_CHAPEL',
+      chain: BlockchainNetworkX.resolveFromApiValue(
+        json['chain']?.toString(),
+        fallback: BlockchainNetwork.bscChapel,
       ),
       address: json['address']?.toString() ?? '',
       label: json['label']?.toString(),
@@ -350,8 +356,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
   }
 
   OnchainTransaction _parseOnchainTransaction(Map<String, dynamic> json) {
-    final chain = BlockchainNetworkX.fromApiValue(
-      json['chain']?.toString() ?? 'BSC_CHAPEL',
+    final chain = BlockchainNetworkX.resolveFromApiValue(
+      json['chain']?.toString(),
+      fallback: BlockchainNetwork.bscChapel,
     );
     final status = OnchainTxStatusX.fromApiValue(
       json['status']?.toString() ?? 'PENDING',

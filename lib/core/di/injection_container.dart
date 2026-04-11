@@ -50,6 +50,7 @@ import 'package:crypto_trading_app/core/providers/locale_provider.dart';
 import 'package:crypto_trading_app/core/providers/theme_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
 
 // Export for hot reload check
@@ -77,6 +78,11 @@ Future<void> initializeDependencies() async {
         chartCacheService: sl<ChartCacheService>(),
       ),
     );
+    if (!sl.isRegistered<AdminEnumsProvider>()) {
+      sl.registerLazySingleton<AdminEnumsProvider>(
+        () => AdminEnumsProvider(dioClient: sl<DioClient>()),
+      );
+    }
     return; // All other singletons remain registered
   }
 
@@ -278,6 +284,10 @@ Future<void> initializeDependencies() async {
   // ===== Admin Users =====
   sl.registerLazySingleton<AdminUsersProvider>(
     () => AdminUsersProvider(dioClient: sl<DioClient>()),
+  );
+
+  sl.registerLazySingleton<AdminEnumsProvider>(
+    () => AdminEnumsProvider(dioClient: sl<DioClient>()),
   );
 
   // ===== Admin Transactions =====

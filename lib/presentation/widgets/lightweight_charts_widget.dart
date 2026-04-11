@@ -17,6 +17,8 @@ class LightweightChartsWidget extends StatefulWidget {
   final List<OHLCData> candles;
   final String pairSymbol;
   final String interval;
+  /// BCP 47 tag (e.g. vi-VN) for TradingView time axis via `Intl.DateTimeFormat`.
+  final String? localeTag;
   final Function(int?)? onCandleTap;
   final EdgeInsets padding;
 
@@ -25,6 +27,7 @@ class LightweightChartsWidget extends StatefulWidget {
     required this.candles,
     required this.pairSymbol,
     this.interval = '1m',
+    this.localeTag,
     this.onCandleTap,
     this.padding = const EdgeInsets.all(0),
   });
@@ -153,6 +156,7 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
   void didUpdateWidget(LightweightChartsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_isReady) return;
+    final localeChanged = oldWidget.localeTag != widget.localeTag;
     final pairChanged = oldWidget.pairSymbol != widget.pairSymbol;
     if (pairChanged) {
       _controller.executeScript('window.LWChartAPI.clearChart()');
@@ -169,13 +173,21 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
         len > 0 &&
         (widget.candles.last.openTime != oldWidget.candles.last.openTime ||
             widget.candles.last.close != oldWidget.candles.last.close);
-    if (pairChanged || oldLen != len || lastChanged) _sendCandlesToChart();
+    if (pairChanged || oldLen != len || lastChanged || localeChanged) {
+      _sendCandlesToChart();
+    }
   }
 
   Future<void> _sendCandlesToChart() async {
     if (!_isReady || widget.candles.isEmpty) return;
 
     try {
+      final tag = (widget.localeTag != null && widget.localeTag!.trim().isNotEmpty)
+          ? widget.localeTag!.trim()
+          : 'en-US';
+      await _controller.executeScript(
+        'window.LWChartAPI.setLocale(${jsonEncode(tag)})',
+      );
       final list = widget.candles.map(_candleToJson).toList();
       await _controller.executeScript(
         'window.LWChartAPI.setCandles(${jsonEncode(list)})',
