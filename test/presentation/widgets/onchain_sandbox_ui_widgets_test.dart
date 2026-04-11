@@ -44,7 +44,7 @@ void main() {
           Builder(
             builder: (context) {
               return OnchainSandboxOperatorBanner(
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
               );
             },
           ),
@@ -62,7 +62,7 @@ void main() {
           Builder(
             builder: (context) {
               return OnchainSandboxOperatorBanner(
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
               );
             },
           ),
@@ -79,7 +79,7 @@ void main() {
           Builder(
             builder: (context) {
               return OnchainSandboxOperatorBanner(
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
               );
             },
           ),
@@ -96,7 +96,7 @@ void main() {
         appWithBanner(
           Builder(
             builder: (context) {
-              final l10n = AppLocalizations.of(context)!;
+              final l10n = AppLocalizations.of(context);
               return OnchainNetworkDropdownMenuChild(
                 network: BlockchainNetwork.bscChapel,
                 l10n: l10n,
@@ -114,7 +114,7 @@ void main() {
         appWithBanner(
           Builder(
             builder: (context) {
-              final l10n = AppLocalizations.of(context)!;
+              final l10n = AppLocalizations.of(context);
               return OnchainNetworkDropdownMenuChild(
                 network: BlockchainNetwork.ethMainnet,
                 l10n: l10n,
@@ -132,7 +132,7 @@ void main() {
         appWithBanner(
           Builder(
             builder: (context) {
-              final l10n = AppLocalizations.of(context)!;
+              final l10n = AppLocalizations.of(context);
               return OnchainNetworkDropdownMenuChild(
                 network: BlockchainNetwork.bscChapel,
                 l10n: l10n,

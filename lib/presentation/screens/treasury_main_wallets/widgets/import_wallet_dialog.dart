@@ -271,7 +271,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
     final canConfirmOtp =
         !_otpVerified && !_isVerifyingOtp && !otpBusy;
 
-    final outlineDecoration = ({String? label, String? error, String? helper}) =>
+    InputDecoration outlineDecoration({String? label, String? error, String? helper}) =>
         InputDecoration(
           labelText: label,
           errorText: error,

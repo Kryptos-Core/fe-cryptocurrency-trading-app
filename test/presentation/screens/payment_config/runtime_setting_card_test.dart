@@ -61,7 +61,7 @@ void main() {
               return RuntimeSettingCard(
                 row: row,
                 controller: ctrl,
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
                 onValueChanged: () {},
               );
             },
@@ -100,7 +100,7 @@ void main() {
               return RuntimeSettingCard(
                 row: row,
                 controller: ctrl,
-                l10n: AppLocalizations.of(context)!,
+                l10n: AppLocalizations.of(context),
               );
             },
           ),
