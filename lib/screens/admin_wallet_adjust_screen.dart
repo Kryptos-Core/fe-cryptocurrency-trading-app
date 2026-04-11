@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/platform_cash_currency.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
@@ -13,8 +14,6 @@ import 'package:crypto_trading_app/presentation/providers/currencies_provider.da
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'admin_user_list_screen.dart';
 
-/// Platform cash currency symbol — must match PLATFORM_CASH_CURRENCY_SYMBOL on BE
-const _kPlatformCashSymbol = 'USDT';
 
 /// Màn hình điều chỉnh số dư ví thủ công dành cho Admin / Risk Officer.
 /// Nên ưu tiên sử dụng flow: Quản lý người dùng → Chọn user → Nạp/Rút.
@@ -64,9 +63,10 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
 
     final currencies = List<Currency>.from(currProvider.tradableCurrencies);
     final hasUsdt =
-        currencies.any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+        currencies.any(
+            (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol);
     if (!hasUsdt) {
-      await currProvider.getCurrencyBySymbol(_kPlatformCashSymbol);
+      await currProvider.getCurrencyBySymbol(kDefaultPlatformCashCurrencySymbol);
       if (!mounted) return;
       if (currProvider.selectedCurrency != null) {
         currencies.insert(0, currProvider.selectedCurrency!);
@@ -77,7 +77,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       _availableCurrencies = currencies;
       _filteredCurrencies = currencies;
       _selectedCurrency = currencies.firstWhere(
-        (c) => c.symbol.toUpperCase() == _kPlatformCashSymbol,
+        (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol,
         orElse: () => currencies.isNotEmpty ? currencies.first : currencies.first,
       );
       _isLoadingCurrencies = false;
@@ -330,7 +330,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                             border: const OutlineInputBorder(),
                           ),
                           currencySymbol:
-                              _selectedCurrency?.symbol ?? _kPlatformCashSymbol,
+                              _selectedCurrency?.symbol ??
+                                  kDefaultPlatformCashCurrencySymbol,
                         ),
                         validator: (v) {
                           final l10n = AppLocalizations.of(context);

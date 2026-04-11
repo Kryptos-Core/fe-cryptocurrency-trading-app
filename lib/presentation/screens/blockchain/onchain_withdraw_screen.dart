@@ -53,6 +53,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
         return const Color(0xFFFFF6E8);
       case OnchainTxStatus.failed:
         return const Color(0xFFFDECEF);
+      case OnchainTxStatus.unknown:
+        return const Color(0xFFF1F5F9);
     }
   }
 
@@ -66,6 +68,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
         return const Color(0xFFB56900);
       case OnchainTxStatus.failed:
         return const Color(0xFFB3261E);
+      case OnchainTxStatus.unknown:
+        return const Color(0xFF64748B);
     }
   }
 
@@ -98,6 +102,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
         return l10n.txTypeWithdrawals;
       case OnchainTxType.transfer:
         return l10n.txTypeTransfers;
+      case OnchainTxType.unknown:
+        return l10n.txTypeUnknown;
     }
   }
 
@@ -243,8 +249,9 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
         final l10n = AppLocalizations.of(context);
-        final networks =
-            context.watch<OnchainChainPickerProvider>().onchainDepositWithdrawNetworks;
+        final networks = context
+            .watch<OnchainChainPickerProvider>()
+            .onchainDepositWithdrawNetworks;
         final wallets = provider.linkedWallets
             .where(
               (wallet) =>
@@ -280,7 +287,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   value: _selectedNetwork,
                   menuMaxHeight: 300,
                   labelText: l10n.networkLabel,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   items: networks
                       .map(
                         (network) => DropdownMenuItem(
@@ -288,7 +296,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                           child: OnchainNetworkDropdownMenuChild(
                             network: network,
                             l10n: l10n,
-                            suppressSandboxSuffix: _suppressSandboxInNetworkDropdown,
+                            suppressSandboxSuffix:
+                                _suppressSandboxInNetworkDropdown,
                           ),
                         ),
                       )
@@ -307,7 +316,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   value: _selectedWalletId,
                   menuMaxHeight: 300,
                   labelText: l10n.linkedWalletDropdownLabel,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   items: wallets
                       .map(
                         (wallet) => DropdownMenuItem<String>(
@@ -405,14 +415,17 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
-                    ...OnchainTxType.values.map(
-                      (type) => onchainTxFilterChip(
-                        context: context,
-                        label: _typeLabel(type),
-                        selected: _txFilterType == type,
-                        onSelected: (_) => setState(() => _txFilterType = type),
-                      ),
-                    ),
+                    ...OnchainTxType.values
+                        .where((t) => t != OnchainTxType.unknown)
+                        .map(
+                          (type) => onchainTxFilterChip(
+                            context: context,
+                            label: _typeLabel(type),
+                            selected: _txFilterType == type,
+                            onSelected: (_) =>
+                                setState(() => _txFilterType = type),
+                          ),
+                        ),
                   ],
                 ),
                 const SizedBox(height: 10),

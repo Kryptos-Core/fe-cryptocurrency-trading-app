@@ -16,7 +16,7 @@ ONCHAIN_OPERATOR_MODE=sandbox
 ''');
       final chains = treasuryOpsChainsForCurrentEnv();
       expect(chains, contains('TRON_NILE'));
-      expect(chains, isNot(contains('ETH_SEPOLIA')));
+      expect(chains, contains('ETH_SEPOLIA'));
       expect(chains, isNot(contains('TRON_MAINNET')));
     });
 
@@ -46,7 +46,7 @@ ONCHAIN_OPERATOR_MODE=
   });
 
   group('treasuryOpsWalletCreationChainsForCurrentEnv', () {
-    test('sandbox lists one Tron testnet + Solana + BSC Chapel (no Sepolia)', () {
+    test('sandbox lists multichain testnets including Sepolia', () {
       dotenv.loadFromString(envString: '''
 ENV=development
 ONCHAIN_OPERATOR_MODE=sandbox
@@ -54,27 +54,29 @@ ONCHAIN_OPERATOR_MODE=sandbox
       final chains = treasuryOpsWalletCreationChainsForCurrentEnv();
       expect(chains, contains('SOLANA_DEVNET'));
       expect(chains, contains('BSC_CHAPEL'));
-      expect(chains, isNot(contains('ETH_SEPOLIA')));
+      expect(chains, contains('ETH_SEPOLIA'));
       expect(chains.where((c) => c == 'TRON_NILE' || c == 'TRON_SHASTA').length, 1);
       expect(chains, isNot(contains('TRON_MAINNET')));
     });
 
-    test('TRON_DEFAULT_NETWORK=TRON_SHASTA picks Shasta for creation row', () {
+    test('TRON_DEFAULT_NETWORK=TRON_SHASTA includes Shasta as sole Tron row', () {
       dotenv.loadFromString(envString: '''
 ONCHAIN_OPERATOR_MODE=sandbox
 TRON_DEFAULT_NETWORK=TRON_SHASTA
 ''');
       expect(treasurySandboxDefaultTronChain(), 'TRON_SHASTA');
-      expect(treasuryOpsWalletCreationChainsForCurrentEnv().first, 'TRON_SHASTA');
+      expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('TRON_SHASTA'));
+      expect(treasuryOpsWalletCreationChainsForCurrentEnv(), isNot(contains('TRON_NILE')));
     });
 
-    test('production onchain mode keeps narrow mainnet creation list', () {
+    test('production onchain mode matches expanded mainnet list', () {
       dotenv.loadFromString(envString: '''
 ENV=development
 ONCHAIN_OPERATOR_MODE=production
 ''');
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), treasuryOpsChainsForCurrentEnv());
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('TRON_MAINNET'));
+      expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('BASE_MAINNET'));
     });
   });
 
@@ -102,13 +104,13 @@ ONCHAIN_OPERATOR_MODE=sandbox
   });
 
   group('treasuryHistoryFilterChainsForCurrentEnv', () {
-    test('matches wallet creation chains in sandbox (no stray Sepolia)', () {
+    test('matches wallet creation chains in sandbox', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
       expect(
         treasuryHistoryFilterChainsForCurrentEnv(),
         treasuryOpsWalletCreationChainsForCurrentEnv(),
       );
-      expect(treasuryHistoryFilterChainsForCurrentEnv(), isNot(contains('ETH_SEPOLIA')));
+      expect(treasuryHistoryFilterChainsForCurrentEnv(), contains('ETH_SEPOLIA'));
     });
 
     test('matches wallet creation chains in production onchain mode', () {
@@ -121,21 +123,22 @@ ONCHAIN_OPERATOR_MODE=sandbox
   });
 
   group('walletConnectLinkNetworksForCurrentEnv', () {
-    test('sandbox lists BSC Chapel + Solana devnet only (no Sepolia)', () {
+    test('sandbox lists EVM testnets + Solana (no Tron)', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
-      expect(walletConnectLinkNetworksForCurrentEnv(), [
-        BlockchainNetwork.bscChapel,
-        BlockchainNetwork.solanaDevnet,
-      ]);
+      final nets = walletConnectLinkNetworksForCurrentEnv();
+      expect(nets, contains(BlockchainNetwork.bscChapel));
+      expect(nets, contains(BlockchainNetwork.solanaDevnet));
+      expect(nets, contains(BlockchainNetwork.ethSepolia));
+      expect(nets.where((n) => n.isTronFamily), isEmpty);
     });
 
-    test('production lists three mainnets only', () {
+    test('production lists EVM mainnets + Solana (no Tron)', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=production');
-      expect(walletConnectLinkNetworksForCurrentEnv(), [
-        BlockchainNetwork.ethMainnet,
-        BlockchainNetwork.bscMainnet,
-        BlockchainNetwork.solanaMainnet,
-      ]);
+      final nets = walletConnectLinkNetworksForCurrentEnv();
+      expect(nets, contains(BlockchainNetwork.ethMainnet));
+      expect(nets, contains(BlockchainNetwork.bscMainnet));
+      expect(nets, contains(BlockchainNetwork.solanaMainnet));
+      expect(nets.where((n) => n.isTronFamily), isEmpty);
     });
   });
 
@@ -160,13 +163,12 @@ TRON_DEFAULT_NETWORK=TRON_SHASTA
   });
 
   group('onchainDepositWithdrawNetworksForCurrentEnv', () {
-    test('sandbox lists Chapel + Solana + Tron (no Sepolia)', () {
+    test('sandbox lists full actionable testnet set ending with Tron', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
-      expect(onchainDepositWithdrawNetworksForCurrentEnv(), [
-        BlockchainNetwork.bscChapel,
-        BlockchainNetwork.solanaDevnet,
-        BlockchainNetwork.tronNile,
-      ]);
+      final nets = onchainDepositWithdrawNetworksForCurrentEnv();
+      expect(nets.first, BlockchainNetwork.bscChapel);
+      expect(nets, contains(BlockchainNetwork.ethSepolia));
+      expect(nets.last, BlockchainNetwork.tronNile);
     });
 
     test('sandbox ends with Shasta when TRON_DEFAULT_NETWORK set', () {
@@ -180,14 +182,12 @@ TRON_DEFAULT_NETWORK=TRON_SHASTA
       );
     });
 
-    test('production lists four mainnets (EVM/Solana before Tron)', () {
+    test('production lists mainnet actionable order (BSC first)', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=production');
-      expect(onchainDepositWithdrawNetworksForCurrentEnv(), [
-        BlockchainNetwork.ethMainnet,
-        BlockchainNetwork.bscMainnet,
-        BlockchainNetwork.solanaMainnet,
-        BlockchainNetwork.tronMainnet,
-      ]);
+      final nets = onchainDepositWithdrawNetworksForCurrentEnv();
+      expect(nets.first, BlockchainNetwork.bscMainnet);
+      expect(nets.last, BlockchainNetwork.tronMainnet);
+      expect(nets, contains(BlockchainNetwork.baseMainnet));
     });
   });
 }

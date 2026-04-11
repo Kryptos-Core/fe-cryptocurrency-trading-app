@@ -40,5 +40,21 @@ void main() {
       expect(m.tronDefaultNetwork, 'TRON_NILE');
       expect(m.treasuryOps, isEmpty);
     });
+
+    test('toJson round-trips with fromJson', () {
+      final original = ChainPickerOptionsModel.fromJson({
+        'operatorMode': 'production',
+        'tronDefaultNetwork': 'TRON_MAINNET',
+        'pickers': {
+          'onchain_deposit_withdraw': ['ETH_MAINNET', 'POLYGON_MAINNET'],
+          'treasury_ops': ['TRON_MAINNET'],
+        },
+      });
+      final restored = ChainPickerOptionsModel.fromJson(original.toJson());
+      expect(restored.operatorMode, original.operatorMode);
+      expect(restored.tronDefaultNetwork, original.tronDefaultNetwork);
+      expect(restored.pickers, original.pickers);
+      expect(restored.onchainDepositWithdraw, ['ETH_MAINNET', 'POLYGON_MAINNET']);
+    });
   });
 }

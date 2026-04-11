@@ -4,12 +4,18 @@ import 'package:crypto_trading_app/data/models/treasury_model.dart';
 
 /// Test stub: only [getChainPickerOptions] is real; everything else throws.
 class StubTreasuryRemoteDataSource implements TreasuryRemoteDataSource {
-  StubTreasuryRemoteDataSource({required this.chainPickerJson});
+  StubTreasuryRemoteDataSource({
+    required this.chainPickerJson,
+    this.chainPickerError,
+  });
 
   final Map<String, dynamic> chainPickerJson;
+  final Object? chainPickerError;
 
   @override
   Future<ChainPickerOptionsModel> getChainPickerOptions() async {
+    final err = chainPickerError;
+    if (err != null) throw err;
     return ChainPickerOptionsModel.fromJson(chainPickerJson);
   }
 

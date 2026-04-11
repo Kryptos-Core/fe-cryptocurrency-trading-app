@@ -1080,6 +1080,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txTypeTransfers => 'Transfers';
 
   @override
+  String get txTypeUnknown => 'Other';
+
+  @override
   String get noOnchainActivityTitle => 'No on-chain activity yet';
 
   @override

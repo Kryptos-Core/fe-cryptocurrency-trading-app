@@ -129,6 +129,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         return const Color(0xFFFFF6E8);
       case OnchainTxStatus.failed:
         return const Color(0xFFFDECEF);
+      case OnchainTxStatus.unknown:
+        return const Color(0xFFF1F5F9);
     }
   }
 
@@ -142,6 +144,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         return const Color(0xFFB56900);
       case OnchainTxStatus.failed:
         return const Color(0xFFB3261E);
+      case OnchainTxStatus.unknown:
+        return const Color(0xFF64748B);
     }
   }
 
@@ -174,6 +178,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         return l10n.txTypeWithdrawals;
       case OnchainTxType.transfer:
         return l10n.txTypeTransfers;
+      case OnchainTxType.unknown:
+        return l10n.txTypeUnknown;
     }
   }
 
@@ -387,8 +393,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
-        final networks =
-            context.watch<OnchainChainPickerProvider>().onchainDepositWithdrawNetworks;
+        final networks = context
+            .watch<OnchainChainPickerProvider>()
+            .onchainDepositWithdrawNetworks;
         final filteredTransactions =
             _filteredTransactions(provider.recentTransactions);
 
@@ -409,11 +416,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                            const Icon(Icons.warning_amber_rounded,
+                                color: Colors.orange),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                paymentConfig.onchainTransitioningDepositBannerText(l10n),
+                                paymentConfig
+                                    .onchainTransitioningDepositBannerText(
+                                        l10n),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w500, fontSize: 13),
                               ),
@@ -446,7 +456,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 // Giải thích cho user: coin nạp sẽ được quy đổi → USDT vào Ví Tiền
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEAF2FD),
                     borderRadius: BorderRadius.circular(8),
@@ -476,7 +487,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(10),
@@ -516,7 +528,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   value: _selectedNetwork,
                   menuMaxHeight: 300,
                   labelText: l10n.networkLabel,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                   items: networks
                       .map(
                         (network) => DropdownMenuItem(
@@ -524,7 +537,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                           child: OnchainNetworkDropdownMenuChild(
                             network: network,
                             l10n: l10n,
-                            suppressSandboxSuffix: _suppressSandboxInNetworkDropdown,
+                            suppressSandboxSuffix:
+                                _suppressSandboxInNetworkDropdown,
                           ),
                         ),
                       )
@@ -819,14 +833,17 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                       selected: _txFilterType == null,
                       onSelected: (_) => setState(() => _txFilterType = null),
                     ),
-                    ...OnchainTxType.values.map(
-                      (type) => onchainTxFilterChip(
-                        context: context,
-                        label: _typeLabel(type),
-                        selected: _txFilterType == type,
-                        onSelected: (_) => setState(() => _txFilterType = type),
-                      ),
-                    ),
+                    ...OnchainTxType.values
+                        .where((t) => t != OnchainTxType.unknown)
+                        .map(
+                          (type) => onchainTxFilterChip(
+                            context: context,
+                            label: _typeLabel(type),
+                            selected: _txFilterType == type,
+                            onSelected: (_) =>
+                                setState(() => _txFilterType = type),
+                          ),
+                        ),
                   ],
                 ),
                 const SizedBox(height: 10),

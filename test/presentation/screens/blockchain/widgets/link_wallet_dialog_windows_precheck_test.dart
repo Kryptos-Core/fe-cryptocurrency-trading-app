@@ -15,6 +15,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/link_wallet_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../support/stub_treasury_remote_data_source.dart';
 
 /// Fake repository để test UI — tất cả WC methods trả về stub hợp lệ
@@ -123,7 +124,9 @@ class _FakeBlockchainRepository implements BlockchainRepository {
   }
 }
 
-Widget _buildTestApp() {
+Future<Widget> _buildTestApp() async {
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
   final provider = BlockchainProvider(
     blockchainRepository: const _FakeBlockchainRepository(),
   );
@@ -141,6 +144,7 @@ Widget _buildTestApp() {
         },
       },
     ),
+    prefs: prefs,
   );
 
   return MultiProvider(
@@ -169,7 +173,7 @@ void main() {
     testWidgets(
         'hiển thị QR code session sau khi nhấn nút kết nối ví',
         (tester) async {
-      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpWidget(await _buildTestApp());
       await tester.pumpAndSettle();
 
       // Dialog mở, hiển thị nút "Kết nối ví" hoặc cở chọn network
@@ -179,7 +183,7 @@ void main() {
     testWidgets(
         'không có Windows extension precheck nào trong WC flow',
         (tester) async {
-      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpWidget(await _buildTestApp());
       await tester.pumpAndSettle();
 
       // Windows precheck card đã bị xoá — không còn tồn tại

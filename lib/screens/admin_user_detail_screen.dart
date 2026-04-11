@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/constants/platform_cash_currency.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
@@ -16,9 +17,6 @@ import 'package:crypto_trading_app/presentation/providers/admin_users_provider.d
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'admin_user_list_screen.dart' show UserRoleChip, UserStatusBadge;
-
-/// Platform cash currency symbol — must match PLATFORM_CASH_CURRENCY_SYMBOL on BE
-const _kPlatformCashSymbol = 'USDT';
 
 class AdminUserDetailScreen extends StatefulWidget {
   final User user;
@@ -903,9 +901,10 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
 
     // Ensure platform cash (USDT) is included even if not tradable
     final hasUsdt =
-        currencies.any((c) => c.symbol.toUpperCase() == _kPlatformCashSymbol);
+        currencies.any(
+            (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol);
     if (!hasUsdt) {
-      await currProvider.getCurrencyBySymbol(_kPlatformCashSymbol);
+      await currProvider.getCurrencyBySymbol(kDefaultPlatformCashCurrencySymbol);
       if (!mounted) return;
       if (currProvider.selectedCurrency != null) {
         currencies.insert(0, currProvider.selectedCurrency!);
@@ -930,7 +929,7 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
     }
     // Fall back to USDT, then first available
     return currencies.firstWhere(
-      (c) => c.symbol.toUpperCase() == _kPlatformCashSymbol,
+      (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol,
       orElse: () => currencies.first,
     );
   }

@@ -8,7 +8,10 @@ void main() {
         BlockchainNetworkX.tryFromEvmCaip2('eip155:1'),
         BlockchainNetwork.ethMainnet,
       );
-      expect(BlockchainNetworkX.tryFromEvmCaip2('eip155:11155111'), isNull);
+      expect(
+        BlockchainNetworkX.tryFromEvmCaip2('eip155:11155111'),
+        BlockchainNetwork.ethSepolia,
+      );
       expect(
         BlockchainNetworkX.tryFromEvmCaip2('eip155:56'),
         BlockchainNetwork.bscMainnet,
@@ -27,8 +30,11 @@ void main() {
   });
 
   group('BlockchainNetworkX.tryFromApiValue', () {
-    test('legacy ETH_SEPOLIA string is not mapped', () {
-      expect(BlockchainNetworkX.tryFromApiValue('ETH_SEPOLIA'), isNull);
+    test('maps ETH_SEPOLIA', () {
+      expect(
+        BlockchainNetworkX.tryFromApiValue('ETH_SEPOLIA'),
+        BlockchainNetwork.ethSepolia,
+      );
     });
   });
 
@@ -98,13 +104,30 @@ void main() {
   });
 
   group('BlockchainNetworkX.resolveForFamily', () {
-    test('EVM_ETH sandbox maps to BSC Chapel (Sepolia removed from product)', () {
+    test('EVM_ETH sandbox maps to BSC Chapel (legacy family default)', () {
       expect(
         BlockchainNetworkX.resolveForFamily(
           OnChainNetworkFamily.evmEth,
           OnChainOperatorMode.sandbox,
         ),
         BlockchainNetwork.bscChapel,
+      );
+    });
+
+    test('TON family maps to mainnet / testnet', () {
+      expect(
+        BlockchainNetworkX.resolveForFamily(
+          OnChainNetworkFamily.ton,
+          OnChainOperatorMode.production,
+        ),
+        BlockchainNetwork.tonMainnet,
+      );
+      expect(
+        BlockchainNetworkX.resolveForFamily(
+          OnChainNetworkFamily.ton,
+          OnChainOperatorMode.sandbox,
+        ),
+        BlockchainNetwork.tonTestnet,
       );
     });
   });
@@ -120,7 +143,7 @@ void main() {
     test('sandbox chain gets parenthesized suffix', () {
       expect(
         onchainNetworkFilterChipLabel(BlockchainNetwork.bscChapel, 'Sandbox'),
-        'BSC (Chapel) (Sandbox)',
+        'BNB Smart Chain (Chapel) (Sandbox)',
       );
     });
   });

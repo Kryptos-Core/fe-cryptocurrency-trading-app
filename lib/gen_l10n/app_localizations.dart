@@ -2060,6 +2060,12 @@ abstract class AppLocalizations {
   /// **'Transfers'**
   String get txTypeTransfers;
 
+  /// No description provided for @txTypeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get txTypeUnknown;
+
   /// No description provided for @noOnchainActivityTitle.
   ///
   /// In en, this message translates to:

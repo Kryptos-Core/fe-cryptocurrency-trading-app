@@ -36,6 +36,8 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
         return const Color(0xFFFFF6E8);
       case LinkedWalletStatus.revoked:
         return const Color(0xFFFDECEF);
+      case LinkedWalletStatus.unknown:
+        return const Color(0xFFF1F5F9);
     }
   }
 
@@ -47,6 +49,8 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
         return const Color(0xFFB56900);
       case LinkedWalletStatus.revoked:
         return const Color(0xFFB3261E);
+      case LinkedWalletStatus.unknown:
+        return const Color(0xFF64748B);
     }
   }
 

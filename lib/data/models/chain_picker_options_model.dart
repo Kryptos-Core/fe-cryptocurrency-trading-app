@@ -1,14 +1,18 @@
+import 'package:crypto_trading_app/data/models/chain_network_catalog_item_model.dart';
+
 /// Response from GET /treasury/chain-picker-options (server-driven chain dropdowns).
 class ChainPickerOptionsModel {
   ChainPickerOptionsModel({
     required this.operatorMode,
     required this.tronDefaultNetwork,
     required this.pickers,
+    this.networkCatalog,
   });
 
   final String operatorMode;
   final String tronDefaultNetwork;
   final Map<String, List<String>> pickers;
+  final List<ChainNetworkCatalogItemModel>? networkCatalog;
 
   List<String> get treasuryOps => pickers['treasury_ops'] ?? const [];
   List<String> get treasuryMainWallet => pickers['treasury_main_wallet'] ?? const [];
@@ -16,6 +20,12 @@ class ChainPickerOptionsModel {
   List<String> get withdrawalAdminFilter => pickers['withdrawal_admin_filter'] ?? const [];
   List<String> get managedWallets => pickers['managed_wallets'] ?? const [];
   List<String> get onchainDepositWithdraw => pickers['onchain_deposit_withdraw'] ?? const [];
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'operatorMode': operatorMode,
+        'tronDefaultNetwork': tronDefaultNetwork,
+        'pickers': pickers,
+      };
 
   factory ChainPickerOptionsModel.fromJson(Map<String, dynamic> json) {
     final pickersRaw = json['pickers'];
@@ -28,10 +38,23 @@ class ChainPickerOptionsModel {
         }
       });
     }
+    List<ChainNetworkCatalogItemModel>? catalog;
+    final catRaw = json['networkCatalog'];
+    if (catRaw is List) {
+      catalog = catRaw
+          .whereType<Map>()
+          .map(
+            (e) => ChainNetworkCatalogItemModel.fromJson(
+              Map<String, dynamic>.from(e),
+            ),
+          )
+          .toList(growable: false);
+    }
     return ChainPickerOptionsModel(
       operatorMode: json['operatorMode'] as String? ?? 'sandbox',
       tronDefaultNetwork: json['tronDefaultNetwork'] as String? ?? 'TRON_NILE',
       pickers: pickers,
+      networkCatalog: catalog,
     );
   }
 }

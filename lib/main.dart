@@ -173,6 +173,7 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<OnchainChainPickerProvider>(
           create: (_) => OnchainChainPickerProvider(
             dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+            prefs: di.sl<di.SharedPreferences>(),
           ),
         ),
         ChangeNotifierProvider<TreasuryProvider>(

@@ -5,6 +5,9 @@ enum OnchainTxType {
   deposit,
   withdrawal,
   transfer,
+
+  /// BE sent a type string not yet modeled in this build.
+  unknown,
 }
 
 extension OnchainTxTypeX on OnchainTxType {
@@ -16,6 +19,8 @@ extension OnchainTxTypeX on OnchainTxType {
         return 'WITHDRAWAL';
       case OnchainTxType.transfer:
         return 'TRANSFER';
+      case OnchainTxType.unknown:
+        return 'UNKNOWN';
     }
   }
 
@@ -32,7 +37,7 @@ extension OnchainTxTypeX on OnchainTxType {
       case 'FUND':
         return OnchainTxType.transfer;
       default:
-        throw ArgumentError('Unsupported on-chain tx type: $value');
+        return OnchainTxType.unknown;
     }
   }
 }

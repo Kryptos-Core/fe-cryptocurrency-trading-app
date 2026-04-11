@@ -83,18 +83,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   bool get _supportsWalletConnectRelay {
-    switch (_selectedChain) {
-      case BlockchainNetwork.ethMainnet:
-      case BlockchainNetwork.bscMainnet:
-      case BlockchainNetwork.bscChapel:
-      case BlockchainNetwork.solanaMainnet:
-      case BlockchainNetwork.solanaDevnet:
-        return true;
-      case BlockchainNetwork.tronMainnet:
-      case BlockchainNetwork.tronNile:
-      case BlockchainNetwork.tronShasta:
-        return false;
-    }
+    final c = _selectedChain;
+    if (c.isTronFamily) return false;
+    if (c.networkFamily == OnChainNetworkFamily.solana) return true;
+    return c.evmCaip2 != null;
   }
 
   Future<void> _initiateWcSession() async {

@@ -1081,6 +1081,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get txTypeTransfers => 'Chuyển khoản';
 
   @override
+  String get txTypeUnknown => 'Khác';
+
+  @override
   String get noOnchainActivityTitle => 'Chưa có hoạt động on-chain';
 
   @override

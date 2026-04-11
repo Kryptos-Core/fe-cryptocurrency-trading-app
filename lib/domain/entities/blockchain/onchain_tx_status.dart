@@ -3,6 +3,9 @@ enum OnchainTxStatus {
   confirming,
   completed,
   failed,
+
+  /// BE added a new status string not yet supported in this build.
+  unknown,
 }
 
 extension OnchainTxStatusX on OnchainTxStatus {
@@ -16,10 +19,13 @@ extension OnchainTxStatusX on OnchainTxStatus {
         return 'COMPLETED';
       case OnchainTxStatus.failed:
         return 'FAILED';
+      case OnchainTxStatus.unknown:
+        return 'UNKNOWN';
     }
   }
 
   static OnchainTxStatus fromApiValue(String value) {
+    if (value.isEmpty) return OnchainTxStatus.unknown;
     switch (value.toUpperCase()) {
       case 'PENDING':
         return OnchainTxStatus.pending;
@@ -30,7 +36,7 @@ extension OnchainTxStatusX on OnchainTxStatus {
       case 'FAILED':
         return OnchainTxStatus.failed;
       default:
-        throw ArgumentError('Unsupported on-chain tx status: $value');
+        return OnchainTxStatus.unknown;
     }
   }
 }

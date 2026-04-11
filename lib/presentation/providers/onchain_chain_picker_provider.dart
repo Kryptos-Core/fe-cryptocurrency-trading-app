@@ -1,18 +1,26 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:crypto_trading_app/core/services/chain_picker_options_cache.dart';
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
+import 'package:crypto_trading_app/data/models/chain_network_catalog_item_model.dart';
 import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/onchain_wallet_link_networks.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 
 /// Loads [ChainPickerOptionsModel] from GET /treasury/chain-picker-options.
-/// All getters fall back to [treasury_chains.dart] when the API fails or returns empty lists.
+/// On failure, reuses the last successful response from [ChainPickerOptionsCache].
+/// Getters fall back to [treasury_chains.dart] only when there is no API data and no cache.
 class OnchainChainPickerProvider extends ChangeNotifier {
-  OnchainChainPickerProvider({required TreasuryRemoteDataSource dataSource})
-      : _dataSource = dataSource;
+  OnchainChainPickerProvider({
+    required TreasuryRemoteDataSource dataSource,
+    required SharedPreferences prefs,
+  })  : _dataSource = dataSource,
+        _cache = ChainPickerOptionsCache(prefs);
 
   final TreasuryRemoteDataSource _dataSource;
+  final ChainPickerOptionsCache _cache;
   ChainPickerOptionsModel? _options;
   bool _loadAttempted = false;
 
@@ -23,9 +31,21 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     _loadAttempted = true;
     try {
       _options = await _dataSource.getChainPickerOptions();
+      final opts = _options;
+      if (opts != null) {
+        await _cache.write(opts);
+      }
     } catch (e, st) {
-      _options = null;
-      debugPrint('OnchainChainPickerProvider: API failed, using local fallback ($e)\n$st');
+      _options = _cache.readSync();
+      if (_options != null) {
+        debugPrint(
+          'OnchainChainPickerProvider: API failed, using cached chain-picker-options ($e)',
+        );
+      } else {
+        debugPrint(
+          'OnchainChainPickerProvider: API failed, no cache — treasury_chains fallback ($e)\n$st',
+        );
+      }
     }
     notifyListeners();
   }
@@ -84,4 +104,11 @@ class OnchainChainPickerProvider extends ChangeNotifier {
   /// Tron subset in BE order (extension / TronLink), aligned with nạp/rút list.
   List<BlockchainNetwork> get tronExtensionLinkNetworksFromApi =>
       tronExtensionNetworksInApiOrder(onchainDepositWithdrawNetworks);
+
+  /// Full network sheet from API (includes TON with `deposit: false` until Phase 2).
+  List<ChainNetworkCatalogItemModel> get networkCatalog {
+    final c = _options?.networkCatalog;
+    if (c != null && c.isNotEmpty) return c;
+    return const [];
+  }
 }

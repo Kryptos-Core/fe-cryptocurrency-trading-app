@@ -24,26 +24,42 @@ bool get treasuryChainsUseMainnetOnly {
   return ApiConstants.env.trim().toLowerCase() == 'production';
 }
 
-const Set<String> _kTreasuryOpsMainnetChains = <String>{
-  'TRON_MAINNET',
+/// Actionable chains (no TON) — order aligned with backend [listActionableOnchainChainCodes].
+const List<String> kOnchainActionableProductionCodes = <String>[
+  'BSC_MAINNET',
+  'SOLANA_MAINNET',
   'ETH_MAINNET',
-};
-
-/// Payment config → operational treasury wallets (create / filter).
-const List<String> kTreasuryOpsChainValues = <String>[
-  'TRON_NILE',
-  'TRON_SHASTA',
+  'BASE_MAINNET',
+  'ARBITRUM_MAINNET',
+  'OPTIMISM_MAINNET',
+  'POLYGON_MAINNET',
+  'AVALANCHE_MAINNET',
+  'GNOSIS_MAINNET',
+  'LINEA_MAINNET',
+  'FANTOM_MAINNET',
   'TRON_MAINNET',
-  'ETH_MAINNET',
 ];
 
-/// Withdrawal admin list filter.
-const List<String> kWithdrawalFilterChainValues = <String>[
-  'TRON_NILE',
-  'TRON_SHASTA',
-  'SOLANA_DEVNET',
-  'BSC_CHAPEL',
-];
+List<String> kOnchainActionableSandboxCodes(String tronDefault) {
+  final tron = tronDefault == 'TRON_SHASTA' ? 'TRON_SHASTA' : 'TRON_NILE';
+  return <String>[
+    'BSC_CHAPEL',
+    'SOLANA_DEVNET',
+    'ETH_SEPOLIA',
+    'BASE_SEPOLIA',
+    'ARBITRUM_SEPOLIA',
+    'OPTIMISM_SEPOLIA',
+    'POLYGON_AMOY',
+    'AVALANCHE_FUJI',
+    'GNOSIS_CHIADO',
+    'LINEA_SEPOLIA',
+    'FANTOM_TESTNET',
+    tron,
+  ];
+}
+
+/// Legacy export for audits — production actionable codes (same as default treasury ops in prod).
+const List<String> kTreasuryOpsChainValues = kOnchainActionableProductionCodes;
 
 /// Managed deposit wallets — recommended chain + defaults rows.
 /// Includes mainnet so the picker matches [deposit.recommended_chain] even in non-production.
@@ -56,13 +72,9 @@ const List<String> kManagedWalletsChainValues = <String>[
 /// Payment ops wallets (create / filter): mainnet in production, testnet otherwise.
 List<String> treasuryOpsChainsForCurrentEnv() {
   if (treasuryChainsUseMainnetOnly) {
-    return kTreasuryOpsChainValues
-        .where(_kTreasuryOpsMainnetChains.contains)
-        .toList(growable: false);
+    return List<String>.from(kOnchainActionableProductionCodes);
   }
-  return kTreasuryOpsChainValues
-      .where((c) => !_kTreasuryOpsMainnetChains.contains(c))
-      .toList(growable: false);
+  return kOnchainActionableSandboxCodes(treasurySandboxDefaultTronChain());
 }
 
 /// Treasury history chain filter: same universe as creatable ops wallets so filters match list/search.
@@ -76,14 +88,7 @@ List<String> treasuryMainWalletChainsForCurrentEnv() =>
 
 /// Withdrawal admin filter chains per environment.
 List<String> withdrawalFilterChainsForCurrentEnv() {
-  if (treasuryChainsUseMainnetOnly) {
-    return const <String>[
-      'TRON_MAINNET',
-      'ETH_MAINNET',
-      'SOLANA_MAINNET',
-    ];
-  }
-  return kWithdrawalFilterChainValues;
+  return treasuryOpsChainsForCurrentEnv();
 }
 
 /// Managed deposit wallets: mainnet-only in production; mainnet + Tron testnets otherwise.
@@ -116,18 +121,10 @@ String treasurySandboxDefaultTronChain() {
 
 /// Chains for **POST /treasury/wallets** (create transaction wallet).
 ///
-/// Sandbox: one Tron testnet (see [treasurySandboxDefaultTronChain]) + Solana devnet + BSC Chapel
-/// (EVM/MetaMask testnet). Same API codes as [CreateTransactionWalletDto].
-/// Production: unchanged ([treasuryOpsChainsForCurrentEnv]).
+/// Sandbox: full multichain testnet list (see backend `treasury_ops` picker).
+/// Production: mainnet actionable chains.
 List<String> treasuryOpsWalletCreationChainsForCurrentEnv() {
-  if (treasuryChainsUseMainnetOnly) {
-    return treasuryOpsChainsForCurrentEnv();
-  }
-  return <String>[
-    treasurySandboxDefaultTronChain(),
-    'SOLANA_DEVNET',
-    'BSC_CHAPEL',
-  ];
+  return treasuryOpsChainsForCurrentEnv();
 }
 
 /// EVM + Solana networks offered in [LinkWalletDialog] (WalletConnect relay).
@@ -135,17 +132,13 @@ List<String> treasuryOpsWalletCreationChainsForCurrentEnv() {
 /// Sandbox / dev: testnets only so the list matches the orange sandbox banner.
 /// Production: mainnets only.
 List<BlockchainNetwork> walletConnectLinkNetworksForCurrentEnv() {
-  if (treasuryChainsUseMainnetOnly) {
-    return const [
-      BlockchainNetwork.ethMainnet,
-      BlockchainNetwork.bscMainnet,
-      BlockchainNetwork.solanaMainnet,
-    ];
-  }
-  return const [
-    BlockchainNetwork.bscChapel,
-    BlockchainNetwork.solanaDevnet,
-  ];
+  final codes = treasuryChainsUseMainnetOnly
+      ? kOnchainActionableProductionCodes
+      : kOnchainActionableSandboxCodes(treasurySandboxDefaultTronChain());
+  return codes
+      .where((c) => !c.startsWith('TRON_'))
+      .map(BlockchainNetworkX.fromApiValue)
+      .toList(growable: false);
 }
 
 /// Tron rows in [LinkWalletDialog] (Chrome extension — web only).
@@ -173,18 +166,10 @@ List<BlockchainNetwork> tronExtensionLinkNetworksForCurrentEnv() {
 /// Same universe as [walletConnectLinkNetworksForCurrentEnv] plus one Tron (see
 /// [tronExtensionLinkNetworksForCurrentEnv]) — no mixing mainnet + testnet in sandbox.
 List<BlockchainNetwork> onchainDepositWithdrawNetworksForCurrentEnv() {
-  if (treasuryChainsUseMainnetOnly) {
-    return const [
-      BlockchainNetwork.ethMainnet,
-      BlockchainNetwork.bscMainnet,
-      BlockchainNetwork.solanaMainnet,
-      BlockchainNetwork.tronMainnet,
-    ];
-  }
-  return [
-    ...walletConnectLinkNetworksForCurrentEnv(),
-    ...tronExtensionLinkNetworksForCurrentEnv(),
-  ];
+  final codes = treasuryChainsUseMainnetOnly
+      ? kOnchainActionableProductionCodes
+      : kOnchainActionableSandboxCodes(treasurySandboxDefaultTronChain());
+  return codes.map(BlockchainNetworkX.fromApiValue).toList(growable: false);
 }
 
 /// Friendly labels for the create-wallet sheet (ecosystem / wallet type), while values stay API enums.

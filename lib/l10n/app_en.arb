@@ -411,6 +411,7 @@
   "txTypeDeposits": "Deposits",
   "txTypeWithdrawals": "Withdrawals",
   "txTypeTransfers": "Transfers",
+  "txTypeUnknown": "Other",
   "noOnchainActivityTitle": "No on-chain activity yet",
   "noOnchainActivityDesc": "Deposits you submit will appear here so users can review status and confirmations.",
   "trySwitchingFiltersDeposit": "Try switching network, type, or sort to surface the transactions you need.",

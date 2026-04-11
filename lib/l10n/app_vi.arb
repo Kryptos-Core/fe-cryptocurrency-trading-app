@@ -355,6 +355,7 @@
   "txTypeDeposits": "Nạp tiền",
   "txTypeWithdrawals": "Rút tiền",
   "txTypeTransfers": "Chuyển khoản",
+  "txTypeUnknown": "Khác",
   "noOnchainActivityTitle": "Chưa có hoạt động on-chain",
   "noOnchainActivityDesc": "Các lần nạp tiền bạn gửi sẽ hiện ở đây để xem trạng thái và xác nhận.",
   "trySwitchingFiltersDeposit": "Thử chuyển mạng lưới, loại hoặc sắp xếp để tìm giao dịch cần.",

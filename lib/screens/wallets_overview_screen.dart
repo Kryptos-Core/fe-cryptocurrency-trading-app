@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/platform_cash_currency.dart';
 import 'package:crypto_trading_app/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
@@ -9,8 +10,6 @@ import 'package:crypto_trading_app/screens/wallet_detail_screen.dart';
 import 'package:crypto_trading_app/screens/deposits_screen.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 
-/// Ký hiệu của platform cash currency — phải khớp với PLATFORM_CASH_CURRENCY_SYMBOL ở BE
-const _kCashCurrencySymbol = 'USDT';
 
 /// Wallets Overview Screen
 ///
@@ -85,11 +84,13 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
           // Phân nhóm: Ví Tiền (USDT) vs Tài sản Coin
           final cashWallets = provider.wallets
               .where((w) =>
-                  w.currency.symbol.toUpperCase() == _kCashCurrencySymbol)
+                  w.currency.symbol.toUpperCase() ==
+                      kDefaultPlatformCashCurrencySymbol)
               .toList();
           final coinWallets = provider.wallets
               .where((w) =>
-                  w.currency.symbol.toUpperCase() != _kCashCurrencySymbol)
+                  w.currency.symbol.toUpperCase() !=
+                      kDefaultPlatformCashCurrencySymbol)
               .toList();
 
           return RefreshIndicator(
