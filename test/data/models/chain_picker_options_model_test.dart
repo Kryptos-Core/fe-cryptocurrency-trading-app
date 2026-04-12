@@ -41,6 +41,27 @@ void main() {
       expect(m.treasuryOps, isEmpty);
     });
 
+    test('fromJson parses networkCatalog when sortOrder is string (no cast crash)', () {
+      final m = ChainPickerOptionsModel.fromJson({
+        'operatorMode': 'sandbox',
+        'tronDefaultNetwork': 'TRON_NILE',
+        'pickers': <String, dynamic>{},
+        'networkCatalog': [
+          {
+            'code': 'ETH_SEPOLIA',
+            'iconKey': 'evm',
+            'family': 'evm_eth',
+            'isTestnet': 'true',
+            'sortOrder': '20',
+            'capabilities': {'deposit': true, 'withdraw': true, 'linkWallet': true},
+          },
+        ],
+      });
+      expect(m.networkCatalog, isNotNull);
+      expect(m.networkCatalog!.single.sortOrder, 20);
+      expect(m.networkCatalog!.single.isTestnet, true);
+    });
+
     test('toJson round-trips with fromJson', () {
       final original = ChainPickerOptionsModel.fromJson({
         'operatorMode': 'production',

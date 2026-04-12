@@ -6346,6 +6346,120 @@ abstract class AppLocalizations {
   /// **'Ethereum — Mainnet'**
   String get treasuryChainEthMainnet;
 
+  /// No description provided for @treasuryChainEthSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethereum — Sepolia (testnet)'**
+  String get treasuryChainEthSepolia;
+
+  /// No description provided for @treasuryChainBaseMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Base — Mainnet'**
+  String get treasuryChainBaseMainnet;
+
+  /// No description provided for @treasuryChainBaseSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Base — Sepolia (testnet)'**
+  String get treasuryChainBaseSepolia;
+
+  /// No description provided for @treasuryChainArbitrumMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Arbitrum — Mainnet'**
+  String get treasuryChainArbitrumMainnet;
+
+  /// No description provided for @treasuryChainArbitrumSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Arbitrum — Sepolia (testnet)'**
+  String get treasuryChainArbitrumSepolia;
+
+  /// No description provided for @treasuryChainOptimismMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimism — Mainnet'**
+  String get treasuryChainOptimismMainnet;
+
+  /// No description provided for @treasuryChainOptimismSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimism — Sepolia (testnet)'**
+  String get treasuryChainOptimismSepolia;
+
+  /// No description provided for @treasuryChainPolygonMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon — Mainnet'**
+  String get treasuryChainPolygonMainnet;
+
+  /// No description provided for @treasuryChainPolygonAmoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon — Amoy (testnet)'**
+  String get treasuryChainPolygonAmoy;
+
+  /// No description provided for @treasuryChainAvalancheMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Avalanche — Mainnet'**
+  String get treasuryChainAvalancheMainnet;
+
+  /// No description provided for @treasuryChainAvalancheFuji.
+  ///
+  /// In en, this message translates to:
+  /// **'Avalanche — Fuji (testnet)'**
+  String get treasuryChainAvalancheFuji;
+
+  /// No description provided for @treasuryChainGnosisMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Gnosis — Mainnet'**
+  String get treasuryChainGnosisMainnet;
+
+  /// No description provided for @treasuryChainGnosisChiado.
+  ///
+  /// In en, this message translates to:
+  /// **'Gnosis — Chiado (testnet)'**
+  String get treasuryChainGnosisChiado;
+
+  /// No description provided for @treasuryChainLineaMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Linea — Mainnet'**
+  String get treasuryChainLineaMainnet;
+
+  /// No description provided for @treasuryChainLineaSepolia.
+  ///
+  /// In en, this message translates to:
+  /// **'Linea — Sepolia (testnet)'**
+  String get treasuryChainLineaSepolia;
+
+  /// No description provided for @treasuryChainFantomMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantom — Mainnet'**
+  String get treasuryChainFantomMainnet;
+
+  /// No description provided for @treasuryChainFantomTestnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantom — Testnet'**
+  String get treasuryChainFantomTestnet;
+
+  /// No description provided for @treasuryChainTonMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'TON — Mainnet'**
+  String get treasuryChainTonMainnet;
+
+  /// No description provided for @treasuryChainTonTestnet.
+  ///
+  /// In en, this message translates to:
+  /// **'TON — Testnet'**
+  String get treasuryChainTonTestnet;
+
   /// No description provided for @treasuryImportWalletDialogTitle.
   ///
   /// In en, this message translates to:

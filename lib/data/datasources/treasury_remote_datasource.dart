@@ -1,6 +1,7 @@
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/utils/api_response_error_message.dart';
+import 'package:crypto_trading_app/core/utils/json_dynamic_parse.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
@@ -387,9 +388,9 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
 
       return TreasuryPageResult<TreasuryOperationModel>(
         items: rawItems.map(TreasuryOperationModel.fromJson).toList(),
-        total: (data['total'] as num?)?.toInt() ?? rawItems.length,
-        page: (data['page'] as num?)?.toInt() ?? page,
-        limit: (data['limit'] as num?)?.toInt() ?? limit,
+        total: parseJsonInt(data['total'], rawItems.length),
+        page: parseJsonInt(data['page'], page),
+        limit: parseJsonInt(data['limit'], limit),
       );
     } on DioException catch (e) {
       throw _dioServerError(e, defaultMessage: 'Failed to load treasury operations');
@@ -425,9 +426,9 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
 
       return TreasuryPageResult<TreasuryTransactionModel>(
         items: rawItems.map(TreasuryTransactionModel.fromJson).toList(),
-        total: (data['total'] as num?)?.toInt() ?? rawItems.length,
-        page: (data['page'] as num?)?.toInt() ?? page,
-        limit: (data['limit'] as num?)?.toInt() ?? limit,
+        total: parseJsonInt(data['total'], rawItems.length),
+        page: parseJsonInt(data['page'], page),
+        limit: parseJsonInt(data['limit'], limit),
       );
     } on DioException catch (e) {
       throw _dioServerError(e, defaultMessage: 'Failed to load treasury transactions');

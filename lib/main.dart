@@ -211,7 +211,7 @@ class CryptoTradingApp extends StatelessWidget {
               ? 'Ứng dụng Giao dịch Crypto'
               : 'Crypto Trading App',
           debugShowCheckedModeBanner: false,
-          scrollBehavior: const AppScrollBehavior(),
+          scrollBehavior: appScrollBehavior,
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.themeMode,

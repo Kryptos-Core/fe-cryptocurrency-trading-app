@@ -43,6 +43,9 @@ class ThemeProvider extends ChangeNotifier {
         scrollbarTheme: const ScrollbarThemeData(
           thumbVisibility: WidgetStatePropertyAll(false),
           trackVisibility: WidgetStatePropertyAll(false),
+          thickness: WidgetStatePropertyAll(0.0),
+          crossAxisMargin: 0,
+          mainAxisMargin: 0,
         ),
       ).copyWith(
         iconButtonTheme: IconButtonThemeData(
@@ -71,6 +74,9 @@ class ThemeProvider extends ChangeNotifier {
         scrollbarTheme: const ScrollbarThemeData(
           thumbVisibility: WidgetStatePropertyAll(false),
           trackVisibility: WidgetStatePropertyAll(false),
+          thickness: WidgetStatePropertyAll(0.0),
+          crossAxisMargin: 0,
+          mainAxisMargin: 0,
         ),
       ).copyWith(
         iconButtonTheme: IconButtonThemeData(

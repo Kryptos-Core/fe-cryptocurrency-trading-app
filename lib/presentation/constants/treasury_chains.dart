@@ -214,7 +214,110 @@ String treasuryChainDisplayLabel(AppLocalizations l10n, String chain) {
       return l10n.treasuryChainSolanaMainnet;
     case 'ETH_MAINNET':
       return l10n.treasuryChainEthMainnet;
+    case 'ETH_SEPOLIA':
+      return l10n.treasuryChainEthSepolia;
+    case 'BASE_MAINNET':
+      return l10n.treasuryChainBaseMainnet;
+    case 'BASE_SEPOLIA':
+      return l10n.treasuryChainBaseSepolia;
+    case 'ARBITRUM_MAINNET':
+      return l10n.treasuryChainArbitrumMainnet;
+    case 'ARBITRUM_SEPOLIA':
+      return l10n.treasuryChainArbitrumSepolia;
+    case 'OPTIMISM_MAINNET':
+      return l10n.treasuryChainOptimismMainnet;
+    case 'OPTIMISM_SEPOLIA':
+      return l10n.treasuryChainOptimismSepolia;
+    case 'POLYGON_MAINNET':
+      return l10n.treasuryChainPolygonMainnet;
+    case 'POLYGON_AMOY':
+      return l10n.treasuryChainPolygonAmoy;
+    case 'AVALANCHE_MAINNET':
+      return l10n.treasuryChainAvalancheMainnet;
+    case 'AVALANCHE_FUJI':
+      return l10n.treasuryChainAvalancheFuji;
+    case 'GNOSIS_MAINNET':
+      return l10n.treasuryChainGnosisMainnet;
+    case 'GNOSIS_CHIADO':
+      return l10n.treasuryChainGnosisChiado;
+    case 'LINEA_MAINNET':
+      return l10n.treasuryChainLineaMainnet;
+    case 'LINEA_SEPOLIA':
+      return l10n.treasuryChainLineaSepolia;
+    case 'FANTOM_MAINNET':
+      return l10n.treasuryChainFantomMainnet;
+    case 'FANTOM_TESTNET':
+      return l10n.treasuryChainFantomTestnet;
+    case 'TON_MAINNET':
+      return l10n.treasuryChainTonMainnet;
+    case 'TON_TESTNET':
+      return l10n.treasuryChainTonTestnet;
     default:
       return chain;
+  }
+}
+
+/// Short badge text for deposit method rows (Latin, readable — avoids truncated API enums).
+String depositChainBadgeLabel(String chain) {
+  switch (chain.toUpperCase()) {
+    case 'TRON_NILE':
+      return 'TRON Nile';
+    case 'TRON_SHASTA':
+      return 'TRON Shasta';
+    case 'TRON_MAINNET':
+      return 'TRON';
+    case 'ETH_MAINNET':
+      return 'Ethereum';
+    case 'ETH_SEPOLIA':
+      return 'Sepolia';
+    case 'BSC_MAINNET':
+      return 'BNB Chain';
+    case 'BSC_CHAPEL':
+    case 'BSC_TESTNET':
+      return 'BNB Chapel';
+    case 'SOLANA_MAINNET':
+      return 'Solana';
+    case 'SOLANA_DEVNET':
+      return 'Solana Devnet';
+    case 'BASE_MAINNET':
+      return 'Base';
+    case 'BASE_SEPOLIA':
+      return 'Base Sepolia';
+    case 'ARBITRUM_MAINNET':
+      return 'Arbitrum';
+    case 'ARBITRUM_SEPOLIA':
+      return 'Arbitrum Sepolia';
+    case 'OPTIMISM_MAINNET':
+      return 'Optimism';
+    case 'OPTIMISM_SEPOLIA':
+      return 'Optimism Sepolia';
+    case 'POLYGON_MAINNET':
+      return 'Polygon';
+    case 'POLYGON_AMOY':
+      return 'Polygon Amoy';
+    case 'AVALANCHE_MAINNET':
+      return 'Avalanche';
+    case 'AVALANCHE_FUJI':
+      return 'Avalanche Fuji';
+    case 'GNOSIS_MAINNET':
+      return 'Gnosis';
+    case 'GNOSIS_CHIADO':
+      return 'Gnosis Chiado';
+    case 'LINEA_MAINNET':
+      return 'Linea';
+    case 'LINEA_SEPOLIA':
+      return 'Linea Sepolia';
+    case 'FANTOM_MAINNET':
+      return 'Fantom';
+    case 'FANTOM_TESTNET':
+      return 'Fantom Testnet';
+    case 'TON_MAINNET':
+      return 'TON';
+    case 'TON_TESTNET':
+      return 'TON testnet';
+    default:
+      final u = chain.toUpperCase();
+      if (u.length <= 12) return u;
+      return u.substring(0, 12);
   }
 }

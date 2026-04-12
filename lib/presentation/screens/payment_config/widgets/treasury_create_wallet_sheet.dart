@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
@@ -63,6 +64,7 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
               chains: chains,
               value: _chain,
               labelText: l10n.treasuryChainLabel,
+              menuMaxHeight: kTreasurySheetDropdownMenuMaxHeight,
               displayLabelForChain: treasuryWalletCreationDisplayLabel,
               onChanged: (v) {
                 if (v == null) return;
@@ -73,6 +75,7 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
             AppDropdownField<String>(
               value: _purpose,
               labelText: l10n.treasuryPurposeLabel,
+              menuMaxHeight: kTreasurySheetDropdownMenuMaxHeight,
               items: const [
                 DropdownMenuItem(value: 'DEPOSIT', child: Text('DEPOSIT')),
                 DropdownMenuItem(value: 'WITHDRAWAL', child: Text('WITHDRAWAL')),

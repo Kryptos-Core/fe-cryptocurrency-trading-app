@@ -1,3 +1,5 @@
+import 'package:crypto_trading_app/core/utils/json_dynamic_parse.dart';
+
 /// One row from GET /treasury/chain-picker-options `networkCatalog`.
 class ChainNetworkCatalogItemModel {
   const ChainNetworkCatalogItemModel({
@@ -28,11 +30,11 @@ class ChainNetworkCatalogItemModel {
         caps is Map && (caps[k] == true || caps[k] == 'true');
 
     return ChainNetworkCatalogItemModel(
-      code: json['code'] as String? ?? '',
-      iconKey: json['iconKey'] as String? ?? 'evm',
-      family: json['family'] as String? ?? 'evm',
-      isTestnet: json['isTestnet'] as bool? ?? false,
-      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+      code: json['code']?.toString() ?? '',
+      iconKey: json['iconKey']?.toString() ?? 'evm',
+      family: json['family']?.toString() ?? 'evm',
+      isTestnet: parseJsonBool(json['isTestnet'], false),
+      sortOrder: parseJsonInt(json['sortOrder'], 0),
       deposit: cap('deposit'),
       withdraw: cap('withdraw'),
       linkWallet: cap('linkWallet'),

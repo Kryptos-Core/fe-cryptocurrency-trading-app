@@ -3444,6 +3444,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
 
   @override
+  String get treasuryChainEthSepolia => 'Ethereum — Sepolia (testnet)';
+
+  @override
+  String get treasuryChainBaseMainnet => 'Base — Mainnet';
+
+  @override
+  String get treasuryChainBaseSepolia => 'Base — Sepolia (testnet)';
+
+  @override
+  String get treasuryChainArbitrumMainnet => 'Arbitrum — Mainnet';
+
+  @override
+  String get treasuryChainArbitrumSepolia => 'Arbitrum — Sepolia (testnet)';
+
+  @override
+  String get treasuryChainOptimismMainnet => 'Optimism — Mainnet';
+
+  @override
+  String get treasuryChainOptimismSepolia => 'Optimism — Sepolia (testnet)';
+
+  @override
+  String get treasuryChainPolygonMainnet => 'Polygon — Mainnet';
+
+  @override
+  String get treasuryChainPolygonAmoy => 'Polygon — Amoy (testnet)';
+
+  @override
+  String get treasuryChainAvalancheMainnet => 'Avalanche — Mainnet';
+
+  @override
+  String get treasuryChainAvalancheFuji => 'Avalanche — Fuji (testnet)';
+
+  @override
+  String get treasuryChainGnosisMainnet => 'Gnosis — Mainnet';
+
+  @override
+  String get treasuryChainGnosisChiado => 'Gnosis — Chiado (testnet)';
+
+  @override
+  String get treasuryChainLineaMainnet => 'Linea — Mainnet';
+
+  @override
+  String get treasuryChainLineaSepolia => 'Linea — Sepolia (testnet)';
+
+  @override
+  String get treasuryChainFantomMainnet => 'Fantom — Mainnet';
+
+  @override
+  String get treasuryChainFantomTestnet => 'Fantom — Testnet';
+
+  @override
+  String get treasuryChainTonMainnet => 'TON — Mainnet';
+
+  @override
+  String get treasuryChainTonTestnet => 'TON — Testnet';
+
+  @override
   String treasuryImportWalletDialogTitle(String chainName) {
     return 'Import main wallet ($chainName)';
   }

@@ -3444,6 +3444,63 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryChainEthMainnet => 'Ethereum — Mainnet';
 
   @override
+  String get treasuryChainEthSepolia => 'Ethereum — Sepolia (mạng thử)';
+
+  @override
+  String get treasuryChainBaseMainnet => 'Base — Mainnet';
+
+  @override
+  String get treasuryChainBaseSepolia => 'Base — Sepolia (mạng thử)';
+
+  @override
+  String get treasuryChainArbitrumMainnet => 'Arbitrum — Mainnet';
+
+  @override
+  String get treasuryChainArbitrumSepolia => 'Arbitrum — Sepolia (mạng thử)';
+
+  @override
+  String get treasuryChainOptimismMainnet => 'Optimism — Mainnet';
+
+  @override
+  String get treasuryChainOptimismSepolia => 'Optimism — Sepolia (mạng thử)';
+
+  @override
+  String get treasuryChainPolygonMainnet => 'Polygon — Mainnet';
+
+  @override
+  String get treasuryChainPolygonAmoy => 'Polygon — Amoy (mạng thử)';
+
+  @override
+  String get treasuryChainAvalancheMainnet => 'Avalanche — Mainnet';
+
+  @override
+  String get treasuryChainAvalancheFuji => 'Avalanche — Fuji (mạng thử)';
+
+  @override
+  String get treasuryChainGnosisMainnet => 'Gnosis — Mainnet';
+
+  @override
+  String get treasuryChainGnosisChiado => 'Gnosis — Chiado (mạng thử)';
+
+  @override
+  String get treasuryChainLineaMainnet => 'Linea — Mainnet';
+
+  @override
+  String get treasuryChainLineaSepolia => 'Linea — Sepolia (mạng thử)';
+
+  @override
+  String get treasuryChainFantomMainnet => 'Fantom — Mainnet';
+
+  @override
+  String get treasuryChainFantomTestnet => 'Fantom — mạng thử';
+
+  @override
+  String get treasuryChainTonMainnet => 'TON — Mainnet';
+
+  @override
+  String get treasuryChainTonTestnet => 'TON — mạng thử';
+
+  @override
   String treasuryImportWalletDialogTitle(String chainName) {
     return 'Nhập ví chính ($chainName)';
   }

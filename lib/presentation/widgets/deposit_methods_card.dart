@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/utils/deposit_methods_recommended_chain.dart';
 
 /// Public widget — shows platform deposit methods (no auth required).
@@ -114,15 +115,27 @@ class _CardHeader extends StatelessWidget {
           ),
           if (recommendedChain != null) ...[
             const Spacer(),
-            Chip(
-              label: Text(
-                _ChainBadge.shortTagForApiChain(recommendedChain!),
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            Container(
+              padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
               ),
-              avatar: const Icon(Icons.star, size: 14),
-              padding: EdgeInsets.zero,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star_rounded, size: 14, color: colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    depositChainBadgeLabel(recommendedChain!),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
@@ -147,7 +160,6 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final method = widget.method;
-
     final canExpand = method.depositEnabled && method.hasAddress;
 
     return Column(
@@ -160,7 +172,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
             child: Row(
               children: [
                 _ChainBadge(apiChain: method.chain),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +181,10 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                         children: [
                           Expanded(
                             child: Text(
-                              method.label,
+                              treasuryChainDisplayLabel(
+                                AppLocalizations.of(context),
+                                method.chain,
+                              ),
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: method.depositEnabled ? null : colorScheme.onSurfaceVariant,
@@ -297,72 +312,114 @@ class _ChainBadge extends StatelessWidget {
 
   const _ChainBadge({required this.apiChain});
 
-  /// Compact label for headers and row badges (API chain code → short UI tag).
-  static String shortTagForApiChain(String raw) => _palette(raw).label;
-
-  /// Short tag for API chain codes (must not infer "Shasta" for every non-Nile row).
-  static ({String label, Color bg, Color border, Color fg}) _palette(String raw) {
+  /// Row / header badge colors by chain family (label from [depositChainBadgeLabel]).
+  static ({Color bg, Color border, Color fg}) _badgeColors(String raw) {
     switch (raw.toUpperCase()) {
       case 'TRON_MAINNET':
         return (
-          label: 'MAINNET',
           bg: Colors.blue.shade50,
           border: Colors.blue.shade200,
           fg: Colors.blue.shade800,
         );
       case 'TRON_NILE':
         return (
-          label: 'NILE',
           bg: Colors.teal.shade50,
           border: Colors.teal.shade200,
           fg: Colors.teal.shade700,
         );
       case 'TRON_SHASTA':
         return (
-          label: 'SHASTA',
           bg: Colors.orange.shade50,
           border: Colors.orange.shade200,
           fg: Colors.orange.shade700,
         );
       case 'ETH_MAINNET':
+      case 'ETH_SEPOLIA':
         return (
-          label: 'ETH',
           bg: Colors.blueGrey.shade50,
           border: Colors.blueGrey.shade200,
           fg: Colors.blueGrey.shade800,
         );
       case 'BSC_CHAPEL':
+      case 'BSC_MAINNET':
+      case 'BSC_TESTNET':
         return (
-          label: 'CHAPEL',
           bg: Colors.amber.shade50,
           border: Colors.amber.shade200,
           fg: Colors.amber.shade900,
         );
-      case 'BSC_MAINNET':
-        return (
-          label: 'BSC',
-          bg: Colors.amber.shade50,
-          border: Colors.amber.shade300,
-          fg: Colors.amber.shade900,
-        );
       case 'SOLANA_DEVNET':
+      case 'SOLANA_MAINNET':
         return (
-          label: 'DEVNET',
           bg: Colors.purple.shade50,
           border: Colors.purple.shade200,
           fg: Colors.purple.shade800,
         );
-      case 'SOLANA_MAINNET':
+      case 'BASE_MAINNET':
+      case 'BASE_SEPOLIA':
         return (
-          label: 'SOL',
+          bg: Colors.indigo.shade50,
+          border: Colors.indigo.shade200,
+          fg: Colors.indigo.shade800,
+        );
+      case 'ARBITRUM_MAINNET':
+      case 'ARBITRUM_SEPOLIA':
+        return (
+          bg: Colors.lightBlue.shade50,
+          border: Colors.lightBlue.shade200,
+          fg: Colors.lightBlue.shade900,
+        );
+      case 'OPTIMISM_MAINNET':
+      case 'OPTIMISM_SEPOLIA':
+        return (
+          bg: Colors.red.shade50,
+          border: Colors.red.shade200,
+          fg: Colors.red.shade900,
+        );
+      case 'POLYGON_MAINNET':
+      case 'POLYGON_AMOY':
+        return (
           bg: Colors.deepPurple.shade50,
           border: Colors.deepPurple.shade200,
           fg: Colors.deepPurple.shade800,
         );
-      default:
-        final short = raw.length > 10 ? raw.substring(0, 10) : raw;
+      case 'AVALANCHE_MAINNET':
+      case 'AVALANCHE_FUJI':
         return (
-          label: short,
+          bg: Colors.red.shade50,
+          border: Colors.red.shade300,
+          fg: Colors.red.shade800,
+        );
+      case 'GNOSIS_MAINNET':
+      case 'GNOSIS_CHIADO':
+        return (
+          bg: Colors.green.shade50,
+          border: Colors.green.shade200,
+          fg: Colors.green.shade800,
+        );
+      case 'LINEA_MAINNET':
+      case 'LINEA_SEPOLIA':
+        return (
+          bg: Colors.cyan.shade50,
+          border: Colors.cyan.shade200,
+          fg: Colors.cyan.shade900,
+        );
+      case 'FANTOM_MAINNET':
+      case 'FANTOM_TESTNET':
+        return (
+          bg: Colors.blue.shade50,
+          border: Colors.blue.shade300,
+          fg: Colors.blue.shade900,
+        );
+      case 'TON_MAINNET':
+      case 'TON_TESTNET':
+        return (
+          bg: Colors.lightBlue.shade50,
+          border: Colors.lightBlue.shade300,
+          fg: Colors.blueGrey.shade800,
+        );
+      default:
+        return (
           bg: Colors.grey.shade100,
           border: Colors.grey.shade300,
           fg: Colors.grey.shade800,
@@ -372,19 +429,25 @@ class _ChainBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = _palette(apiChain);
+    final p = _badgeColors(apiChain);
+    final label = depositChainBadgeLabel(apiChain);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      constraints: const BoxConstraints(minWidth: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: p.bg,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: p.border),
       ),
       child: Text(
-        p.label,
+        label,
+        maxLines: 2,
+        softWrap: true,
+        textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          height: 1.15,
           color: p.fg,
         ),
       ),

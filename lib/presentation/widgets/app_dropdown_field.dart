@@ -12,6 +12,9 @@ class AppDropdownField<T> extends StatelessWidget {
   /// Tighter field (e.g. AppBar toolbars) — smaller vertical padding and [isDense].
   final bool dense;
 
+  /// Row height for each menu item; omit for Flutter default (~48). If set, must be >= 48 (Material min touch target).
+  final double? itemHeight;
+
   const AppDropdownField({
     super.key,
     required this.value,
@@ -22,6 +25,7 @@ class AppDropdownField<T> extends StatelessWidget {
     this.menuMaxHeight = 300,
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
     this.dense = false,
+    this.itemHeight,
   });
 
   @override
@@ -35,6 +39,7 @@ class AppDropdownField<T> extends StatelessWidget {
       initialValue: value,
       isExpanded: true,
       menuMaxHeight: menuMaxHeight,
+      itemHeight: itemHeight,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: effectivePadding,

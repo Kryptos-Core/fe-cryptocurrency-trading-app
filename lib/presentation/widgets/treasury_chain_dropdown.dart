@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 
 /// Shared chain selector: [AppDropdownField] + localized labels + stable API values.
@@ -41,8 +42,8 @@ class TreasuryChainDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final mh =
-        menuMaxHeight ?? MediaQuery.sizeOf(context).height * 0.35;
+    final mh = menuMaxHeight ??
+        defaultTreasuryDropdownMenuMaxHeight(MediaQuery.sizeOf(context).height);
 
     // Avoid DropdownButton assert when API value is not in [chains] (e.g. env drift).
     final safeValue =
