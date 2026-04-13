@@ -56,6 +56,13 @@ Mọi `globs` (`.mdc`) và `applyTo` (`.github/instructions/*.md`) **phải tín
 - Cấu hình MCP nằm trong `.codex/config.toml` (GitHub, Context7, Exa, …). Token/API key cấp qua biến môi trường theo tài liệu từng server.
 - Windows: block `notify` macOS đã tắt trong `config.toml`; bổ sung sau nếu cần toast.
 
+## Upstream [everything-claude-code](https://github.com/affaan-m/everything-claude-code.git) (tùy chọn)
+
+- **Repo upstream** trong monorepo cha: `everything-claude-code/` (tham chiếu; không sửa khi chỉ làm feature app).
+- **Codex CLI:** làm việc trong repo Flutter này là đủ cho project-local. Muốn đồng bộ MCP/prompt toàn máy vào `~/.codex/`, vào clone upstream → `npm install` → `bash scripts/sync-ecc-to-codex.sh` (Git Bash / WSL). Plugin preview: `codex plugin install ./` tại root upstream.
+- **Claude Code:** repo này có `.claude/CLAUDE.md`. Full skill/hook/command của ECC: cài plugin `ecc@ecc` từ marketplace upstream hoặc chạy `install.ps1` / `install.sh` trong clone upstream (xem upstream README).
+- Bảng tóm tắt: [AGENTS.md](./AGENTS.md) mục “Upstream ECC”; chi tiết: [AGENTS.md ở monorepo cha](../AGENTS.md).
+
 ## Flutter — checklist nhanh
 
 ```bash
