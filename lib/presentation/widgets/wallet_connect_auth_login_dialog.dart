@@ -18,6 +18,7 @@ import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_deeplink_launcher.dart';
 import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_qr_session_card.dart';
@@ -45,14 +46,6 @@ class WalletConnectAuthLoginDialog extends StatefulWidget {
 
 class _WalletConnectAuthLoginDialogState
     extends State<WalletConnectAuthLoginDialog> {
-  static const _wcChains = [
-    BlockchainNetwork.ethMainnet,
-    BlockchainNetwork.bscMainnet,
-    BlockchainNetwork.bscChapel,
-    BlockchainNetwork.solanaMainnet,
-    BlockchainNetwork.solanaDevnet,
-  ];
-
   final _addressCtrl = TextEditingController();
   final _signatureCtrl = TextEditingController();
 
@@ -95,6 +88,19 @@ class _WalletConnectAuthLoginDialogState
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _initReownModal());
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final picker = context.read<OnchainChainPickerProvider>();
+      await picker.ensureLoaded();
+      if (!mounted) return;
+      final wc = picker.walletConnectLinkNetworksFromApi;
+      if (wc.isEmpty) return;
+      setState(() {
+        if (!wc.contains(_chain)) {
+          _chain = wc.first;
+        }
+      });
+    });
   }
 
   String _utf8MessageToHex0x(String message) {
@@ -546,6 +552,7 @@ class _WalletConnectAuthLoginDialogState
   }
 
   Widget _buildWcManualFlow(
+    BuildContext context,
     ThemeData theme,
     AppLocalizations l10n,
     WcSessionProposal? proposal,
@@ -566,21 +573,46 @@ class _WalletConnectAuthLoginDialogState
           style: theme.textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _wcChains.map((c) {
-            final selected = _chain == c;
-            return ChoiceChip(
-              label: Text(
-                onchainNetworkFilterChipLabel(c, l10n.onchainSandboxShort),
-              ),
-              selected: selected,
-              onSelected: _loadingInit || proposal != null
-                  ? null
-                  : (_) => setState(() => _chain = c),
+        Consumer<OnchainChainPickerProvider>(
+          builder: (context, picker, _) {
+            final wcChains = picker.walletConnectLinkNetworksFromApi;
+            if (wcChains.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  l10n.requestFailed,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              );
+            }
+            if (!wcChains.contains(_chain)) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                setState(() => _chain = wcChains.first);
+              });
+            }
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: wcChains.map((c) {
+                final selected = _chain == c;
+                return ChoiceChip(
+                  label: Text(
+                    onchainNetworkFilterChipLabel(
+                      c,
+                      l10n.onchainSandboxShort,
+                    ),
+                  ),
+                  selected: selected,
+                  onSelected: _loadingInit || proposal != null
+                      ? null
+                      : (_) => setState(() => _chain = c),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
         const SizedBox(height: 12),
         FilledButton.icon(
@@ -826,6 +858,7 @@ class _WalletConnectAuthLoginDialogState
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _buildWcManualFlow(
+                              context,
                               theme,
                               l10n,
                               proposal,
@@ -838,6 +871,7 @@ class _WalletConnectAuthLoginDialogState
                       _buildReownNativeSection(theme, l10n),
                       const SizedBox(height: 12),
                       _buildWcManualFlow(
+                        context,
                         theme,
                         l10n,
                         proposal,
@@ -860,6 +894,7 @@ class _WalletConnectAuthLoginDialogState
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: _buildWcManualFlow(
+                              context,
                               theme,
                               l10n,
                               proposal,
