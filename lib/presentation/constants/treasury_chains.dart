@@ -61,14 +61,6 @@ List<String> kOnchainActionableSandboxCodes(String tronDefault) {
 /// Legacy export for audits — production actionable codes (same as default treasury ops in prod).
 const List<String> kTreasuryOpsChainValues = kOnchainActionableProductionCodes;
 
-/// Managed deposit wallets — recommended chain + defaults rows.
-/// Includes mainnet so the picker matches [deposit.recommended_chain] even in non-production.
-const List<String> kManagedWalletsChainValues = <String>[
-  'TRON_MAINNET',
-  'TRON_NILE',
-  'TRON_SHASTA',
-];
-
 /// Payment ops wallets (create / filter): mainnet in production, testnet otherwise.
 List<String> treasuryOpsChainsForCurrentEnv() {
   if (treasuryChainsUseMainnetOnly) {
@@ -91,13 +83,9 @@ List<String> withdrawalFilterChainsForCurrentEnv() {
   return treasuryOpsChainsForCurrentEnv();
 }
 
-/// Managed deposit wallets: mainnet-only in production; mainnet + Tron testnets otherwise.
-List<String> managedWalletsChainsForCurrentEnv() {
-  if (treasuryChainsUseMainnetOnly) {
-    return const <String>['TRON_MAINNET'];
-  }
-  return kManagedWalletsChainValues;
-}
+/// Managed deposit / “Nạp tiền & ví quản lý” — same chain universe as [onchainDepositWithdrawNetworksForCurrentEnv]
+/// and GET /treasury/chain-picker-options `managed_wallets` / `onchain_deposit_withdraw`.
+List<String> managedWalletsChainsForCurrentEnv() => treasuryOpsChainsForCurrentEnv();
 
 /// Default hot-wallet chain for the current [ENV].
 String treasuryDefaultMainWalletChainForCurrentEnv() =>

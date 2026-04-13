@@ -12,7 +12,8 @@ import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
 /// User-facing deposit & managed wallets (`/managed-wallets`).
-/// Not the same data as Payment configuration → operational transaction wallets (`/treasury`).
+/// Chain list matches Ví On-chain → Nạp tiền (same `managed_wallets` / `onchain_deposit_withdraw` picker).
+/// Operational hot wallets remain under Payment configuration → Treasury.
 class ManagedWalletsScreen extends StatefulWidget {
   const ManagedWalletsScreen({super.key});
 

@@ -12,7 +12,11 @@ void main() {
           'treasury_main_wallet': ['TRON_NILE'],
           'treasury_history_filter': ['TRON_NILE'],
           'withdrawal_admin_filter': ['TRON_NILE', 'BSC_CHAPEL'],
-          'managed_wallets': ['TRON_MAINNET'],
+          'managed_wallets': [
+            'BSC_CHAPEL',
+            'SOLANA_DEVNET',
+            'TRON_NILE',
+          ],
           'onchain_deposit_withdraw': [
             'BSC_CHAPEL',
             'SOLANA_DEVNET',
@@ -26,7 +30,7 @@ void main() {
       expect(m.treasuryMainWallet, ['TRON_NILE']);
       expect(m.treasuryHistoryFilter, ['TRON_NILE']);
       expect(m.withdrawalAdminFilter, ['TRON_NILE', 'BSC_CHAPEL']);
-      expect(m.managedWallets, ['TRON_MAINNET']);
+      expect(m.managedWallets, m.onchainDepositWithdraw);
       expect(m.onchainDepositWithdraw, [
         'BSC_CHAPEL',
         'SOLANA_DEVNET',
