@@ -591,6 +591,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payosNeedFiatDesc => 'PayOS — then return to trade here.';
 
   @override
+  String get payosDepositRatePreviewTitle => 'Current exchange rate';
+
+  @override
+  String payosDepositRateOneUsdt(String vndFormatted) {
+    return '1 USDT ~ $vndFormatted VND';
+  }
+
+  @override
+  String payosDepositSpreadBps(String bps) {
+    return 'Spread: $bps bps';
+  }
+
+  @override
+  String payosDepositYouReceive(String amount, String currency) {
+    return 'You receive $amount $currency';
+  }
+
+  @override
+  String payosUsdtMarketPrice(String value) {
+    return 'USDT market: $value VND';
+  }
+
+  @override
+  String get payosMarketPricesTooltip => 'Market prices';
+
+  @override
+  String get marketPricesScreenTitle => 'Market prices';
+
+  @override
+  String marketPricesUsdLine(String price) {
+    return 'USD: $price';
+  }
+
+  @override
+  String marketPricesVndAmount(String value) {
+    return '$value VND';
+  }
+
+  @override
+  String get marketPricesEmpty => 'No market prices available.';
+
+  @override
   String get openOnchainWalletFlow => 'Open On-chain Wallet Flow';
 
   @override

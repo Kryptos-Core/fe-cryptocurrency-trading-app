@@ -590,6 +590,48 @@ class AppLocalizationsVi extends AppLocalizations {
   String get payosNeedFiatDesc => 'PayOS — sau đó quay lại giao dịch.';
 
   @override
+  String get payosDepositRatePreviewTitle => 'Tỷ lệ quy đổi hiện tại';
+
+  @override
+  String payosDepositRateOneUsdt(String vndFormatted) {
+    return '1 USDT ~ $vndFormatted VND';
+  }
+
+  @override
+  String payosDepositSpreadBps(String bps) {
+    return 'Spread: $bps bps';
+  }
+
+  @override
+  String payosDepositYouReceive(String amount, String currency) {
+    return 'Bạn nhận được $amount $currency';
+  }
+
+  @override
+  String payosUsdtMarketPrice(String value) {
+    return 'Giá thị trường USDT: $value VND';
+  }
+
+  @override
+  String get payosMarketPricesTooltip => 'Bảng giá thị trường';
+
+  @override
+  String get marketPricesScreenTitle => 'Giá thị trường';
+
+  @override
+  String marketPricesUsdLine(String price) {
+    return 'USD: $price';
+  }
+
+  @override
+  String marketPricesVndAmount(String value) {
+    return '$value VND';
+  }
+
+  @override
+  String get marketPricesEmpty => 'Chưa có dữ liệu giá thị trường.';
+
+  @override
   String get openOnchainWalletFlow => 'Mở luồng ví On-chain';
 
   @override

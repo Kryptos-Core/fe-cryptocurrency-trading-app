@@ -26,9 +26,11 @@ import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/deposit_repository.dart';
+import 'package:crypto_trading_app/domain/repositories/exchange_rate_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
 import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/deposit_repository_impl.dart';
+import 'package:crypto_trading_app/data/repositories/exchange_rate_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/blockchain_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/managed_wallets_repository_impl.dart';
@@ -165,7 +167,6 @@ Future<void> initializeDependencies() async {
     () => DepositRemoteDataSourceImpl(dioClient: sl()),
   );
 
-
   // Exchange Remote Data Source (sync Binance → DB)
   sl.registerLazySingleton<ExchangeRemoteDataSource>(
     () => ExchangeRemoteDataSourceImpl(dio: sl()),
@@ -216,6 +217,11 @@ Future<void> initializeDependencies() async {
   // Deposits Repository
   sl.registerLazySingleton<DepositRepository>(
     () => DepositRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Exchange Rate Repository
+  sl.registerLazySingleton<ExchangeRateRepository>(
+    () => ExchangeRateRepositoryImpl(dioClient: sl()),
   );
 
   // Blockchain Repository

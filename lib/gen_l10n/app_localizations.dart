@@ -1232,6 +1232,66 @@ abstract class AppLocalizations {
   /// **'PayOS — then return to trade here.'**
   String get payosNeedFiatDesc;
 
+  /// No description provided for @payosDepositRatePreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current exchange rate'**
+  String get payosDepositRatePreviewTitle;
+
+  /// No description provided for @payosDepositRateOneUsdt.
+  ///
+  /// In en, this message translates to:
+  /// **'1 USDT ~ {vndFormatted} VND'**
+  String payosDepositRateOneUsdt(String vndFormatted);
+
+  /// No description provided for @payosDepositSpreadBps.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread: {bps} bps'**
+  String payosDepositSpreadBps(String bps);
+
+  /// No description provided for @payosDepositYouReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'You receive {amount} {currency}'**
+  String payosDepositYouReceive(String amount, String currency);
+
+  /// No description provided for @payosUsdtMarketPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'USDT market: {value} VND'**
+  String payosUsdtMarketPrice(String value);
+
+  /// No description provided for @payosMarketPricesTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Market prices'**
+  String get payosMarketPricesTooltip;
+
+  /// No description provided for @marketPricesScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market prices'**
+  String get marketPricesScreenTitle;
+
+  /// No description provided for @marketPricesUsdLine.
+  ///
+  /// In en, this message translates to:
+  /// **'USD: {price}'**
+  String marketPricesUsdLine(String price);
+
+  /// No description provided for @marketPricesVndAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} VND'**
+  String marketPricesVndAmount(String value);
+
+  /// No description provided for @marketPricesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No market prices available.'**
+  String get marketPricesEmpty;
+
   /// No description provided for @openOnchainWalletFlow.
   ///
   /// In en, this message translates to:

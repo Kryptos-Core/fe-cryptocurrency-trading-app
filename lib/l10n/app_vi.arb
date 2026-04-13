@@ -205,6 +205,47 @@
   "payosOrderProcessing": "Đơn đang xử lý. Hệ thống sẽ tự cập nhật khi PayOS gửi webhook.",
   "payosNeedFiatTitle": "Nạp VND?",
   "payosNeedFiatDesc": "PayOS — sau đó quay lại giao dịch.",
+  "payosDepositRatePreviewTitle": "Tỷ lệ quy đổi hiện tại",
+  "payosDepositRateOneUsdt": "1 USDT ~ {vndFormatted} VND",
+  "@payosDepositRateOneUsdt": {
+    "placeholders": {
+      "vndFormatted": { "type": "String" }
+    }
+  },
+  "payosDepositSpreadBps": "Spread: {bps} bps",
+  "@payosDepositSpreadBps": {
+    "placeholders": {
+      "bps": { "type": "String" }
+    }
+  },
+  "payosDepositYouReceive": "Bạn nhận được {amount} {currency}",
+  "@payosDepositYouReceive": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "currency": { "type": "String" }
+    }
+  },
+  "payosUsdtMarketPrice": "Giá thị trường USDT: {value} VND",
+  "@payosUsdtMarketPrice": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "payosMarketPricesTooltip": "Bảng giá thị trường",
+  "marketPricesScreenTitle": "Giá thị trường",
+  "marketPricesUsdLine": "USD: {price}",
+  "@marketPricesUsdLine": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "marketPricesVndAmount": "{value} VND",
+  "@marketPricesVndAmount": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "marketPricesEmpty": "Chưa có dữ liệu giá thị trường.",
   "openOnchainWalletFlow": "Mở luồng ví On-chain",
   "fiatWithdrawBankTitle": "Rút USDT về ngân hàng",
   "fiatWithdrawBankSubtitle": "Liên kết STK ngân hàng VN, sau đó tạo yêu cầu rút. Cần tài khoản VERIFIED_USER.",

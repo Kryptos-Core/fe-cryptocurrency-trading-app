@@ -17,6 +17,7 @@ import 'package:crypto_trading_app/presentation/providers/markets_provider.dart'
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/exchange_rate_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
@@ -85,7 +86,6 @@ class CryptoTradingApp extends StatelessWidget {
     // Re-initialize on hot reload if needed
     di.initializeDependencies();
 
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<LocaleProvider>.value(
@@ -131,6 +131,11 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => DepositsProvider(
+            repository: di.sl(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ExchangeRateProvider(
             repository: di.sl(),
           ),
         ),
@@ -201,7 +206,8 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<WithdrawalManagementProvider>(
           create: (_) => WithdrawalManagementProvider(
-            dataSource: WithdrawalAdminRemoteDataSourceImpl(dioClient: di.sl<DioClient>()),
+            dataSource: WithdrawalAdminRemoteDataSourceImpl(
+                dioClient: di.sl<DioClient>()),
           ),
         ),
       ],

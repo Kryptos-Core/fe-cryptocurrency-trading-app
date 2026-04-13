@@ -9,8 +9,11 @@ import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/exchange_rate_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/presentation/widgets/rate_preview_widget.dart';
+import 'package:crypto_trading_app/screens/market_prices_screen.dart';
 
 class _AmountThousandsSeparatorFormatter extends TextInputFormatter {
   final NumberFormat _numberFormat = NumberFormat('#,###');
@@ -71,6 +74,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
       final p = context.read<DepositsProvider>();
       p.fetchMyDeposits();
       p.loadCheckoutMeta();
+      context
+          .read<ExchangeRateProvider>()
+          .fetchMarketPrices(symbols: const ['USDT']);
     });
   }
 
@@ -157,9 +163,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
 
     if (!mounted) return;
 
-    final updated = provider.deposits
-        .where((d) => d.orderCode == orderCode)
-        .firstOrNull;
+    final updated =
+        provider.deposits.where((d) => d.orderCode == orderCode).firstOrNull;
     final isPaid = updated?.status.toUpperCase() == 'PAID';
 
     if (isPaid) {
@@ -341,7 +346,15 @@ class _DepositsScreenState extends State<DepositsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final provider = context.watch<DepositsProvider>();
+    final exchangeRateProvider = context.watch<ExchangeRateProvider>();
     final paymentConfig = context.watch<PaymentConfigProvider>();
+    String? usdtPriceVnd;
+    for (final item in exchangeRateProvider.marketPrices) {
+      if (item.symbol.toUpperCase() == 'USDT') {
+        usdtPriceVnd = item.priceVnd;
+        break;
+      }
+    }
 
     final isPayosTransitioning = paymentConfig.isAnyTransitioning &&
         (paymentConfig.transitioningType == 'PAYOS' ||
@@ -350,179 +363,295 @@ class _DepositsScreenState extends State<DepositsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.payosDepositTitle),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          if (isPayosTransitioning)
-            MaterialBanner(
-              backgroundColor: Colors.orange.shade100,
-              leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              content: Text(
-                paymentConfig.payosTransitioningDepositBannerText(l10n),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => paymentConfig.clearLatestEvent(),
-                  child: Text(l10n.dismiss),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.show_chart),
+            tooltip: l10n.payosMarketPricesTooltip,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const MarketPricesScreen(),
                 ),
-              ],
-            ),
-          Expanded(
-        child: Padding(
-        padding: const EdgeInsets.all(16.0),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Deposit form
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      l10n.payosCreateOrder,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [_amountFormatter],
-                      decoration: CurrencyAmountInput.withCurrencySuffix(
-                        context,
-                        InputDecoration(
-                          labelText: l10n.payosAmountLabel,
-                          border: const OutlineInputBorder(),
-                          hintText: l10n.payosMinAmountHintDynamic(
-                            NumberFormat('#,###').format(
-                              provider.effectivePayosMinAmountFiat,
-                            ),
+            if (isPayosTransitioning) ...[
+              Material(
+                color: Colors.orange.shade100,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          paymentConfig.payosTransitioningDepositBannerText(l10n),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
                           ),
                         ),
-                        currencySymbol: 'VND',
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blue.shade700,
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed:
-                            (provider.isCreatingLink || _isPollingAfterCheckout)
-                                ? null
-                                : _handleDeposit,
-                        child: provider.isCreatingLink
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : _isPollingAfterCheckout
-                                ? Text(l10n.payosWaitingWebhook)
-                                : Text(l10n.payosTopupVnd),
+                      TextButton(
+                        onPressed: () => paymentConfig.clearLatestEvent(),
+                        child: Text(l10n.dismiss),
                       ),
-                    ),
-                    if (_isPollingAfterCheckout) ...[
-                      const SizedBox(height: 10),
-                      const LinearProgressIndicator(),
                     ],
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(height: 12),
+            ],
+            Text(
+              l10n.payosCreateOrder,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: 24),
-            // Deposit history
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [_amountFormatter],
+                    onChanged: (value) {
+                      final amount = _parseAmountFromInput(value);
+                      context
+                          .read<ExchangeRateProvider>()
+                          .scheduleDepositPreview(amount);
+                    },
+                    decoration: CurrencyAmountInput.withCurrencySuffix(
+                      context,
+                      InputDecoration(
+                        labelText: l10n.payosAmountLabel,
+                        border: const OutlineInputBorder(),
+                        hintText: l10n.payosMinAmountHintDynamic(
+                          NumberFormat('#,###').format(
+                            provider.effectivePayosMinAmountFiat,
+                          ),
+                        ),
+                      ),
+                      currencySymbol: 'VND',
+                    ),
+                  ),
+                  if (usdtPriceVnd != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.payosUsdtMarketPrice(
+                        FormatUtils.formatFiatIntegerDisplay(usdtPriceVnd),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade700,
+                          ),
+                    ),
+                  ],
+                  RatePreviewWidget(
+                    preview: exchangeRateProvider.depositPreview,
+                    isLoading: exchangeRateProvider.isLoadingPreview,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: provider.isCreatingLink
+                        ? FilledButton(
+                            onPressed: null,
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 48),
+                            ),
+                            child: SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          )
+                        : FilledButton.icon(
+                            onPressed: _isPollingAfterCheckout
+                                ? null
+                                : _handleDeposit,
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 48),
+                            ),
+                            icon: const Icon(Icons.payments_outlined, size: 20),
+                            label: Text(
+                              _isPollingAfterCheckout
+                                  ? l10n.payosWaitingWebhook
+                                  : l10n.payosTopupVnd,
+                            ),
+                          ),
+                  ),
+                  if (_isPollingAfterCheckout) ...[
+                    const SizedBox(height: 10),
+                    const LinearProgressIndicator(),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
               l10n.recentTransactions,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: provider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : provider.deposits.isEmpty
-                      ? Center(child: Text(l10n.payosNoTransactions))
-                      : ListView.builder(
-                          itemCount: provider.deposits.length,
-                          itemBuilder: (context, index) {
-                            final deposit = provider.deposits[index];
-                            final isPending =
-                                deposit.status.toUpperCase() == 'PENDING';
-                            return Card(
-                              child: ListTile(
-                                onTap: isPending &&
-                                        deposit.checkoutUrl.isNotEmpty
-                                    ? () => _onTapPendingDeposit(
-                                        deposit.orderCode,
-                                        deposit.checkoutUrl,
-                                      )
-                                    : null,
-                                mouseCursor: isPending &&
-                                        deposit.checkoutUrl.isNotEmpty
-                                    ? SystemMouseCursors.click
-                                    : SystemMouseCursors.basic,
-                                title: Text(
-                                  '${FormatUtils.formatFiatIntegerDisplay(deposit.amount)} VND',
-                                ),
-                                subtitle: Text(
-                                  isPending
-                                      ? '${l10n.payosOrderCode}: ${deposit.orderCode} • ${l10n.payosTapToOpenCheckout}'
-                                      : '${l10n.payosOrderCode}: ${deposit.orderCode}',
-                                ),
-                                trailing: _buildStatusBadge(deposit.status),
-                              ),
-                            );
-                          },
+            const SizedBox(height: 8),
+            if (provider.isLoading && provider.deposits.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (provider.deposits.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Text(
+                  l10n.payosNoTransactions,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              )
+            else
+              ...provider.deposits.map((deposit) {
+                final isPending =
+                    deposit.status.toUpperCase() == 'PENDING';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: isPending &&
+                              deposit.checkoutUrl.isNotEmpty
+                          ? () => _onTapPendingDeposit(
+                                deposit.orderCode,
+                                deposit.checkoutUrl,
+                              )
+                          : null,
+                      borderRadius: BorderRadius.circular(10),
+                      mouseCursor: isPending &&
+                              deposit.checkoutUrl.isNotEmpty
+                          ? SystemMouseCursors.click
+                          : SystemMouseCursors.basic,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-            ),           // close inner Expanded (the list)
-          ],             // close inner Column children
-        ),               // close inner Column
-      ),                 // close Padding
-    ),                   // close outer Expanded
-        ],               // close outer Column children
-      ),                 // close outer Column
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${FormatUtils.formatFiatIntegerDisplay(deposit.amount)} VND',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                _buildStatusBadge(context, deposit.status),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              isPending
+                                  ? '${l10n.payosOrderCode}: ${deposit.orderCode} • ${l10n.payosTapToOpenCheckout}'
+                                  : '${l10n.payosOrderCode}: ${deposit.orderCode}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey.shade700,
+                                    height: 1.35,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    Color bgColor;
-    Color textColor = Colors.white;
+  Widget _buildStatusBadge(BuildContext context, String status) {
+    final l10n = AppLocalizations.of(context);
+    final upper = status.toUpperCase();
+    late Color bgColor;
+    late Color textColor;
+    late String label;
 
-    switch (status) {
+    switch (upper) {
       case 'PAID':
-        bgColor = Colors.green;
+        bgColor = const Color(0xFFEAF8F1);
+        textColor = const Color(0xFF0F8A49);
+        label = l10n.depositStatusPaid;
         break;
       case 'CANCELLED':
-        bgColor = Colors.red;
+        bgColor = const Color(0xFFFDECEF);
+        textColor = const Color(0xFFB3261E);
+        label = l10n.depositStatusCancelled;
+        break;
+      case 'PENDING':
+        bgColor = const Color(0xFFFFF6E8);
+        textColor = const Color(0xFFB56900);
+        label = l10n.depositStatusPending;
         break;
       default:
-        bgColor = Colors.orange;
+        bgColor = const Color(0xFFF1F5F9);
+        textColor = const Color(0xFF64748B);
+        label = status;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        status,
-        style: TextStyle(color: textColor, fontSize: 12),
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

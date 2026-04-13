@@ -1,6 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'api_base_url_stub.dart' if (dart.library.io) 'api_base_url_io.dart' as api_base_url;
+import 'api_base_url_stub.dart' if (dart.library.io) 'api_base_url_io.dart'
+    as api_base_url;
 
 /// API Configuration Constants
 /// Following Single Responsibility Principle (SRP)
@@ -16,7 +17,8 @@ class ApiConstants {
     final fromEnv = dotenv.env['BASE_URL'];
     if (fromEnv != null && fromEnv.isNotEmpty) {
       final u = fromEnv.trim();
-      final withoutTrailing = u.endsWith('/') ? u.substring(0, u.length - 1) : u;
+      final withoutTrailing =
+          u.endsWith('/') ? u.substring(0, u.length - 1) : u;
       final idx = withoutTrailing.indexOf('/api/v1');
       if (idx > 0) return withoutTrailing.substring(0, idx);
       if (idx == 0) return 'http://localhost:3000';
@@ -29,7 +31,9 @@ class ApiConstants {
   static String get baseUrl {
     final fromEnv = dotenv.env['BASE_URL'];
     if (fromEnv != null && fromEnv.isNotEmpty) {
-      final url = fromEnv.endsWith('/') ? fromEnv.substring(0, fromEnv.length - 1) : fromEnv;
+      final url = fromEnv.endsWith('/')
+          ? fromEnv.substring(0, fromEnv.length - 1)
+          : fromEnv;
       return url;
     }
     return '${_serverOrigin()}/api/v1';
@@ -45,12 +49,11 @@ class ApiConstants {
   static String get env => dotenv.env['ENV'] ?? 'development';
 
   /// About/help page URL for app policy and guides.
-  static String get aboutUrl =>
-      dotenv.env['ABOUT_URL'] ?? 'https://github.com';
+  static String get aboutUrl => dotenv.env['ABOUT_URL'] ?? 'https://github.com';
 
   // Các API Endpoints
   // NOTE: Base URL đã chứa /api/v1 prefix, nên endpoints không cần prefix nữa
-  
+
   /// Health check: GET returns { "ok": true, "timestamp": "..." }. Use to verify backend is running.
   static const String health = '/health';
 
@@ -66,6 +69,7 @@ class ApiConstants {
   static const String authLogin = '/auth/login';
   static const String authWalletNonce = '/auth/wallet-nonce';
   static const String authWalletVerify = '/auth/wallet-verify';
+
   /// Public WalletConnect login (no JWT): init → poll status → verify signature
   static const String authWalletWcInit = '/auth/wallet/wc/init';
   static String authWalletWcStatus(String sessionId) =>
@@ -78,15 +82,18 @@ class ApiConstants {
   static const String authChangePassword = '/auth/change-password';
   // Note: getCurrentUser should use /users/me instead of /auth/me
   // Backend's /auth/me is not exposed - use users service instead
-  
+
   // User Endpoints (Quản lý người dùng)
   static const String users = '/users';
   static const String usersMe = '/users/me';
   static const String usersStatistics = '/users/statistics';
   static const String usersMeProfileBasic = '/users/me/profile-basic';
-  static const String usersMeSecurityChangeRequests = '/users/me/security-change-requests';
-  static const String usersMeContactEmailSendOtp = '/users/me/contact-email/send-otp';
-  static const String usersMeContactEmailVerify = '/users/me/contact-email/verify';
+  static const String usersMeSecurityChangeRequests =
+      '/users/me/security-change-requests';
+  static const String usersMeContactEmailSendOtp =
+      '/users/me/contact-email/send-otp';
+  static const String usersMeContactEmailVerify =
+      '/users/me/contact-email/verify';
   static const String usersMeAvatar = '/users/me/avatar';
   static const String usersSecurityChangeRequestsPending =
       '/users/security-change-requests/pending';
@@ -108,9 +115,12 @@ class ApiConstants {
     final t = pairIdOrSymbol.trim();
     return '/orders/admin/reconcile-matching/${Uri.encodeComponent(t)}';
   }
+
   static const String depositsAdminAll = '/deposits/admin/all';
-  static const String blockchainAdminWithdrawals = '/blockchain/admin/withdrawals';
-  static const String blockchainAdminWithdrawalStats = '/blockchain/admin/withdrawals/stats';
+  static const String blockchainAdminWithdrawals =
+      '/blockchain/admin/withdrawals';
+  static const String blockchainAdminWithdrawalStats =
+      '/blockchain/admin/withdrawals/stats';
   static String blockchainAdminWithdrawalDetail(String txId) =>
       '/blockchain/admin/withdrawals/$txId';
   static String blockchainWithdrawManualApprove(String txId) =>
@@ -119,14 +129,14 @@ class ApiConstants {
       '/blockchain/withdraw/manual/$txId/reject';
   static const String blockchainWithdrawProcessPending =
       '/blockchain/withdraw/manual/process-pending';
-  
+
   // Currencies Endpoints (Tiền ảo)
   static const String currencies = '/currencies';
   static String currencyById(String id) => '$currencies/$id';
   static String currencyBySymbol(String symbol) => '$currencies/symbol/$symbol';
   static const String currenciesActive = '$currencies/active';
   static const String currenciesTradable = '$currencies/tradable';
-  
+
   // Markets Endpoints (Thị trường)
   static const String markets = '/markets';
   static const String marketsActive = '$markets/active';
@@ -136,11 +146,13 @@ class ApiConstants {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol';
   }
+
   static String marketTicker(String id) => '$markets/$id/ticker';
   static String marketTickerBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/ticker';
   }
+
   /// Tab Thị trường – danh sách pair + giá, % đổi: GET /markets/tickers/all
   static const String marketsTickersAll = '$markets/tickers/all';
 
@@ -150,11 +162,13 @@ class ApiConstants {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/orderbook';
   }
+
   static String marketTrades(String id) => '$markets/$id/trades';
   static String marketTradesBySymbol(String symbol) {
     final encodedSymbol = Uri.encodeComponent(symbol);
     return '$markets/symbol/$encodedSymbol/trades';
   }
+
   static String marketOHLCV(String id) => '$markets/$id/ohlcv';
 
   /// OHLCV range filter: 1d, 1M, 3M, 1y, 5y (backend only accepts these)
@@ -190,7 +204,8 @@ class ApiConstants {
 
   // Wallets Endpoints (Ví tiền)
   static const String wallets = '/wallets';
-  static String walletByCurrency(String currencyId) => '$wallets/currency/$currencyId';
+  static String walletByCurrency(String currencyId) =>
+      '$wallets/currency/$currencyId';
   static String walletBalance(String walletId) => '$wallets/$walletId/balance';
   static String walletLedger(String walletId) => '$wallets/$walletId/ledger';
 
@@ -206,15 +221,18 @@ class ApiConstants {
   // Blockchain Endpoints (Liên kết ví + Nạp/Rút on-chain)
   static const String blockchain = '/blockchain';
   static const String blockchainWallets = '$blockchain/wallets';
-  static const String blockchainRequestLink = '$blockchain/wallets/request-link';
+  static const String blockchainRequestLink =
+      '$blockchain/wallets/request-link';
   static const String blockchainVerifyLink = '$blockchain/wallets/verify-link';
   static const String blockchainDepositAddress = '$blockchain/deposit/address';
   static const String blockchainPreviewDeposit = '$blockchain/deposit/preview';
   static String blockchainWalletBalance(String linkId) =>
       '$blockchain/wallets/$linkId/balance';
-  static String blockchainUnlinkWallet(String linkId) => '$blockchain/wallets/$linkId';
+  static String blockchainUnlinkWallet(String linkId) =>
+      '$blockchain/wallets/$linkId';
   static const String blockchainSubmitDeposit = '$blockchain/deposit/submit';
-  static const String blockchainRequestWithdrawal = '$blockchain/withdraw/request';
+  static const String blockchainRequestWithdrawal =
+      '$blockchain/withdraw/request';
   static const String blockchainTransactions = '$blockchain/transactions';
 
   // ============ WalletConnect v2 Endpoints ============
@@ -228,36 +246,52 @@ class ApiConstants {
   /// POST — Submit signature sau khi WC signing hoàn tất
   static const String blockchainWcSubmit = '$blockchain/wallets/wc/submit';
 
-
   // Managed Wallets Endpoints (Treasury / Finance Manager — RISK_OFFICER)
   static const String managedWallets = '/managed-wallets';
-  static const String managedWalletsDepositDefaults = '$managedWallets/deposit-defaults';
-  static const String managedWalletsRecommendedChain = '$managedWallets/settings/recommended-chain';
-  static String managedWalletById(String walletId) => '$managedWallets/$walletId';
-  static String managedWalletTransactions(String walletId) => '$managedWallets/$walletId/transactions';
-  static String managedWalletSend(String walletId) => '$managedWallets/$walletId/send';
-  static String managedWalletSetDefault(String walletId) => '$managedWallets/$walletId/set-deposit-default';
+  static const String managedWalletsDepositDefaults =
+      '$managedWallets/deposit-defaults';
+  static const String managedWalletsRecommendedChain =
+      '$managedWallets/settings/recommended-chain';
+  static String managedWalletById(String walletId) =>
+      '$managedWallets/$walletId';
+  static String managedWalletTransactions(String walletId) =>
+      '$managedWallets/$walletId/transactions';
+  static String managedWalletSend(String walletId) =>
+      '$managedWallets/$walletId/send';
+  static String managedWalletSetDefault(String walletId) =>
+      '$managedWallets/$walletId/set-deposit-default';
   static String managedWalletClearDepositDefault(String walletId) =>
       '$managedWallets/$walletId/clear-deposit-default';
 
   // Deposit Methods — public endpoint (no auth required)
   static const String depositMethods = '/deposit/methods';
 
+  // Exchange Rate Endpoints
+  static const String exchangeRates = '/exchange-rates';
+  static const String exchangeRateMarketPrices = '$exchangeRates/market-prices';
+  static const String exchangeRateDepositPreview =
+      '$exchangeRates/deposit-preview';
+
   // Payment Config Endpoints (ADMIN / FINANCE_MANAGER only)
   static const String paymentConfigs = '/payment-configs';
   static const String paymentConfigOptions = '/payment-configs/options';
   static String paymentConfigById(String id) => '/payment-configs/$id';
-  static String paymentConfigActivate(String id) => '/payment-configs/$id/activate';
+  static String paymentConfigActivate(String id) =>
+      '/payment-configs/$id/activate';
 
   // Treasury Endpoints (ADMIN / FINANCE_MANAGER only)
   static const String treasury = '/treasury';
   static const String treasuryWallets = '$treasury/wallets';
   static const String treasuryMainWallets = '$treasury/main-wallets';
-  static const String treasuryMainWalletsPending = '$treasury/main-wallets/pending';
+  static const String treasuryMainWalletsPending =
+      '$treasury/main-wallets/pending';
   static String treasuryMainWallet(String id) => '$treasury/main-wallets/$id';
-  static String treasuryMainWalletApprove(String id) => '$treasury/main-wallets/$id/approve';
-  static String treasuryMainWalletReject(String id) => '$treasury/main-wallets/$id/reject';
-  static String treasuryMainWalletSetDefault(String id) => '$treasury/main-wallets/$id/set-default';
+  static String treasuryMainWalletApprove(String id) =>
+      '$treasury/main-wallets/$id/approve';
+  static String treasuryMainWalletReject(String id) =>
+      '$treasury/main-wallets/$id/reject';
+  static String treasuryMainWalletSetDefault(String id) =>
+      '$treasury/main-wallets/$id/set-default';
   static String treasuryMainWalletRequestDeletion(String id) =>
       '$treasury/main-wallets/$id/request-deletion';
   static String treasuryMainWalletApproveDeletion(String id) =>
@@ -266,20 +300,28 @@ class ApiConstants {
       '$treasury/main-wallets/$id/reject-deletion';
   static String treasuryMainWalletRevealPrivateKey(String id) =>
       '$treasury/main-wallets/$id/reveal-private-key';
-  static String treasuryWalletById(String walletId) => '$treasury/wallets/$walletId';
-  static String treasuryWalletSweep(String walletId) => '$treasury/wallets/$walletId/sweep';
-  static String treasuryWalletFund(String walletId) => '$treasury/wallets/$walletId/fund';
+  static String treasuryWalletById(String walletId) =>
+      '$treasury/wallets/$walletId';
+  static String treasuryWalletSweep(String walletId) =>
+      '$treasury/wallets/$walletId/sweep';
+  static String treasuryWalletFund(String walletId) =>
+      '$treasury/wallets/$walletId/fund';
   static const String treasuryOperations = '$treasury/operations';
   static const String treasuryTransactions = '$treasury/transactions';
+
   /// Env-driven chain lists for admin dropdowns (treasury / hot wallet / withdrawal / managed wallets).
-  static const String treasuryChainPickerOptions = '$treasury/chain-picker-options';
+  static const String treasuryChainPickerOptions =
+      '$treasury/chain-picker-options';
 
   // Market Maker Endpoints
   static const String marketMakerDefaults = '/market-maker/defaults';
   static const String marketMakerConfig = '/market-maker/config';
-  static String marketMakerConfigByPair(String pairId) => '/market-maker/config/$pairId';
-  static String marketMakerPlace(String pairId) => '/market-maker/place/$pairId';
-  static String marketMakerRefresh(String pairId) => '/market-maker/refresh/$pairId';
+  static String marketMakerConfigByPair(String pairId) =>
+      '/market-maker/config/$pairId';
+  static String marketMakerPlace(String pairId) =>
+      '/market-maker/place/$pairId';
+  static String marketMakerRefresh(String pairId) =>
+      '/market-maker/refresh/$pairId';
 
   // Notifications Endpoints
   static const String notifications = '/notifications';

@@ -205,6 +205,47 @@
   "payosOrderProcessing": "Order is being processed. The system will auto-update when PayOS webhook arrives.",
   "payosNeedFiatTitle": "Fiat (VND)?",
   "payosNeedFiatDesc": "PayOS — then return to trade here.",
+  "payosDepositRatePreviewTitle": "Current exchange rate",
+  "payosDepositRateOneUsdt": "1 USDT ~ {vndFormatted} VND",
+  "@payosDepositRateOneUsdt": {
+    "placeholders": {
+      "vndFormatted": { "type": "String" }
+    }
+  },
+  "payosDepositSpreadBps": "Spread: {bps} bps",
+  "@payosDepositSpreadBps": {
+    "placeholders": {
+      "bps": { "type": "String" }
+    }
+  },
+  "payosDepositYouReceive": "You receive {amount} {currency}",
+  "@payosDepositYouReceive": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "currency": { "type": "String" }
+    }
+  },
+  "payosUsdtMarketPrice": "USDT market: {value} VND",
+  "@payosUsdtMarketPrice": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "payosMarketPricesTooltip": "Market prices",
+  "marketPricesScreenTitle": "Market prices",
+  "marketPricesUsdLine": "USD: {price}",
+  "@marketPricesUsdLine": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "marketPricesVndAmount": "{value} VND",
+  "@marketPricesVndAmount": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "marketPricesEmpty": "No market prices available.",
   "openOnchainWalletFlow": "Open On-chain Wallet Flow",
   "fiatWithdrawBankTitle": "Withdraw to bank (USDT)",
   "fiatWithdrawBankSubtitle": "Link a Vietnamese bank account, then request withdrawal. Requires verified user role.",
