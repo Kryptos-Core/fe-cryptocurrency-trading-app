@@ -2,7 +2,7 @@
 
 **Mở đúng folder repo Flutter** làm workspace (có `pubspec.yaml`) để rules/hooks khớp đường dẫn.
 
-Chuẩn AI của team: **[VIBE_CODE.md](../VIBE_CODE.md)**. Ưu tiên rule Dart/Flutter & FSD: `.cursor/rules/dart-*.md`, `flutter-fe-atomic-fsd.mdc`, `common-*.md`, `web-*.md`.
+Chuẩn AI của team: **[VIBE_CODE.md](../VIBE_CODE.md)**. Ưu tiên rule Dart/Flutter & FSD: `.cursor/rules/dart-*.md`, [ARCHITECTURE.md](../ARCHITECTURE.md), skill **dart-flutter-patterns**, `common-*.md`, `web-*.md`.
 
 ---
 

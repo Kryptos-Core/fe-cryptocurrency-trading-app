@@ -2,7 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart' as market_entity;
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+
+/// Tách base / quote để hiển thị gọn (tránh lặp khối "…USDT" to trên list).
+({String base, String? quote}) _parsePairSymbol(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty) return (base: '', quote: null);
+  final slash = s.indexOf('/');
+  if (slash > 0 && slash < s.length - 1) {
+    return (base: s.substring(0, slash), quote: s.substring(slash + 1));
+  }
+  const quotes = ['FDUSD', 'USDT', 'USDC', 'BUSD', 'TUSD', 'EUR', 'USD'];
+  final up = s.toUpperCase();
+  for (final q in quotes) {
+    if (up.endsWith(q) && s.length > q.length) {
+      return (base: s.substring(0, s.length - q.length), quote: q);
+    }
+  }
+  return (base: s, quote: null);
+}
 
 /// Format changeAmount24h – chuẩn crypto: tránh "-0.00" khi % ≠ 0 (coin rẻ).
 /// |v| < 0.01: dùng thêm số lẻ để có ý nghĩa (e.g. -0.0012); ≥ 0.01: 2 số lẻ.
@@ -89,145 +106,152 @@ class MarketRow extends StatelessWidget {
         : _noData;
     final lastPrice = hasTicker ? PriceFormatter.formatPriceStr(ticker!.lastPrice) : _noData;
 
-    final hMargin = denseLayout ? 8.0 : 16.0;
-    final innerPadding = denseLayout ? 12.0 : 16.0;
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: hMargin, vertical: 4),
-      child: InkWell(
-        onTap: onTap,
-        mouseCursor:
-            onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.all(innerPadding),
-          child: Row(
-            children: [
-              // Market Symbol
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      market.symbol,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${AppLocalizations.of(context).vol}: ${hasTicker ? PriceFormatter.formatVolumeStr(ticker!.volume24h) : _noData}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Last Price
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      lastPrice,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFeatures: [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    if (market.quoteCurrency != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        market.quoteCurrency!.symbol,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final hMargin = denseLayout ? 6.0 : 12.0;
+    final vPad = denseLayout ? 6.0 : 10.0;
+    final sym = _parsePairSymbol(market.symbol);
+    final symSize = denseLayout ? 14.0 : 15.0;
+    final priceSize = denseLayout ? 14.0 : 15.0;
+    final sideSize = denseLayout ? 12.0 : 13.0;
+    final volStr = hasTicker
+        ? PriceFormatter.formatVolumeStr(ticker!.volume24h)
+        : _noData;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(hMargin, 2, hMargin, 2),
+      child: Material(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          mouseCursor: onTap != null
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: vPad),
+            child: Row(
+              children: [
+                // Symbol (base + quote nhỏ) — một dòng
+                Expanded(
+                  flex: 34,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          sym.base,
+                          style: TextStyle(
+                            fontSize: symSize,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (sym.quote != null) ...[
+                        Text(
+                          ' · ${sym.quote}',
+                          style: TextStyle(
+                            fontSize: symSize - 2,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ),
-              // Change Percent
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: onFavoriteTap != null ? 4 : 0,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            isPositive
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                            size: 16,
-                            color: isPositive ? Colors.green : Colors.red,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                hasTicker
-                                    ? '${isPositive ? '+' : ''}$changePercent%'
-                                    : '$_noData%',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: hasTicker
-                                      ? (isPositive ? Colors.green : Colors.red)
-                                      : Colors.grey,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                textAlign: TextAlign.end,
-                              ),
-                            ),
-                          ),
-                        ],
+                ),
+                // Last
+                Expanded(
+                  flex: 26,
+                  child: Tooltip(
+                    message: market.quoteCurrency?.symbol ?? '',
+                    child: Text(
+                      lastPrice,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: priceSize,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        hasTicker
-                            ? _formatChangeAmount(
-                                ticker!.changeAmount24h, isPositive)
-                            : _noData,
-                        style: TextStyle(
-                          fontSize: 12,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                // 24h %
+                Expanded(
+                  flex: 22,
+                  child: Tooltip(
+                    message: hasTicker
+                        ? _formatChangeAmount(
+                            ticker!.changeAmount24h, isPositive)
+                        : '',
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          isPositive
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
+                          size: denseLayout ? 13 : 14,
                           color: hasTicker
-                              ? (isPositive
-                                  ? Colors.green.shade700
-                                  : Colors.red.shade700)
+                              ? (isPositive ? Colors.green : Colors.red)
                               : Colors.grey,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        textAlign: TextAlign.end,
-                      ),
-                    ],
+                        const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            hasTicker
+                                ? '${isPositive ? '+' : ''}$changePercent%'
+                                : '$_noData%',
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: sideSize,
+                              fontWeight: FontWeight.w600,
+                              color: hasTicker
+                                  ? (isPositive ? Colors.green : Colors.red)
+                                  : Colors.grey,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (onFavoriteTap != null)
-                SizedBox(
-                  width: 44,
-                  child: _favoriteButton(
-                    context,
-                    onFavoriteTap: onFavoriteTap!,
-                    isFavorite: isFavorite,
-                    tooltip: favoriteTooltip,
+                // Vol
+                Expanded(
+                  flex: 22,
+                  child: Text(
+                    volStr,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: sideSize - 1,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-            ],
+                if (onFavoriteTap != null)
+                  SizedBox(
+                    width: 44,
+                    child: _favoriteButton(
+                      context,
+                      onFavoriteTap: onFavoriteTap!,
+                      isFavorite: isFavorite,
+                      tooltip: favoriteTooltip,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

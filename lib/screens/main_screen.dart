@@ -48,27 +48,37 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  static const Set<int> _eagerTabIndices = {0};
+
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final Set<int> _materializedTabs = <int>{};
 
   /// Stored reference so we can remove the listener in dispose() without using context.
   /// Using context in dispose() is unsafe because the widget tree is already deactivated.
   AuthProvider? _authProvider;
+  bool? _lastIsAuthenticated;
   bool _notificationsInitialized = false;
 
   /// Dedicated socket for the /notifications namespace — handles notification:new
   /// and payment_config:event messages from NotificationsGateway.
   /// Using singleton from DI to share with WalletsProvider for real-time balance updates.
-  final NotificationsSocketService _notifSocket = sl<NotificationsSocketService>();
+  final NotificationsSocketService _notifSocket =
+      sl<NotificationsSocketService>();
 
   @override
   void initState() {
     super.initState();
+    _materializedTabs
+      ..addAll(_eagerTabIndices)
+      ..add(_currentIndex);
+
     // Listen for 403 events from DioClient via AuthProvider and show a SnackBar.
     // Also initialize NotificationProvider once user is authenticated.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authProvider = context.read<AuthProvider>();
       _authProvider!.addListener(_onAuthChanged);
+      _lastIsAuthenticated = _authProvider!.isAuthenticated;
       // Trigger once for existing session (restoreSession runs before this listener)
       _maybeInitNotifications();
     });
@@ -83,6 +93,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onAuthChanged() {
     final auth = context.read<AuthProvider>();
+    _syncMaterializedTabsForAuth(auth.isAuthenticated);
     if (auth.lastRequestForbidden && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -94,6 +105,25 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
     _maybeInitNotifications();
+  }
+
+  void _syncMaterializedTabsForAuth(bool isAuthenticated) {
+    final previous = _lastIsAuthenticated;
+    if (previous == null) {
+      _lastIsAuthenticated = isAuthenticated;
+      return;
+    }
+    if (previous == isAuthenticated || !mounted) return;
+    _lastIsAuthenticated = isAuthenticated;
+
+    setState(() {
+      // Tabs 2-3 switch widget types between guest/auth sessions.
+      _materializedTabs
+        ..remove(2)
+        ..remove(3)
+        ..addAll(_eagerTabIndices)
+        ..add(_currentIndex);
+    });
   }
 
   void _maybeInitNotifications() {
@@ -116,13 +146,15 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Future<void> _connectNotificationsSocket(NotificationProvider notifProvider) async {
+  Future<void> _connectNotificationsSocket(
+      NotificationProvider notifProvider) async {
     // Get access token from TokenService via GetIt — avoids context in async gap
     final tokenService = sl<TokenService>();
     final accessToken = tokenService.getAccessToken();
     if (accessToken == null || accessToken.isEmpty) return;
 
-    await _notifSocket.connect(ApiConstants.notificationsSocketUrl, accessToken);
+    await _notifSocket.connect(
+        ApiConstants.notificationsSocketUrl, accessToken);
     notifProvider.listenNotificationsSocket(_notifSocket);
   }
 
@@ -143,9 +175,21 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens(bool isAuthenticated) => [
         const DashboardScreen(),
         const MarketsListScreen(),
-        isAuthenticated ? const WalletApiScreen() : const _AuthRequiredTab(returnTab: 2),
+        isAuthenticated
+            ? const WalletApiScreen()
+            : const _AuthRequiredTab(returnTab: 2),
         isAuthenticated ? const ProfileScreen() : const _GuestProfileTab(),
       ];
+
+  List<Widget> _buildIndexedStackChildren(bool isAuthenticated) {
+    final screens = _buildScreens(isAuthenticated);
+    return List<Widget>.generate(
+      screens.length,
+      (index) => _materializedTabs.contains(index)
+          ? screens[index]
+          : const SizedBox.shrink(),
+    );
+  }
 
   List<String> _tabTitles(AppLocalizations l10n) => [
         l10n.dashboard,
@@ -156,7 +200,10 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Handle bottom nav tab tap with smart refresh logic.
   void _onTabTap(int index) {
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      _materializedTabs.add(index);
+    });
     if (index == 0) {
       context.read<DashboardProvider>().refresh();
     }
@@ -217,11 +264,15 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(isSelected ? filledIcon : outlinedIcon, color: color, size: 22),
+            Icon(isSelected ? filledIcon : outlinedIcon,
+                color: color, size: 22),
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(fontSize: 10, color: color, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
+              style: TextStyle(
+                  fontSize: 10,
+                  color: color,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -234,8 +285,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isAuthenticated = context.select<AuthProvider, bool>((a) => a.isAuthenticated);
-    final screens = _buildScreens(isAuthenticated);
+    final isAuthenticated =
+        context.select<AuthProvider, bool>((a) => a.isAuthenticated);
+    final screens = _buildIndexedStackChildren(isAuthenticated);
     final titles = _tabTitles(l10n);
     return Scaffold(
       key: _scaffoldKey,
@@ -273,7 +325,8 @@ class _MainScreenState extends State<MainScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                          builder: (_) => ChangeNotifierProvider<
+                              ManagedWalletsProvider>.value(
                             value: context.read<ManagedWalletsProvider>(),
                             child: const ManagedWalletsScreen(),
                           ),
@@ -284,7 +337,8 @@ class _MainScreenState extends State<MainScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider<PaymentConfigProvider>.value(
+                        builder: (_) =>
+                            ChangeNotifierProvider<PaymentConfigProvider>.value(
                           value: context.read<PaymentConfigProvider>(),
                           child: const PaymentConfigScreen(),
                         ),
@@ -302,7 +356,8 @@ class _MainScreenState extends State<MainScreen> {
                 isLabelVisible: prov.unreadCount > 0,
                 label: Text(
                   prov.unreadCount > 99 ? '99+' : '${prov.unreadCount}',
-                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+                  style:
+                      const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
                 ),
                 backgroundColor: Colors.red,
                 textColor: Colors.white,
@@ -346,8 +401,10 @@ class _MainScreenState extends State<MainScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, l10n.dashboard),
-                          _buildNavItem(1, Icons.trending_up_outlined, Icons.trending_up, l10n.markets),
+                          _buildNavItem(0, Icons.dashboard_outlined,
+                              Icons.dashboard, l10n.dashboard),
+                          _buildNavItem(1, Icons.trending_up_outlined,
+                              Icons.trending_up, l10n.markets),
                         ],
                       ),
                     ),
@@ -356,8 +413,13 @@ class _MainScreenState extends State<MainScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildNavItem(2, Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, l10n.wallets),
-                          _buildNavItem(3, Icons.person_outline, Icons.person, l10n.profile),
+                          _buildNavItem(
+                              2,
+                              Icons.account_balance_wallet_outlined,
+                              Icons.account_balance_wallet,
+                              l10n.wallets),
+                          _buildNavItem(3, Icons.person_outline, Icons.person,
+                              l10n.profile),
                         ],
                       ),
                     ),
@@ -468,9 +530,8 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
                   final showFinance = auth.canManagePaymentConfigs;
-                  final showManagedStandalone = auth.canManageWallets &&
-                      !showFinance &&
-                      !showAdmin;
+                  final showManagedStandalone =
+                      auth.canManageWallets && !showFinance && !showAdmin;
                   if (!showAdmin && !showFinance && !showManagedStandalone) {
                     return const SizedBox.shrink();
                   }
@@ -483,9 +544,8 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
                   final showFinance = auth.canManagePaymentConfigs;
-                  final showManagedStandalone = auth.canManageWallets &&
-                      !showFinance &&
-                      !showAdmin;
+                  final showManagedStandalone =
+                      auth.canManageWallets && !showFinance && !showAdmin;
                   if (!showAdmin && !showFinance && !showManagedStandalone) {
                     return const SizedBox.shrink();
                   }
@@ -500,8 +560,8 @@ class _MainScreenState extends State<MainScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            ChangeNotifierProvider<ManagedWalletsProvider>.value(
+                        builder: (_) => ChangeNotifierProvider<
+                            ManagedWalletsProvider>.value(
                           value: context.read<ManagedWalletsProvider>(),
                           child: const ManagedWalletsScreen(),
                         ),
@@ -537,8 +597,7 @@ class _MainScreenState extends State<MainScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        const AdminUserListScreen(),
+                                    builder: (_) => const AdminUserListScreen(),
                                   ),
                                 );
                               },
@@ -569,9 +628,9 @@ class _MainScreenState extends State<MainScreen> {
                                   );
                                 },
                               ),
-                            _DrawerSubsectionHeader(
-                                l10n.drawerSectionAdminOps),
-                            if (auth.canManageWallets && !auth.canManagePaymentConfigs)
+                            _DrawerSubsectionHeader(l10n.drawerSectionAdminOps),
+                            if (auth.canManageWallets &&
+                                !auth.canManagePaymentConfigs)
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 2),
@@ -588,7 +647,8 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: openManagedWallets,
                               ),
-                            if (auth.isRiskOfficer && !auth.canManagePaymentConfigs)
+                            if (auth.isRiskOfficer &&
+                                !auth.canManagePaymentConfigs)
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 2),
@@ -597,7 +657,8 @@ class _MainScreenState extends State<MainScreen> {
                                   size: 22,
                                   color: cs.primary,
                                 ),
-                                title: Text(l10n.drawerTreasuryMainWalletsTitle),
+                                title:
+                                    Text(l10n.drawerTreasuryMainWalletsTitle),
                                 subtitle: Text(
                                   l10n.drawerTreasuryMainWalletsSubtitle,
                                   style: subtitleStyle,
@@ -833,8 +894,7 @@ class _MainScreenState extends State<MainScreen> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const LoginScreen()),
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
                     );
                   },
                 ),
@@ -882,8 +942,7 @@ class _DrawerProfileHeader extends StatelessWidget {
                 CircleAvatar(
                   radius: _avatarRadius,
                   backgroundColor: Colors.white24,
-                  backgroundImage:
-                      hasAvatar ? NetworkImage(avatarUrl) : null,
+                  backgroundImage: hasAvatar ? NetworkImage(avatarUrl) : null,
                   child: !hasAvatar
                       ? Text(
                           (auth.currentUser?.fullName.isNotEmpty == true
@@ -1188,23 +1247,31 @@ class _AuthRequiredTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.lock_outline, size: 64, color: colorScheme.primary.withValues(alpha: 0.5)),
+            Icon(Icons.lock_outline,
+                size: 64, color: colorScheme.primary.withValues(alpha: 0.5)),
             const SizedBox(height: 20),
             Text(
               AppLocalizations.of(context).authRequiredTitle,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).authRequiredSubtitle,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: colorScheme.outline),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen())),
                 icon: const Icon(Icons.login),
                 label: Text(AppLocalizations.of(context).signIn),
               ),
@@ -1213,7 +1280,8 @@ class _AuthRequiredTab extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen())),
                 child: Text(AppLocalizations.of(context).createAccount),
               ),
             ),
@@ -1249,19 +1317,26 @@ class _GuestProfileTab extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context).welcomeGuest,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context).guestSignInDesc,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: colorScheme.outline),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen())),
               icon: const Icon(Icons.login),
               label: Text(AppLocalizations.of(context).signIn),
             ),
@@ -1270,7 +1345,8 @@ class _GuestProfileTab extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen())),
               child: Text(AppLocalizations.of(context).createAccount),
             ),
           ),
@@ -1285,9 +1361,18 @@ class _GuestProfileTab extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 12),
-          _FeatureRow(icon: Icons.trending_up, label: AppLocalizations.of(context).guestFeatureLiveMarkets, colorScheme: colorScheme),
-          _FeatureRow(icon: Icons.currency_bitcoin, label: AppLocalizations.of(context).guestFeatureCurrencies, colorScheme: colorScheme),
-          _FeatureRow(icon: Icons.account_balance_wallet_outlined, label: AppLocalizations.of(context).guestFeatureDeposit, colorScheme: colorScheme),
+          _FeatureRow(
+              icon: Icons.trending_up,
+              label: AppLocalizations.of(context).guestFeatureLiveMarkets,
+              colorScheme: colorScheme),
+          _FeatureRow(
+              icon: Icons.currency_bitcoin,
+              label: AppLocalizations.of(context).guestFeatureCurrencies,
+              colorScheme: colorScheme),
+          _FeatureRow(
+              icon: Icons.account_balance_wallet_outlined,
+              label: AppLocalizations.of(context).guestFeatureDeposit,
+              colorScheme: colorScheme),
         ],
       ),
     );
@@ -1327,14 +1412,16 @@ class _TradeFabPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).bottomAppBarTheme.color ?? Theme.of(context).colorScheme.surface;
+    final color = Theme.of(context).bottomAppBarTheme.color ??
+        Theme.of(context).colorScheme.surface;
     return IgnorePointer(
       child: Container(
         width: 72,
         height: 28,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(24)),
         ),
       ),
     );

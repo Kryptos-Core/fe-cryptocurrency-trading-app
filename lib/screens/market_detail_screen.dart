@@ -460,18 +460,42 @@ class _OrderBookCardWidget extends StatelessWidget {
   }
 }
 
-/// Trading Chart Widget - Displays candlestick chart with controls and Pro Chart tab
-class _TradingChartWidget extends StatelessWidget {
+/// Trading Chart Widget - Displays candlestick chart with controls and Pro Chart tab.
+///
+/// Converts to StatefulWidget to track mouse hover state so that scroll events
+/// are absorbed while the cursor is inside the chart area — preventing the outer
+/// SingleChildScrollView from intercepting them and scrolling the page.
+class _TradingChartWidget extends StatefulWidget {
   final String pairId;
 
   const _TradingChartWidget({required this.pairId});
+
+  @override
+  State<_TradingChartWidget> createState() => _TradingChartWidgetState();
+}
+
+class _TradingChartWidgetState extends State<_TradingChartWidget> {
+  bool _isHoveringChart = false;
+
+  // Keys to call resetZoom on the respective tabs.
+  final GlobalKey<_InternalChartTabState> _internalTabKey =
+      GlobalKey<_InternalChartTabState>();
+  final GlobalKey<_ProChartTabState> _proTabKey =
+      GlobalKey<_ProChartTabState>();
+
+  void _resetZoom(int tabIndex) {
+    if (tabIndex == 0) {
+      _internalTabKey.currentState?.resetZoom();
+    } else {
+      _proTabKey.currentState?.resetZoom();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Resolve symbol for TradingView from the selected market.
     final symbol = context.watch<MarketsProvider>().selectedMarket?.symbol;
     final tvSymbol =
         symbol != null ? TradingViewSymbolMapper.toTradingView(symbol) : null;
@@ -489,33 +513,69 @@ class _TradingChartWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  const Tab(text: 'Biểu đồ'),
-                  if (tvSymbol != null) const Tab(text: 'Pro Chart'),
+              // TabBar + Reset Zoom button in a row
+              Row(
+                children: [
+                  Expanded(
+                    child: TabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      tabs: [
+                        const Tab(text: 'Biểu đồ'),
+                        if (tvSymbol != null) const Tab(text: 'Pro Chart'),
+                      ],
+                      labelColor: colorScheme.primary,
+                      unselectedLabelColor: colorScheme.onSurfaceVariant,
+                      indicatorColor: colorScheme.primary,
+                    ),
+                  ),
+                  Builder(
+                    builder: (ctx) {
+                      final tabController = DefaultTabController.of(ctx);
+                      return IconButton(
+                        icon: const Icon(Icons.zoom_out_map, size: 18),
+                        tooltip: 'Reset zoom',
+                        onPressed: () => _resetZoom(tabController.index),
+                        visualDensity: VisualDensity.compact,
+                        color: colorScheme.onSurfaceVariant,
+                      );
+                    },
+                  ),
                 ],
-                labelColor: colorScheme.primary,
-                unselectedLabelColor: colorScheme.onSurfaceVariant,
-                indicatorColor: colorScheme.primary,
               ),
               const SizedBox(height: 8),
-              SizedBox(
-                height: tabCount == 2 ? 520 : 480,
-                child: TabBarView(
-                  children: [
-                    // Tab 1: internal Lightweight Charts
-                    _InternalChartTab(pairId: pairId),
-                    // Tab 2: TradingView Pro Chart (HTML inject + tv.js)
-                    if (tvSymbol != null)
-                      _ProChartTab(
-                        tvSymbol: tvSymbol,
-                        apiInterval: chartInterval,
-                        isDarkTheme: isDark,
-                        localeTag: localeTag,
-                      ),
-                  ],
+              // MouseRegion detects when cursor is inside the chart area.
+              // Listener absorbs PointerScrollEvents while hovering so they
+              // are not forwarded to the outer SingleChildScrollView.
+              MouseRegion(
+                onEnter: (_) => setState(() => _isHoveringChart = true),
+                onExit: (_) => setState(() => _isHoveringChart = false),
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerSignal: _isHoveringChart
+                      ? (event) {
+                          // Absorb the event — WebView handles it internally.
+                        }
+                      : null,
+                  child: SizedBox(
+                    height: tabCount == 2 ? 540 : 500,
+                    child: TabBarView(
+                      children: [
+                        _InternalChartTab(
+                          key: _internalTabKey,
+                          pairId: widget.pairId,
+                        ),
+                        if (tvSymbol != null)
+                          _ProChartTab(
+                            key: _proTabKey,
+                            tvSymbol: tvSymbol,
+                            apiInterval: chartInterval,
+                            isDarkTheme: isDark,
+                            localeTag: localeTag,
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -527,10 +587,22 @@ class _TradingChartWidget extends StatelessWidget {
 }
 
 /// Internal chart tab: interval selector + chart widget + WS status.
-class _InternalChartTab extends StatelessWidget {
+class _InternalChartTab extends StatefulWidget {
   final String pairId;
 
-  const _InternalChartTab({required this.pairId});
+  const _InternalChartTab({super.key, required this.pairId});
+
+  @override
+  State<_InternalChartTab> createState() => _InternalChartTabState();
+}
+
+class _InternalChartTabState extends State<_InternalChartTab> {
+  final GlobalKey<_LightweightChartsWidgetWrapperState> _chartWrapperKey =
+      GlobalKey<_LightweightChartsWidgetWrapperState>();
+
+  void resetZoom() {
+    _chartWrapperKey.currentState?.resetZoom();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -539,13 +611,14 @@ class _InternalChartTab extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ChartRangeRow(pairId: pairId),
+            _ChartRangeRow(pairId: widget.pairId),
             const SizedBox(height: 16),
             Expanded(
               child: Consumer<MarketsProvider>(
                 builder: (context, marketsProvider, child) {
                   return _ChartContentWidget(
-                    pairId: pairId,
+                    chartWrapperKey: _chartWrapperKey,
+                    pairId: widget.pairId,
                     chartProvider: chartProvider,
                     market: marketsProvider.selectedMarket,
                   );
@@ -569,6 +642,7 @@ class _ProChartTab extends StatefulWidget {
   final String localeTag;
 
   const _ProChartTab({
+    super.key,
     required this.tvSymbol,
     required this.apiInterval,
     required this.isDarkTheme,
@@ -645,6 +719,13 @@ class _ProChartTabState extends State<_ProChartTab>
         });
       }
     }
+  }
+
+  /// Reset the TradingView chart view to fit all candles.
+  void resetZoom() {
+    _controller.executeScript(
+      "try { widget.chart().executeActionById('timeScaleReset'); } catch(e) {}",
+    );
   }
 
   @override
@@ -916,11 +997,13 @@ class _ChartContentWidget extends StatelessWidget {
   final String pairId;
   final ChartProvider chartProvider;
   final dynamic market;
+  final GlobalKey<_LightweightChartsWidgetWrapperState>? chartWrapperKey;
 
   const _ChartContentWidget({
     required this.pairId,
     required this.chartProvider,
     this.market,
+    this.chartWrapperKey,
   });
 
   @override
@@ -979,16 +1062,59 @@ class _ChartContentWidget extends StatelessWidget {
 
     return SizedBox(
       height: 400,
-      child: LightweightChartsWidget(
-        key: ValueKey(pairId),
+      child: _LightweightChartsWidgetWrapper(
+        key: chartWrapperKey ?? ValueKey(pairId),
+        pairId: pairId,
         candles: chartProvider.candles,
         pairSymbol: market?.symbol ?? 'UNKNOWN',
         interval: chartProvider.selectedInterval,
         localeTag: Localizations.localeOf(context).toLanguageTag(),
-        onCandleTap: (index) {
-          // TODO: Show candle details in bottom sheet
-        },
       ),
+    );
+  }
+}
+
+/// Thin StatefulWidget wrapper around [LightweightChartsWidget] that exposes a
+/// [resetZoom] method callable from the parent via a [GlobalKey].
+class _LightweightChartsWidgetWrapper extends StatefulWidget {
+  final String pairId;
+  final List<OHLCData> candles;
+  final String pairSymbol;
+  final String interval;
+  final String? localeTag;
+
+  const _LightweightChartsWidgetWrapper({
+    super.key,
+    required this.pairId,
+    required this.candles,
+    required this.pairSymbol,
+    required this.interval,
+    this.localeTag,
+  });
+
+  @override
+  State<_LightweightChartsWidgetWrapper> createState() =>
+      _LightweightChartsWidgetWrapperState();
+}
+
+class _LightweightChartsWidgetWrapperState
+    extends State<_LightweightChartsWidgetWrapper> {
+  final GlobalKey<LightweightChartsWidgetState> _chartKey =
+      GlobalKey<LightweightChartsWidgetState>();
+
+  void resetZoom() {
+    _chartKey.currentState?.resetZoom();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LightweightChartsWidget(
+      key: _chartKey,
+      candles: widget.candles,
+      pairSymbol: widget.pairSymbol,
+      interval: widget.interval,
+      localeTag: widget.localeTag,
+      onCandleTap: (_) {},
     );
   }
 }

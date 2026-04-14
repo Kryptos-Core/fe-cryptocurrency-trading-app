@@ -13,70 +13,114 @@
             background: #fff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        #chart-container { width: 100%; height: 100%; }
-        .overlay-info {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
-            color: #1a1d29;
-            padding: 14px 18px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            z-index: 10;
-            pointer-events: none;
-            min-width: 220px;
-            border: 1px solid rgba(99, 102, 241, 0.15);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .overlay-info .pair-row {
+
+        /* ── Compact header bar (never overlaps the chart) ───────────────── */
+        .chart-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-        }
-        .overlay-info .pair-name {
-            font-weight: 700;
-            font-size: 15px;
-            color: #373a4a;
-            letter-spacing: 0.02em;
-        }
-        .overlay-info .stats-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px 20px;
+            gap: 0;
+            padding: 0 12px;
+            height: 28px;
+            flex-shrink: 0;
+            background: #f8f9fc;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             font-size: 12px;
             color: #6b7280;
+            overflow: hidden;
+            white-space: nowrap;
         }
-        .overlay-info .stat {
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .chart-header .pair-name {
+            font-weight: 700;
+            font-size: 13px;
+            color: #373a4a;
+            letter-spacing: 0.02em;
+            margin-right: 8px;
         }
-        .overlay-info .stat-label { color: #9ca3af; font-weight: 500; }
-        .overlay-info .stat-value { color: #374151; font-weight: 600; }
+        .chart-header .sep {
+            color: rgba(0,0,0,0.18);
+            margin: 0 6px;
+            user-select: none;
+        }
+        .chart-header .badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6366f1;
+            background: rgba(99,102,241,0.08);
+            border-radius: 4px;
+            padding: 1px 6px;
+        }
+        .chart-header .stat-label { color: #9ca3af; font-weight: 500; margin-right: 2px; }
+        .chart-header .stat-value { color: #374151; font-weight: 600; }
+        /* OHLC hover area grows to fill remaining space */
+        #ohlc-hover {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #374151;
+            font-size: 11.5px;
+            font-variant-numeric: tabular-nums;
+        }
+        /* O/H/L/C label colours */
+        .ohlc-o { color: #6b7280; }
+        .ohlc-h { color: #10b981; }
+        .ohlc-l { color: #ef4444; }
+        .ohlc-c { color: #6366f1; }
+        .ohlc-v { color: #9ca3af; }
+
+        /* ── Chart container fills remaining height ───────────────────────── */
+        #chart-container {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            position: relative;
+        }
+
+        /* ── Hint tooltip for first-time interaction ─────────────────────── */
+        #scroll-hint {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,30,40,0.78);
+            color: #fff;
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            z-index: 20;
+        }
+        #scroll-hint.visible { opacity: 1; }
     </style>
 </head>
 <body>
-    <div id="chart-container"></div>
-    <div class="overlay-info" id="chart-info">
-        <div class="pair-row">
-            <span class="pair-name" id="pair-name">--</span>
-        </div>
-        <div class="stats-row">
-            <span class="stat"><span class="stat-label">Interval</span><span class="stat-value" id="interval-info">1m</span></span>
-            <span class="stat"><span class="stat-label">Candles</span><span class="stat-value" id="candle-count">0</span></span>
-        </div>
+    <!-- Fixed-height header — does NOT overlap the chart -->
+    <div class="chart-header" id="chart-info">
+        <span class="pair-name" id="pair-name">--</span>
+        <span class="sep">│</span>
+        <span class="badge" id="interval-info">1m</span>
+        <span class="sep">│</span>
+        <span class="stat-label">Nến</span>
+        <span class="stat-value" id="candle-count">0</span>
+        <span class="sep">│</span>
+        <span id="ohlc-hover"></span>
+    </div>
+
+    <!-- Chart takes up all remaining height -->
+    <div id="chart-container">
+        <div id="scroll-hint">Scroll để xem • Ctrl+Scroll để zoom • Double-click để reset</div>
     </div>
 
     <script>
         // ============================================================================
         // TradingView Lightweight Charts™ (https://www.tradingview.com/free-charting-libraries/)
-        // Candlestick + Volume, real-time updates
+        // Candlestick + Volume | Interactive: scroll, zoom, crosshair (dọc + ngang)
         // ============================================================================
 
         const ChartState = {
@@ -91,6 +135,7 @@
             locale: 'en-US',
             lastPrice: 0,
             lastCandle: null,
+            hintShown: false,
         };
 
         function utcDateFromTime(time) {
@@ -127,23 +172,14 @@
             };
         }
 
-        function intervalToSeconds(interval) {
-            const map = { '1m': 60, '5m': 300, '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 };
-            return map[interval] || 60;
-        }
-
         function buildCandle(candleData) {
             const timeInSeconds = Math.floor((candleData.open_time || candleData.openTime) / 1000);
-            const open = parseFloat(candleData.open);
-            const high = parseFloat(candleData.high);
-            const low = parseFloat(candleData.low);
+            const open  = parseFloat(candleData.open);
+            const high  = parseFloat(candleData.high);
+            const low   = parseFloat(candleData.low);
             const close = parseFloat(candleData.close);
-            const vol = parseFloat(candleData.volume || 0);
-            return {
-                time: timeInSeconds,
-                open, high, low, close,
-                volume: vol,
-            };
+            const vol   = parseFloat(candleData.volume || 0);
+            return { time: timeInSeconds, open, high, low, close, volume: vol };
         }
 
         function applyCandlesToChart() {
@@ -152,15 +188,12 @@
             applyDynamicPriceFormat();
 
             const candleData = ChartState.candleArray.map(c => ({
-                time: c.time,
-                open: c.open,
-                high: c.high,
-                low: c.low,
-                close: c.close,
+                time: c.time, open: c.open, high: c.high, low: c.low, close: c.close,
             }));
             const volumeData = ChartState.candleArray.map(c => ({
                 time: c.time,
                 value: c.volume || 0,
+                color: c.close >= c.open ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)',
             }));
 
             ChartState.candlestickSeries.setData(candleData);
@@ -178,23 +211,20 @@
             const prices = [];
             for (let i = 0; i < ChartState.candleArray.length; i++) {
                 const c = ChartState.candleArray[i];
-                if (Number.isFinite(c.open) && c.open > 0) prices.push(c.open);
-                if (Number.isFinite(c.high) && c.high > 0) prices.push(c.high);
-                if (Number.isFinite(c.low) && c.low > 0) prices.push(c.low);
+                if (Number.isFinite(c.open)  && c.open  > 0) prices.push(c.open);
+                if (Number.isFinite(c.high)  && c.high  > 0) prices.push(c.high);
+                if (Number.isFinite(c.low)   && c.low   > 0) prices.push(c.low);
                 if (Number.isFinite(c.close) && c.close > 0) prices.push(c.close);
             }
-
             if (prices.length === 0) return 2;
-
             let minPrice = prices[0];
             for (let i = 1; i < prices.length; i++) {
                 if (prices[i] < minPrice) minPrice = prices[i];
             }
-
-            if (minPrice >= 1000) return 2;
-            if (minPrice >= 1) return 4;
-            if (minPrice >= 0.01) return 6;
-            if (minPrice >= 0.0001) return 8;
+            if (minPrice >= 1000)    return 2;
+            if (minPrice >= 1)       return 4;
+            if (minPrice >= 0.01)    return 6;
+            if (minPrice >= 0.0001)  return 8;
             if (minPrice >= 0.000001) return 10;
             return 12;
         }
@@ -202,14 +232,52 @@
         function applyDynamicPriceFormat() {
             if (!ChartState.candlestickSeries) return;
             const precision = computePricePrecision();
-            const minMove = Math.pow(10, -precision);
-
+            const minMove   = Math.pow(10, -precision);
             ChartState.candlestickSeries.applyOptions({
-                priceFormat: {
-                    type: 'price',
-                    precision: precision,
-                    minMove: minMove,
-                },
+                priceFormat: { type: 'price', precision, minMove },
+            });
+        }
+
+        // ── Show first-use hint ──────────────────────────────────────────────
+        function showHintOnce() {
+            if (ChartState.hintShown) return;
+            ChartState.hintShown = true;
+            const hint = document.getElementById('scroll-hint');
+            hint.classList.add('visible');
+            setTimeout(() => hint.classList.remove('visible'), 3000);
+        }
+
+        // ── Update OHLC info bar on crosshair move ───────────────────────────
+        function setupCrosshairSubscription() {
+            const ohlcEl = document.getElementById('ohlc-hover');
+            ChartState.chart.subscribeCrosshairMove((param) => {
+                if (!param || !param.time || !param.seriesData || param.seriesData.size === 0) {
+                    ohlcEl.innerHTML = '';
+                    return;
+                }
+                const data = param.seriesData.get(ChartState.candlestickSeries);
+                const vol  = param.seriesData.get(ChartState.volumeSeries);
+                if (!data) { ohlcEl.innerHTML = ''; return; }
+
+                const fmt = (v) => {
+                    if (v === undefined || v === null) return '--';
+                    const precision = computePricePrecision();
+                    return Number(v).toFixed(precision);
+                };
+                const fmtVol = (v) => {
+                    if (!v) return '0';
+                    if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+                    if (v >= 1e6) return (v / 1e6).toFixed(2) + 'M';
+                    if (v >= 1e3) return (v / 1e3).toFixed(2) + 'K';
+                    return Number(v).toFixed(2);
+                };
+                const volVal = vol ? vol.value : null;
+                ohlcEl.innerHTML =
+                    `<span class="ohlc-o">O:<b>${fmt(data.open)}</b></span> ` +
+                    `<span class="ohlc-h">H:<b>${fmt(data.high)}</b></span> ` +
+                    `<span class="ohlc-l">L:<b>${fmt(data.low)}</b></span> ` +
+                    `<span class="ohlc-c">C:<b>${fmt(data.close)}</b></span>` +
+                    (volVal !== null ? ` <span class="ohlc-v">V:<b>${fmtVol(volVal)}</b></span>` : '');
             });
         }
 
@@ -218,35 +286,63 @@
 
             if (typeof LightweightCharts === 'undefined') {
                 const info = document.getElementById('chart-info');
-                info.innerHTML = '⚠️ Lightweight Charts failed to load.';
+                info.textContent = '⚠️ Lightweight Charts failed to load.';
                 info.style.background = 'rgba(255, 153, 0, 0.9)';
                 info.style.color = '#1c1c1c';
                 return;
             }
 
-            // TradingView Lightweight Charts – fixed chart: no scroll, no pan, no zoom (display only)
             ChartState.chart = LightweightCharts.createChart(container, {
-                width: container.clientWidth,
+                width:  container.clientWidth,
                 height: container.clientHeight,
-                handleScroll: false,
-                handleScale: false,
+                // ── Interactive: scroll + zoom ──────────────────────────────
+                handleScroll: {
+                    mouseWheel:           true,
+                    pressedMouseMove:     true,
+                    horzTouchDrag:        true,
+                    vertTouchDrag:        false,
+                },
+                handleScale: {
+                    mouseWheel:           true,
+                    pinchZoom:            true,
+                    axisPressedMouseMove: { time: true, price: true },
+                    axisDoubleClickReset: { time: true, price: true },
+                },
+                // ── Full crosshair (vertical + horizontal) ──────────────────
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                    vertLine: {
+                        color:                 'rgba(99,102,241,0.5)',
+                        width:                 1,
+                        style:                 LightweightCharts.LineStyle.Dashed,
+                        labelVisible:          true,
+                        labelBackgroundColor:  '#6366f1',
+                    },
+                    horzLine: {
+                        color:                 'rgba(99,102,241,0.5)',
+                        width:                 1,
+                        style:                 LightweightCharts.LineStyle.Dashed,
+                        labelVisible:          true,
+                        labelBackgroundColor:  '#6366f1',
+                    },
+                },
                 layout: {
-                    background: { type: 'solid', color: '#ffffff' },
-                    textColor: '#1a1d29',
+                    background:  { type: 'solid', color: '#ffffff' },
+                    textColor:   '#1a1d29',
                 },
                 grid: {
                     horzLines: { color: 'rgba(0,0,0,0.06)', visible: true },
                     vertLines: { color: 'rgba(0,0,0,0.04)', visible: true },
                 },
                 timeScale: {
-                    timeVisible: true,
-                    secondsVisible: false,
-                    borderVisible: true,
-                    tickMarkFormatter: createTimeTickFormatter(),
+                    timeVisible:        true,
+                    secondsVisible:     false,
+                    borderVisible:      true,
+                    tickMarkFormatter:  createTimeTickFormatter(),
                 },
                 rightPriceScale: {
-                    borderVisible: true,
-                    scaleMargins: { top: 0.05, bottom: 0.25 },
+                    borderVisible:  true,
+                    scaleMargins:   { top: 0.05, bottom: 0.25 },
                 },
             });
 
@@ -254,27 +350,46 @@
 
             ChartState.volumeSeries = ChartState.chart.addHistogramSeries({
                 priceFormat: {
-                    type: 'custom',
-                    minMove: 1,
-                    formatter: () => '', // hide volume scale labels so right axis shows only price (avoids confusion with numbers like 586)
+                    type:      'custom',
+                    minMove:   1,
+                    formatter: () => '',
                 },
                 priceScaleId: 'volume',
             });
             ChartState.volumeSeries.priceScale().applyOptions({
                 scaleMargins: { top: 0.8, bottom: 0 },
-                visible: false, // volume bars only; no separate axis (right side = price only)
+                visible:      false,
             });
 
+            // Resize on window resize
             window.addEventListener('resize', () => {
                 if (ChartState.chart && container.parentElement) {
                     ChartState.chart.applyOptions({
-                        width: container.clientWidth,
+                        width:  container.clientWidth,
                         height: container.clientHeight,
                     });
                 }
             });
 
-            console.log('✅ TradingView Lightweight Charts initialized (candlestick + volume)');
+            // Double-click to reset zoom/pan
+            container.addEventListener('dblclick', () => {
+                ChartState.chart.timeScale().fitContent();
+            });
+
+            // Show hint on first hover
+            container.addEventListener('mousemove', showHintOnce, { once: true });
+
+            // Prevent browser-level Ctrl+Scroll zoom — chart handles its own zoom
+            container.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) {
+                    e.stopPropagation(); // stop Flutter/parent from seeing it
+                }
+            }, { passive: true });
+
+            // Subscribe crosshair move → update OHLC header
+            setupCrosshairSubscription();
+
+            console.log('✅ TradingView Lightweight Charts initialized (interactive, crosshair, OHLC header)');
         }
 
         function updateChartInfo() {
@@ -291,15 +406,14 @@
          */
         function addCandle(candleData) {
             const pairName = candleData.symbol || candleData.pair_name || ('Pair ' + (candleData.pair_id || ''));
-            ChartState.pairId = candleData.pair_id;
-            ChartState.pairName = pairName;
-            ChartState.interval = candleData.interval || '1m';
-            ChartState.lastPrice = parseFloat(candleData.close);
+            ChartState.pairId     = candleData.pair_id;
+            ChartState.pairName   = pairName;
+            ChartState.interval   = candleData.interval || '1m';
+            ChartState.lastPrice  = parseFloat(candleData.close);
             ChartState.lastCandle = candleData;
 
-            const c = buildCandle(candleData);
-            const existing = ChartState.candles.has(c.time);
-            ChartState.candles.set(c.time, { ...c, volume: c.volume });
+            const c        = buildCandle(candleData);
+            ChartState.candles.set(c.time, { ...c });
             ChartState.candleArray = Array.from(ChartState.candles.values()).sort((a, b) => a.time - b.time);
 
             applyCandlesToChart();
@@ -316,15 +430,15 @@
             }
             ChartState.candles.clear();
             for (let i = 0; i < candlesArray.length; i++) {
-                const c = buildCandle(candlesArray[i]);
-                ChartState.candles.set(c.time, c);
+                const c    = buildCandle(candlesArray[i]);
                 const last = candlesArray[i];
-                if (last.symbol) ChartState.pairName = last.symbol;
+                ChartState.candles.set(c.time, c);
+                if (last.symbol)    ChartState.pairName = last.symbol;
                 else if (last.pair_name) ChartState.pairName = last.pair_name;
-                else if (last.pair_id) ChartState.pairName = 'Pair ' + last.pair_id;
-                ChartState.pairId = last.pair_id;
-                ChartState.interval = last.interval || '1m';
-                ChartState.lastPrice = parseFloat(last.close);
+                else if (last.pair_id)   ChartState.pairName = 'Pair ' + last.pair_id;
+                ChartState.pairId     = last.pair_id;
+                ChartState.interval   = last.interval || '1m';
+                ChartState.lastPrice  = parseFloat(last.close);
                 ChartState.lastCandle = last;
             }
             ChartState.candleArray = Array.from(ChartState.candles.values()).sort((a, b) => a.time - b.time);
@@ -335,13 +449,18 @@
         function clearChart() {
             ChartState.candles.clear();
             ChartState.candleArray = [];
-            ChartState.lastCandle = null;
+            ChartState.lastCandle  = null;
             if (ChartState.candlestickSeries) ChartState.candlestickSeries.setData([]);
-            if (ChartState.volumeSeries) ChartState.volumeSeries.setData([]);
+            if (ChartState.volumeSeries)      ChartState.volumeSeries.setData([]);
             updateChartInfo();
-            document.getElementById('pair-name').textContent = '--';
-            document.getElementById('interval-info').textContent = '1m';
-            document.getElementById('candle-count').textContent = '0';
+            const el = document.getElementById('pair-name');
+            if (el) el.textContent = '--';
+            const ii = document.getElementById('interval-info');
+            if (ii) ii.textContent = '1m';
+            const cc = document.getElementById('candle-count');
+            if (cc) cc.textContent = '0';
+            const oh = document.getElementById('ohlc-hover');
+            if (oh) oh.innerHTML = '';
         }
 
         function setLocale(tag) {
@@ -354,13 +473,21 @@
             }
         }
 
+        /** Reset zoom/pan to fit all candles in view */
+        function resetZoom() {
+            if (ChartState.chart) {
+                ChartState.chart.timeScale().fitContent();
+            }
+        }
+
         window.LWChartAPI = {
             addCandle,
             setCandles,
             clearChart,
             setLocale,
+            resetZoom,
             getState: () => ({ ...ChartState }),
-            isReady: () => ChartState.chart !== null,
+            isReady:  () => ChartState.chart !== null,
         };
 
         if (document.readyState === 'loading') {

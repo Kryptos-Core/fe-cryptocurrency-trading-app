@@ -34,10 +34,12 @@ class LightweightChartsWidget extends StatefulWidget {
 
   @override
   State<LightweightChartsWidget> createState() =>
-      _LightweightChartsWidgetState();
+      LightweightChartsWidgetState();
 }
 
-class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
+// Public state so callers can hold a GlobalKey<LightweightChartsWidgetState>
+// and invoke resetZoom() from outside the widget (e.g. a parent Reset button).
+class LightweightChartsWidgetState extends State<LightweightChartsWidget> {
   final _controller = WebviewController();
   final Logger _logger = Logger();
   bool _isReady = false;
@@ -196,6 +198,12 @@ class _LightweightChartsWidgetState extends State<LightweightChartsWidget> {
     } catch (e) {
       _logger.e('Error updating chart: $e');
     }
+  }
+
+  /// Reset zoom/pan so all candles fit in view (delegates to JS `resetZoom`).
+  void resetZoom() {
+    if (!_isReady) return;
+    _controller.executeScript('window.LWChartAPI.resetZoom()');
   }
 
   Map<String, dynamic> _candleToJson(OHLCData candle) {

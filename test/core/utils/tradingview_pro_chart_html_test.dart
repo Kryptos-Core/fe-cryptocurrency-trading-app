@@ -56,5 +56,61 @@ void main() {
       );
       expect(html, contains(r"BINANCE:O\'OPS"));
     });
+
+    // Phase 4 – browser zoom prevention & legend fixes
+    test('injects JS to prevent Ctrl+Scroll browser zoom', () {
+      final html = TradingViewProChartHtml.build(
+        tvSymbol: 'BINANCE:BTCUSDT',
+        apiInterval: '1h',
+        isDarkTheme: false,
+        localeLanguageTag: 'en',
+      );
+      // Must block wheel events with ctrlKey so the browser does not
+      // zoom the entire WebView instead of zooming the chart content.
+      expect(html, contains('e.ctrlKey'));
+      expect(html, contains('preventDefault'));
+    });
+
+    test('hides legend so it does not obscure chart content', () {
+      final html = TradingViewProChartHtml.build(
+        tvSymbol: 'BINANCE:BTCUSDT',
+        apiInterval: '1h',
+        isDarkTheme: false,
+        localeLanguageTag: 'en',
+      );
+      expect(html, contains('hide_legend: true'));
+    });
+
+    test('does not disable crosshair-related features', () {
+      final html = TradingViewProChartHtml.build(
+        tvSymbol: 'BINANCE:BTCUSDT',
+        apiInterval: '1h',
+        isDarkTheme: false,
+        localeLanguageTag: 'en',
+      );
+      // The crosshair must not be suppressed via disabled_features.
+      expect(html, isNot(contains('hide_price_scale')));
+      expect(html, isNot(contains('no_crosshair')));
+    });
+
+    test('dark theme uses dark background colour', () {
+      final htmlDark = TradingViewProChartHtml.build(
+        tvSymbol: 'BINANCE:ETHUSDT',
+        apiInterval: '5m',
+        isDarkTheme: true,
+        localeLanguageTag: 'en',
+      );
+      expect(htmlDark, contains('#131722'));
+    });
+
+    test('light theme uses white background colour', () {
+      final htmlLight = TradingViewProChartHtml.build(
+        tvSymbol: 'BINANCE:ETHUSDT',
+        apiInterval: '5m',
+        isDarkTheme: false,
+        localeLanguageTag: 'en',
+      );
+      expect(htmlLight, contains('#ffffff'));
+    });
   });
 }

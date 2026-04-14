@@ -37,11 +37,21 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
   bool _isLoadingMore = false;
   bool _fallbackTickersRequested = false;
 
+  /// When the first page is shorter than the viewport, [maxScrollExtent] stays 0
+  /// and the user cannot scroll — so [_onScroll] never fires and [loadMore] is
+  /// never called. Prefetch until the list can scroll or there is no more data.
+  static const double _minScrollExtentToSkipPrefetch = 48;
+
+  MarketsProvider? _marketsProvider;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final provider = context.read<MarketsProvider>();
+      _marketsProvider = provider;
+      provider.addListener(_onMarketsProviderChanged);
       context.read<CurrenciesProvider>().fetchTradableCurrencies();
       // One request: GET /markets?includeTickers=true returns markets + tickers for current page (avoids slow GET /markets/tickers/all timeout).
       provider.fetchMarkets(refresh: true, includeTickers: true);
@@ -49,23 +59,57 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
     _scrollController.addListener(_onScroll);
   }
 
+  void _onMarketsProviderChanged() {
+    if (!mounted) return;
+    final p = _marketsProvider;
+    if (p == null || p.isLoading) return;
+    _schedulePrefetchIfListDoesNotScroll();
+  }
+
+  void _schedulePrefetchIfListDoesNotScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _prefetchUntilScrollableOrDone();
+    });
+  }
+
+  Future<void> _prefetchUntilScrollableOrDone() async {
+    if (!mounted) return;
+    final provider = _marketsProvider ?? context.read<MarketsProvider>();
+    if (!provider.hasMore || provider.isLoading) return;
+    if (!_scrollController.hasClients) {
+      _schedulePrefetchIfListDoesNotScroll();
+      return;
+    }
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent >= _minScrollExtentToSkipPrefetch) return;
+
+    await provider.loadMore();
+    if (!mounted) return;
+    if (provider.error != null) return;
+    _prefetchUntilScrollableOrDone();
+  }
+
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.8) {
-      if (!_isLoadingMore) {
-        final provider = context.read<MarketsProvider>();
-        if (provider.hasMore && !provider.isLoading) {
-          _isLoadingMore = true;
-          provider.loadMore().then((_) {
-            _isLoadingMore = false;
-          });
-        }
+    if (!_scrollController.hasClients) return;
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent <= 0) return;
+    if (_scrollController.position.pixels < maxExtent * 0.8) return;
+    if (!_isLoadingMore) {
+      final provider = context.read<MarketsProvider>();
+      if (provider.hasMore && !provider.isLoading) {
+        _isLoadingMore = true;
+        provider.loadMore().then((_) {
+          if (mounted) _isLoadingMore = false;
+        });
       }
     }
   }
 
   @override
   void dispose() {
+    _marketsProvider?.removeListener(_onMarketsProviderChanged);
+    _marketsProvider = null;
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
@@ -143,6 +187,12 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
             return Column(
               children: [
                 _buildSearchAndFilters(context, provider, l10n),
+                if (provider.isLoading && provider.markets.isNotEmpty)
+                  LinearProgressIndicator(
+                    minHeight: 2,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
@@ -189,6 +239,9 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                           provider.hasMore && provider.isLoading ? 1 : 0;
                       final itemCount = provider.markets.length + tail;
 
+                      const scrollPhysics = AlwaysScrollableScrollPhysics(
+                        parent: ClampingScrollPhysics(),
+                      );
                       return RefreshIndicator(
                         onRefresh: () async {
                           _isLoadingMore = false;
@@ -198,6 +251,7 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                         child: twoCol
                             ? GridView.builder(
                                 controller: _scrollController,
+                                physics: scrollPhysics,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -227,6 +281,7 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                               )
                             : ListView.builder(
                                 controller: _scrollController,
+                                physics: scrollPhysics,
                                 itemCount: itemCount,
                                 itemBuilder: (context, index) {
                                   if (index >= provider.markets.length) {

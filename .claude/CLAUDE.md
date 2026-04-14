@@ -7,7 +7,7 @@ Ngữ cảnh session: `.claude/`. **Vibe Code / ECC:** [VIBE_CODE.md](../VIBE_CO
 ## Kiến trúc & code
 
 - [ARCHITECTURE.md](../ARCHITECTURE.md), [README.md](../README.md)
-- Rules Cursor: `.cursor/rules/` (ưu tiên `dart-*`, `flutter-fe-atomic-fsd.mdc`, `common-*`, `web-*`)
+- Rules Cursor: `.cursor/rules/` (ưu tiên `dart-*`, `common-*`, `web-*`); FSD/atomic: [ARCHITECTURE.md](../ARCHITECTURE.md), skill **dart-flutter-patterns**
 
 ## Chạy & kiểm tra
 
@@ -21,7 +21,7 @@ flutter run
 
 ## Backend API
 
-Client gọi API **repo backend riêng** của team BE (Git clone độc lập). Contract HTTP/WebSocket: `.cursor/rules/api-design-architecture-patterns.mdc`, `pagination-best-practices.mdc`.
+Client gọi API **repo backend riêng** của team BE (Git clone độc lập). Contract HTTP/WebSocket: skill **api-design**, README/OpenAPI repo BE, và code client trong `lib/`.
 
 ## An toàn
 

@@ -2,7 +2,7 @@
 
 Tài liệu tham nhanh cho [Everything Claude Code](https://github.com/affaan-m/everything-claude-code). Phần lớn là **slash command trong Claude Code**; trong **Cursor** dùng `.cursor/commands/` và `.cursor/skills/`.
 
-**Workspace:** mở **thư mục gốc repo này** (cùng cấp với `pubspec.yaml`) trong Cursor / VS Code / Codex — **không** mở folder monorepo cha. Backend NestJS là **repo riêng** của team BE; contract API xem rule `.cursor/rules/api-design-architecture-patterns.mdc`.
+**Workspace:** mở **thư mục gốc repo này** (cùng cấp với `pubspec.yaml`) trong Cursor / VS Code / Codex — **không** mở folder monorepo cha. Backend NestJS là **repo riêng** của team BE; contract API: skill **api-design**, README/OpenAPI repo BE, code trong `lib/`.
 
 Xem thêm [CLAUDE.md](.claude/CLAUDE.md), [AGENTS.md](AGENTS.md), [VIBE_CODE.md](VIBE_CODE.md).
 
@@ -83,7 +83,7 @@ Sau khi **`npx ccg-workflow`** và init CCG (xem [CLAUDE.md](.claude/CLAUDE.md))
 2. Code → **`/tdd`** khi cần.  
 3. **`flutter analyze`** / **`/flutter-build`** khi lỗi compile.  
 4. Trước merge: **`/code-review`**, **security-review**.  
-5. UI kiến trúc: **`dart-flutter-patterns`**, rule **`flutter-fe-atomic-fsd.mdc`**.
+5. UI kiến trúc: **`dart-flutter-patterns`**, [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

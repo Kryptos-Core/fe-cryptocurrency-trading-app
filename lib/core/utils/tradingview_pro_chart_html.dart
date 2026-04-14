@@ -70,6 +70,17 @@ abstract final class TradingViewProChartHtml {
   <div id="tv_container"></div>
   <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
+    // Prevent browser-level zoom (Ctrl+Scroll / Ctrl+±) so the WebView does not
+    // scale the entire page. TradingView widget handles its own chart zoom internally.
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) { e.preventDefault(); }
+    }, { passive: false });
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) {
+        e.preventDefault();
+      }
+    });
+
     new TradingView.widget({
       autosize: true,
       symbol: '$sym',
@@ -80,7 +91,7 @@ abstract final class TradingViewProChartHtml {
       locale: '$loc',
       enable_publishing: false,
       hide_top_toolbar: false,
-      hide_legend: false,
+      hide_legend: true,
       save_image: false,
       container_id: 'tv_container',
       disabled_features: ['use_localstorage_for_settings']
