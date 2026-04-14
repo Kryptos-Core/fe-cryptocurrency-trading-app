@@ -483,6 +483,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get syncFailed => 'Đồng bộ thất bại';
 
   @override
+  String get exchangeSyncForceRefresh =>
+      'Làm mới cưỡng bức từ Binance (bỏ qua cache 1 giờ)';
+
+  @override
+  String exchangeSyncResultSummary(int pairsCreated, int pairsSkipped,
+      int currenciesCreated, int currenciesSkipped) {
+    return '+$pairsCreated cặp mới, $pairsSkipped giữ nguyên; +$currenciesCreated tiền tệ, $currenciesSkipped giữ nguyên.';
+  }
+
+  @override
+  String get exchangeSyncWarningsTitle => 'Đồng bộ xong nhưng có cảnh báo';
+
+  @override
+  String get exchangeSyncClose => 'Đóng';
+
+  @override
   String get searchMarketsHint => 'Tìm theo symbol (vd. BTC, USDT)';
 
   @override
@@ -1488,10 +1504,6 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get drawerManualResync => 'Đồng bộ thủ công Binance';
-
-  @override
-  String get drawerManualResyncComingSoon =>
-      'Đồng bộ sàn giao dịch thủ công — sắp ra mắt';
 
   @override
   String get drawerSecurityRequests => 'Yêu cầu bảo mật';

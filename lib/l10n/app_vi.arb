@@ -156,6 +156,18 @@
   "syncing": "Đang đồng bộ...",
   "syncSuccess": "Đồng bộ xong. Tiền tệ và thị trường đã cập nhật.",
   "syncFailed": "Đồng bộ thất bại",
+  "exchangeSyncForceRefresh": "Làm mới cưỡng bức từ Binance (bỏ qua cache 1 giờ)",
+  "exchangeSyncResultSummary": "+{pairsCreated} cặp mới, {pairsSkipped} giữ nguyên; +{currenciesCreated} tiền tệ, {currenciesSkipped} giữ nguyên.",
+  "@exchangeSyncResultSummary": {
+    "placeholders": {
+      "pairsCreated": { "type": "int" },
+      "pairsSkipped": { "type": "int" },
+      "currenciesCreated": { "type": "int" },
+      "currenciesSkipped": { "type": "int" }
+    }
+  },
+  "exchangeSyncWarningsTitle": "Đồng bộ xong nhưng có cảnh báo",
+  "exchangeSyncClose": "Đóng",
   "searchMarketsHint": "Tìm theo symbol (vd. BTC, USDT)",
   "filterBase": "Cơ sở",
   "filterBaseAll": "Tất cả",
@@ -527,7 +539,6 @@
   "drawerBroadcastNotification": "Phát thông báo",
   "drawerBroadcastSubtitle": "Gửi tới tất cả người dùng",
   "drawerManualResync": "Đồng bộ thủ công Binance",
-  "drawerManualResyncComingSoon": "Đồng bộ sàn giao dịch thủ công — sắp ra mắt",
   "drawerSecurityRequests": "Yêu cầu bảo mật",
   "drawerSecuritySubtitle": "Duyệt/từ chối yêu cầu đổi email & mật khẩu",
   "authRequiredTitle": "Yêu cầu đăng nhập",

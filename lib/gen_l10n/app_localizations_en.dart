@@ -484,6 +484,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncFailed => 'Sync failed';
 
   @override
+  String get exchangeSyncForceRefresh =>
+      'Force refresh from Binance (bypass 1h cache)';
+
+  @override
+  String exchangeSyncResultSummary(int pairsCreated, int pairsSkipped,
+      int currenciesCreated, int currenciesSkipped) {
+    return '+$pairsCreated pairs created, $pairsSkipped unchanged; +$currenciesCreated currencies, $currenciesSkipped unchanged.';
+  }
+
+  @override
+  String get exchangeSyncWarningsTitle => 'Sync completed with warnings';
+
+  @override
+  String get exchangeSyncClose => 'OK';
+
+  @override
   String get searchMarketsHint => 'Search by symbol (e.g. BTC, USDT)';
 
   @override
@@ -1487,10 +1503,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get drawerManualResync => 'Manual re-sync Binance';
-
-  @override
-  String get drawerManualResyncComingSoon =>
-      'Manual exchange re-sync — coming soon';
 
   @override
   String get drawerSecurityRequests => 'Security requests';

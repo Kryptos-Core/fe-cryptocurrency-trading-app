@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/providers/locale_provider.dart';
-import 'package:crypto_trading_app/core/error/exceptions.dart';
+import 'package:crypto_trading_app/core/error/exceptions.dart'
+    show AuthenticationException, NetworkException, ServerException;
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
@@ -13,12 +14,17 @@ import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/providers/theme_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 
 /// App Settings screen (Sync Binance, etc.)
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  /// When true (e.g. opened from admin drawer), scrolls to the Binance sync card.
+  final bool focusExchangeSync;
+
+  const SettingsScreen({super.key, this.focusExchangeSync = false});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -27,14 +33,33 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   static const String _lastManualSyncAtKey = 'exchange_last_manual_sync_at';
 
+  final GlobalKey _exchangeSyncSectionKey = GlobalKey();
+
   bool _isSyncing = false;
   bool _isUpdating2fa = false;
+  bool _forceRefreshExchange = false;
   DateTime? _lastManualSyncAt;
 
   @override
   void initState() {
     super.initState();
     _loadLastManualSyncTime();
+    if (widget.focusExchangeSync) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future<void>.delayed(const Duration(milliseconds: 150), () {
+          if (!mounted) return;
+          final ctx = _exchangeSyncSectionKey.currentContext;
+          if (ctx != null) {
+            Scrollable.ensureVisible(
+              ctx,
+              alignment: 0.12,
+              duration: const Duration(milliseconds: 450),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      });
+    }
   }
 
   Future<void> _loadLastManualSyncTime() async {
@@ -68,15 +93,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context);
     try {
       final datasource = sl<ExchangeRemoteDataSource>();
-      await datasource.syncInfo();
+      final result = await datasource.syncInfo(forceRefresh: _forceRefreshExchange);
       await _saveLastManualSyncTime(DateTime.now());
       if (!mounted) return;
+
+      await context.read<MarketsProvider>().fetchMarkets(
+            refresh: true,
+            includeTickers: true,
+          );
+      await context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
+      await context.read<CurrenciesProvider>().fetchTradableCurrencies();
+
+      if (!mounted) return;
+
       showAppSnackBar(
         context,
-        message: l10n.syncSuccess,
+        message: l10n.exchangeSyncResultSummary(
+          result.pairsCreated,
+          result.pairsSkipped,
+          result.currenciesCreated,
+          result.currenciesSkipped,
+        ),
         type: SnackBarType.success,
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 5),
       );
+
+      if (result.hasErrors && mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(l10n.exchangeSyncWarningsTitle),
+            content: SingleChildScrollView(
+              child: SelectableText(
+                result.errors.take(20).join('\n'),
+                style: Theme.of(ctx).textTheme.bodySmall,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(l10n.exchangeSyncClose),
+              ),
+            ],
+          ),
+        );
+      }
     } on AuthenticationException {
       if (!mounted) return;
       showAppSnackBar(
@@ -92,6 +153,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         message: '${l10n.syncFailed}: ${e.message}',
         type: SnackBarType.error,
         duration: const Duration(seconds: 3),
+      );
+    } on ServerException catch (e) {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        message: '${l10n.syncFailed}: ${e.message}',
+        type: SnackBarType.error,
+        duration: const Duration(seconds: 5),
       );
     } catch (e) {
       if (!mounted) return;
@@ -374,88 +443,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (auth.canSyncExchange)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.sync,
-                              size: 28,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.manualResyncBinance,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.manualResyncBinanceDescription,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                        ),
-                                  ),
-                                ],
+                  Card(
+                    key: _exchangeSyncSectionKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.sync,
+                                size: 28,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _lastManualSyncAt == null
-                              ? '${l10n.lastManualSync}: ${l10n.neverSyncedYet}'
-                              : '${l10n.lastManualSync}: ${_formatDateTime(context, _lastManualSyncAt!)}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: _isSyncing ? null : _syncBinance,
-                            icon: _isSyncing
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.manualResyncBinance,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
-                                  )
-                                : const Icon(Icons.sync),
-                            label: Text(_isSyncing
-                                ? l10n.syncing
-                                : l10n.manualResyncBinance),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      l10n.manualResyncBinanceDescription,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.exchangeSyncForceRefresh),
+                            value: _forceRefreshExchange,
+                            onChanged: _isSyncing
+                                ? null
+                                : (v) =>
+                                    setState(() => _forceRefreshExchange = v),
+                          ),
+                          Text(
+                            _lastManualSyncAt == null
+                                ? '${l10n.lastManualSync}: ${l10n.neverSyncedYet}'
+                                : '${l10n.lastManualSync}: ${_formatDateTime(context, _lastManualSyncAt!)}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: _isSyncing ? null : _syncBinance,
+                              icon: _isSyncing
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    )
+                                  : const Icon(Icons.sync),
+                              label: Text(_isSyncing
+                                  ? l10n.syncing
+                                  : l10n.manualResyncBinance),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 16),
                 Card(
                   child: ListTile(

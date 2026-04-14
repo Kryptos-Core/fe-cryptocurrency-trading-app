@@ -1,13 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
+import 'package:crypto_trading_app/data/models/exchange_sync_result.dart';
 
 /// Exchange Remote Data Source
 /// Calls backend exchange/sync endpoints (e.g. sync Binance info into DB).
 abstract class ExchangeRemoteDataSource {
   /// POST /exchange/sync-info — sync Binance currencies & market pairs into DB.
   /// Requires Authorization: Bearer <token>.
-  Future<void> syncInfo();
+  /// [forceRefresh] maps to query `forceRefresh=true` (bypass 1h exchangeInfo cache).
+  Future<ExchangeSyncResult> syncInfo({bool forceRefresh = false});
 }
 
 class ExchangeRemoteDataSourceImpl implements ExchangeRemoteDataSource {
@@ -16,12 +18,22 @@ class ExchangeRemoteDataSourceImpl implements ExchangeRemoteDataSource {
   ExchangeRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<void> syncInfo() async {
+  Future<ExchangeSyncResult> syncInfo({bool forceRefresh = false}) async {
     try {
-      final response = await dio.post(ApiConstants.exchangeSyncInfo);
+      final response = await dio.post(
+        ApiConstants.exchangeSyncInfo,
+        queryParameters:
+            forceRefresh ? <String, dynamic>{'forceRefresh': true} : null,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return;
+        final data = response.data;
+        if (data is Map) {
+          return ExchangeSyncResult.fromJson(
+            Map<String, dynamic>.from(data),
+          );
+        }
+        return ExchangeSyncResult.fromJson(null);
       }
       throw ServerException(
         message: response.data?['message'] ?? 'Sync failed',

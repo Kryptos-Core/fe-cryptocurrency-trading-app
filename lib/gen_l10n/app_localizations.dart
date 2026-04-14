@@ -1034,6 +1034,31 @@ abstract class AppLocalizations {
   /// **'Sync failed'**
   String get syncFailed;
 
+  /// No description provided for @exchangeSyncForceRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Force refresh from Binance (bypass 1h cache)'**
+  String get exchangeSyncForceRefresh;
+
+  /// No description provided for @exchangeSyncResultSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'+{pairsCreated} pairs created, {pairsSkipped} unchanged; +{currenciesCreated} currencies, {currenciesSkipped} unchanged.'**
+  String exchangeSyncResultSummary(int pairsCreated, int pairsSkipped,
+      int currenciesCreated, int currenciesSkipped);
+
+  /// No description provided for @exchangeSyncWarningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed with warnings'**
+  String get exchangeSyncWarningsTitle;
+
+  /// No description provided for @exchangeSyncClose.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get exchangeSyncClose;
+
   /// No description provided for @searchMarketsHint.
   ///
   /// In en, this message translates to:
@@ -2803,12 +2828,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manual re-sync Binance'**
   String get drawerManualResync;
-
-  /// No description provided for @drawerManualResyncComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Manual exchange re-sync — coming soon'**
-  String get drawerManualResyncComingSoon;
 
   /// No description provided for @drawerSecurityRequests.
   ///

@@ -709,11 +709,12 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          l10n.drawerManualResyncComingSoon),
-                                      behavior: SnackBarBehavior.floating,
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SettingsScreen(
+                                        focusExchangeSync: true,
+                                      ),
                                     ),
                                   );
                                 },

@@ -156,6 +156,18 @@
   "syncing": "Syncing...",
   "syncSuccess": "Sync completed. Currencies and markets are up to date.",
   "syncFailed": "Sync failed",
+  "exchangeSyncForceRefresh": "Force refresh from Binance (bypass 1h cache)",
+  "exchangeSyncResultSummary": "+{pairsCreated} pairs created, {pairsSkipped} unchanged; +{currenciesCreated} currencies, {currenciesSkipped} unchanged.",
+  "@exchangeSyncResultSummary": {
+    "placeholders": {
+      "pairsCreated": { "type": "int" },
+      "pairsSkipped": { "type": "int" },
+      "currenciesCreated": { "type": "int" },
+      "currenciesSkipped": { "type": "int" }
+    }
+  },
+  "exchangeSyncWarningsTitle": "Sync completed with warnings",
+  "exchangeSyncClose": "OK",
   "searchMarketsHint": "Search by symbol (e.g. BTC, USDT)",
   "filterBase": "Base",
   "filterBaseAll": "All",
@@ -583,7 +595,6 @@
   "drawerBroadcastNotification": "Broadcast Notification",
   "drawerBroadcastSubtitle": "Send to all users",
   "drawerManualResync": "Manual re-sync Binance",
-  "drawerManualResyncComingSoon": "Manual exchange re-sync — coming soon",
   "drawerSecurityRequests": "Security requests",
   "drawerSecuritySubtitle": "Approve/reject email & password changes",
   "authRequiredTitle": "Sign in required",
