@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:webview_windows/webview_windows.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
+import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
+import 'package:crypto_trading_app/core/utils/tradingview_pro_chart_html.dart';
+import 'package:crypto_trading_app/core/utils/tradingview_symbol_mapper.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
@@ -38,50 +43,6 @@ double? _lastPriceFromTicker(MarketsProvider marketsProvider) {
 }
 
 /// Format price for display: sensible decimals, trim trailing zeros.
-String _formatDetailPrice(String priceStr) {
-  final v = double.tryParse(priceStr);
-  if (v == null) return priceStr;
-  if (v == 0) return '0';
-  int decimals;
-  if (v >= 10000) {
-    decimals = 1;
-  } else if (v >= 1000) {
-    decimals = 2;
-  } else if (v >= 1) {
-    decimals = 2;
-  } else if (v >= 0.01) {
-    decimals = 4;
-  } else {
-    decimals = 6;
-  }
-  final formatted = v.toStringAsFixed(decimals);
-  if (formatted.contains('.')) {
-    return formatted
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
-  }
-  return formatted;
-}
-
-/// Format volume: K/M suffix, 2–4 decimals.
-String _formatDetailVolume(String volumeStr) {
-  final v = double.tryParse(volumeStr);
-  if (v == null) return volumeStr;
-  if (v == 0) return '0';
-  if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
-  if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
-  if (v >= 1) {
-    return v
-        .toStringAsFixed(2)
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
-  }
-  return v
-      .toStringAsFixed(4)
-      .replaceAll(RegExp(r'0+$'), '')
-      .replaceAll(RegExp(r'\.$'), '');
-}
-
 /// Format min order amount / small decimal: trim trailing zeros, max 8 decimals.
 String _formatDetailAmount(String amountStr) {
   final v = double.tryParse(amountStr);
@@ -209,24 +170,11 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
       final apiCandles = marketsProvider.ohlcv.isEmpty
           ? <OHLCData>[]
-          : marketsProvider.ohlcv
-              .map((o) => OHLCData(
-                    pairId: pairId,
-                    interval: interval,
-                    openTime: o.openTime.millisecondsSinceEpoch,
-                    closeTime: o.openTime
-                        .add(Duration(seconds: o.intervalSec))
-                        .millisecondsSinceEpoch,
-                    open: double.tryParse(o.open) ?? 0,
-                    high: double.tryParse(o.high) ?? 0,
-                    low: double.tryParse(o.low) ?? 0,
-                    close: double.tryParse(o.close) ?? 0,
-                    volume: double.tryParse(o.volume) ?? 0,
-                    quoteVolume: 0,
-                    tradesCount: 0,
-                    isClosed: true,
-                  ))
-              .toList();
+          : ohlcvRowsToChartCandles(
+              pairId: pairId,
+              intervalLabel: interval,
+              rows: marketsProvider.ohlcv,
+            );
 
       final byTime = <int, OHLCData>{};
       for (final c in cached) {
@@ -366,7 +314,7 @@ class _TickerCardWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              _formatDetailPrice(ticker.lastPrice),
+              PriceFormatter.formatPriceStr(ticker.lastPrice),
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -383,7 +331,7 @@ class _TickerCardWidget extends StatelessWidget {
                 ),
                 _VolumeWidget(
                   label: l10n.volume24h,
-                  value: _formatDetailVolume(ticker.volume24h),
+                  value: PriceFormatter.formatVolumeStr(ticker.volume24h),
                 ),
               ],
             ),
@@ -512,7 +460,7 @@ class _OrderBookCardWidget extends StatelessWidget {
   }
 }
 
-/// Trading Chart Widget - Displays candlestick chart with controls
+/// Trading Chart Widget - Displays candlestick chart with controls and Pro Chart tab
 class _TradingChartWidget extends StatelessWidget {
   final String pairId;
 
@@ -520,41 +468,219 @@ class _TradingChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Resolve symbol for TradingView from the selected market.
+    final symbol = context.watch<MarketsProvider>().selectedMarket?.symbol;
+    final tvSymbol =
+        symbol != null ? TradingViewSymbolMapper.toTradingView(symbol) : null;
+    final chartInterval = context.watch<ChartProvider>().selectedInterval;
+    final isDark = theme.brightness == Brightness.dark;
+    final localeTag = Localizations.localeOf(context).toLanguageTag();
+    final tabCount = tvSymbol != null ? 2 : 1;
+
+    return DefaultTabController(
+      length: tabCount,
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                tabs: [
+                  const Tab(text: 'Biểu đồ'),
+                  if (tvSymbol != null) const Tab(text: 'Pro Chart'),
+                ],
+                labelColor: colorScheme.primary,
+                unselectedLabelColor: colorScheme.onSurfaceVariant,
+                indicatorColor: colorScheme.primary,
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: tabCount == 2 ? 520 : 480,
+                child: TabBarView(
+                  children: [
+                    // Tab 1: internal Lightweight Charts
+                    _InternalChartTab(pairId: pairId),
+                    // Tab 2: TradingView Pro Chart (HTML inject + tv.js)
+                    if (tvSymbol != null)
+                      _ProChartTab(
+                        tvSymbol: tvSymbol,
+                        apiInterval: chartInterval,
+                        isDarkTheme: isDark,
+                        localeTag: localeTag,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Internal chart tab: interval selector + chart widget + WS status.
+class _InternalChartTab extends StatelessWidget {
+  final String pairId;
+
+  const _InternalChartTab({required this.pairId});
+
+  @override
+  Widget build(BuildContext context) {
     return Consumer<ChartProvider>(
       builder: (context, chartProvider, child) {
-        return Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _ChartHeaderWidget(),
-                const SizedBox(height: 8),
-                _ChartRangeRow(pairId: pairId),
-                const SizedBox(height: 16),
-
-                // Chart content
-                Consumer<MarketsProvider>(
-                  builder: (context, marketsProvider, child) {
-                    return _ChartContentWidget(
-                      pairId: pairId,
-                      chartProvider: chartProvider,
-                      market: marketsProvider.selectedMarket,
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // WebSocket status indicator (connected vs receiving data; hint if no updates)
-                _WebSocketStatusWidget(
-                  chartProvider: chartProvider,
-                ),
-              ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ChartRangeRow(pairId: pairId),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Consumer<MarketsProvider>(
+                builder: (context, marketsProvider, child) {
+                  return _ChartContentWidget(
+                    pairId: pairId,
+                    chartProvider: chartProvider,
+                    market: marketsProvider.selectedMarket,
+                  );
+                },
+              ),
             ),
-          ),
+            const SizedBox(height: 8),
+            _WebSocketStatusWidget(chartProvider: chartProvider),
+          ],
         );
       },
+    );
+  }
+}
+
+/// TradingView Pro Chart tab: inject HTML that loads `tv.js` and [TradingView.widget].
+class _ProChartTab extends StatefulWidget {
+  final String tvSymbol;
+  final String apiInterval;
+  final bool isDarkTheme;
+  final String localeTag;
+
+  const _ProChartTab({
+    required this.tvSymbol,
+    required this.apiInterval,
+    required this.isDarkTheme,
+    required this.localeTag,
+  });
+
+  @override
+  State<_ProChartTab> createState() => _ProChartTabState();
+}
+
+class _ProChartTabState extends State<_ProChartTab>
+    with AutomaticKeepAliveClientMixin {
+  final WebviewController _controller = WebviewController();
+  bool _loading = true;
+  String? _error;
+  bool _webviewReady = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initWebview();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ProChartTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tvSymbol != widget.tvSymbol ||
+        oldWidget.apiInterval != widget.apiInterval ||
+        oldWidget.isDarkTheme != widget.isDarkTheme ||
+        oldWidget.localeTag != widget.localeTag) {
+      _loadTradingViewHtml();
+    }
+  }
+
+  Future<void> _initWebview() async {
+    try {
+      await _controller.initialize();
+      if (!mounted) return;
+      _webviewReady = true;
+      await _loadTradingViewHtml();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadTradingViewHtml() async {
+    if (!_webviewReady || !mounted) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final html = TradingViewProChartHtml.build(
+        tvSymbol: widget.tvSymbol,
+        apiInterval: widget.apiInterval,
+        isDarkTheme: widget.isDarkTheme,
+        localeLanguageTag: widget.localeTag,
+      );
+      await _controller.loadStringContent(html);
+      if (mounted) setState(() => _loading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bar_chart_outlined,
+                size: 48, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 12),
+            Text(
+              'Không thể tải biểu đồ TradingView',
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        Webview(_controller),
+        if (_loading)
+          const Center(child: CircularProgressIndicator.adaptive()),
+      ],
     );
   }
 }
@@ -714,54 +840,23 @@ class _OrderSideSection extends StatelessWidget {
   }
 }
 
-/// Chart header
-class _ChartHeaderWidget extends StatelessWidget {
-  const _ChartHeaderWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Text(
-      l10n.tradingChart,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: colorScheme.onSurface,
-        letterSpacing: 0.2,
-      ),
-    );
-  }
-}
-
-/// Range filter row: 1D, 1M, 3M, 1Y, 5Y – gọi API /ohlcv?range=...
+/// Interval selector row: 1m, 5m, 15m, 1h, 4h, 1D – calls API /ohlcv?interval=...
 class _ChartRangeRow extends StatelessWidget {
   final String pairId;
 
   const _ChartRangeRow({required this.pairId});
 
-  static const List<MapEntry<String, String>> _ranges = [
-    MapEntry('1d', '1D'),
-    MapEntry('1M', '1M'),
-    MapEntry('3M', '3M'),
-    MapEntry('1y', '1Y'),
-    MapEntry('5y', '5Y'),
-  ];
-
-  Future<void> _onRangeTap(
+  Future<void> _onIntervalTap(
     BuildContext context,
-    String range,
+    String interval,
   ) async {
     final marketsProvider = context.read<MarketsProvider>();
     final chartProvider = context.read<ChartProvider>();
-    final interval = ApiConstants.intervalForRange(range);
 
     final ohlcvLocale = Localizations.localeOf(context).toLanguageTag();
     await marketsProvider.fetchOHLCV(
       pairId: pairId,
-      range: range,
-      limit: 500,
+      interval: interval,
       locale: ohlcvLocale,
     );
 
@@ -769,24 +864,11 @@ class _ChartRangeRow extends StatelessWidget {
     if (ohlcv.isEmpty) return;
 
     chartProvider.setInterval(interval);
-    final list = ohlcv
-        .map((o) => OHLCData(
-              pairId: pairId,
-              interval: interval,
-              openTime: o.openTime.millisecondsSinceEpoch,
-              closeTime: o.openTime
-                  .add(Duration(seconds: o.intervalSec))
-                  .millisecondsSinceEpoch,
-              open: double.tryParse(o.open) ?? 0,
-              high: double.tryParse(o.high) ?? 0,
-              low: double.tryParse(o.low) ?? 0,
-              close: double.tryParse(o.close) ?? 0,
-              volume: double.tryParse(o.volume) ?? 0,
-              quoteVolume: 0,
-              tradesCount: 0,
-              isClosed: true,
-            ))
-        .toList();
+    final list = ohlcvRowsToChartCandles(
+      pairId: pairId,
+      intervalLabel: interval,
+      rows: ohlcv,
+    );
     await chartProvider.loadHistoricalCandles(list);
   }
 
@@ -794,17 +876,36 @@ class _ChartRangeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final selectedInterval =
+        context.watch<ChartProvider>().selectedInterval;
 
     return Wrap(
       spacing: 8,
       runSpacing: 6,
-      children: _ranges
-          .map((e) => ActionChip(
-                label: Text(e.value),
-                onPressed: () => _onRangeTap(context, e.key),
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                side: BorderSide(color: colorScheme.outlineVariant),
-              ))
+      children: ApiConstants.ohlcvIntervals
+          .map((e) {
+            final isSelected = e.key == selectedInterval ||
+                (e.key == '1d' && selectedInterval == '1d');
+            return ActionChip(
+              label: Text(e.value),
+              onPressed: () => _onIntervalTap(context, e.key),
+              backgroundColor: isSelected
+                  ? colorScheme.primaryContainer
+                  : colorScheme.surfaceContainerHighest,
+              labelStyle: TextStyle(
+                color: isSelected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+              side: BorderSide(
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant,
+              ),
+            );
+          })
           .toList(),
     );
   }

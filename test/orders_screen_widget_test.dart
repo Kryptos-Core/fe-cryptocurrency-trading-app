@@ -237,6 +237,7 @@ class FakeMarketsRepository implements MarketsRepository {
   @override
   Future<Either<Failure, List<OHLCV>>> getOHLCV({
     required String pairId,
+    String? interval,
     String? range,
     String? startTime,
     String? endTime,

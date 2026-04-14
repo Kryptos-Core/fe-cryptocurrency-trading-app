@@ -2829,6 +2829,42 @@ abstract class AppLocalizations {
   /// **'Manual re-sync Binance'**
   String get drawerManualResync;
 
+  /// No description provided for @drawerAdminMarketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market catalog (sync)'**
+  String get drawerAdminMarketsTitle;
+
+  /// No description provided for @drawerAdminMarketsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Binance pairs & currencies'**
+  String get drawerAdminMarketsSubtitle;
+
+  /// No description provided for @adminMarketsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market catalog'**
+  String get adminMarketsScreenTitle;
+
+  /// No description provided for @adminMarketsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulls currencies and spot pairs from Binance into the database. Use after db:clean or when the Markets list is empty.'**
+  String get adminMarketsIntro;
+
+  /// No description provided for @adminMarketsLastResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync result'**
+  String get adminMarketsLastResult;
+
+  /// No description provided for @adminMarketsBinanceLimitsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Binance API rate limits'**
+  String get adminMarketsBinanceLimitsLink;
+
   /// No description provided for @drawerSecurityRequests.
   ///
   /// In en, this message translates to:

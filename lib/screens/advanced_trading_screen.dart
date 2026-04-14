@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/core/services/indicator_service.dart';
+import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/utils/chart_websocket_policy.dart';
+import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/lightweight_charts_widget.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
-import 'package:crypto_trading_app/core/services/indicator_service.dart';
-import 'package:crypto_trading_app/core/services/websocket_service.dart'
-    show OHLCData;
 
 /// Advanced Trading Screen
 /// Features:
@@ -29,56 +33,71 @@ class AdvancedTradingScreen extends StatefulWidget {
 class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   late ChartProvider _chartProvider;
   int? _selectedCandleIndex;
+  final Logger _logger = Logger();
 
   @override
   void initState() {
     super.initState();
-    _initializeChart();
+    _chartProvider = Provider.of<ChartProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadChartForInterval(_chartProvider.selectedInterval);
+    });
   }
 
-  void _initializeChart() {
-    _chartProvider = Provider.of<ChartProvider>(context, listen: false);
-
-    // Load historical data from markets provider
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!context.mounted) return;
-      final marketsProvider = context.read<MarketsProvider>();
-      final ohlcvLocale = Localizations.localeOf(context).toLanguageTag();
-
-      // Fetch historical OHLCV data
-      await marketsProvider.fetchOHLCV(pairId: widget.pairId, locale: ohlcvLocale);
-
-      // Load into chart
-      if (marketsProvider.ohlcv.isNotEmpty) {
-        final candles = marketsProvider.ohlcv
-            .map((o) => OHLCData(
-                  pairId: widget.pairId,
-                  interval: '1h',
-                  openTime: o.openTime.millisecondsSinceEpoch,
-                  closeTime: o.openTime
-                      .add(const Duration(hours: 1))
-                      .millisecondsSinceEpoch,
-                  open: double.tryParse(o.open) ?? 0,
-                  high: double.tryParse(o.high) ?? 0,
-                  low: double.tryParse(o.low) ?? 0,
-                  close: double.tryParse(o.close) ?? 0,
-                  volume: double.tryParse(o.volume) ?? 0,
-                  quoteVolume: 0,
-                  tradesCount: 0,
-                  isClosed: true,
-                ))
-            .toList();
-
-        _chartProvider.loadHistoricalCandles(candles);
+  /// Mirrors [MarketDetailScreen] / trading chart: connect + auth before subscriptions.
+  Future<void> _ensureTradingWebSocket() async {
+    final token = di.sl<TokenService>().getAccessToken() ?? '';
+    if (!chartWebSocketNeedsInitialize(
+      providerReportsConnected: _chartProvider.isWebSocketConnected,
+      hasNonEmptyToken: token.isNotEmpty,
+    )) {
+      if (token.isEmpty) {
+        _logger.w(
+            '⚠️ AdvancedTrading: no JWT — realtime ticker/OHLC via WebSocket disabled');
       }
+      return;
+    }
 
-      // Subscribe to realtime updates (if WebSocket available)
-      _chartProvider.subscribeToPair(
-        widget.pairId,
-        ['ticker', 'ohlc'],
-        interval: '1h',
+    final wsUrl = ApiConstants.webSocketUrl;
+    _logger.i('🔗 AdvancedTrading: initializing WebSocket $wsUrl');
+    await _chartProvider.initializeWebSocket(wsUrl, token);
+    try {
+      await _chartProvider.waitForAuthCompletion();
+      _logger.i('✅ AdvancedTrading: WebSocket authenticated');
+    } catch (e) {
+      _logger.e('⚠️ AdvancedTrading: WebSocket auth wait failed: $e');
+    }
+  }
+
+  /// Same flow as [MarketDetailScreen] interval changes: REST `interval` + WS subscribe + candles.
+  Future<void> _loadChartForInterval(String interval) async {
+    if (!mounted) return;
+    await _ensureTradingWebSocket();
+    if (!mounted) return;
+
+    final marketsProvider = context.read<MarketsProvider>();
+    final locale = Localizations.localeOf(context).toLanguageTag();
+
+    await marketsProvider.fetchOHLCV(
+      pairId: widget.pairId,
+      interval: interval,
+      locale: locale,
+    );
+    if (!mounted) return;
+
+    _chartProvider.setInterval(interval);
+
+    if (marketsProvider.ohlcv.isNotEmpty) {
+      final candles = ohlcvRowsToChartCandles(
+        pairId: widget.pairId,
+        intervalLabel: interval,
+        rows: marketsProvider.ohlcv,
       );
-    });
+      await _chartProvider.loadHistoricalCandles(candles);
+    } else {
+      await _chartProvider.loadHistoricalCandles([]);
+    }
   }
 
   @override
@@ -124,7 +143,8 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh),
-          onPressed: () => _chartProvider.clear(),
+          onPressed: () =>
+              _loadChartForInterval(_chartProvider.selectedInterval),
           tooltip: 'Refresh Chart',
         ),
         IconButton(
@@ -363,21 +383,21 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   }
 
   Widget _buildIntervalSelector(ChartProvider chartProvider) {
-    final intervals = ['1m', '5m', '15m', '1h', '4h', '1d'];
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: intervals.map((interval) {
-            final isSelected = chartProvider.selectedInterval == interval;
+          children: ApiConstants.ohlcvIntervals.map((e) {
+            final apiInterval = e.value;
+            final isSelected =
+                chartProvider.selectedInterval == apiInterval;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: FilterChip(
-                label: Text(interval),
+                label: Text(e.key),
                 selected: isSelected,
-                onSelected: (_) => chartProvider.setInterval(interval),
+                onSelected: (_) => _loadChartForInterval(apiInterval),
                 backgroundColor: Colors.white,
                 selectedColor: Colors.blue[100],
               ),

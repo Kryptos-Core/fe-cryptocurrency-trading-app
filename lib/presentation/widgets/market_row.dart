@@ -1,43 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart' as market_entity;
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-
-/// Format price (lastPrice) – chuẩn crypto: bậc theo magnitude, bỏ 0 thừa.
-/// BTC/ETH: 1–2 số lẻ; coin nhỏ (ADA, DOGE): 4–6 số lẻ.
-String _formatPrice(String priceStr) {
-  final v = double.tryParse(priceStr);
-  if (v == null) return priceStr;
-  if (v == 0) return '0';
-  int decimals;
-  if (v >= 10000) {
-    decimals = 1;  // BTC: 66088.7
-  } else if (v >= 1000) {
-    decimals = 2;
-  } else if (v >= 1) {
-    decimals = 2;   // LINK, DOT: 8.34, 1.26
-  } else if (v >= 0.01) {
-    decimals = 4;   // ADA: 0.2595
-  } else {
-    decimals = 6;   // DOGE nhỏ: 0.09208
-  }
-  final formatted = v.toStringAsFixed(decimals);
-  if (formatted.contains('.')) {
-    return formatted.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  }
-  return formatted;
-}
-
-/// Format volume for display; tránh hiển thị 0.0000... dài.
-String _formatVolume(String volumeStr) {
-  final v = double.tryParse(volumeStr);
-  if (v == null) return volumeStr;
-  if (v == 0) return '0';
-  if (v >= 1e6) return '${(v / 1e6).toStringAsFixed(2)}M';
-  if (v >= 1e3) return '${(v / 1e3).toStringAsFixed(2)}K';
-  if (v >= 1) return v.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-}
 
 /// Format changeAmount24h – chuẩn crypto: tránh "-0.00" khi % ≠ 0 (coin rẻ).
 /// |v| < 0.01: dùng thêm số lẻ để có ý nghĩa (e.g. -0.0012); ≥ 0.01: 2 số lẻ.
@@ -122,7 +87,7 @@ class MarketRow extends StatelessWidget {
     final changePercent = hasTicker
         ? (double.tryParse(ticker!.change24h) ?? 0.0).toStringAsFixed(2)
         : _noData;
-    final lastPrice = hasTicker ? _formatPrice(ticker!.lastPrice) : _noData;
+    final lastPrice = hasTicker ? PriceFormatter.formatPriceStr(ticker!.lastPrice) : _noData;
 
     final hMargin = denseLayout ? 8.0 : 16.0;
     final innerPadding = denseLayout ? 12.0 : 16.0;
@@ -152,7 +117,7 @@ class MarketRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${AppLocalizations.of(context).vol}: ${hasTicker ? _formatVolume(ticker!.volume24h) : _noData}',
+                      '${AppLocalizations.of(context).vol}: ${hasTicker ? PriceFormatter.formatVolumeStr(ticker!.volume24h) : _noData}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,

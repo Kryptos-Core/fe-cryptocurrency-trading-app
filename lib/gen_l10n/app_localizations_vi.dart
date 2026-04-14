@@ -1506,6 +1506,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String get drawerManualResync => 'Đồng bộ thủ công Binance';
 
   @override
+  String get drawerAdminMarketsTitle => 'Danh mục thị trường (đồng bộ)';
+
+  @override
+  String get drawerAdminMarketsSubtitle => 'Khôi phục cặp & tiền tệ từ Binance';
+
+  @override
+  String get adminMarketsScreenTitle => 'Quản trị thị trường';
+
+  @override
+  String get adminMarketsIntro =>
+      'Kéo tiền tệ và cặp spot từ Binance vào cơ sở dữ liệu. Dùng sau db:clean hoặc khi danh sách Thị trường trống.';
+
+  @override
+  String get adminMarketsLastResult => 'Kết quả đồng bộ gần nhất';
+
+  @override
+  String get adminMarketsBinanceLimitsLink => 'Giới hạn API Binance';
+
+  @override
   String get drawerSecurityRequests => 'Yêu cầu bảo mật';
 
   @override

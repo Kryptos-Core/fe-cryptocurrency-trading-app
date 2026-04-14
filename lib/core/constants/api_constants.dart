@@ -171,10 +171,23 @@ class ApiConstants {
 
   static String marketOHLCV(String id) => '$markets/$id/ohlcv';
 
-  /// OHLCV range filter: 1d, 1M, 3M, 1y, 5y (backend only accepts these)
+  /// Crypto-standard OHLCV intervals: label → API interval param.
+  /// These map directly to the backend VALID_INTERVALS whitelist.
+  static const List<MapEntry<String, String>> ohlcvIntervals = [
+    MapEntry('1m', '1m'),
+    MapEntry('5m', '5m'),
+    MapEntry('15m', '15m'),
+    MapEntry('1h', '1h'),
+    MapEntry('4h', '4h'),
+    MapEntry('1D', '1d'),
+  ];
+
+  /// Legacy OHLCV range filter: 1d, 1M, 3M, 1y, 5y (backward compat, still accepted by backend)
+  @Deprecated('Use ohlcvIntervals instead. Range-based API is still supported by backend.')
   static const List<String> ohlcvRanges = ['1d', '1M', '3M', '1y', '5y'];
 
-  /// Suggested interval per range for chart (FE gợi ý theo tài liệu API)
+  /// Suggested interval per legacy range (backward compat)
+  @Deprecated('Use ohlcvIntervals directly instead.')
   static String intervalForRange(String range) {
     switch (range) {
       case '1d':

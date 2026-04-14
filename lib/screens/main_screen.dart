@@ -22,6 +22,7 @@ import 'package:crypto_trading_app/screens/orders_screen.dart';
 import 'package:crypto_trading_app/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/screens/about_screen.dart';
 import 'package:crypto_trading_app/screens/settings_screen.dart';
+import 'package:crypto_trading_app/screens/admin_markets_screen.dart';
 import 'package:crypto_trading_app/screens/notifications_screen.dart';
 import 'package:crypto_trading_app/screens/broadcast_notification_screen.dart';
 import 'package:crypto_trading_app/screens/market_maker/market_maker_hub_screen.dart';
@@ -693,32 +694,32 @@ class _MainScreenState extends State<MainScreen> {
                                   );
                                 },
                               ),
-                              ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 2),
-                                leading: Icon(
-                                  Icons.sync,
-                                  size: 22,
-                                  color: cs.primary,
-                                ),
-                                title: Text(l10n.drawerManualResync),
-                                subtitle: Text(
-                                  l10n.drawerAdminArea,
-                                  style: subtitleStyle,
-                                ),
-                                mouseCursor: SystemMouseCursors.click,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SettingsScreen(
-                                        focusExchangeSync: true,
+                              if (auth.canSyncExchange)
+                                ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 2),
+                                  leading: Icon(
+                                    Icons.sync,
+                                    size: 22,
+                                    color: cs.primary,
+                                  ),
+                                  title: Text(l10n.drawerAdminMarketsTitle),
+                                  subtitle: Text(
+                                    l10n.drawerAdminMarketsSubtitle,
+                                    style: subtitleStyle,
+                                  ),
+                                  mouseCursor: SystemMouseCursors.click,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const AdminMarketsScreen(),
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
+                                    );
+                                  },
+                                ),
                             ],
                           ],
                         ),

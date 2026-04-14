@@ -4,6 +4,7 @@ import 'package:crypto_trading_app/core/di/injection_container.dart';
 import 'package:crypto_trading_app/core/ui/app_responsive.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
@@ -11,6 +12,7 @@ import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart'
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_search_bar.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
+import 'package:crypto_trading_app/screens/admin_markets_screen.dart';
 
 /// Markets List Screen
 /// Displays list of all market pairs with search (as-you-type) and filters.
@@ -157,8 +159,23 @@ class _MarketsListScreenState extends State<MarketsListScreen> {
                                     _searchBarKey.currentState?.clear();
                                     provider.clearSearchAndFilters();
                                   },
-                                  icon: const Icon(Icons.filter_alt_off, size: 18),
+                                  icon: const Icon(Icons.filter_alt_off,
+                                      size: 18),
                                   label: Text(l10n.clearFilters),
+                                ),
+                              ] else if (context
+                                  .read<AuthProvider>()
+                                  .canSyncExchange) ...[
+                                const SizedBox(height: 16),
+                                OutlinedButton.icon(
+                                  onPressed: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AdminMarketsScreen(),
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.sync, size: 18),
+                                  label: const Text('Đồng bộ thị trường từ Binance'),
                                 ),
                               ],
                             ],

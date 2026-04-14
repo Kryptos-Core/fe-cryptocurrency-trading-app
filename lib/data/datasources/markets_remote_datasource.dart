@@ -73,9 +73,11 @@ abstract class MarketsRemoteDataSource {
   });
 
   /// Get OHLCV data
-  /// [range] optional: 1d, 1M, 3M, 1y, 5y – khi có range thì backend chỉ trả nến trong khoảng (now − range) đến now; tối đa 500 nến.
+  /// [interval] optional direct interval: 1m, 5m, 15m, 1h, 4h, 1d — takes priority over range.
+  /// [range] optional legacy: 1d, 1M, 3M, 1y, 5y – khi có range thì backend chỉ trả nến trong khoảng (now − range) đến now; tối đa 500 nến.
   Future<List<OHLCVModel>> getOHLCV({
     required String pairId,
+    String? interval,
     String? range,
     String? startTime,
     String? endTime,
@@ -726,6 +728,7 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
   @override
   Future<List<OHLCVModel>> getOHLCV({
     required String pairId,
+    String? interval,
     String? range,
     String? startTime,
     String? endTime,
@@ -733,15 +736,18 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     String? locale,
   }) async {
     try {
-      final effectiveLimit = range != null ? 500 : limit;
+      final hasDirectInterval = interval != null;
+      final hasRange = range != null;
+      final effectiveLimit = (hasDirectInterval || hasRange) ? 500 : limit;
       final loc = locale?.trim() ?? '';
       final hasLocale = loc.isNotEmpty;
       final response = await dio.get(
         ApiConstants.marketOHLCV(pairId),
         queryParameters: {
-          if (range != null) 'range': range,
-          if (startTime != null && range == null) 'start_time': startTime,
-          if (endTime != null && range == null) 'end_time': endTime,
+          if (hasDirectInterval) 'interval': interval,
+          if (!hasDirectInterval && hasRange) 'range': range,
+          if (startTime != null && !hasDirectInterval && !hasRange) 'start_time': startTime,
+          if (endTime != null && !hasDirectInterval && !hasRange) 'end_time': endTime,
           'limit': effectiveLimit,
           if (hasLocale) 'locale': loc,
         },

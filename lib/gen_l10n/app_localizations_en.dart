@@ -1505,6 +1505,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerManualResync => 'Manual re-sync Binance';
 
   @override
+  String get drawerAdminMarketsTitle => 'Market catalog (sync)';
+
+  @override
+  String get drawerAdminMarketsSubtitle => 'Restore Binance pairs & currencies';
+
+  @override
+  String get adminMarketsScreenTitle => 'Market catalog';
+
+  @override
+  String get adminMarketsIntro =>
+      'Pulls currencies and spot pairs from Binance into the database. Use after db:clean or when the Markets list is empty.';
+
+  @override
+  String get adminMarketsLastResult => 'Last sync result';
+
+  @override
+  String get adminMarketsBinanceLimitsLink => 'Binance API rate limits';
+
+  @override
   String get drawerSecurityRequests => 'Security requests';
 
   @override

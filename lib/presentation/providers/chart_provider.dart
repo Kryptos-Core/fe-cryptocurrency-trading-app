@@ -20,7 +20,7 @@ class ChartProvider extends ChangeNotifier {
   TickerData? _latestTicker;
   bool _isLoading = false;
   String? _error;
-  String _selectedInterval = '1m';
+  String _selectedInterval = '1h';
   String? _selectedPairId;
 
   /// Max candles to hold in memory for chart display (performance).
