@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter run:*)",
+      "Bash(dart format:*)",
+      "Bash(dart analyze:*)",
+      "Bash(dart pub get:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(dart run build_runner:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(dart run build_runner watch:*)"
+    ],
+    "deny": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node migrations:*)"
+    ]
+  }
+}

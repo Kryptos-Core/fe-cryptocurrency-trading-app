@@ -70,6 +70,33 @@ Sample role configs in this repo:
 Since Codex lacks hooks, security enforcement is instruction-based:
 1. Always validate inputs at system boundaries
 2. Never hardcode secrets — use environment variables
-3. Run `npm audit` / `pip audit` before committing
+3. Run `flutter analyze` + `flutter test` before committing
 4. Review `git diff` before every push
 5. Use `sandbox_mode = "workspace-write"` in config
+
+## Quality Gates (Flutter)
+
+Trước khi coi một feature hoàn thành, **bắt buộc** chạy:
+
+```bash
+flutter pub get
+dart format --set-exit-if-changed .
+flutter analyze --fatal-infos
+flutter test --coverage
+```
+
+Nếu Codex vừa tạo / sửa code, kết thúc session bằng cách tự chạy (hoặc nhắc user chạy) các lệnh trên.
+
+### Checklist tự kiểm tra (Codex)
+
+Trước khi báo "done":
+- [ ] `flutter analyze` không có warning/error
+- [ ] `flutter test` pass 100%
+- [ ] Không có `print()` hoặc `debugPrint()` ngoài debug build guard
+- [ ] Không có hardcode URL, token, private key
+- [ ] Domain layer không import Flutter/Dio
+- [ ] Widget mới có widget test cơ bản
+
+## Stack Reminder (Flutter/Dart only)
+
+Repo này là **Flutter frontend**. Không tạo NestJS, Express, database migration, hay Playwright test trong repo này. Nếu cần thay đổi API contract, phối hợp với team BE qua tài liệu/OpenAPI.

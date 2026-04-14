@@ -4,9 +4,13 @@
 
 Mở **đúng thư mục gốc repo Flutter này** làm folder workspace (cùng cấp `pubspec.yaml`). Team FE clone repo FE, làm việc độc lập; **đồng nhất Vibe Code** nhờ `.cursor/`, `.agents/`, `.codex/`, `.claude/` trong repo — không cần mở monorepo cha.
 
-## Vibe Code
+## Tài liệu team
 
-**Chuẩn AI chung của team:** [VIBE_CODE.md](./VIBE_CODE.md). Cursor, Claude Code và Codex CLI trong repo này bám theo `.cursor/`, `.agents/`, `.codex/`, `.claude/`.
+- [VIBE_CODE.md](./VIBE_CODE.md) — Chuẩn AI coding của team FE
+- [CONTRIBUTING-RULES.md](./CONTRIBUTING-RULES.md) — Conventions + PR process
+- [docs/security-zones.md](./docs/security-zones.md) — Security zones
+- [docs/onboarding/](./docs/onboarding/) — Onboarding guides (day-1, ai-dev, ecc-ref)
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — FSD + Clean Architecture
 
 ## Stack
 
