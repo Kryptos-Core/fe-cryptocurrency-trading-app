@@ -8,7 +8,7 @@ import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dar
 import 'package:crypto_trading_app/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
-import 'package:crypto_trading_app/screens/wallets_overview_screen.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/screens/wallets_overview_screen.dart';
 import 'package:crypto_trading_app/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/screens/market_detail_screen.dart';
 
@@ -42,7 +42,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               _buildPortfolioCard(l10n),
               const SizedBox(height: 16),
-
               _buildSectionHeader(
                 title: l10n.dashboardTopMarkets,
                 seeAllLabel: l10n.dashboardSeeAll,
@@ -133,8 +132,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildStatItem(l10n.dashboardWallets, '${provider.walletCount}'),
-                    _buildStatItem(l10n.dashboardActive, '${provider.activeWalletCount}'),
+                    _buildStatItem(
+                        l10n.dashboardWallets, '${provider.walletCount}'),
+                    _buildStatItem(
+                        l10n.dashboardActive, '${provider.activeWalletCount}'),
                   ],
                 ),
               ],
@@ -145,17 +146,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-
   Widget _buildStatItem(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+        Text(label,
+            style: const TextStyle(fontSize: 12, color: Colors.white70)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ],
     );
@@ -169,7 +170,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         if (onSeeAll != null)
           TextButton(onPressed: onSeeAll, child: Text(seeAllLabel)),
       ],

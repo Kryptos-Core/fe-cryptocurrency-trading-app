@@ -105,7 +105,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('BSC (Chapel)'), findsOneWidget);
+      expect(find.text(BlockchainNetwork.bscChapel.label), findsOneWidget);
       expect(find.text('Sandbox'), findsOneWidget);
     });
 
@@ -123,11 +123,12 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Ethereum (mainnet)'), findsOneWidget);
+      expect(find.text(BlockchainNetwork.ethMainnet.label), findsOneWidget);
       expect(find.text('Sandbox'), findsNothing);
     });
 
-    testWidgets('suppressSandboxSuffix hides testnet Sandbox tag', (tester) async {
+    testWidgets('suppressSandboxSuffix hides testnet Sandbox tag',
+        (tester) async {
       await tester.pumpWidget(
         appWithBanner(
           Builder(
@@ -142,7 +143,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('BSC (Chapel)'), findsOneWidget);
+      expect(find.text(BlockchainNetwork.bscChapel.label), findsOneWidget);
       expect(find.text('Sandbox'), findsNothing);
     });
   });

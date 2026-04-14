@@ -10,7 +10,7 @@ import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/exchange_rate_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/widgets/rate_preview_widget.dart';
 import 'package:crypto_trading_app/screens/market_prices_screen.dart';
@@ -396,7 +396,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          paymentConfig.payosTransitioningDepositBannerText(l10n),
+                          paymentConfig
+                              .payosTransitioningDepositBannerText(l10n),
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 13,
@@ -490,9 +491,8 @@ class _DepositsScreenState extends State<DepositsScreen> {
                             ),
                           )
                         : FilledButton.icon(
-                            onPressed: _isPollingAfterCheckout
-                                ? null
-                                : _handleDeposit,
+                            onPressed:
+                                _isPollingAfterCheckout ? null : _handleDeposit,
                             style: FilledButton.styleFrom(
                               minimumSize: const Size(double.infinity, 48),
                             ),
@@ -541,23 +541,20 @@ class _DepositsScreenState extends State<DepositsScreen> {
               )
             else
               ...provider.deposits.map((deposit) {
-                final isPending =
-                    deposit.status.toUpperCase() == 'PENDING';
+                final isPending = deposit.status.toUpperCase() == 'PENDING';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: isPending &&
-                              deposit.checkoutUrl.isNotEmpty
+                      onTap: isPending && deposit.checkoutUrl.isNotEmpty
                           ? () => _onTapPendingDeposit(
                                 deposit.orderCode,
                                 deposit.checkoutUrl,
                               )
                           : null,
                       borderRadius: BorderRadius.circular(10),
-                      mouseCursor: isPending &&
-                              deposit.checkoutUrl.isNotEmpty
+                      mouseCursor: isPending && deposit.checkoutUrl.isNotEmpty
                           ? SystemMouseCursors.click
                           : SystemMouseCursors.basic,
                       child: Container(

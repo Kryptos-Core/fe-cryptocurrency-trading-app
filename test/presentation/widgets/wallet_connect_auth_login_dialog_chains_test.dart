@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/wallet_connect_auth_login_dialog.dart';
+import 'package:crypto_trading_app/features/auth/presentation/widgets/wallet_connect_auth_login_dialog.dart';
 
 import '../../support/stub_treasury_remote_data_source.dart';
 
@@ -75,3 +75,4 @@ void main() {
     );
   });
 }
+

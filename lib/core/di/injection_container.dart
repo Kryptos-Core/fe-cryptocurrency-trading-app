@@ -8,32 +8,33 @@ import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart'
 import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/markets_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/wallets_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/wallet_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/wallet_local_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/orders_remote_datasource.dart';
+import 'package:crypto_trading_app/features/wallets/data/datasources/wallets_remote_datasource.dart';
+import 'package:crypto_trading_app/features/wallets/data/datasources/wallet_remote_datasource.dart';
+import 'package:crypto_trading_app/features/wallets/data/datasources/wallet_local_datasource.dart';
+import 'package:crypto_trading_app/features/orders/data/datasources/orders_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/deposit_remote_datasource.dart';
 
 import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/dashboard_remote_datasource.dart';
-import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
+import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
+import 'package:crypto_trading_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/currencies_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/markets_repository_impl.dart';
-import 'package:crypto_trading_app/data/repositories/wallets_repository_impl.dart';
+import 'package:crypto_trading_app/features/wallets/data/repositories/wallets_repository_impl.dart';
 import 'package:crypto_trading_app/domain/repositories/currencies_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
-import 'package:crypto_trading_app/domain/repositories/wallets_repository.dart';
-import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
-import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/features/wallets/domain/repositories/wallets_repository.dart';
+import 'package:crypto_trading_app/features/wallets/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/deposit_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/exchange_rate_repository.dart';
 import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
-import 'package:crypto_trading_app/data/repositories/wallet_repository_impl.dart';
+import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
+import 'package:crypto_trading_app/features/wallets/data/repositories/wallet_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/deposit_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/exchange_rate_repository_impl.dart';
-import 'package:crypto_trading_app/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/blockchain_repository_impl.dart';
 import 'package:crypto_trading_app/data/repositories/managed_wallets_repository_impl.dart';
+import 'package:crypto_trading_app/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:crypto_trading_app/domain/repositories/managed_wallets_repository.dart';
 import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
@@ -83,6 +84,11 @@ Future<void> initializeDependencies() async {
     if (!sl.isRegistered<AdminEnumsProvider>()) {
       sl.registerLazySingleton<AdminEnumsProvider>(
         () => AdminEnumsProvider(dioClient: sl<DioClient>()),
+      );
+    }
+    if (!sl.isRegistered<AuthWalletFlowService>()) {
+      sl.registerLazySingleton<AuthWalletFlowService>(
+        () => AuthWalletFlowService(datasource: sl<AuthRemoteDataSource>()),
       );
     }
     return; // All other singletons remain registered
@@ -184,6 +190,10 @@ Future<void> initializeDependencies() async {
       remoteDataSource: sl(),
       userRemoteDataSource: sl(),
     ),
+  );
+
+  sl.registerLazySingleton<AuthWalletFlowService>(
+    () => AuthWalletFlowService(datasource: sl<AuthRemoteDataSource>()),
   );
 
   // Currencies Repository

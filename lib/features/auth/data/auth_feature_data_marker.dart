@@ -1,0 +1,3 @@
+class AuthFeatureDataMarker {
+  const AuthFeatureDataMarker();
+}

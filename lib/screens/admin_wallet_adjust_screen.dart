@@ -11,9 +11,8 @@ import 'package:crypto_trading_app/domain/entities/currency.dart';
 import 'package:crypto_trading_app/domain/entities/user.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
 import 'admin_user_list_screen.dart';
-
 
 /// Màn hình điều chỉnh số dư ví thủ công dành cho Admin / Risk Officer.
 /// Nên ưu tiên sử dụng flow: Quản lý người dùng → Chọn user → Nạp/Rút.
@@ -62,11 +61,11 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     if (!mounted) return;
 
     final currencies = List<Currency>.from(currProvider.tradableCurrencies);
-    final hasUsdt =
-        currencies.any(
-            (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol);
+    final hasUsdt = currencies.any(
+        (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol);
     if (!hasUsdt) {
-      await currProvider.getCurrencyBySymbol(kDefaultPlatformCashCurrencySymbol);
+      await currProvider
+          .getCurrencyBySymbol(kDefaultPlatformCashCurrencySymbol);
       if (!mounted) return;
       if (currProvider.selectedCurrency != null) {
         currencies.insert(0, currProvider.selectedCurrency!);
@@ -78,7 +77,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       _filteredCurrencies = currencies;
       _selectedCurrency = currencies.firstWhere(
         (c) => c.symbol.toUpperCase() == kDefaultPlatformCashCurrencySymbol,
-        orElse: () => currencies.isNotEmpty ? currencies.first : currencies.first,
+        orElse: () =>
+            currencies.isNotEmpty ? currencies.first : currencies.first,
       );
       _isLoadingCurrencies = false;
     });
@@ -170,7 +170,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
     final uid = _historyUserIdController.text.trim();
     if (uid.isEmpty) {
       showAppSnackBar(context,
-          message: l10n.adminWalletAdjustUserIdRequired, type: SnackBarType.warning);
+          message: l10n.adminWalletAdjustUserIdRequired,
+          type: SnackBarType.warning);
       return;
     }
     await context.read<WalletsProvider>().loadAdjustmentHistory(
@@ -223,14 +224,17 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   color: colorScheme.primaryContainer.withValues(alpha: 0.4),
                   margin: EdgeInsets.zero,
                   child: ListTile(
-                    leading: Icon(Icons.info_outline,
-                        color: colorScheme.primary),
-                    title: Text(AppLocalizations.of(context).adminWalletAdjustUseUserMgmt),
+                    leading:
+                        Icon(Icons.info_outline, color: colorScheme.primary),
+                    title: Text(AppLocalizations.of(context)
+                        .adminWalletAdjustUseUserMgmt),
                     subtitle: Text(
-                        AppLocalizations.of(context).adminWalletAdjustUseUserMgmtSubtitle,
+                        AppLocalizations.of(context)
+                            .adminWalletAdjustUseUserMgmtSubtitle,
                         style: const TextStyle(fontSize: 12)),
                     trailing: TextButton(
-                      child: Text(AppLocalizations.of(context).adminWalletAdjustOpen),
+                      child: Text(
+                          AppLocalizations.of(context).adminWalletAdjustOpen),
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -242,7 +246,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                 ),
                 const SizedBox(height: 16),
                 _sectionCard(theme,
-                    title: AppLocalizations.of(context).adminWalletAdjustOperationType,
+                    title: AppLocalizations.of(context)
+                        .adminWalletAdjustOperationType,
                     child: _buildTypeSegment(context, colorScheme)),
                 const SizedBox(height: 12),
                 _sectionCard(
@@ -260,8 +265,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: colorScheme.outline),
+                            border: Border.all(color: colorScheme.outline),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -272,10 +276,11 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                               Expanded(
                                 child: _selectedUser == null
                                     ? Text(
-                                        AppLocalizations.of(context).adminWalletAdjustSelectUserHint,
+                                        AppLocalizations.of(context)
+                                            .adminWalletAdjustSelectUserHint,
                                         style: TextStyle(
-                                            color: colorScheme
-                                                .onSurfaceVariant),
+                                            color:
+                                                colorScheme.onSurfaceVariant),
                                       )
                                     : Column(
                                         crossAxisAlignment:
@@ -284,8 +289,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                                           Text(
                                             _selectedUser!.fullName,
                                             style: const TextStyle(
-                                                fontWeight:
-                                                    FontWeight.w600),
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           Text(
                                             _selectedUser!.email,
@@ -317,8 +321,10 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         decoration: CurrencyAmountInput.withCurrencySuffix(
                           context,
                           InputDecoration(
-                            labelText: AppLocalizations.of(context).adminWalletAdjustAmountLabel,
-                            hintText: AppLocalizations.of(context).adminWalletAdjustAmountHint,
+                            labelText: AppLocalizations.of(context)
+                                .adminWalletAdjustAmountLabel,
+                            hintText: AppLocalizations.of(context)
+                                .adminWalletAdjustAmountHint,
                             prefixIcon: Icon(
                               _selectedType == 'DEPOSIT'
                                   ? Icons.add_circle_outline
@@ -329,9 +335,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                             ),
                             border: const OutlineInputBorder(),
                           ),
-                          currencySymbol:
-                              _selectedCurrency?.symbol ??
-                                  kDefaultPlatformCashCurrencySymbol,
+                          currencySymbol: _selectedCurrency?.symbol ??
+                              kDefaultPlatformCashCurrencySymbol,
                         ),
                         validator: (v) {
                           final l10n = AppLocalizations.of(context);
@@ -355,8 +360,10 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                         maxLines: 2,
                         maxLength: 500,
                         decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).adminWalletAdjustNoteLabel,
-                          hintText: AppLocalizations.of(context).adminWalletAdjustReasonHint,
+                          labelText: AppLocalizations.of(context)
+                              .adminWalletAdjustNoteLabel,
+                          hintText: AppLocalizations.of(context)
+                              .adminWalletAdjustReasonHint,
                           prefixIcon: const Icon(Icons.notes_outlined),
                           border: const OutlineInputBorder(),
                         ),
@@ -390,8 +397,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
         ),
       ],
       selected: {_selectedType},
-      onSelectionChanged: (set) =>
-          setState(() => _selectedType = set.first),
+      onSelectionChanged: (set) => setState(() => _selectedType = set.first),
       style: ButtonStyle(
         iconColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -425,8 +431,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
           decoration: InputDecoration(
             hintText: 'Tìm coin...',
             prefixIcon: const Icon(Icons.search, size: 18),
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             isDense: true,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -449,8 +454,8 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
                   itemCount: _filteredCurrencies.length,
-                  separatorBuilder: (_, __) => Divider(
-                      height: 1, color: colorScheme.outlineVariant),
+                  separatorBuilder: (_, __) =>
+                      Divider(height: 1, color: colorScheme.outlineVariant),
                   itemBuilder: (_, i) {
                     final c = _filteredCurrencies[i];
                     final isSelected =
@@ -482,8 +487,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                           ? Icon(Icons.check,
                               color: colorScheme.primary, size: 18)
                           : null,
-                      onTap: () =>
-                          setState(() => _selectedCurrency = c),
+                      onTap: () => setState(() => _selectedCurrency = c),
                       mouseCursor: SystemMouseCursors.click,
                     );
                   },
@@ -508,7 +512,9 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       label: Text(
         provider.isAdjusting
             ? l10n.adminWalletAdjustProcessing
-            : (isDeposit ? l10n.adminWalletAdjustDepositBalance : l10n.adminWalletAdjustWithdrawBalance),
+            : (isDeposit
+                ? l10n.adminWalletAdjustDepositBalance
+                : l10n.adminWalletAdjustWithdrawBalance),
       ),
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -526,14 +532,16 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-                  child: Row(
+              child: Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _historyUserIdController,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context).adminWalletHistoryUserIdLabel,
-                        hintText: AppLocalizations.of(context).adminWalletSearchUserIdHint,
+                        labelText: AppLocalizations.of(context)
+                            .adminWalletHistoryUserIdLabel,
+                        hintText: AppLocalizations.of(context)
+                            .adminWalletSearchUserIdHint,
                         prefixIcon: const Icon(Icons.search),
                         border: const OutlineInputBorder(),
                         isDense: true,
@@ -542,25 +550,25 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed:
-                        provider.isLoadingHistory ? null : _loadHistory,
+                    onPressed: provider.isLoadingHistory ? null : _loadHistory,
                     child: provider.isLoadingHistory
                         ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(AppLocalizations.of(context).adminWalletSearchButton),
+                        : Text(AppLocalizations.of(context)
+                            .adminWalletSearchButton),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              child:               OutlinedButton.icon(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: OutlinedButton.icon(
                 icon: const Icon(Icons.people_alt_outlined, size: 16),
-                label: Text(AppLocalizations.of(context).adminWalletSearchByUserList),
+                label: Text(
+                    AppLocalizations.of(context).adminWalletSearchByUserList),
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -575,14 +583,13 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
                   ? const Center(child: CircularProgressIndicator())
                   : provider.adjustmentHistory.isEmpty
                       ? Center(
-                          child: Text(AppLocalizations.of(context).adminWalletNoAdjustmentHistory),
+                          child: Text(AppLocalizations.of(context)
+                              .adminWalletNoAdjustmentHistory),
                         )
                       : ListView.separated(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           itemCount: provider.adjustmentHistory.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1),
+                          separatorBuilder: (_, __) => const Divider(height: 1),
                           itemBuilder: (context, i) => _AdjustmentTile(
                             item: provider.adjustmentHistory[i],
                             l10n: AppLocalizations.of(context),
@@ -650,8 +657,10 @@ class _AdjustmentTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${l10n.adminWalletTargetLabel}: ${item.targetEmail ?? item.targetUserId}'),
-          Text('${l10n.adminWalletActorLabel}: ${item.actorEmail ?? item.actorUserId}'),
+          Text(
+              '${l10n.adminWalletTargetLabel}: ${item.targetEmail ?? item.targetUserId}'),
+          Text(
+              '${l10n.adminWalletActorLabel}: ${item.actorEmail ?? item.actorUserId}'),
           if (item.note != null && item.note!.isNotEmpty)
             Text(
               '${l10n.adminUserDetailNoteLabel}: ${item.note}',

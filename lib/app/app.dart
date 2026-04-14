@@ -12,11 +12,12 @@ import 'package:crypto_trading_app/data/datasources/payment_config_remote_dataso
 import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
 import 'package:crypto_trading_app/data/datasources/withdrawal_admin_remote_datasource.dart';
 import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
+import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
@@ -27,12 +28,12 @@ import 'package:crypto_trading_app/presentation/providers/market_maker_provider.
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
+import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/wallets_provider.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/screens/main_screen.dart';
 
@@ -61,6 +62,9 @@ class CryptoTradingApp extends StatelessWidget {
             DioClient.onForbidden = provider.handleForbidden;
             return provider;
           },
+        ),
+        Provider<AuthWalletFlowService>.value(
+          value: di.sl<AuthWalletFlowService>(),
         ),
         ChangeNotifierProvider(
           create: (_) => CurrenciesProvider(

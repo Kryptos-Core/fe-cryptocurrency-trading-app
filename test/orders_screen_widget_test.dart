@@ -13,12 +13,13 @@ import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart'
 import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
 import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
-import 'package:crypto_trading_app/domain/repositories/orders_repository.dart';
-import 'package:crypto_trading_app/domain/repositories/wallet_repository.dart';
+import 'package:crypto_trading_app/features/wallets/domain/repositories/wallet_repository.dart';
+import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/orders_provider.dart';
-import 'package:crypto_trading_app/screens/orders_screen.dart';
+import 'package:crypto_trading_app/presentation/widgets/market_row.dart';
+import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
+import 'package:crypto_trading_app/features/orders/presentation/screens/orders_screen.dart';
 
 class FakeOrdersRepository implements OrdersRepository {
   int createOrderCalls = 0;
@@ -168,7 +169,8 @@ class FakeWalletRepository implements WalletRepository {
   }
 
   @override
-  Future<Either<Failure, List<AdminWalletAdjustment>>> getAdminAdjustmentHistory(
+  Future<Either<Failure, List<AdminWalletAdjustment>>>
+      getAdminAdjustmentHistory(
     String userId, {
     int limit = 50,
     int offset = 0,
@@ -396,11 +398,20 @@ Widget _buildTestApp({
 Future<void> _selectFirstMarket(WidgetTester tester) async {
   await tester.tap(find.byKey(const Key('trading_pair_picker')));
   await tester.pumpAndSettle();
-  final sheetSymbol = find.descendant(
-    of: find.byKey(const Key('trading_pair_picker_sheet')),
-    matching: find.text('BTC/USDT'),
+  final sheet = find.byKey(const Key('trading_pair_picker_sheet'));
+  final marketRows =
+      find.descendant(of: sheet, matching: find.byType(MarketRow));
+
+  for (var i = 0; i < 10 && marketRows.evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+
+  expect(
+    marketRows,
+    findsWidgets,
+    reason: 'Trading pair picker should show at least one market row',
   );
-  await tester.tap(sheetSymbol.first);
+  await tester.tap(marketRows.first);
   await tester.pumpAndSettle();
 }
 
