@@ -1,10 +1,15 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-# Suppress CMP0175 from webview_windows plugin (add_custom_command DEPENDS) before any subdir
-cmake_policy(SET CMP0175 OLD)
-# Workaround: Firebase C++ SDK declares cmake_minimum_required < 3.5 which CMake >= 3.30 rejects.
-# This flag tells CMake to treat old cmake_minimum_required declarations as 3.5+ compatible.
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+# webview_windows currently leaves CMP0175 unset in its own CMake project.
+# Provide a default only when this policy exists in the running CMake version.
+if(POLICY CMP0175)
+  set(CMAKE_POLICY_DEFAULT_CMP0175 OLD)
+endif()
+# Firebase C++ SDK still declares cmake_minimum_required(VERSION 3.1).
+# Raise policy floor only on newer CMake versions where this deprecation appears.
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.31")
+  set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
+endif()
 
 # Let CMake/Flutter auto-detect Visual Studio (e.g. VS 2022). If you previously
 # had VS 2026 Insiders and see "could not find specified instance", run:
@@ -24,7 +29,9 @@ set(BINARY_NAME "crypto_trading_app")
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 # Keep CMP0175 OLD so webview_windows plugin add_custom_command(DEPENDS) does not warn
-cmake_policy(SET CMP0175 OLD)
+if(POLICY CMP0175)
+  cmake_policy(SET CMP0175 OLD)
+endif()
 
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)

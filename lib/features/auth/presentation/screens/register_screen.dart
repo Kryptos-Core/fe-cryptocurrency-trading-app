@@ -364,18 +364,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       validator: (value) {
                         final l10n = AppLocalizations.of(context);
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return l10n.registerPasswordRequired;
-                        if (value.length < 8)
+                        }
+                        if (value.length < 8) {
                           return l10n.registerPasswordMinLength;
-                        if (!RegExp(r'[A-Z]').hasMatch(value))
+                        }
+                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
                           return l10n.registerPasswordNeedsUppercase;
-                        if (!RegExp(r'[a-z]').hasMatch(value))
+                        }
+                        if (!RegExp(r'[a-z]').hasMatch(value)) {
                           return l10n.registerPasswordNeedsLowercase;
-                        if (!RegExp(r'[0-9]').hasMatch(value))
+                        }
+                        if (!RegExp(r'[0-9]').hasMatch(value)) {
                           return l10n.registerPasswordNeedsNumber;
-                        if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value))
+                        }
+                        if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                           return l10n.registerPasswordNeedsSpecial;
+                        }
                         return null;
                       },
                     ),
@@ -405,10 +411,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       validator: (value) {
                         final l10n = AppLocalizations.of(context);
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return l10n.registerConfirmPasswordRequired;
-                        if (value != _passwordController.text)
+                        }
+                        if (value != _passwordController.text) {
                           return l10n.registerPasswordsNoMatch;
+                        }
                         return null;
                       },
                     ),

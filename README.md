@@ -20,6 +20,20 @@ Kiến trúc màn hình và cấu trúc code: [`ARCHITECTURE.md`](ARCHITECTURE.m
 flutter doctor -v
 ```
 
+## Pin CMake toolchain (CI/local)
+
+Để tránh khác biệt giữa máy dev, FE pin version Flutter + CMake tại `tools/toolchain-versions.json`.
+
+- **CI:** workflow Windows dùng đúng Flutter/CMake pin trong file này.
+- **Local (Windows):** chạy script sau để tải CMake đúng version và prepend vào PATH terminal hiện tại:
+
+```powershell
+cd scripts
+.\pin-cmake-windows.ps1
+```
+
+Tài liệu chi tiết: `scripts/README-FLUTTER.md`.
+
 ## Cài đặt và chạy
 
 ```bash

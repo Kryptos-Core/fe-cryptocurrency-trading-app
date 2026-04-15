@@ -113,6 +113,31 @@ Nếu trước đây bạn đã lưu các biến đó ở mức **User**, xoá l
 
 Sau đó đóng toàn bộ terminal/VS Code rồi mở lại.
 
+## Pin CMake version cho local (khớp CI)
+
+Repo FE có file version nguồn duy nhất tại `tools/toolchain-versions.json` (Flutter + CMake).
+
+Để tải đúng bản CMake đã pin và inject vào terminal hiện tại:
+
+```powershell
+cd path\to\fe-cryptocurrency-trading-app\scripts
+.\pin-cmake-windows.ps1
+```
+
+Nếu muốn ghi vào User PATH (persist qua terminal mới):
+
+```powershell
+.\pin-cmake-windows.ps1 -PathScope User
+```
+
+Nếu cần tải lại sạch bản đã pin:
+
+```powershell
+.\pin-cmake-windows.ps1 -ForceDownload
+```
+
+Script sẽ tải CMake portable vào thư mục `.toolchains/` trong repo FE, nên không cần quyền admin.
+
 ## Khi nào mới nên override CMake generator?
 
 Chỉ nên tự set `CMAKE_GENERATOR*` khi bạn có lý do rõ ràng và đã xác minh chính xác generator + instance path đang dùng. Đây là trường hợp ngoại lệ để debug môi trường build, không phải cấu hình mặc định nên lưu lâu dài trong máy.

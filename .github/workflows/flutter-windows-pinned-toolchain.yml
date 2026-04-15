@@ -1,0 +1,73 @@
+name: FE Windows CI (Pinned CMake)
+
+on:
+  pull_request:
+    paths:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+
+    defaults:
+      run:
+        working-directory: .
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Read pinned toolchain versions
+        id: versions
+        run: |
+          $versions = Get-Content tools/toolchain-versions.json -Raw | ConvertFrom-Json
+          if ([string]::IsNullOrWhiteSpace($versions.cmake.version)) {
+            throw "Missing 'cmake.version' in tools/toolchain-versions.json"
+          }
+          if ([string]::IsNullOrWhiteSpace($versions.flutter)) {
+            throw "Missing 'flutter' in tools/toolchain-versions.json"
+          }
+          "cmake=$($versions.cmake.version)" >> $env:GITHUB_OUTPUT
+          "flutter=$($versions.flutter)" >> $env:GITHUB_OUTPUT
+
+      - name: Setup pinned CMake
+        uses: jwlawson/actions-setup-cmake@0d6a7d60b009d01c9e7523be22153ff8f19460d3
+        with:
+          cmake-version: ${{ steps.versions.outputs.cmake }}
+
+      - name: Verify CMake version
+        env:
+          EXPECTED_CMAKE_VERSION: ${{ steps.versions.outputs.cmake }}
+        run: |
+          $versionLine = cmake --version | Select-Object -First 1
+          if ($versionLine -notmatch [Regex]::Escape($env:EXPECTED_CMAKE_VERSION)) {
+            throw "Expected CMake $env:EXPECTED_CMAKE_VERSION but got: $versionLine"
+          }
+          Write-Host $versionLine
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ steps.versions.outputs.flutter }}
+          cache: true
+
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Test
+        run: flutter test
+
+      - name: Build Windows debug
+        run: flutter build windows --debug

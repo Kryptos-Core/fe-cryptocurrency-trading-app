@@ -1,0 +1,11 @@
+{
+  "flutter": "3.41.6",
+  "cmake": {
+    "version": "3.31.6",
+    "sha256": {
+      "windows-x86_64": "d163cd3ab4959b0a53fa8988f2ddbd2e6c501658201e6a154386bad9dbe4f836",
+      "windows-arm64": "fa648fd417f44e6cb08928964a480ade0d18df421f9b623639dba22f9b301e4e",
+      "windows-i386": "005ef676975aa0f8348fc2c8011a913f9676f07f602ca624ee0811b427d3fd84"
+    }
+  }
+}

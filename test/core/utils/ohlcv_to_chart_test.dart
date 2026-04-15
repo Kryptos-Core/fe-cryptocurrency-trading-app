@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:crypto_trading_app/core/services/websocket_service.dart'
-    show OHLCData;
 import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
 import 'package:crypto_trading_app/domain/entities/market_pair.dart';
 
