@@ -781,6 +781,10 @@
   "treasurySweepTooltip": "Gom tiền từ ví này về ví chính",
   "treasurySweepDialogTitle": "Sweep về ví chính",
   "treasurySweepTargetLabel": "Sweep về",
+  "treasuryOpsAssetLabel": "Tài sản",
+  "treasuryOpsUsdtTrc20Short": "USDT",
+  "treasuryOpsSweepUsdtHint": "Toàn bộ USDT (TRC-20) trên ví này sẽ được gửi về ví chính đã chọn.",
+  "treasuryOpsNativeAssetOptionHint": "Coin gốc của mạng",
   "treasuryFundAction": "Cấp vốn",
   "treasuryFundTooltip": "Nạp tiền từ ví chính vào ví này",
   "treasurySweepQueued": "Đã nhận yêu cầu gom về. Số dư trên thẻ sẽ cập nhật khi giao dịch trên chuỗi hoàn tất.",
@@ -1241,7 +1245,7 @@
       "dateTime": { "type": "String" }
     }
   },
-  "treasuryTrc20UsdtBalanceLine": "Tether USDT (TRC-20): {balance}",
+  "treasuryTrc20UsdtBalanceLine": "Tether USDT (TRC-20): {balance} USDT",
   "@treasuryTrc20UsdtBalanceLine": {
     "placeholders": {
       "balance": { "type": "String" }

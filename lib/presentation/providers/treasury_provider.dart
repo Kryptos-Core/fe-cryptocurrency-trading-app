@@ -402,14 +402,21 @@ class TreasuryProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> sweepWallet(String walletId, {String? mainWalletId}) async {
+  Future<bool> sweepWallet(
+    String walletId, {
+    String? mainWalletId,
+    String asset = 'NATIVE',
+  }) async {
     _isSubmitting = true;
     _resetDisplayedError();
     notifyListeners();
 
     try {
-      final result =
-          await _dataSource.sweepWallet(walletId, mainWalletId: mainWalletId);
+      final result = await _dataSource.sweepWallet(
+        walletId,
+        mainWalletId: mainWalletId,
+        asset: asset,
+      );
       final opId = _parseOperationId(result);
       _trackPendingOnChain(walletId, opId);
       await refreshAll();
@@ -426,14 +433,18 @@ class TreasuryProvider extends ChangeNotifier {
   Future<bool> fundWallet({
     required String walletId,
     required String amount,
+    String asset = 'NATIVE',
   }) async {
     _isSubmitting = true;
     _resetDisplayedError();
     notifyListeners();
 
     try {
-      final result =
-          await _dataSource.fundWallet(walletId: walletId, amount: amount);
+      final result = await _dataSource.fundWallet(
+        walletId: walletId,
+        amount: amount,
+        asset: asset,
+      );
       final opId = _parseOperationId(result);
       _trackPendingOnChain(walletId, opId);
       await refreshAll();

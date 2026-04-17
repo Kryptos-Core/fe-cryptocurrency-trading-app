@@ -55,11 +55,16 @@ abstract class TreasuryRemoteDataSource {
 
   Future<TreasuryMainWalletModel> rejectMainWalletDeletion(String mainWalletId);
 
-  Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId});
+  Future<Map<String, dynamic>> sweepWallet(
+    String walletId, {
+    String? mainWalletId,
+    String asset = 'NATIVE',
+  });
 
   Future<Map<String, dynamic>> fundWallet({
     required String walletId,
     required String amount,
+    String asset = 'NATIVE',
   });
 
   Future<TreasuryPageResult<TreasuryOperationModel>> listOperations({
@@ -331,11 +336,19 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId}) async {
+  Future<Map<String, dynamic>> sweepWallet(
+    String walletId, {
+    String? mainWalletId,
+    String asset = 'NATIVE',
+  }) async {
     try {
+      final body = <String, dynamic>{'asset': asset};
+      if (mainWalletId != null && mainWalletId.isNotEmpty) {
+        body['mainWalletId'] = mainWalletId;
+      }
       final response = await dioClient.dio.post(
         ApiConstants.treasuryWalletSweep(walletId),
-        data: mainWalletId != null ? {'mainWalletId': mainWalletId} : null,
+        data: body,
       );
       return _unwrap<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {
@@ -347,11 +360,12 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRemoteDataSource {
   Future<Map<String, dynamic>> fundWallet({
     required String walletId,
     required String amount,
+    String asset = 'NATIVE',
   }) async {
     try {
       final response = await dioClient.dio.post(
         ApiConstants.treasuryWalletFund(walletId),
-        data: {'amount': amount},
+        data: {'amount': amount, 'asset': asset},
       );
       return _unwrap<Map<String, dynamic>>(response.data);
     } on DioException catch (e) {

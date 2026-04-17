@@ -2292,6 +2292,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasurySweepTargetLabel => 'Sweep về';
 
   @override
+  String get treasuryOpsAssetLabel => 'Tài sản';
+
+  @override
+  String get treasuryOpsUsdtTrc20Short => 'USDT';
+
+  @override
+  String get treasuryOpsSweepUsdtHint =>
+      'Toàn bộ USDT (TRC-20) trên ví này sẽ được gửi về ví chính đã chọn.';
+
+  @override
+  String get treasuryOpsNativeAssetOptionHint => 'Coin gốc của mạng';
+
+  @override
   String get treasuryFundAction => 'Cấp vốn';
 
   @override
@@ -3402,7 +3415,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String treasuryTrc20UsdtBalanceLine(String balance) {
-    return 'Tether USDT (TRC-20): $balance';
+    return 'Tether USDT (TRC-20): $balance USDT';
   }
 
   @override

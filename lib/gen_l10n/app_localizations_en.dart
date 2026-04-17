@@ -2292,6 +2292,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasurySweepTargetLabel => 'Sweep to';
 
   @override
+  String get treasuryOpsAssetLabel => 'Asset';
+
+  @override
+  String get treasuryOpsUsdtTrc20Short => 'USDT';
+
+  @override
+  String get treasuryOpsSweepUsdtHint =>
+      'Transfers all USDT (TRC-20) on this wallet to the selected main wallet.';
+
+  @override
+  String get treasuryOpsNativeAssetOptionHint => 'Network native coin';
+
+  @override
   String get treasuryFundAction => 'Fund wallet';
 
   @override
@@ -3403,7 +3416,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String treasuryTrc20UsdtBalanceLine(String balance) {
-    return 'USDT (TRC-20): $balance';
+    return 'USDT (TRC-20): $balance USDT';
   }
 
   @override

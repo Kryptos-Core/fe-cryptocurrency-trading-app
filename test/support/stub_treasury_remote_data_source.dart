@@ -42,6 +42,7 @@ class StubTreasuryRemoteDataSource implements TreasuryRemoteDataSource {
   Future<Map<String, dynamic>> fundWallet({
     required String walletId,
     required String amount,
+    String asset = 'NATIVE',
   }) async =>
       _u();
 
@@ -112,7 +113,12 @@ class StubTreasuryRemoteDataSource implements TreasuryRemoteDataSource {
   Future<TreasuryMainWalletModel> setDefaultMainWallet(String id) async => _u();
 
   @override
-  Future<Map<String, dynamic>> sweepWallet(String walletId, {String? mainWalletId}) async => _u();
+  Future<Map<String, dynamic>> sweepWallet(
+    String walletId, {
+    String? mainWalletId,
+    String asset = 'NATIVE',
+  }) async =>
+      _u();
 
   @override
   Future<TreasuryMainWalletModel> updateMainWallet({

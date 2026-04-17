@@ -14,6 +14,9 @@ import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/treasury_chain_dropdown.dart';
 
+typedef _TreasurySweepDialogResult = ({String mainWalletId, String asset});
+typedef _TreasuryFundDialogResult = ({String amount, String asset});
+
 String _formatBalance(String? balance) {
   if (balance == null || balance.isEmpty) return '—';
   final parsed = double.tryParse(balance);
@@ -115,7 +118,7 @@ void _showTreasuryQueuedSnackBar(
   );
 }
 
-Future<String?> _showSweepDialog(
+Future<_TreasurySweepDialogResult?> _showSweepDialog(
   BuildContext context,
   TreasuryWalletModel wallet,
   TreasuryProvider provider,
@@ -130,50 +133,100 @@ Future<String?> _showSweepDialog(
           (m) => m.isDefault,
           orElse: () => mainWallets.first,
         ).mainWalletId);
+  final isTron = wallet.chain.startsWith('TRON_');
+  String sweepAsset = 'NATIVE';
 
-  return showDialog<String>(
+  return showDialog<_TreasurySweepDialogResult>(
     context: context,
     builder: (ctx) {
       return StatefulBuilder(
         builder: (context, setState) {
+          final nativeChip = (wallet.symbol ??
+                  (mainWallets.isNotEmpty ? mainWallets.first.symbol : null) ??
+                  'TRX')
+              .trim();
           return AlertDialog(
             title: Text(l10n.treasurySweepDialogTitle),
-            content: mainWallets.isEmpty
-                ? Text(
-                    'No main wallets configured for ${wallet.chain}. Sweep will use default.',
-                    style: const TextStyle(fontSize: 12),
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isTron) ...[
+                  Text(
+                    l10n.treasuryOpsAssetLabel,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      Text(l10n.treasurySweepTargetLabel),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedId,
-                        decoration: const InputDecoration(border: OutlineInputBorder()),
-                        items: mainWallets
-                            .map(
-                              (m) => DropdownMenuItem(
-                                value: m.mainWalletId,
-                                child: Text(
-                                  m.label ?? '${m.address.substring(0, 10)}... (${m.balance} ${m.symbol})',
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) => setState(() => selectedId = v),
+                      FilterChip(
+                        label: Text(nativeChip.isEmpty ? 'TRX' : nativeChip),
+                        selected: sweepAsset == 'NATIVE',
+                        onSelected: (_) => setState(() => sweepAsset = 'NATIVE'),
+                      ),
+                      FilterChip(
+                        label: Text(l10n.treasuryOpsUsdtTrc20Short),
+                        selected: sweepAsset == 'USDT_TRC20',
+                        onSelected: (_) => setState(() => sweepAsset = 'USDT_TRC20'),
                       ),
                     ],
                   ),
+                  if (sweepAsset == 'USDT_TRC20') ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.treasuryOpsSweepUsdtHint,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                ],
+                if (mainWallets.isEmpty)
+                  Text(
+                    'No main wallets configured for ${wallet.chain}. Sweep will use default.',
+                    style: const TextStyle(fontSize: 12),
+                  )
+                else ...[
+                  Text(l10n.treasurySweepTargetLabel),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedId,
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                    items: mainWallets
+                        .map(
+                          (m) => DropdownMenuItem(
+                            value: m.mainWalletId,
+                            child: Text(
+                              m.label ??
+                                  '${m.address.substring(0, 10)}... (${m.balance} ${m.symbol})',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => selectedId = v),
+                  ),
+                ],
+              ],
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(l10n.treasuryCancelAction),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(ctx, selectedId ?? ''),
+                onPressed: () => Navigator.pop(
+                  ctx,
+                  (
+                    mainWalletId: selectedId ?? '',
+                    asset: isTron ? sweepAsset : 'NATIVE',
+                  ),
+                ),
                 child: Text(l10n.treasuryConfirmAction),
               ),
             ],
@@ -547,11 +600,13 @@ class _TreasuryWalletCard extends StatelessWidget {
                     message: l10n.treasurySweepTooltip,
                     child: OutlinedButton.icon(
                       onPressed: () async {
-                        final mainWalletId = await _showSweepDialog(context, wallet, provider);
-                        if (mainWalletId == null) return;
+                        final sweep = await _showSweepDialog(context, wallet, provider);
+                        if (sweep == null) return;
                         final ok = await provider.sweepWallet(
                           wallet.walletId,
-                          mainWalletId: mainWalletId.isEmpty ? null : mainWalletId,
+                          mainWalletId:
+                              sweep.mainWalletId.isEmpty ? null : sweep.mainWalletId,
+                          asset: sweep.asset,
                         );
                         if (!context.mounted) return;
                         _showTreasuryQueuedSnackBar(
@@ -586,57 +641,113 @@ class _TreasuryWalletCard extends StatelessWidget {
                             )
                           : null;
                       final amountCtrl = TextEditingController();
-                      final amount = await showDialog<String>(
+                      final fundNativeSymbol =
+                          (mainWallet?.symbol ?? wallet.symbol ?? '').trim();
+                      final isTronFund = wallet.chain.startsWith('TRON_');
+                      String fundAsset = 'NATIVE';
+                      final fundResult = await showDialog<_TreasuryFundDialogResult>(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text(l10n.treasuryFundDialogTitle),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (mainWallet != null) ...[
-                                Text(
-                                  '${l10n.treasuryBalanceLabel}: ${_formatBalance(mainWallet.balance)} ${mainWallet.symbol}',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                                if (mainWallet.usdtTrc20Balance != null &&
-                                    mainWallet.chain.startsWith('TRON_')) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.treasuryTrc20UsdtBalanceLine(
-                                      _formatBalance(mainWallet.usdtTrc20Balance!),
+                        builder: (ctx) {
+                          return StatefulBuilder(
+                            builder: (context, setSt) {
+                              final suffix = fundAsset == 'USDT_TRC20'
+                                  ? l10n.treasuryOpsUsdtTrc20Short
+                                  : (fundNativeSymbol.isEmpty ? null : fundNativeSymbol);
+                              return AlertDialog(
+                                title: Text(l10n.treasuryFundDialogTitle),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (mainWallet != null) ...[
+                                      Text(
+                                        '${l10n.treasuryBalanceLabel}: ${_formatBalance(mainWallet.balance)} ${mainWallet.symbol}',
+                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                      ),
+                                      if (mainWallet.usdtTrc20Balance != null &&
+                                          mainWallet.chain.startsWith('TRON_')) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          l10n.treasuryTrc20UsdtBalanceLine(
+                                            _formatBalance(mainWallet.usdtTrc20Balance!),
+                                          ),
+                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        ),
+                                      ],
+                                      const SizedBox(height: 12),
+                                    ],
+                                    if (isTronFund) ...[
+                                      Text(
+                                        l10n.treasuryOpsAssetLabel,
+                                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: [
+                                          FilterChip(
+                                            label: Text(
+                                              fundNativeSymbol.isEmpty ? 'TRX' : fundNativeSymbol,
+                                            ),
+                                            selected: fundAsset == 'NATIVE',
+                                            onSelected: (_) => setSt(() => fundAsset = 'NATIVE'),
+                                          ),
+                                          FilterChip(
+                                            label: Text(l10n.treasuryOpsUsdtTrc20Short),
+                                            selected: fundAsset == 'USDT_TRC20',
+                                            onSelected: (_) => setSt(() => fundAsset = 'USDT_TRC20'),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                    ],
+                                    TextField(
+                                      controller: amountCtrl,
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(decimal: true),
+                                      inputFormatters: [AmountInputFormatter()],
+                                      decoration: InputDecoration(
+                                        labelText: l10n.treasuryAmountLabel,
+                                        hintText: l10n.treasuryAmountHint,
+                                        border: const OutlineInputBorder(),
+                                        suffixText: suffix,
+                                      ),
                                     ),
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: Text(l10n.treasuryCancelAction),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.pop(
+                                      ctx,
+                                      (
+                                        amount: amountCtrl.text.trim(),
+                                        asset: isTronFund ? fundAsset : 'NATIVE',
+                                      ),
+                                    ),
+                                    child: Text(l10n.treasuryConfirmAction),
                                   ),
                                 ],
-                                const SizedBox(height: 12),
-                              ],
-                              TextField(
-                                controller: amountCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [AmountInputFormatter()],
-                                decoration: InputDecoration(
-                                  labelText: l10n.treasuryAmountLabel,
-                                  hintText: l10n.treasuryAmountHint,
-                                  border: const OutlineInputBorder(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.treasuryCancelAction)),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(ctx, amountCtrl.text.trim()),
-                              child: Text(l10n.treasuryConfirmAction),
-                            ),
-                          ],
-                        ),
+                              );
+                            },
+                          );
+                        },
                       );
 
-                      if (amount == null || amount.isEmpty) return;
-                      final parsedAmount = parseAmountInput(amount);
+                      if (fundResult == null || fundResult.amount.isEmpty) return;
+                      final parsedAmount = parseAmountInput(fundResult.amount);
                       if (parsedAmount.isEmpty) return;
-                      final ok = await provider.fundWallet(walletId: wallet.walletId, amount: parsedAmount);
+                      final ok = await provider.fundWallet(
+                        walletId: wallet.walletId,
+                        amount: parsedAmount,
+                        asset: fundResult.asset,
+                      );
                       if (!context.mounted) return;
                       _showTreasuryQueuedSnackBar(
                         context,

@@ -560,6 +560,7 @@ class _TradingChartWidgetState extends State<_TradingChartWidget> {
                   child: SizedBox(
                     height: tabCount == 2 ? 540 : 500,
                     child: TabBarView(
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _InternalChartTab(
                           key: _internalTabKey,

@@ -878,6 +878,10 @@
   "treasurySweepTooltip": "Sweep funds from this wallet to the main wallet",
   "treasurySweepDialogTitle": "Sweep to main wallet",
   "treasurySweepTargetLabel": "Sweep to",
+  "treasuryOpsAssetLabel": "Asset",
+  "treasuryOpsUsdtTrc20Short": "USDT",
+  "treasuryOpsSweepUsdtHint": "Transfers all USDT (TRC-20) on this wallet to the selected main wallet.",
+  "treasuryOpsNativeAssetOptionHint": "Network native coin",
   "treasuryFundAction": "Fund wallet",
   "treasuryFundTooltip": "Fund this wallet from the main wallet",
   "treasurySweepQueued": "Sweep request received. This card's balance will update when the on-chain transfer completes.",
@@ -1341,7 +1345,7 @@
       "dateTime": { "type": "String" }
     }
   },
-  "treasuryTrc20UsdtBalanceLine": "USDT (TRC-20): {balance}",
+  "treasuryTrc20UsdtBalanceLine": "USDT (TRC-20): {balance} USDT",
   "@treasuryTrc20UsdtBalanceLine": {
     "placeholders": {
       "balance": { "type": "String" }

@@ -4209,6 +4209,30 @@ abstract class AppLocalizations {
   /// **'Sweep to'**
   String get treasurySweepTargetLabel;
 
+  /// No description provided for @treasuryOpsAssetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get treasuryOpsAssetLabel;
+
+  /// No description provided for @treasuryOpsUsdtTrc20Short.
+  ///
+  /// In en, this message translates to:
+  /// **'USDT'**
+  String get treasuryOpsUsdtTrc20Short;
+
+  /// No description provided for @treasuryOpsSweepUsdtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers all USDT (TRC-20) on this wallet to the selected main wallet.'**
+  String get treasuryOpsSweepUsdtHint;
+
+  /// No description provided for @treasuryOpsNativeAssetOptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Network native coin'**
+  String get treasuryOpsNativeAssetOptionHint;
+
   /// No description provided for @treasuryFundAction.
   ///
   /// In en, this message translates to:
@@ -6266,7 +6290,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryTrc20UsdtBalanceLine.
   ///
   /// In en, this message translates to:
-  /// **'USDT (TRC-20): {balance}'**
+  /// **'USDT (TRC-20): {balance} USDT'**
   String treasuryTrc20UsdtBalanceLine(String balance);
 
   /// No description provided for @treasuryMainWalletBalanceLine.
