@@ -1027,31 +1027,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onchainDepositDesc =>
-      'Send to the platform address, then paste the tx hash below.';
+      'Send assets to the platform address or scan the QR code. Confirmation happens automatically; watch status in recent transactions below.';
+
+  @override
+  String get onchainAutoConfirmBanner =>
+      'Deposits are confirmed automatically in the background; this can take a few minutes. Status appears in recent transactions below.';
+
+  @override
+  String get onchainDepositMonitorTitle => 'Your on-chain activity';
+
+  @override
+  String get onchainDepositMonitorDesc =>
+      'Deposits and other on-chain movements are detected automatically. Use filters below; copy hashes or addresses when you need to search a block explorer or contact support.';
+
+  @override
+  String get onchainFieldInternalId => 'Internal reference';
+
+  @override
+  String get onchainFieldFromAddress => 'From address';
+
+  @override
+  String get onchainFieldToAddress => 'To address';
+
+  @override
+  String get onchainFieldConfirmations => 'Confirmations';
+
+  @override
+  String get onchainFieldCreatedAt => 'Created';
+
+  @override
+  String get onchainFieldConfirmedAt => 'Confirmed';
+
+  @override
+  String get onchainValueNotAvailable => 'Not yet available';
+
+  @override
+  String onchainCreditConversionLine(
+      String credited, String native, String rate) {
+    return 'Credited: $credited · rate 1 $native = $rate USDT';
+  }
 
   @override
   String onchainDepositTransitioningMinutes(int minutes) {
-    return 'Wallet addresses are updating (~$minutes min left). The QR code will refresh automatically when done.';
+    return 'Wallet addresses are updating (~$minutes min left). This list will refresh when ready.';
   }
 
   @override
   String get onchainDepositTransitioningUnderOneMinute =>
-      'Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.';
+      'Wallet addresses are updating (under one minute left). This list will refresh when ready.';
 
   @override
   String get onchainDepositTransitioningFinalize =>
-      'Wallet addresses are finishing activation. The QR code will refresh automatically when done.';
+      'Wallet addresses are finishing activation. This list will refresh when ready.';
 
   @override
   String get onchainDepositTransitioningUnknown =>
-      'Wallet addresses are updating. The QR code will refresh automatically when done.';
+      'Wallet addresses are updating. This list will refresh when ready.';
 
   @override
   String get platformDepositAddress => 'Platform deposit address';
 
   @override
   String sendAssetsToAddress(String network) {
-    return 'Send $network assets to this address, then submit tx hash below.';
+    return 'Send $network assets to this address or scan the QR code.';
   }
 
   @override
@@ -1150,6 +1188,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txTypeTransfers => 'Transfers';
 
   @override
+  String get txTypeFund => 'Hot wallet funding';
+
+  @override
+  String get txTypeSweep => 'Treasury sweep';
+
+  @override
   String get txTypeUnknown => 'Other';
 
   @override
@@ -1157,7 +1201,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noOnchainActivityDesc =>
-      'Deposits you submit will appear here so users can review status and confirmations.';
+      'When the platform detects an on-chain transfer involving your account, it will appear here with full details, status, and confirmations.';
 
   @override
   String get trySwitchingFiltersDeposit =>

@@ -1028,31 +1028,69 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get onchainDepositDesc =>
-      'Gửi token tới địa chỉ sàn, dán tx hash bên dưới.';
+      'Gửi token tới địa chỉ sàn hoặc quét mã QR. Hệ thống tự xác nhận; theo dõi trạng thái ở giao dịch gần đây bên dưới.';
+
+  @override
+  String get onchainAutoConfirmBanner =>
+      'Hệ thống tự động xác nhận nạp on-chain; có thể mất vài phút. Trạng thái hiển thị ở giao dịch gần đây bên dưới.';
+
+  @override
+  String get onchainDepositMonitorTitle => 'Hoạt động on-chain của bạn';
+
+  @override
+  String get onchainDepositMonitorDesc =>
+      'Nạp và các biến động on-chain được hệ thống phát hiện tự động. Lọc theo mạng/loại bên dưới; sao chép hash hoặc địa chỉ khi cần tra explorer hoặc liên hệ support.';
+
+  @override
+  String get onchainFieldInternalId => 'Mã tham chiếu nội bộ';
+
+  @override
+  String get onchainFieldFromAddress => 'Địa chỉ gửi';
+
+  @override
+  String get onchainFieldToAddress => 'Địa chỉ nhận';
+
+  @override
+  String get onchainFieldConfirmations => 'Số xác nhận';
+
+  @override
+  String get onchainFieldCreatedAt => 'Thời gian tạo';
+
+  @override
+  String get onchainFieldConfirmedAt => 'Đã xác nhận lúc';
+
+  @override
+  String get onchainValueNotAvailable => 'Chưa có';
+
+  @override
+  String onchainCreditConversionLine(
+      String credited, String native, String rate) {
+    return 'Đã quy đổi: $credited · tỷ giá 1 $native = $rate USDT';
+  }
 
   @override
   String onchainDepositTransitioningMinutes(int minutes) {
-    return 'Địa chỉ ví đang được cập nhật (còn ~$minutes phút). Mã QR sẽ tự làm mới khi xong.';
+    return 'Địa chỉ ví đang được cập nhật (còn ~$minutes phút). Danh sách sẽ tự làm mới khi xong.';
   }
 
   @override
   String get onchainDepositTransitioningUnderOneMinute =>
-      'Địa chỉ ví đang được cập nhật (còn dưới 1 phút). Mã QR sẽ tự làm mới khi xong.';
+      'Địa chỉ ví đang được cập nhật (còn dưới 1 phút). Danh sách sẽ tự làm mới khi xong.';
 
   @override
   String get onchainDepositTransitioningFinalize =>
-      'Địa chỉ ví đang hoàn tất kích hoạt. Mã QR sẽ tự làm mới khi xong.';
+      'Địa chỉ ví đang hoàn tất kích hoạt. Danh sách sẽ tự làm mới khi xong.';
 
   @override
   String get onchainDepositTransitioningUnknown =>
-      'Địa chỉ ví đang được cập nhật. Mã QR sẽ tự làm mới khi xong.';
+      'Địa chỉ ví đang được cập nhật. Danh sách sẽ tự làm mới khi xong.';
 
   @override
   String get platformDepositAddress => 'Địa chỉ nạp của sàn';
 
   @override
   String sendAssetsToAddress(String network) {
-    return 'Gửi tài sản $network đến địa chỉ này, sau đó gửi tx hash bên dưới.';
+    return 'Gửi tài sản $network đến địa chỉ này hoặc quét mã QR.';
   }
 
   @override
@@ -1150,6 +1188,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get txTypeTransfers => 'Chuyển khoản';
 
   @override
+  String get txTypeFund => 'Nạp quỹ ví nóng';
+
+  @override
+  String get txTypeSweep => 'Thu hồi quỹ (sweep)';
+
+  @override
   String get txTypeUnknown => 'Khác';
 
   @override
@@ -1157,7 +1201,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noOnchainActivityDesc =>
-      'Các lần nạp tiền bạn gửi sẽ hiện ở đây để xem trạng thái và xác nhận.';
+      'Khi sàn phát hiện giao dịch on-chain liên quan tài khoản của bạn, mục đó sẽ hiện ở đây kèm đầy đủ chi tiết, trạng thái và số xác nhận.';
 
   @override
   String get trySwitchingFiltersDeposit =>

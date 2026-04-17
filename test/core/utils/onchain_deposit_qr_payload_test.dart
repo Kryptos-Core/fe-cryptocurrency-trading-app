@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('buildOnchainDepositQrPayload', () {
-    test('tron testnet uses tron: URI', () {
+    test('tron is raw Base58 so wallet UIs do not show a tron: prefix', () {
       expect(
         buildOnchainDepositQrPayload(
           chainApiCode: 'TRON_NILE',
           rawAddress: ' TQwB27x5HUNz5qqmEG9q6BjfxsbZMF2LRV ',
         ),
-        'tron:TQwB27x5HUNz5qqmEG9q6BjfxsbZMF2LRV',
+        'TQwB27x5HUNz5qqmEG9q6BjfxsbZMF2LRV',
       );
     });
 

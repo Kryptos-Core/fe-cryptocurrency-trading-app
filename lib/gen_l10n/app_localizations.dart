@@ -1962,31 +1962,98 @@ abstract class AppLocalizations {
   /// No description provided for @onchainDepositDesc.
   ///
   /// In en, this message translates to:
-  /// **'Send to the platform address, then paste the tx hash below.'**
+  /// **'Send assets to the platform address or scan the QR code. Confirmation happens automatically; watch status in recent transactions below.'**
   String get onchainDepositDesc;
+
+  /// No description provided for @onchainAutoConfirmBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits are confirmed automatically in the background; this can take a few minutes. Status appears in recent transactions below.'**
+  String get onchainAutoConfirmBanner;
+
+  /// No description provided for @onchainDepositMonitorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your on-chain activity'**
+  String get onchainDepositMonitorTitle;
+
+  /// No description provided for @onchainDepositMonitorDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposits and other on-chain movements are detected automatically. Use filters below; copy hashes or addresses when you need to search a block explorer or contact support.'**
+  String get onchainDepositMonitorDesc;
+
+  /// No description provided for @onchainFieldInternalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal reference'**
+  String get onchainFieldInternalId;
+
+  /// No description provided for @onchainFieldFromAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'From address'**
+  String get onchainFieldFromAddress;
+
+  /// No description provided for @onchainFieldToAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'To address'**
+  String get onchainFieldToAddress;
+
+  /// No description provided for @onchainFieldConfirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get onchainFieldConfirmations;
+
+  /// No description provided for @onchainFieldCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get onchainFieldCreatedAt;
+
+  /// No description provided for @onchainFieldConfirmedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get onchainFieldConfirmedAt;
+
+  /// No description provided for @onchainValueNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet available'**
+  String get onchainValueNotAvailable;
+
+  /// No description provided for @onchainCreditConversionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Credited: {credited} · rate 1 {native} = {rate} USDT'**
+  String onchainCreditConversionLine(
+      String credited, String native, String rate);
 
   /// No description provided for @onchainDepositTransitioningMinutes.
   ///
   /// In en, this message translates to:
-  /// **'Wallet addresses are updating (~{minutes} min left). The QR code will refresh automatically when done.'**
+  /// **'Wallet addresses are updating (~{minutes} min left). This list will refresh when ready.'**
   String onchainDepositTransitioningMinutes(int minutes);
 
   /// No description provided for @onchainDepositTransitioningUnderOneMinute.
   ///
   /// In en, this message translates to:
-  /// **'Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.'**
+  /// **'Wallet addresses are updating (under one minute left). This list will refresh when ready.'**
   String get onchainDepositTransitioningUnderOneMinute;
 
   /// No description provided for @onchainDepositTransitioningFinalize.
   ///
   /// In en, this message translates to:
-  /// **'Wallet addresses are finishing activation. The QR code will refresh automatically when done.'**
+  /// **'Wallet addresses are finishing activation. This list will refresh when ready.'**
   String get onchainDepositTransitioningFinalize;
 
   /// No description provided for @onchainDepositTransitioningUnknown.
   ///
   /// In en, this message translates to:
-  /// **'Wallet addresses are updating. The QR code will refresh automatically when done.'**
+  /// **'Wallet addresses are updating. This list will refresh when ready.'**
   String get onchainDepositTransitioningUnknown;
 
   /// No description provided for @platformDepositAddress.
@@ -1998,7 +2065,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendAssetsToAddress.
   ///
   /// In en, this message translates to:
-  /// **'Send {network} assets to this address, then submit tx hash below.'**
+  /// **'Send {network} assets to this address or scan the QR code.'**
   String sendAssetsToAddress(String network);
 
   /// No description provided for @onlyTransferSelectedChain.
@@ -2157,6 +2224,18 @@ abstract class AppLocalizations {
   /// **'Transfers'**
   String get txTypeTransfers;
 
+  /// No description provided for @txTypeFund.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot wallet funding'**
+  String get txTypeFund;
+
+  /// No description provided for @txTypeSweep.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury sweep'**
+  String get txTypeSweep;
+
   /// No description provided for @txTypeUnknown.
   ///
   /// In en, this message translates to:
@@ -2172,7 +2251,7 @@ abstract class AppLocalizations {
   /// No description provided for @noOnchainActivityDesc.
   ///
   /// In en, this message translates to:
-  /// **'Deposits you submit will appear here so users can review status and confirmations.'**
+  /// **'When the platform detects an on-chain transfer involving your account, it will appear here with full details, status, and confirmations.'**
   String get noOnchainActivityDesc;
 
   /// No description provided for @trySwitchingFiltersDeposit.

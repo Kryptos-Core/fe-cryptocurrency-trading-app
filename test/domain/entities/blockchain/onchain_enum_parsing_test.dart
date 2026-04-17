@@ -29,7 +29,8 @@ void main() {
   group('OnchainTxTypeX.fromApiValue', () {
     test('parses known values', () {
       expect(OnchainTxTypeX.fromApiValue('DEPOSIT'), OnchainTxType.deposit);
-      expect(OnchainTxTypeX.fromApiValue('SWEEP'), OnchainTxType.transfer);
+      expect(OnchainTxTypeX.fromApiValue('FUND'), OnchainTxType.fund);
+      expect(OnchainTxTypeX.fromApiValue('SWEEP'), OnchainTxType.sweep);
     });
 
     test('does not throw on unknown API value — returns unknown', () {

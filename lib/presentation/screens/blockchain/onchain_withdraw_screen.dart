@@ -103,6 +103,10 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
         return l10n.txTypeWithdrawals;
       case OnchainTxType.transfer:
         return l10n.txTypeTransfers;
+      case OnchainTxType.fund:
+        return l10n.txTypeFund;
+      case OnchainTxType.sweep:
+        return l10n.txTypeSweep;
       case OnchainTxType.unknown:
         return l10n.txTypeUnknown;
     }
@@ -474,7 +478,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${tx.type.apiValue} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
+                                      '${_typeLabel(tx.type)} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),

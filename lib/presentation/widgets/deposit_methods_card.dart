@@ -67,11 +67,24 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
           return const SizedBox.shrink();
         }
 
-        final headerRecommended = resolveDepositMethodsHeaderRecommendedChain(
+        final supportedMethods =
+            methods.methods.where((m) => m.depositEnabled).toList(growable: false);
+        if (supportedMethods.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        var headerRecommended = resolveDepositMethodsHeaderRecommendedChain(
           apiRecommended: methods.recommendedChain,
           onchainDepositWithdrawCodes: chainPicker.onchainDepositWithdrawChainCodes,
           tronDefaultFromPickerApi: chainPicker.rawOptions?.tronDefaultNetwork,
         );
+        final supportedCodes = supportedMethods.map((m) => m.chain).toSet();
+        if (headerRecommended != null && !supportedCodes.contains(headerRecommended)) {
+          final recommendedRows = supportedMethods.where((m) => m.isRecommended).toList();
+          headerRecommended = recommendedRows.isNotEmpty
+              ? recommendedRows.first.chain
+              : supportedMethods.first.chain;
+        }
 
         return Card(
           clipBehavior: Clip.antiAlias,
@@ -82,7 +95,7 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
                 recommendedChain: headerRecommended,
               ),
               const Divider(height: 1),
-              ...methods.methods.map(
+              ...supportedMethods.map(
                 (method) => _DepositMethodTile(method: method),
               ),
             ],

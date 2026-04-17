@@ -164,6 +164,27 @@ List<BlockchainNetwork> onchainDepositWithdrawNetworksForCurrentEnv() {
       .toList(growable: false);
 }
 
+/// Default network for the on-chain deposit form.
+///
+/// Sandbox [kOnchainActionableSandboxCodes] lists EVM/Solana before Tron, but managed
+/// deposit addresses are often configured for the default Tron testnet first — pre-select
+/// Tron when present so `/blockchain/deposit/address` succeeds on tab open.
+///
+/// Production: keep API/env order ([kOnchainActionableProductionCodes] first entry).
+BlockchainNetwork preferredOnchainDepositWithdrawNetwork(
+  List<BlockchainNetwork> networks,
+) {
+  if (networks.isEmpty) {
+    throw ArgumentError.value(networks, 'networks', 'must not be empty');
+  }
+  if (!treasuryChainsUseMainnetOnly) {
+    for (final n in networks) {
+      if (n.apiValue.toUpperCase().startsWith('TRON_')) return n;
+    }
+  }
+  return networks.first;
+}
+
 /// Friendly labels for the create-wallet sheet (ecosystem / wallet type), while values stay API enums.
 String treasuryWalletCreationDisplayLabel(AppLocalizations l10n, String chain) {
   if (treasuryChainsUseMainnetOnly) {

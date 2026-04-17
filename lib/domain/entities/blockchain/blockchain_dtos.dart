@@ -61,20 +61,24 @@ class DepositPreviewResponse {
 class SubmitDepositRequest {
   final BlockchainNetwork chain;
   final String txHash;
-  final String amount;
+  final String? amount;
 
   const SubmitDepositRequest({
     required this.chain,
     required this.txHash,
-    required this.amount,
+    this.amount,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final m = <String, dynamic>{
       'chain': chain.apiValue,
       'txHash': txHash,
-      'amount': amount,
     };
+    final a = amount?.trim();
+    if (a != null && a.isNotEmpty) {
+      m['amount'] = a;
+    }
+    return m;
   }
 }
 

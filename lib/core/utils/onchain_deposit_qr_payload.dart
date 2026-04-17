@@ -1,6 +1,12 @@
 /// Builds the string encoded inside deposit QR codes so wallet apps treat it as a
 /// chain-native receive target (not arbitrary text). The **on-chain address** is unchanged;
-/// this only adds standard URI prefixes where helpful for scanners (TronLink, EVM wallets, …).
+/// this only adds standard URI prefixes where helpful for scanners (EVM wallets, Solana, …).
+///
+/// Tron uses **raw Base58 only** (`T…`). TronLink and other wallet scanners treat that as the
+/// receive address; a `tron:` prefix is shown literally in TronLink’s UI after scan.
+///
+/// The system camera app may still open a web search for raw text — users should scan from
+/// inside TronLink (or copy the address).
 ///
 /// Copy-to-clipboard should still use the raw platform address from the API.
 String buildOnchainDepositQrPayload({
@@ -13,7 +19,7 @@ String buildOnchainDepositQrPayload({
   final upper = chainApiCode.toUpperCase();
 
   if (upper.startsWith('TRON_')) {
-    return 'tron:$address';
+    return address;
   }
 
   if (upper.startsWith('SOLANA_')) {

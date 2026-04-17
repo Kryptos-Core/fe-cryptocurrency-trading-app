@@ -223,18 +223,23 @@ class BlockchainProvider extends ChangeNotifier {
   Future<bool> submitDeposit({
     required BlockchainNetwork chain,
     required String txHash,
-    required String amount,
+    String? amount,
   }) async {
     _isSubmitting = true;
     _error = null;
     _blockchainApiErrorCode = null;
     notifyListeners();
 
+    final trimmedAmount = amount?.trim();
+    final amountPayload = (trimmedAmount == null || trimmedAmount.isEmpty)
+        ? null
+        : trimmedAmount;
+
     final result = await _blockchainRepository.submitDeposit(
       SubmitDepositRequest(
         chain: chain,
         txHash: txHash,
-        amount: amount,
+        amount: amountPayload,
       ),
     );
 

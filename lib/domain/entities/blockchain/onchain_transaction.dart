@@ -6,6 +6,12 @@ enum OnchainTxType {
   withdrawal,
   transfer,
 
+  /// Treasury hot-wallet funding (matches BE `FUND`).
+  fund,
+
+  /// Treasury consolidation outbound (matches BE `SWEEP`).
+  sweep,
+
   /// BE sent a type string not yet modeled in this build.
   unknown,
 }
@@ -19,6 +25,10 @@ extension OnchainTxTypeX on OnchainTxType {
         return 'WITHDRAWAL';
       case OnchainTxType.transfer:
         return 'TRANSFER';
+      case OnchainTxType.fund:
+        return 'FUND';
+      case OnchainTxType.sweep:
+        return 'SWEEP';
       case OnchainTxType.unknown:
         return 'UNKNOWN';
     }
@@ -32,10 +42,10 @@ extension OnchainTxTypeX on OnchainTxType {
         return OnchainTxType.withdrawal;
       case 'TRANSFER':
         return OnchainTxType.transfer;
-      // Treasury ops rows may appear in shared history feeds — show as transfer for traders.
-      case 'SWEEP':
       case 'FUND':
-        return OnchainTxType.transfer;
+        return OnchainTxType.fund;
+      case 'SWEEP':
+        return OnchainTxType.sweep;
       default:
         return OnchainTxType.unknown;
     }

@@ -190,4 +190,25 @@ TRON_DEFAULT_NETWORK=TRON_SHASTA
       expect(nets, contains(BlockchainNetwork.baseMainnet));
     });
   });
+
+  group('preferredOnchainDepositWithdrawNetwork', () {
+    test('sandbox prefers first Tron row over BSC-first list order', () {
+      dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
+      final nets = onchainDepositWithdrawNetworksForCurrentEnv();
+      expect(nets.first, BlockchainNetwork.bscChapel);
+      expect(
+        preferredOnchainDepositWithdrawNetwork(nets),
+        BlockchainNetwork.tronNile,
+      );
+    });
+
+    test('production keeps env list order (first actionable)', () {
+      dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=production');
+      final nets = onchainDepositWithdrawNetworksForCurrentEnv();
+      expect(
+        preferredOnchainDepositWithdrawNetwork(nets),
+        BlockchainNetwork.bscMainnet,
+      );
+    });
+  });
 }

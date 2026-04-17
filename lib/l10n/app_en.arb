@@ -421,18 +421,36 @@
   },
   "walletExtensionPrecheckSuccess": "Pre-check completed. Open extension, sign challenge, then paste signature below.",
   "submitOnchainDeposit": "On-chain deposit",
-  "onchainDepositDesc": "Send to the platform address, then paste the tx hash below.",
-  "onchainDepositTransitioningMinutes": "Wallet addresses are updating (~{minutes} min left). The QR code will refresh automatically when done.",
+  "onchainDepositDesc": "Send assets to the platform address or scan the QR code. Confirmation happens automatically; watch status in recent transactions below.",
+  "onchainAutoConfirmBanner": "Deposits are confirmed automatically in the background; this can take a few minutes. Status appears in recent transactions below.",
+  "onchainDepositMonitorTitle": "Your on-chain activity",
+  "onchainDepositMonitorDesc": "Deposits and other on-chain movements are detected automatically. Use filters below; copy hashes or addresses when you need to search a block explorer or contact support.",
+  "onchainFieldInternalId": "Internal reference",
+  "onchainFieldFromAddress": "From address",
+  "onchainFieldToAddress": "To address",
+  "onchainFieldConfirmations": "Confirmations",
+  "onchainFieldCreatedAt": "Created",
+  "onchainFieldConfirmedAt": "Confirmed",
+  "onchainValueNotAvailable": "Not yet available",
+  "onchainCreditConversionLine": "Credited: {credited} · rate 1 {native} = {rate} USDT",
+  "@onchainCreditConversionLine": {
+    "placeholders": {
+      "credited": { "type": "String" },
+      "native": { "type": "String" },
+      "rate": { "type": "String" }
+    }
+  },
+  "onchainDepositTransitioningMinutes": "Wallet addresses are updating (~{minutes} min left). This list will refresh when ready.",
   "@onchainDepositTransitioningMinutes": {
     "placeholders": {
       "minutes": { "type": "int" }
     }
   },
-  "onchainDepositTransitioningUnderOneMinute": "Wallet addresses are updating (under one minute left). The QR code will refresh automatically when done.",
-  "onchainDepositTransitioningFinalize": "Wallet addresses are finishing activation. The QR code will refresh automatically when done.",
-  "onchainDepositTransitioningUnknown": "Wallet addresses are updating. The QR code will refresh automatically when done.",
+  "onchainDepositTransitioningUnderOneMinute": "Wallet addresses are updating (under one minute left). This list will refresh when ready.",
+  "onchainDepositTransitioningFinalize": "Wallet addresses are finishing activation. This list will refresh when ready.",
+  "onchainDepositTransitioningUnknown": "Wallet addresses are updating. This list will refresh when ready.",
   "platformDepositAddress": "Platform deposit address",
-  "sendAssetsToAddress": "Send {network} assets to this address, then submit tx hash below.",
+  "sendAssetsToAddress": "Send {network} assets to this address or scan the QR code.",
   "@sendAssetsToAddress": {
     "placeholders": {
       "network": { "type": "String" }
@@ -481,9 +499,11 @@
   "txTypeDeposits": "Deposits",
   "txTypeWithdrawals": "Withdrawals",
   "txTypeTransfers": "Transfers",
+  "txTypeFund": "Hot wallet funding",
+  "txTypeSweep": "Treasury sweep",
   "txTypeUnknown": "Other",
   "noOnchainActivityTitle": "No on-chain activity yet",
-  "noOnchainActivityDesc": "Deposits you submit will appear here so users can review status and confirmations.",
+  "noOnchainActivityDesc": "When the platform detects an on-chain transfer involving your account, it will appear here with full details, status, and confirmations.",
   "trySwitchingFiltersDeposit": "Try switching network, type, or sort to surface the transactions you need.",
   "requestOnchainWithdrawal": "Request on-chain withdrawal",
   "withdrawalDestinationDesc": "Withdrawal destination must be a verified linked wallet on the same network.",
