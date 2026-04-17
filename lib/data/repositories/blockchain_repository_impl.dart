@@ -35,7 +35,9 @@ class BlockchainRepositoryImpl implements BlockchainRepository {
             data['chain']?.toString(),
             fallback: chain,
           ),
-          depositAddress: data['depositAddress']?.toString() ?? '',
+          depositAddress: data['depositAddress']?.toString() ??
+              data['deposit_address']?.toString() ??
+              '',
           note: data['note']?.toString(),
         ),
       );

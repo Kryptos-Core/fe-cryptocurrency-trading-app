@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:crypto_trading_app/core/utils/onchain_deposit_qr_payload.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/domain/entities/managed_wallet/deposit_method.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
@@ -248,7 +249,11 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
             ),
           ),
         ),
-        if (_expanded && canExpand) _QrSection(address: method.depositAddress!),
+        if (_expanded && canExpand)
+          _QrSection(
+            chainApiCode: method.chain,
+            address: method.depositAddress!,
+          ),
         const Divider(height: 1),
       ],
     );
@@ -266,13 +271,21 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
 }
 
 class _QrSection extends StatelessWidget {
+  final String chainApiCode;
   final String address;
 
-  const _QrSection({required this.address});
+  const _QrSection({
+    required this.chainApiCode,
+    required this.address,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final qrData = buildOnchainDepositQrPayload(
+      chainApiCode: chainApiCode,
+      rawAddress: address,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Center(
@@ -286,7 +299,7 @@ class _QrSection extends StatelessWidget {
                 border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: QrImageView(
-                data: address,
+                data: qrData,
                 version: QrVersions.auto,
                 size: 140,
               ),

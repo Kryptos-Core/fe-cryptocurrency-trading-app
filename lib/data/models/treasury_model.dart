@@ -58,6 +58,8 @@ class TreasuryOperationModel {
   final String chain;
   final String status;
   final String amount;
+  /// Backend: `NATIVE` | `USDT_TRC20` (Tron USDT sweep/fund).
+  final String? asset;
   final String? txHash;
   final String? fromWalletId;
   final String? toWalletId;
@@ -71,6 +73,7 @@ class TreasuryOperationModel {
     required this.chain,
     required this.status,
     required this.amount,
+    this.asset,
     this.txHash,
     this.fromWalletId,
     this.toWalletId,
@@ -86,6 +89,7 @@ class TreasuryOperationModel {
       chain: (json['chain'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       amount: (json['amount'] ?? '0').toString(),
+      asset: json['asset']?.toString(),
       txHash: json['tx_hash']?.toString(),
       fromWalletId: json['from_wallet_id']?.toString(),
       toWalletId: json['to_wallet_id']?.toString(),
@@ -102,6 +106,8 @@ class TreasuryTransactionModel {
   final String chain;
   final String status;
   final String amount;
+  /// Backend: `NATIVE` | `USDT_TRC20` when linked to a treasury operation.
+  final String? asset;
   final String? txHash;
   final String fromAddress;
   final String toAddress;
@@ -113,6 +119,7 @@ class TreasuryTransactionModel {
     required this.chain,
     required this.status,
     required this.amount,
+    this.asset,
     this.txHash,
     required this.fromAddress,
     required this.toAddress,
@@ -126,6 +133,7 @@ class TreasuryTransactionModel {
       chain: (json['chain'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       amount: (json['amount'] ?? '0').toString(),
+      asset: json['asset']?.toString(),
       txHash: json['tx_hash']?.toString(),
       fromAddress: (json['from_address'] ?? '').toString(),
       toAddress: (json['to_address'] ?? '').toString(),

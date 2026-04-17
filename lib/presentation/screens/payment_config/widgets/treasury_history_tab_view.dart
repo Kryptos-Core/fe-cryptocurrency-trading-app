@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/data/models/treasury_model.dart';
 import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/presentation/widgets/debounced_search_text_field.dart';
@@ -28,6 +29,16 @@ String _treasuryHistoryTypeLabel(AppLocalizations l10n, String type) {
 String _shortMiddle(String s, {int head = 10, int tail = 8}) {
   if (s.length <= head + tail + 1) return s;
   return '${s.substring(0, head)}…${s.substring(s.length - tail)}';
+}
+
+/// Short ticker for treasury history amounts (`USDT` vs native coin for chain).
+String _treasuryHistoryAmountTicker(String chain, String? assetCode) {
+  final asset = (assetCode ?? 'NATIVE').toUpperCase();
+  if (asset == 'USDT_TRC20') return 'USDT';
+  final net = BlockchainNetworkX.tryFromApiValue(chain);
+  if (net != null) return net.nativeSymbol;
+  if (chain.toUpperCase().contains('TRON')) return 'TRX';
+  return '';
 }
 
 String _treasuryHistoryStatusLabel(AppLocalizations l10n, String status) {
@@ -356,6 +367,7 @@ class _TreasuryOperationTile extends StatelessWidget {
     final fmt = DateFormat('yyyy-MM-dd HH:mm');
     final isFund = op.type.toUpperCase() == 'FUND';
     final timeStr = op.createdAt != null ? fmt.format(op.createdAt!.toLocal()) : '—';
+    final amountTicker = _treasuryHistoryAmountTicker(op.chain, op.asset);
 
     return Card(
       elevation: 0,
@@ -411,12 +423,26 @@ class _TreasuryOperationTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  FormatUtils.formatDecimalAmountDisplay(op.amount),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: scheme.primary,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      FormatUtils.formatDecimalAmountDisplay(op.amount),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: scheme.primary,
+                      ),
+                    ),
+                    if (amountTicker.isNotEmpty)
+                      Text(
+                        amountTicker,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -464,6 +490,7 @@ class _TreasuryTransactionTile extends StatelessWidget {
     final fmt = DateFormat('yyyy-MM-dd HH:mm');
     final isFund = tx.type.toUpperCase() == 'FUND';
     final timeStr = tx.createdAt != null ? fmt.format(tx.createdAt!.toLocal()) : '—';
+    final amountTicker = _treasuryHistoryAmountTicker(tx.chain, tx.asset);
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -505,12 +532,26 @@ class _TreasuryTransactionTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      FormatUtils.formatDecimalAmountDisplay(tx.amount),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: scheme.primary,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          FormatUtils.formatDecimalAmountDisplay(tx.amount),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: scheme.primary,
+                          ),
+                        ),
+                        if (amountTicker.isNotEmpty)
+                          Text(
+                            amountTicker,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),

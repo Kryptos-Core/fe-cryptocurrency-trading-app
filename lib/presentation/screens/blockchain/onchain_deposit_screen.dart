@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/blockchain_public_error_localization.dart';
+import 'package:crypto_trading_app/core/utils/onchain_deposit_qr_payload.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -643,7 +644,10 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                               width: 92,
                               height: 92,
                               child: QrImageView(
-                                data: _depositAddress!.depositAddress,
+                                data: buildOnchainDepositQrPayload(
+                                  chainApiCode: _selectedNetwork.apiValue,
+                                  rawAddress: _depositAddress!.depositAddress,
+                                ),
                                 version: QrVersions.auto,
                                 backgroundColor: Colors.white,
                                 padding: const EdgeInsets.all(6),

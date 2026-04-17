@@ -229,7 +229,8 @@ class ManagedWalletsRepositoryImpl implements ManagedWalletsRepository {
     return DepositMethod(
       chain: json['chain']?.toString() ?? '',
       label: json['label']?.toString() ?? '',
-      depositAddress: json['deposit_address']?.toString(),
+      depositAddress: json['deposit_address']?.toString() ??
+          json['depositAddress']?.toString(),
       isRecommended: json['is_recommended'] == true,
       depositEnabled: json['deposit_enabled'] != false,
       minConfirmations: (json['min_confirmations'] as num?)?.toInt() ?? 12,
