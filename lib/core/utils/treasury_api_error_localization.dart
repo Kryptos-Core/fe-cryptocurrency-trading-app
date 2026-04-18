@@ -27,6 +27,10 @@ String localizeTreasuryApiError(
       return l10n.apiErrorTreasuryWalletInactive;
     case 'TREASURY_WALLET_LOCKED':
       return l10n.apiErrorTreasuryWalletLocked;
+    case 'TREASURY_WALLET_BUSY':
+      return l10n.apiErrorTreasuryWalletBusy;
+    case 'TREASURY_WALLET_BUSY_TIMEOUT':
+      return l10n.apiErrorTreasuryWalletBusyTimeout;
     case 'DEFAULT_USER_DEPOSIT_DEACTIVATE_FORBIDDEN':
       return l10n.apiErrorDefaultUserDepositDeactivate;
     default:

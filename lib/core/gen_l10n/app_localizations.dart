@@ -4327,7 +4327,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasurySweepQueued.
   ///
   /// In en, this message translates to:
-  /// **'Sweep request received. This card\'s balance will update when the on-chain transfer completes.'**
+  /// **'Sweep queued — waiting on-chain.'**
   String get treasurySweepQueued;
 
   /// No description provided for @treasurySweepFailed.
@@ -4369,7 +4369,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryFundQueued.
   ///
   /// In en, this message translates to:
-  /// **'Fund request received. This card\'s balance will update when the on-chain transfer completes.'**
+  /// **'Fund queued — waiting on-chain.'**
   String get treasuryFundQueued;
 
   /// No description provided for @treasuryWalletPendingOnChainBadge.
@@ -4381,7 +4381,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryQueuedBalanceHint.
   ///
   /// In en, this message translates to:
-  /// **'Balance shown is unchanged until the chain confirms.'**
+  /// **'Balance updates after the transaction confirms.'**
   String get treasuryQueuedBalanceHint;
 
   /// No description provided for @treasuryPendingOnChainTooltipGeneric.
@@ -4477,8 +4477,26 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryHistoryStatusPending.
   ///
   /// In en, this message translates to:
-  /// **'Pending'**
+  /// **'Queued'**
   String get treasuryHistoryStatusPending;
+
+  /// No description provided for @treasuryHistoryStatusQueuedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting in line — another fund/sweep on this wallet may be running.'**
+  String get treasuryHistoryStatusQueuedHint;
+
+  /// No description provided for @apiErrorTreasuryWalletBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the previous treasury operation on this wallet to finish.'**
+  String get apiErrorTreasuryWalletBusy;
+
+  /// No description provided for @apiErrorTreasuryWalletBusyTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed out waiting for the treasury wallet lock (over 15 minutes).'**
+  String get apiErrorTreasuryWalletBusyTimeout;
 
   /// No description provided for @treasuryHistoryStatusProcessing.
   ///
@@ -6372,6 +6390,36 @@ abstract class AppLocalizations {
   /// **'USDT (TRC-20): {balance} USDT'**
   String treasuryTrc20UsdtBalanceLine(String balance);
 
+  /// No description provided for @treasuryTronCrossEnvBalancesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Same address on each Tron network'**
+  String get treasuryTronCrossEnvBalancesHint;
+
+  /// No description provided for @treasuryTronEnvNile.
+  ///
+  /// In en, this message translates to:
+  /// **'Nile'**
+  String get treasuryTronEnvNile;
+
+  /// No description provided for @treasuryTronEnvShasta.
+  ///
+  /// In en, this message translates to:
+  /// **'Shasta'**
+  String get treasuryTronEnvShasta;
+
+  /// No description provided for @treasuryTronEnvMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Mainnet'**
+  String get treasuryTronEnvMainnet;
+
+  /// No description provided for @treasuryTronEnvThisWalletChain.
+  ///
+  /// In en, this message translates to:
+  /// **'this wallet'**
+  String get treasuryTronEnvThisWalletChain;
+
   /// No description provided for @treasuryMainWalletBalanceLine.
   ///
   /// In en, this message translates to:
@@ -7809,7 +7857,7 @@ abstract class AppLocalizations {
   /// No description provided for @wcWcSupportsEvmSolanaTron.
   ///
   /// In en, this message translates to:
-  /// **'WalletConnect supports BSC Chapel, Ethereum mainnet, and Solana Devnet. For Tron, use the TronLink extension on Chrome.'**
+  /// **'WalletConnect supports BSC Chapel, Ethereum mainnet, Solana Devnet, and Tron on desktop/mobile (QR scan). On web, link Tron with the TronLink extension.'**
   String get wcWcSupportsEvmSolanaTron;
 
   /// No description provided for @wcSignWithTronlinkExtension.
@@ -7875,7 +7923,7 @@ abstract class AppLocalizations {
   /// No description provided for @tronLinkNativePlatformHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter your Tron address, request the challenge, sign it in TronLink, then paste the signature here.'**
+  /// **'Tap create QR code, then scan it with TronLink on your phone to sign and complete linking.'**
   String get tronLinkNativePlatformHint;
 
   /// No description provided for @tronLinkAddressRequired.

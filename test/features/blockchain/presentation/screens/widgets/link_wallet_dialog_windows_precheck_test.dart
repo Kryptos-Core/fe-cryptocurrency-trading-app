@@ -196,5 +196,20 @@ void main() {
     },
         variant: const TargetPlatformVariant(
             <TargetPlatform>{TargetPlatform.windows}));
+
+    testWidgets(
+        'Windows: chọn Tron (Nile) hiện nút tạo QR WalletConnect, không hiện ô dán địa chỉ TronLink',
+        (tester) async {
+      await tester.pumpWidget(await _buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Tron (Nile)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Generate connection QR'), findsOneWidget);
+      expect(find.text('TronLink address'), findsNothing);
+    },
+        variant: const TargetPlatformVariant(
+            <TargetPlatform>{TargetPlatform.windows}));
   });
 }

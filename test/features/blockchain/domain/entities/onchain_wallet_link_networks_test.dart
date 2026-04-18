@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('walletConnectRelayNetworksInApiOrder', () {
-    test('preserves BE sandbox order: BSC, Solana from combined list (no Sepolia)', () {
+    test('preserves BE sandbox order: BSC, Solana, Tron (native includes Tron for WC QR)', () {
       const ordered = [
         BlockchainNetwork.bscChapel,
         BlockchainNetwork.solanaDevnet,
@@ -12,14 +12,11 @@ void main() {
       ];
       expect(
         walletConnectRelayNetworksInApiOrder(ordered),
-        [
-          BlockchainNetwork.bscChapel,
-          BlockchainNetwork.solanaDevnet,
-        ],
+        ordered,
       );
     });
 
-    test('production mainnets: three WC families before Tron', () {
+    test('production mainnets: EVM + Solana + Tron in API order', () {
       const ordered = [
         BlockchainNetwork.ethMainnet,
         BlockchainNetwork.bscMainnet,
@@ -28,26 +25,19 @@ void main() {
       ];
       expect(
         walletConnectRelayNetworksInApiOrder(ordered),
-        [
-          BlockchainNetwork.ethMainnet,
-          BlockchainNetwork.bscMainnet,
-          BlockchainNetwork.solanaMainnet,
-        ],
+        ordered,
       );
     });
   });
 
   group('tronExtensionNetworksInApiOrder', () {
-    test('extracts Tron rows in same order as deposit/withdraw list', () {
+    test('on VM/native (kIsWeb false) returns empty — Tron only in WC list', () {
       const ordered = [
         BlockchainNetwork.bscChapel,
         BlockchainNetwork.solanaDevnet,
         BlockchainNetwork.tronNile,
       ];
-      expect(
-        tronExtensionNetworksInApiOrder(ordered),
-        [BlockchainNetwork.tronNile],
-      );
+      expect(tronExtensionNetworksInApiOrder(ordered), <BlockchainNetwork>[]);
     });
   });
 }

@@ -2355,8 +2355,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryFundTooltip => 'Nạp tiền từ ví chính vào ví này';
 
   @override
-  String get treasurySweepQueued =>
-      'Đã nhận yêu cầu gom về. Số dư trên thẻ sẽ cập nhật khi giao dịch trên chuỗi hoàn tất.';
+  String get treasurySweepQueued => 'Đã gửi gom về — chờ blockchain.';
 
   @override
   String get treasurySweepFailed => 'Sweep thất bại';
@@ -2377,15 +2376,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryConfirmAction => 'Xác nhận';
 
   @override
-  String get treasuryFundQueued =>
-      'Đã nhận yêu cầu cấp vốn. Số dư trên thẻ sẽ cập nhật khi giao dịch trên chuỗi hoàn tất.';
+  String get treasuryFundQueued => 'Đã gửi cấp vốn — chờ blockchain.';
 
   @override
   String get treasuryWalletPendingOnChainBadge => 'Đang xử lý trên chuỗi…';
 
   @override
   String get treasuryQueuedBalanceHint =>
-      'Số dư trên thẻ vẫn là số cũ — chưa có tiền mới cho đến khi chuỗi xác nhận.';
+      'Số dư thẻ chỉ đổi sau khi giao dịch xác nhận.';
 
   @override
   String get treasuryPendingOnChainTooltipGeneric =>
@@ -2436,7 +2434,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryHistoryTypeSweep => 'Gom về';
 
   @override
-  String get treasuryHistoryStatusPending => 'Đang chờ';
+  String get treasuryHistoryStatusPending => 'Xếp hàng';
+
+  @override
+  String get treasuryHistoryStatusQueuedHint =>
+      'Đang xếp hàng — có thể đang chạy thao tác cấp vốn/gom về khác trên cùng ví.';
+
+  @override
+  String get apiErrorTreasuryWalletBusy =>
+      'Đang chờ thao tác kho bạc trước trên ví này hoàn tất.';
+
+  @override
+  String get apiErrorTreasuryWalletBusyTimeout =>
+      'Hết thời gian chờ khóa ví kho bạc (quá 15 phút).';
 
   @override
   String get treasuryHistoryStatusProcessing => 'Đang xử lý';
@@ -3463,6 +3473,22 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get treasuryTronCrossEnvBalancesHint =>
+      'Cùng địa chỉ trên từng mạng Tron';
+
+  @override
+  String get treasuryTronEnvNile => 'Nile';
+
+  @override
+  String get treasuryTronEnvShasta => 'Shasta';
+
+  @override
+  String get treasuryTronEnvMainnet => 'Mainnet';
+
+  @override
+  String get treasuryTronEnvThisWalletChain => 'ví này';
+
+  @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {
     return 'Số dư: $balance $symbol';
   }
@@ -3550,7 +3576,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Từ chối xóa (khôi phục ví)';
 
   @override
-  String get treasuryChainTronNile => 'TRON — Testnet Nile';
+  String get treasuryChainTronNile => 'TRON — Testnet';
 
   @override
   String get treasuryChainTronMainnet => 'TRON — Mainnet';
@@ -4257,7 +4283,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get wcWcSupportsEvmSolanaTron =>
-      'WalletConnect hỗ trợ BSC Chapel, Ethereum mainnet và Solana Devnet. Với Tron, hãy dùng extension TronLink trên Chrome.';
+      'WalletConnect hỗ trợ BSC Chapel, Ethereum mainnet, Solana Devnet và Tron trên desktop/mobile (quét QR). Trên web, Tron liên kết qua extension TronLink.';
 
   @override
   String get wcSignWithTronlinkExtension => 'Ký bằng TronLink Extension';
@@ -4292,7 +4318,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tronLinkNativePlatformHint =>
-      'Nhập địa chỉ ví Tron, lấy challenge, ký trong TronLink rồi dán chữ ký vào đây.';
+      'Nhấn tạo mã QR, rồi quét bằng TronLink trên điện thoại để ký và hoàn tất liên kết.';
 
   @override
   String get tronLinkAddressRequired => 'Vui lòng nhập địa chỉ ví Tron.';

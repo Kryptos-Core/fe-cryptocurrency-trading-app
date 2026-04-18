@@ -786,8 +786,10 @@ class _StatusChip extends StatelessWidget {
         fg = scheme.onSurfaceVariant;
         icon = Icons.help_outline;
     }
+    final tooltipMessage =
+        s == 'PENDING' ? l10n.treasuryHistoryStatusQueuedHint : status;
     return Tooltip(
-      message: status,
+      message: tooltipMessage,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(

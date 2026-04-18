@@ -2355,8 +2355,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryFundTooltip => 'Fund this wallet from the main wallet';
 
   @override
-  String get treasurySweepQueued =>
-      'Sweep request received. This card\'s balance will update when the on-chain transfer completes.';
+  String get treasurySweepQueued => 'Sweep queued — waiting on-chain.';
 
   @override
   String get treasurySweepFailed => 'Sweep failed';
@@ -2377,15 +2376,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryConfirmAction => 'Confirm';
 
   @override
-  String get treasuryFundQueued =>
-      'Fund request received. This card\'s balance will update when the on-chain transfer completes.';
+  String get treasuryFundQueued => 'Fund queued — waiting on-chain.';
 
   @override
   String get treasuryWalletPendingOnChainBadge => 'Processing on-chain…';
 
   @override
   String get treasuryQueuedBalanceHint =>
-      'Balance shown is unchanged until the chain confirms.';
+      'Balance updates after the transaction confirms.';
 
   @override
   String get treasuryPendingOnChainTooltipGeneric =>
@@ -2436,7 +2434,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryHistoryTypeSweep => 'Sweep';
 
   @override
-  String get treasuryHistoryStatusPending => 'Pending';
+  String get treasuryHistoryStatusPending => 'Queued';
+
+  @override
+  String get treasuryHistoryStatusQueuedHint =>
+      'Waiting in line — another fund/sweep on this wallet may be running.';
+
+  @override
+  String get apiErrorTreasuryWalletBusy =>
+      'Waiting for the previous treasury operation on this wallet to finish.';
+
+  @override
+  String get apiErrorTreasuryWalletBusyTimeout =>
+      'Timed out waiting for the treasury wallet lock (over 15 minutes).';
 
   @override
   String get treasuryHistoryStatusProcessing => 'Processing';
@@ -3464,6 +3474,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get treasuryTronCrossEnvBalancesHint =>
+      'Same address on each Tron network';
+
+  @override
+  String get treasuryTronEnvNile => 'Nile';
+
+  @override
+  String get treasuryTronEnvShasta => 'Shasta';
+
+  @override
+  String get treasuryTronEnvMainnet => 'Mainnet';
+
+  @override
+  String get treasuryTronEnvThisWalletChain => 'this wallet';
+
+  @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {
     return 'Balance: $balance $symbol';
   }
@@ -4263,7 +4289,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wcWcSupportsEvmSolanaTron =>
-      'WalletConnect supports BSC Chapel, Ethereum mainnet, and Solana Devnet. For Tron, use the TronLink extension on Chrome.';
+      'WalletConnect supports BSC Chapel, Ethereum mainnet, Solana Devnet, and Tron on desktop/mobile (QR scan). On web, link Tron with the TronLink extension.';
 
   @override
   String get wcSignWithTronlinkExtension => 'Sign with TronLink extension';
@@ -4298,7 +4324,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tronLinkNativePlatformHint =>
-      'Enter your Tron address, request the challenge, sign it in TronLink, then paste the signature here.';
+      'Tap create QR code, then scan it with TronLink on your phone to sign and complete linking.';
 
   @override
   String get tronLinkAddressRequired =>

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -17,9 +18,8 @@ import 'wc_session_poller.dart';
 /// LinkWalletDialog — WalletConnect v2 First
 ///
 /// Chiến lược (Strategy Pattern):
-///  - Native (Windows/Mobile): WalletConnect QR Code
-///  - Web với window.ethereum detected: Tab chọn WC hoặc Extension
-///  - TronLink: giữ extension web flow (xử lý riêng)
+///  - Native (Windows/Mobile): WalletConnect QR — Tron qua namespace `tron` (scan TronLink mobile)
+///  - Web: EVM/Solana WC QR; Tron = TronLink extension flow (challenge / paste hoặc auto-sign)
 ///
 /// Flow:
 ///  1. User chọn network (BSC Chapel / Solana / Tron…)
@@ -87,7 +87,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
 
   bool get _supportsWalletConnectRelay {
     final c = _selectedChain;
-    if (c.isTronFamily) return false;
+    if (c.isTronFamily) {
+      // Web: Tron dùng luồng extension / challenge; native: WC QR + TronLink mobile.
+      return !kIsWeb;
+    }
     if (c.networkFamily == OnChainNetworkFamily.solana) return true;
     return c.evmCaip2 != null;
   }
@@ -159,7 +162,11 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   void dispose() {
     _tronAddressController.dispose();
     _tronSigController.dispose();
-    _blockchainProvider?.clearWcSession();
+    // clearWcSession → notifyListeners() cannot run during unmount (widget tree locked).
+    final bc = _blockchainProvider;
+    if (bc != null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => bc.clearWcSession());
+    }
     super.dispose();
   }
 
@@ -288,9 +295,9 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         if (_hasPendingSession && _session != null)
           _buildWcSessionView(theme, l10n),
 
-        // ── Connect: WC QR or TronLink challenge flow ──
+        // ── Connect: WC QR or TronLink extension challenge flow (web only) ──
         if (!_hasPendingSession && !_isLoading)
-          _selectedChain.isTronFamily
+          (kIsWeb && _selectedChain.isTronFamily)
               ? _buildTronLinkFlow(theme, l10n)
               : _buildConnectButton(theme, l10n),
 
@@ -383,7 +390,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
               runSpacing: 8,
               children: allChains.map((chain) {
                 final isSelected = _selectedChain == chain;
-                final isTron = tronChains.contains(chain);
+                final isTronExtensionChip = tronChains.contains(chain);
                 return ChoiceChip(
                   label: Text(chain.label),
                   selected: isSelected,
@@ -395,10 +402,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                       _selectedChain = chain;
                     });
                   },
-                  avatar: isTron
+                  avatar: isTronExtensionChip
                       ? const Icon(Icons.extension, size: 16)
                       : const Icon(Icons.qr_code, size: 16),
-                  tooltip: isTron
+                  tooltip: isTronExtensionChip
                       ? l10n.wcTooltipTronlinkChrome
                       : l10n.wcTooltipWalletConnect,
                 );
@@ -415,9 +422,27 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        kIsWeb
-                            ? l10n.wcTronChromeExtensionWebOnly
-                            : l10n.tronLinkNativePlatformHint,
+                        l10n.wcTronChromeExtensionWebOnly,
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.primary.withValues(alpha:0.7),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (!kIsWeb && _selectedChain.isTronFamily)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        size: 14,
+                        color: theme.colorScheme.primary.withValues(alpha:0.7)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l10n.tronLinkNativePlatformHint,
                         style: theme.textTheme.bodySmall!.copyWith(
                           color: theme.colorScheme.primary.withValues(alpha:0.7),
                         ),

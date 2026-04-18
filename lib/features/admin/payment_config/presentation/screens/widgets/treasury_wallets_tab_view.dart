@@ -24,6 +24,19 @@ String _formatBalance(String? balance) {
   return NumberFormat('#,###.##').format(parsed);
 }
 
+String _tronEnvShortLabel(AppLocalizations l10n, String chainCode) {
+  switch (chainCode) {
+    case 'TRON_NILE':
+      return l10n.treasuryTronEnvNile;
+    case 'TRON_SHASTA':
+      return l10n.treasuryTronEnvShasta;
+    case 'TRON_MAINNET':
+      return l10n.treasuryTronEnvMainnet;
+    default:
+      return chainCode;
+  }
+}
+
 String _treasuryOnChainPendingTooltip(AppLocalizations l10n, String? operationId) {
   if (operationId != null && operationId.isNotEmpty) {
     return l10n.treasuryPendingOnChainTooltipWithId(operationId);
@@ -418,6 +431,80 @@ class _TreasuryOpsGuideCard extends StatelessWidget {
   }
 }
 
+class _TreasuryTronEnvBalanceCard extends StatelessWidget {
+  final String envLabel;
+  final TreasuryTronEnvBalanceRow row;
+  final bool highlightThisWallet;
+  final AppLocalizations l10n;
+  final ColorScheme scheme;
+
+  const _TreasuryTronEnvBalanceCard({
+    required this.envLabel,
+    required this.row,
+    required this.highlightThisWallet,
+    required this.l10n,
+    required this.scheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: highlightThisWallet
+            ? scheme.primary.withValues(alpha: 0.06)
+            : scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: highlightThisWallet
+              ? scheme.primary.withValues(alpha: 0.35)
+              : scheme.outline.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                envLabel,
+                style: TextStyle(
+                  fontWeight: highlightThisWallet ? FontWeight.w700 : FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+              if (highlightThisWallet) ...[
+                const SizedBox(width: 6),
+                Text(
+                  '(${l10n.treasuryTronEnvThisWalletChain})',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${l10n.treasuryBalanceLabel}: ${_formatBalance(row.balance)} ${row.symbol}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          if (row.usdtTrc20Balance != null && row.usdtTrc20Balance!.trim().isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              l10n.treasuryTrc20UsdtBalanceLine(_formatBalance(row.usdtTrc20Balance)),
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _TreasuryWalletCard extends StatelessWidget {
   final TreasuryWalletModel wallet;
   final bool isSubmitting;
@@ -552,17 +639,41 @@ class _TreasuryWalletCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
-                ),
-                if (wallet.usdtTrc20Balance != null &&
-                    wallet.chain.startsWith('TRON_')) ...[
-                  const SizedBox(height: 2),
+                if (wallet.tronCrossEnvBalances != null &&
+                    wallet.tronCrossEnvBalances!.isNotEmpty) ...[
                   Text(
-                    l10n.treasuryTrc20UsdtBalanceLine(
-                      _formatBalance(wallet.usdtTrc20Balance!),
-                    ),
+                    l10n.treasuryTronCrossEnvBalancesHint,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
+                  const SizedBox(height: 8),
+                  for (final env in const ['TRON_NILE', 'TRON_SHASTA', 'TRON_MAINNET'])
+                    if (wallet.tronCrossEnvBalances![env] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: _TreasuryTronEnvBalanceCard(
+                          envLabel: _tronEnvShortLabel(l10n, env),
+                          row: wallet.tronCrossEnvBalances![env]!,
+                          highlightThisWallet: wallet.chain == env,
+                          l10n: l10n,
+                          scheme: scheme,
+                        ),
+                      ),
+                ] else ...[
+                  Text(
+                    '${l10n.treasuryBalanceLabel}: ${_formatBalance(wallet.balance)} ${wallet.symbol ?? ''}',
+                  ),
+                  if (wallet.usdtTrc20Balance != null &&
+                      wallet.chain.startsWith('TRON_')) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.treasuryTrc20UsdtBalanceLine(
+                        _formatBalance(wallet.usdtTrc20Balance!),
+                      ),
+                    ),
+                  ],
                 ],
               ],
             ),
