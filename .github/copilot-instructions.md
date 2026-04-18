@@ -6,12 +6,13 @@ This is a Flutter/Dart app for cryptocurrency trading. It follows Clean Architec
 
 **Tech Stack:** Flutter >= 3.0.0, Dart, Provider (state), Dio (HTTP), Hive (local storage), WalletConnect (wallet auth), Firebase (push notifications)
 
-**Architecture:**
-- `lib/domain/` — Business logic (entities, use cases, abstract repos). NO Flutter/Dio imports here.
-- `lib/data/` — Data layer (API, local storage implementations)
-- `lib/presentation/` — Providers, widgets
-- `lib/screens/` — Screen compositions
-- `lib/core/` — DI, constants, shared services
+**Architecture (feature-first Clean Architecture — see repo `ARCHITECTURE.md`):**
+- `lib/features/<feature>/{domain,data,application,presentation}` — per feature; **domain** must not import Flutter/Dio.
+- `lib/app/` — `app.dart`, DI (`injection_container.dart`), **`router/`** (`go_router`, `AppRoutes`, shell route for `/`).
+- `lib/core/` — infrastructure (network, theme, utils, shared widgets).
+- `lib/shared/` — optional cross-feature helpers (currently README only).
+
+**Routing:** Prefer `context.push(AppRoutes.*)` / `GoRouter`; avoid ad-hoc `Navigator.push(MaterialPageRoute(...))` from shell screens.
 
 ## Conventions to Follow
 
@@ -57,7 +58,7 @@ void setOrders(List<Order> orders) {
 
 - Do not add NestJS, SQL migrations, or Node.js scripts to this repo
 - Do not import backend-specific packages in domain layer
-- Do not skip `flutter analyze` warnings
+- Do not skip `flutter analyze --fatal-infos` or `dart run import_lint`
 - Do not hardcode API URLs (use `.env` or constants file)
 - Do not commit `.env` files
 
@@ -66,5 +67,6 @@ void setOrders(List<Order> orders) {
 Before marking any task complete, ensure:
 1. `dart format --set-exit-if-changed .` passes
 2. `flutter analyze --fatal-infos` passes
-3. `flutter test` passes with >= 80% coverage
-4. No `print()` outside debug guards
+3. `dart run import_lint` passes (layer boundaries)
+4. `flutter test` passes with >= 80% coverage
+5. No `print()` outside debug guards

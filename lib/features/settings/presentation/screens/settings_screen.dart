@@ -49,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Future<void>.delayed(const Duration(milliseconds: 150), () {
           if (!mounted) return;
           final ctx = _exchangeSyncSectionKey.currentContext;
-          if (ctx != null) {
+          if (ctx != null && ctx.mounted) {
             Scrollable.ensureVisible(
               ctx,
               alignment: 0.12,
@@ -101,7 +101,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             refresh: true,
             includeTickers: true,
           );
+      if (!mounted) return;
       await context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
+      if (!mounted) return;
       await context.read<CurrenciesProvider>().fetchTradableCurrencies();
 
       if (!mounted) return;

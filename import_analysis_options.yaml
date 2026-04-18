@@ -1,5 +1,6 @@
-# import_lint ^0.1.6 — regexp-based CLI (see package README).
-# Run: dart run import_lint
+# import_lint ^0.1.6 — regexp-based CLI (package `import_lint`).
+# Run: `dart run import_lint` (CI: sau `flutter analyze --fatal-infos`).
+# Tài liệu: ARCHITECTURE.md mục "Rào chặn layer & CI", test/README.md.
 
 rules:
   # Feature presentation layers must not import feature data layers.

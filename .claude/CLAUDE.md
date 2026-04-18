@@ -14,10 +14,13 @@ Ngữ cảnh session: `.claude/`. **Vibe Code / ECC:** [VIBE_CODE.md](../VIBE_CO
 ```bash
 flutter pub get
 dart format .
-flutter analyze
+flutter analyze --fatal-infos
+dart run import_lint
 flutter test
 flutter run
 ```
+
+Test tree: `test/features/...` + `test/core/`, `test/support/`. Layer/routing: [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## Backend API
 

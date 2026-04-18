@@ -132,7 +132,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.5),
+          color: statusColor.withValues(alpha:0.5),
           width: 1.5,
         ),
         color: theme.colorScheme.surface,
@@ -170,7 +170,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _remaining.inSeconds < 60
-                        ? Colors.red.withOpacity(0.15)
+                        ? Colors.red.withValues(alpha:0.15)
                         : theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -200,7 +200,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha:0.08),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -223,7 +223,7 @@ class _WcQrSessionCardState extends State<WcQrSessionCard>
                           ? l10n.wcQrScanHintSolana
                           : l10n.wcQrScanHintEvm),
                   style: theme.textTheme.bodySmall!.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),

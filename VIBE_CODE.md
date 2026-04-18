@@ -64,10 +64,9 @@
 
 | Tài liệu | Mục đích |
 |----------|----------|
-| [docs/onboarding/day-1-setup.md](./docs/onboarding/day-1-setup.md) | Setup môi trường ngày 1 |
-| [docs/onboarding/ai-assisted-dev.md](./docs/onboarding/ai-assisted-dev.md) | Hướng dẫn vibe code với AI |
-| [docs/onboarding/ecc-commands-quick-ref.md](./docs/onboarding/ecc-commands-quick-ref.md) | Tra cứu slash commands |
-| [docs/security-zones.md](./docs/security-zones.md) | Security zones và quy tắc |
+| [docs/onboarding/day-1-setup.md](./docs/onboarding/day-1-setup.md) | Setup ngày đầu |
+| [docs/security-zones.md](./docs/security-zones.md) | Vùng rủi ro bảo mật (tóm tắt) |
+| [ECC-COMMANDS.md](./ECC-COMMANDS.md) | Slash commands / ECC |
 | [CONTRIBUTING-RULES.md](./CONTRIBUTING-RULES.md) | Conventions + PR rules |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | FSD + Clean Architecture |
 
@@ -77,6 +76,7 @@
 flutter pub get
 dart format --set-exit-if-changed .
 flutter analyze --fatal-infos
+dart run import_lint
 flutter test --coverage
 ```
 

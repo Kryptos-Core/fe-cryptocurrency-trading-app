@@ -31,4 +31,4 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 #
-# Import boundaries: run `dart run import_lint` (uses import_analysis_options.yaml).
+# Import boundaries (layer rules): `dart run import_lint` — rules in import_analysis_options.yaml at repo root. See ARCHITECTURE.md (section "Rào chặn layer & CI").

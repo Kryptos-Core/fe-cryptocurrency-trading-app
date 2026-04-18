@@ -75,8 +75,12 @@ flutter gen-l10n
 **Lệnh hữu ích**
 
 ```bash
-flutter analyze
+flutter analyze --fatal-infos
+dart run import_lint
 dart format lib
 dart run build_runner build --delete-conflicting-outputs
 flutter clean && flutter pub get
+flutter test
 ```
+
+Chi tiết kiến trúc, routing, lint layer: [`ARCHITECTURE.md`](ARCHITECTURE.md). Cấu trúc test: [`test/README.md`](test/README.md).

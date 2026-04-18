@@ -70,7 +70,7 @@ Sample role configs in this repo:
 Since Codex lacks hooks, security enforcement is instruction-based:
 1. Always validate inputs at system boundaries
 2. Never hardcode secrets — use environment variables
-3. Run `flutter analyze` + `flutter test` before committing
+3. Run `flutter analyze --fatal-infos`, `dart run import_lint`, and `flutter test` before committing
 4. Review `git diff` before every push
 5. Use `sandbox_mode = "workspace-write"` in config
 
@@ -82,6 +82,7 @@ Trước khi coi một feature hoàn thành, **bắt buộc** chạy:
 flutter pub get
 dart format --set-exit-if-changed .
 flutter analyze --fatal-infos
+dart run import_lint
 flutter test --coverage
 ```
 
@@ -90,7 +91,7 @@ Nếu Codex vừa tạo / sửa code, kết thúc session bằng cách tự ch�
 ### Checklist tự kiểm tra (Codex)
 
 Trước khi báo "done":
-- [ ] `flutter analyze` không có warning/error
+- [ ] `flutter analyze --fatal-infos` sạch; `dart run import_lint` sạch
 - [ ] `flutter test` pass 100%
 - [ ] Không có `print()` hoặc `debugPrint()` ngoài debug build guard
 - [ ] Không có hardcode URL, token, private key

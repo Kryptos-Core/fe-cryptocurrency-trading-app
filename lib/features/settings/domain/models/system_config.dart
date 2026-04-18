@@ -1,7 +1,7 @@
 enum ConfigCategory {
-  TECH,
-  FINANCE,
-  CORE,
+  tech,
+  finance,
+  core,
 }
 
 class SystemConfig {
@@ -36,8 +36,8 @@ class SystemConfig {
   }
 
   static ConfigCategory _parseCategory(String? cat) {
-    if (cat == 'tech') return ConfigCategory.TECH;
-    if (cat == 'finance') return ConfigCategory.FINANCE;
-    return ConfigCategory.CORE;
+    if (cat == 'tech') return ConfigCategory.tech;
+    if (cat == 'finance') return ConfigCategory.finance;
+    return ConfigCategory.core;
   }
 }

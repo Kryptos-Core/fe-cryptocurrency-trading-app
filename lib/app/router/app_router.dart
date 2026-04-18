@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -43,9 +44,14 @@ GoRouter createAppRouter(AuthProvider auth) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: AppRoutes.root,
-        builder: (_, __) => const MainScreen(),
+      ShellRoute(
+        builder: (_, __, Widget child) => child,
+        routes: [
+          GoRoute(
+            path: AppRoutes.root,
+            builder: (_, __) => const MainScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.login,

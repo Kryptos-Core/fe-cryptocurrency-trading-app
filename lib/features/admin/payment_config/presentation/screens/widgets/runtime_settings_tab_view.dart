@@ -112,7 +112,7 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView> {
         for (final r in provider.rows) {
           byCategory.putIfAbsent(r.category, () => []).add(r);
         }
-        const order = [ConfigCategory.CORE, ConfigCategory.TECH, ConfigCategory.FINANCE];
+        const order = [ConfigCategory.core, ConfigCategory.tech, ConfigCategory.finance];
 
         return Column(
           children: [
@@ -224,11 +224,11 @@ List<Widget> _runtimeSectionWidgets({
 
 String _runtimeSectionTitle(AppLocalizations l10n, ConfigCategory cat) {
   switch (cat) {
-    case ConfigCategory.TECH:
+    case ConfigCategory.tech:
       return l10n.paymentConfigRuntimeSectionTech;
-    case ConfigCategory.FINANCE:
+    case ConfigCategory.finance:
       return l10n.paymentConfigRuntimeSectionFinance;
-    case ConfigCategory.CORE:
+    case ConfigCategory.core:
       return l10n.paymentConfigRuntimeSectionCore;
   }
 }

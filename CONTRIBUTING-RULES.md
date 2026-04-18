@@ -78,10 +78,12 @@ test: add widget test for TradingScreen
 ## PR Requirements
 
 - Title: `<type>: <short description>` (< 72 chars)
-- Body: dùng template PR (copy từ `docs/onboarding/ecc-commands-quick-ref.md`)
+- Body: checklist chất lượng — `flutter analyze --fatal-infos`, `dart run import_lint`, `flutter test`; không hardcode secret/URL (xem [VIBE_CODE.md](./VIBE_CODE.md))
 - Minimum 1 reviewer
-- CI phải pass (flutter analyze + flutter test)
+- **CI phải pass:** `flutter analyze --fatal-infos`, `dart run import_lint`, `flutter test` (và bước build Windows trên workflow pin toolchain — xem `.github/workflows/`)
 - Không merge PR mà mình tự approve
+
+**Lint layer (boundary imports):** cấu hình [`import_analysis_options.yaml`](import_analysis_options.yaml); không dùng plugin `custom_lint` trong analyzer — chạy CLI như trên. Chi tiết: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Security Requirements
 

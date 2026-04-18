@@ -169,9 +169,9 @@ class _WalletDeepLinkButton extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.08),
+          color: Colors.orange.withValues(alpha:0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+          border: Border.all(color: Colors.orange.withValues(alpha:0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class _WalletDeepLinkButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,
-        side: BorderSide(color: iconColor.withOpacity(0.6)),
+        side: BorderSide(color: iconColor.withValues(alpha:0.6)),
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),

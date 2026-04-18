@@ -14,12 +14,14 @@ paths:
 lib/
 ├── app/                     # Composition root + bootstrap
 │   ├── di/injection_container.dart   # GetIt — đăng ký toàn app
-│   └── router/app_routes.dart       # Shell / route constants
+│   └── router/
+│       ├── app_routes.dart           # Path constants, guest allowlist, tab indices
+│       └── app_router.dart           # GoRouter + ShellRoute shell `/` + MainScreen
 ├── core/                    # Infrastructure & UI chung
 │   ├── constants/, network/, error/, services/, utils/, wallet_auth/
 │   ├── localization/, theme/, responsive/, widgets/
 │   └── l10n/, gen_l10n/
-├── shared/                  # Tùy chọn — helpers cross-feature mong manh domain
+├── shared/                  # Tùy chọn — helpers cross-feature (README định hướng)
 └── features/<feature>/       # data / domain / application / presentation
 ```
 
@@ -34,7 +36,9 @@ presentation → domain ← data
 - **domain** không được import Flutter, Dio, Hive, hoặc bất kỳ gói infra nào
 - **data** implement contracts từ **domain**, không phụ thuộc **presentation**
 - **presentation** chỉ biết đến **domain entities** và **use cases** (không biết đến models)
-- **core** là shared — được phép import ở mọi layer nhưng không import từ layer nào
+- **core** là shared — được phép import ở mọi layer; **không** import `features/*/…` trừ các path được liệu kê trong [`import_analysis_options.yaml`](../../import_analysis_options.yaml) (`core_no_features` ignore — legacy đang được thu gọn).
+
+**Kiểm tra boundary (CI):** `dart run import_lint` — không dùng plugin analyzer `custom_lint` cho package này; rule nằm trong `import_analysis_options.yaml`.
 
 ```dart
 // BAD: presentation import trực tiếp DTO

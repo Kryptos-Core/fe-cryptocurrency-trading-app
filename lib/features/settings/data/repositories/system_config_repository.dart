@@ -34,6 +34,7 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
     };
   }
 
+  @override
   Future<List<SystemConfig>> getAllConfigs() async {
     final response = await _client.get(
       Uri.parse('${ApiConstants.baseUrl}/system-configs'),
@@ -51,6 +52,7 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
     }
   }
 
+  @override
   Future<List<RuntimeSettingRow>> getRuntimeSettings() async {
     final response = await _client.get(
       Uri.parse('${ApiConstants.baseUrl}/system-configs/runtime'),
@@ -69,6 +71,7 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
     throw Exception('Failed to load runtime settings: ${response.statusCode} ${response.body}');
   }
 
+  @override
   Future<void> patchRuntimeBulk(Map<String, String> updates) async {
     final response = await _client.patch(
       Uri.parse('${ApiConstants.baseUrl}/system-configs/runtime'),
@@ -81,6 +84,7 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
     }
   }
 
+  @override
   Future<SystemConfig> updateConfig(String key, String value) async {
     final response = await _client.patch(
       Uri.parse('${ApiConstants.baseUrl}/system-configs/$key'),

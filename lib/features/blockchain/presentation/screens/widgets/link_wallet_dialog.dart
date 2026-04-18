@@ -201,8 +201,8 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.primary.withOpacity(0.12),
-            theme.colorScheme.secondary.withOpacity(0.06),
+            theme.colorScheme.primary.withValues(alpha:0.12),
+            theme.colorScheme.secondary.withValues(alpha:0.06),
           ],
         ),
       ),
@@ -211,7 +211,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.15),
+              color: theme.colorScheme.primary.withValues(alpha:0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -234,7 +234,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                 Text(
                   l10n.wcLinkDialogSubtitle,
                   style: theme.textTheme.bodySmall!.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                   ),
                 ),
               ],
@@ -320,7 +320,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
           Text(
             l10n.wcLinkedWalletAddedToList,
             style: theme.textTheme.bodyMedium!.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.6),
             ),
             textAlign: TextAlign.center,
           ),
@@ -411,7 +411,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                   children: [
                     Icon(Icons.info_outline,
                         size: 14,
-                        color: theme.colorScheme.primary.withOpacity(0.7)),
+                        color: theme.colorScheme.primary.withValues(alpha:0.7)),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -419,7 +419,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                             ? l10n.wcTronChromeExtensionWebOnly
                             : l10n.tronLinkNativePlatformHint,
                         style: theme.textTheme.bodySmall!.copyWith(
-                          color: theme.colorScheme.primary.withOpacity(0.7),
+                          color: theme.colorScheme.primary.withValues(alpha:0.7),
                         ),
                       ),
                     ),
@@ -666,7 +666,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                 child: Text(
                   l10n.tronLinkChallengeHint,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                   ),
                 ),
               ),
@@ -708,10 +708,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withOpacity(0.4),
+        color: theme.colorScheme.errorContainer.withValues(alpha:0.4),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: theme.colorScheme.error.withOpacity(0.3),
+          color: theme.colorScheme.error.withValues(alpha:0.3),
         ),
       ),
       child: Row(
@@ -746,13 +746,13 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         children: [
           Icon(Icons.shield_outlined,
               size: 14,
-              color: theme.colorScheme.onSurface.withOpacity(0.4)),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.4)),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               l10n.wcPrivateKeyStaysInWallet,
               style: theme.textTheme.bodySmall!.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.4),
               ),
             ),
           ),
