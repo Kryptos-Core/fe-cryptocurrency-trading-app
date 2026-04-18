@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 
 void main() {
   group('WalletExtensionPrecheckService', () {

@@ -1,6 +1,6 @@
-import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet_status.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet_status.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

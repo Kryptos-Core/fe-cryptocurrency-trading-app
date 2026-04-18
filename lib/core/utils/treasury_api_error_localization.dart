@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
 /// Maps treasury API [code] (Nest [AppException]) to localized copy. Falls back to [message]
 /// when the code is unknown so the UI is never empty.

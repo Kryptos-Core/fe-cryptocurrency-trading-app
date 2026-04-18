@@ -6,20 +6,20 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/data/datasources/exchange_remote_datasource.dart';
-import 'package:crypto_trading_app/data/models/exchange_sync_result.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
-import 'package:crypto_trading_app/screens/admin_markets_screen.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/exchange_sync_result.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/exchange_repository.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/features/admin/markets/presentation/screens/admin_markets_screen.dart';
 
 import '../support/empty_markets_repository.dart';
 import '../support/stub_auth_repository.dart';
 import '../support/stub_currencies_repository.dart';
 
-class _FakeExchangeDataSource implements ExchangeRemoteDataSource {
-  _FakeExchangeDataSource(this.result);
+class _FakeExchangeRepository implements ExchangeRepository {
+  _FakeExchangeRepository(this.result);
 
   final ExchangeSyncResult result;
   int syncCalls = 0;
@@ -50,7 +50,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'access_token': _adminJwt()});
     final prefs = await SharedPreferences.getInstance();
     final tokenService = TokenService(sharedPreferences: prefs);
-    final fakeExchange = _FakeExchangeDataSource(
+    final fakeExchange = _FakeExchangeRepository(
       const ExchangeSyncResult(
         currenciesCreated: 1,
         currenciesSkipped: 2,
@@ -87,7 +87,7 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          home: AdminMarketsScreen(exchangeDataSource: fakeExchange),
+          home: AdminMarketsScreen(exchangeRepository: fakeExchange),
         ),
       ),
     );

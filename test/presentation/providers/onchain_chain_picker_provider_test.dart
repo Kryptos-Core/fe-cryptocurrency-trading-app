@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:crypto_trading_app/core/services/chain_picker_options_cache.dart';
-import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
-import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/features/treasury/domain/entities/chain_picker_options_model.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +28,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
 
       final provider = OnchainChainPickerProvider(
-        dataSource: StubTreasuryRemoteDataSource(
+        repository: StubTreasuryRepository(
           chainPickerJson: const {},
           chainPickerError: Exception('offline'),
         ),
@@ -54,7 +54,7 @@ void main() {
       });
 
       final provider = OnchainChainPickerProvider(
-        dataSource: StubTreasuryRemoteDataSource(
+        repository: StubTreasuryRepository(
           chainPickerJson: {
             'operatorMode': 'sandbox',
             'tronDefaultNetwork': 'TRON_NILE',

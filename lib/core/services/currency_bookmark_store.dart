@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crypto_trading_app/data/models/currency_model.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
 
 /// Lightweight refs for recent / favorite wallet currencies.
 class CurrencyRef {
@@ -90,7 +90,7 @@ class CurrencyBookmarkStore {
   }
 
   /// Most-recent first, capped at [_maxItems].
-  Future<void> addRecent(CurrencyModel currency) async {
+  Future<void> addRecent(Currency currency) async {
     final next = [
       CurrencyRef(currencyId: currency.currencyId, symbol: currency.symbol),
       ...recent.where((e) => e.currencyId != currency.currencyId),
@@ -104,7 +104,7 @@ class CurrencyBookmarkStore {
     await _writeRecent(next);
   }
 
-  Future<void> toggleFavorite(CurrencyModel currency) async {
+  Future<void> toggleFavorite(Currency currency) async {
     final ref =
         CurrencyRef(currencyId: currency.currencyId, symbol: currency.symbol);
     final current = List<CurrencyRef>.from(favorites);

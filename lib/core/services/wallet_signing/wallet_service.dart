@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'

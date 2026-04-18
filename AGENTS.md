@@ -10,7 +10,7 @@ Mở **đúng thư mục gốc repo Flutter này** làm folder workspace (cùng 
 - [CONTRIBUTING-RULES.md](./CONTRIBUTING-RULES.md) — Conventions + PR process
 - [docs/security-zones.md](./docs/security-zones.md) — Security zones
 - [docs/onboarding/](./docs/onboarding/) — Onboarding guides (day-1, ai-dev, ecc-ref)
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — FSD + Clean Architecture
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Feature-first Clean Architecture (4-layer)
 
 ## Stack
 
@@ -47,5 +47,5 @@ Chi tiết và lưu ý xung đột với Vibe Code: [AGENTS.md ở monorepo cha]
 
 1. Không hardcode secret; không commit `.env` thật.
 2. `flutter analyze` + test trước khi coi feature xong; ưu tiên TDD cho logic quan trọng.
-3. UI/feature bám FSD + atomic — [ARCHITECTURE.md](./ARCHITECTURE.md), rules `dart-*` / `web-*`, skill **dart-flutter-patterns** khi cần chi tiết.
+3. UI/feature bám feature modules + Clean Architecture — [ARCHITECTURE.md](./ARCHITECTURE.md), rules `dart-*` / `web-*`, skill **dart-flutter-patterns** khi cần chi tiết.
 4. Trả lời user tiếng Việt khi họ dùng tiếng Việt; thuật ngữ kỹ thuật giữ tiếng Anh chuẩn ngành.

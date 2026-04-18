@@ -1,6 +1,6 @@
 import 'package:crypto_trading_app/core/services/websocket_service.dart'
     show OHLCData;
-import 'package:crypto_trading_app/domain/entities/market_pair.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 
 /// Converts REST [OHLCV] rows into realtime [OHLCData] for chart widgets.
 List<OHLCData> ohlcvRowsToChartCandles({

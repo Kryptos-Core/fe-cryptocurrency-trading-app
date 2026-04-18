@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/user_remote_datasource.dart';
-import 'package:crypto_trading_app/data/repositories/auth_repository_impl.dart';
-import 'package:crypto_trading_app/domain/entities/user.dart';
+import 'package:crypto_trading_app/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:crypto_trading_app/features/user/data/datasources/user_remote_datasource.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_response.dart';
+import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 
 /// Minimal [AuthRepository] for widget tests — only [getCurrentUser] may be customized.
 class StubAuthRepository implements AuthRepository {
@@ -158,6 +159,13 @@ class StubAuthRepository implements AuthRepository {
     required String token,
     required String newPassword,
     required String otpCode,
+  }) async =>
+      const Left(_f);
+
+  @override
+  Future<Either<Failure, WalletNonceResponse>> walletNonce({
+    required String chain,
+    required String address,
   }) async =>
       const Left(_f);
 }

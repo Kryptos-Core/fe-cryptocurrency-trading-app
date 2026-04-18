@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/wallet_extension_precheck_service.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/windows_extension_precheck_card.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wallet_challenge_section.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/windows_extension_precheck_card.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/wallet_challenge_section.dart';
 
 class _ChallengeHarness extends StatefulWidget {
   final bool showWindowsPrecheck;

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart' hide Order;
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/domain/entities/order.dart';
-import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order_book_level.dart';
 
 /// Request DTO for creating an order (domain-agnostic shape)
 class CreateOrderRequest {

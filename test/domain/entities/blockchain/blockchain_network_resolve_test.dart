@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

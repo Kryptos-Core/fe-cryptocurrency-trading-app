@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/data/models/admin_enums_snapshot.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/data/models/admin_enums_snapshot.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

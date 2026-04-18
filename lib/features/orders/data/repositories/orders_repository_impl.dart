@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart' hide Order;
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/data/models/create_order_request_dto.dart';
-import 'package:crypto_trading_app/domain/entities/order.dart';
-import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
+import 'package:crypto_trading_app/features/orders/data/models/create_order_request_dto.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/features/orders/data/datasources/orders_remote_datasource.dart';
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 

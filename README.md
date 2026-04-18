@@ -58,7 +58,7 @@ flutter devices
 
 Trong `flutter run`: `r` hot reload, `R` hot restart, `q` thoát.
 
-Sau khi sửa `lib/l10n/*.arb`:
+Sau khi sửa `lib/core/l10n/*.arb`:
 
 ```bash
 flutter gen-l10n

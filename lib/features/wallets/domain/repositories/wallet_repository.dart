@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/admin/wallet_adjust/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_balance.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
 
 /// Repository interface for wallet operations
 ///

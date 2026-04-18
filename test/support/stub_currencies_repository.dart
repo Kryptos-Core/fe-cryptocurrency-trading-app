@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
-import 'package:crypto_trading_app/data/models/update_currency_dto.dart';
-import 'package:crypto_trading_app/domain/entities/currency.dart';
-import 'package:crypto_trading_app/domain/repositories/currencies_repository.dart';
+import 'package:crypto_trading_app/features/markets/domain/dtos/create_currency_dto.dart';
+import 'package:crypto_trading_app/features/markets/domain/dtos/update_currency_dto.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/currencies_repository.dart';
 
 /// [CurrenciesRepository] with empty lists — enough for markets list screen init.
 class StubCurrenciesRepository implements CurrenciesRepository {

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/constants/platform_cash_currency.dart';
-import 'package:crypto_trading_app/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
-import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
+import 'package:crypto_trading_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/wallet_card.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/widgets/wallet_card.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/screens/wallet_detail_screen.dart';
-import 'package:crypto_trading_app/screens/deposits_screen.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/screens/deposits_screen.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
 /// Wallets Overview Screen
 ///

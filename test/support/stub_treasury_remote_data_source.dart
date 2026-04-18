@@ -1,10 +1,10 @@
-import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
-import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
-import 'package:crypto_trading_app/data/models/treasury_model.dart';
+import 'package:crypto_trading_app/features/treasury/domain/repositories/treasury_repository.dart';
+import 'package:crypto_trading_app/features/treasury/domain/entities/chain_picker_options_model.dart';
+import 'package:crypto_trading_app/features/treasury/domain/entities/treasury_model.dart';
 
 /// Test stub: only [getChainPickerOptions] is real; everything else throws.
-class StubTreasuryRemoteDataSource implements TreasuryRemoteDataSource {
-  StubTreasuryRemoteDataSource({
+class StubTreasuryRepository implements TreasuryRepository {
+  StubTreasuryRepository({
     required this.chainPickerJson,
     this.chainPickerError,
   });

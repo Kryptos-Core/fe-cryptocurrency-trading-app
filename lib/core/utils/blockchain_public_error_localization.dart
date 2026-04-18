@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
 /// How to present the empty deposit-address slot (platform section).
 enum DepositAddressEmptyKind {

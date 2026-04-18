@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
-import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_response.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/metamask_web_bridge_web.dart';
@@ -14,11 +14,17 @@ import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bri
 
 enum _WebWalletKind { metamask, tronlink }
 
+/// Lấy message ký (nonce) từ backend cho địa chỉ ví trên chain.
+typedef WalletNonceFetcher = Future<WalletNonceResponse> Function({
+  required String chain,
+  required String address,
+});
+
 /// Đăng nhập trên Flutter Web qua MetaMask / TronLink extension (nonce + ký + wallet-verify).
 Future<bool> loginWithWebBrowserExtension(
   BuildContext context, {
   required bool metaMask,
-  required AuthRemoteDataSource datasource,
+  required WalletNonceFetcher fetchNonce,
   required VoidCallback onSuccess,
 }) async {
   if (!kIsWeb || !context.mounted) return false;
@@ -54,7 +60,7 @@ Future<bool> loginWithWebBrowserExtension(
     kind: kind,
     address: address,
     chain: chain,
-    datasource: datasource,
+    fetchNonce: fetchNonce,
     onSuccess: onSuccess,
   );
 }
@@ -64,12 +70,12 @@ Future<bool> _completeWalletAuthAfterAddress(
   required _WebWalletKind kind,
   required String address,
   required BlockchainNetwork chain,
-  required AuthRemoteDataSource datasource,
+  required WalletNonceFetcher fetchNonce,
   required VoidCallback onSuccess,
 }) async {
   WalletNonceResponse nonceResponse;
   try {
-    nonceResponse = await datasource.walletNonce(
+    nonceResponse = await fetchNonce(
       chain: chain.apiValue,
       address: address,
     );

@@ -3,9 +3,9 @@ import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/features/wallets/data/datasources/wallet_local_datasource.dart';
 import 'package:crypto_trading_app/features/wallets/data/datasources/wallet_remote_datasource.dart';
-import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/admin/wallet_adjust/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_balance.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/features/wallets/domain/repositories/wallet_repository.dart';
 
 /// This repository bridges between the domain layer and data layer.

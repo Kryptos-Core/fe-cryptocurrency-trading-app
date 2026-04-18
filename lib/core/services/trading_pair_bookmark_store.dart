@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crypto_trading_app/domain/entities/market_pair.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 
 /// Lightweight refs for recent / favorite pairs (pairId + symbol for display).
 class TradingPairRef {

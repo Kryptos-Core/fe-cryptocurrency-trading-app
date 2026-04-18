@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/presentation/utils/treasury_dropdown_menu_layout.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

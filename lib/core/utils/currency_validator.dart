@@ -1,5 +1,5 @@
-import 'package:crypto_trading_app/domain/entities/currency.dart';
-import 'package:crypto_trading_app/data/models/create_currency_dto.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
+import 'package:crypto_trading_app/features/markets/domain/dtos/create_currency_dto.dart';
 
 /// Currency Validator
 /// Following Single Responsibility Principle (SRP) - only handles validation

@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/screens/main_screen.dart';
+import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
 import 'package:crypto_trading_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 

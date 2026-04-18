@@ -1,5 +1,5 @@
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 

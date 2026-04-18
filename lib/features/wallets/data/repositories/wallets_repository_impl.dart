@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/features/wallets/data/datasources/wallets_remote_datasource.dart';
-import 'package:crypto_trading_app/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/features/wallets/domain/repositories/wallets_repository.dart';
 
 /// Wallets Repository Implementation

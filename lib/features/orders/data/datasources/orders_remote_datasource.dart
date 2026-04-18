@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
-import 'package:crypto_trading_app/data/models/create_order_request_dto.dart';
-import 'package:crypto_trading_app/data/models/order_book_level_model.dart';
-import 'package:crypto_trading_app/data/models/order_model.dart';
+import 'package:crypto_trading_app/features/orders/data/models/create_order_request_dto.dart';
+import 'package:crypto_trading_app/features/markets/data/models/order_book_level_model.dart';
+import 'package:crypto_trading_app/features/orders/data/models/order_model.dart';
 
 /// Orders remote data source (Repository Pattern - data access only)
 ///

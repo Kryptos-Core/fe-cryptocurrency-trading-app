@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/platform_notice_card.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/platform_notice_card.dart';
 
 Widget _buildHarness({required bool isWebDialog}) {
   return MaterialApp(

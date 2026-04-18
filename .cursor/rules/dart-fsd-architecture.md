@@ -12,28 +12,15 @@ paths:
 
 ```
 lib/
-├── core/                    # Shared infrastructure
-│   ├── constants/           # AppColors, AppTextStyles, AppRoutes, ApiEndpoints
-│   ├── di/                  # GetIt service locator setup
-│   ├── error/               # Failure types, AppException
-│   ├── network/             # Dio client, interceptors, WebSocket
-│   ├── providers/           # App-level providers (locale, theme)
-│   ├── services/            # Cross-cutting services (analytics, storage wrappers)
-│   ├── utils/               # Pure helper functions (formatters, validators)
-│   └── wallet_auth/         # SENSITIVE — wallet connect, auth flow
-├── data/                    # Data layer (implements domain contracts)
-│   ├── datasources/         # Remote (API) + Local (Hive, SecureStorage)
-│   ├── models/              # Data transfer objects (JSON serializable)
-│   └── repositories/        # Concrete repository implementations
-├── domain/                  # Business logic — NO Flutter imports allowed
-│   ├── entities/            # Pure Dart business objects
-│   ├── repositories/        # Abstract repository interfaces
-│   └── usecases/            # Single-responsibility use cases
-├── presentation/            # Stateful layer
-│   ├── providers/           # Feature-level ChangeNotifier / Riverpod providers
-│   ├── widgets/             # Reusable atomic/molecular widgets
-│   └── screens/             # Page-level composition (feature screens)
-└── screens/                 # Top-level screen routing (legacy; migrate into features)
+├── app/                     # Composition root + bootstrap
+│   ├── di/injection_container.dart   # GetIt — đăng ký toàn app
+│   └── router/app_routes.dart       # Shell / route constants
+├── core/                    # Infrastructure & UI chung
+│   ├── constants/, network/, error/, services/, utils/, wallet_auth/
+│   ├── localization/, theme/, responsive/, widgets/
+│   └── l10n/, gen_l10n/
+├── shared/                  # Tùy chọn — helpers cross-feature mong manh domain
+└── features/<feature>/       # data / domain / application / presentation
 ```
 
 ## Quy tắc phụ thuộc (Dependency Rules)
@@ -50,11 +37,11 @@ presentation → domain ← data
 - **core** là shared — được phép import ở mọi layer nhưng không import từ layer nào
 
 ```dart
-// BAD: presentation phụ thuộc data model
-import 'package:app/data/models/order_model.dart';
+// BAD: presentation import trực tiếp DTO
+import 'package:app/features/orders/data/models/order_model.dart';
 
 // GOOD: presentation dùng domain entity
-import 'package:app/domain/entities/order.dart';
+import 'package:app/features/orders/domain/entities/order.dart';
 ```
 
 ## Quy tắc tổ chức file
@@ -103,20 +90,20 @@ class OrderRepositoryImpl implements OrderRepository {
 
 ## Khi thêm feature mới
 
-1. Tạo entity trong `domain/entities/`
-2. Tạo abstract repository trong `domain/repositories/`
-3. Tạo use cases trong `domain/usecases/`
-4. Tạo model trong `data/models/` (với `fromJson`/`toJson`)
-5. Implement repository trong `data/repositories/`
-6. Tạo provider trong `presentation/providers/`
-7. Xây dựng screen trong `presentation/screens/` hoặc `screens/`
+1. Tạo entity trong `features/<f>/domain/entities/`
+2. Tạo abstract repository trong `features/<f>/domain/repositories/`
+3. Tạo use cases trong `features/<f>/application/usecases/`
+4. Tạo model trong `features/<f>/data/models/` (`fromJson`/`toJson`)
+5. Implement repository trong `features/<f>/data/repositories/`
+6. Tạo provider trong `features/<f>/presentation/providers/`
+7. Xây screen trong `features/<f>/presentation/screens/`
 
 ## Đăng ký DI
 
-Tất cả dependencies phải đăng ký qua GetIt trong `core/di/`:
+Dependencies đăng ký qua GetIt trong [`app/di/injection_container.dart`](../../lib/app/di/injection_container.dart):
 
 ```dart
-// core/di/injection_container.dart
+// app/di/injection_container.dart
 sl.registerLazySingleton<OrderRepository>(
   () => OrderRepositoryImpl(
     remote: sl(),

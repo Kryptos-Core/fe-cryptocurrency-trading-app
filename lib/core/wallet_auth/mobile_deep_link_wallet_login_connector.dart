@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/wallet_auth/wallet_brand.dart';
 import 'package:crypto_trading_app/core/wallet_auth/wallet_brand_login_connector.dart';
-import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
+import 'package:crypto_trading_app/core/utils/wallet_web_extension_auth.dart';
 
 /// Android / iOS: mở app TronLink bằng deep link.
 class MobileDeepLinkWalletLoginConnector implements WalletBrandLoginConnector {
@@ -16,7 +16,7 @@ class MobileDeepLinkWalletLoginConnector implements WalletBrandLoginConnector {
   Future<void> connect(
     BuildContext context, {
     required WalletBrand brand,
-    required AuthRemoteDataSource datasource,
+    required WalletNonceFetcher fetchNonce,
     required VoidCallback onSuccess,
   }) async {
     if (!context.mounted) return;

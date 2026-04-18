@@ -1,41 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/network/dio_client.dart';
-import 'package:crypto_trading_app/core/providers/locale_provider.dart';
-import 'package:crypto_trading_app/core/providers/theme_provider.dart';
-import 'package:crypto_trading_app/core/ui/app_scroll_behavior.dart';
-import 'package:crypto_trading_app/data/datasources/market_maker_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/notification_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/payment_config_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/treasury_remote_datasource.dart';
-import 'package:crypto_trading_app/data/datasources/withdrawal_admin_remote_datasource.dart';
-import 'package:crypto_trading_app/data/repositories/system_config_repository.dart';
+import 'package:crypto_trading_app/core/localization/locale_provider.dart';
+import 'package:crypto_trading_app/core/theme/theme_provider.dart';
+import 'package:crypto_trading_app/core/responsive/app_scroll_behavior.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/data/datasources/market_maker_remote_datasource.dart';
+import 'package:crypto_trading_app/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/data/datasources/payment_config_remote_datasource.dart';
+import 'package:crypto_trading_app/features/treasury/domain/repositories/treasury_repository.dart';
+import 'package:crypto_trading_app/features/admin/withdrawal_management/data/datasources/withdrawal_admin_remote_datasource.dart';
+import 'package:crypto_trading_app/features/settings/domain/repositories/system_config_repository.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/providers/admin_enums_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/admin_transactions_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/admin_users_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/exchange_rate_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/managed_wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/market_maker_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/notification_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/admin/shared/presentation/providers/admin_enums_provider.dart';
+import 'package:crypto_trading_app/features/admin/transactions/presentation/providers/admin_transactions_provider.dart';
+import 'package:crypto_trading_app/features/admin/users/presentation/providers/admin_users_provider.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/providers/deposits_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/exchange_rate_provider.dart';
+import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/providers/market_maker_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/payment_config_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/runtime_settings_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/treasury_main_wallet_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/runtime_settings_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/withdrawal_management_provider.dart';
-import 'package:crypto_trading_app/screens/main_screen.dart';
+import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/providers/withdrawal_management_provider.dart';
+import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
 
 class CryptoTradingApp extends StatelessWidget {
   const CryptoTradingApp({super.key});
@@ -109,7 +109,7 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<DashboardProvider>(
           create: (_) => DashboardProvider(
-            datasource: di.sl(),
+            repository: di.sl(),
             wsService: di.sl(),
             tokenService: di.sl(),
           ),
@@ -117,8 +117,8 @@ class CryptoTradingApp extends StatelessWidget {
         ChangeNotifierProvider<NotificationProvider>.value(
           value: di.sl<NotificationProvider>(),
         ),
-        Provider<NotificationRemoteDataSource>.value(
-          value: di.sl<NotificationRemoteDataSource>(),
+        Provider<NotificationRepository>.value(
+          value: di.sl<NotificationRepository>(),
         ),
         ChangeNotifierProvider<AdminUsersProvider>.value(
           value: di.sl<AdminUsersProvider>(),
@@ -141,18 +141,18 @@ class CryptoTradingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<OnchainChainPickerProvider>(
           create: (_) => OnchainChainPickerProvider(
-            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+            repository: di.sl<TreasuryRepository>(),
             prefs: di.sl<di.SharedPreferences>(),
           ),
         ),
         ChangeNotifierProvider<TreasuryProvider>(
           create: (_) => TreasuryProvider(
-            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+            repository: di.sl<TreasuryRepository>(),
           ),
         ),
         ChangeNotifierProvider<TreasuryMainWalletProvider>(
           create: (context) => TreasuryMainWalletProvider(
-            dataSource: TreasuryRemoteDataSourceImpl(dioClient: di.sl()),
+            repository: di.sl<TreasuryRepository>(),
             authRepo: di.sl(),
             tokenService: di.sl(),
             chainPicker: context.read<OnchainChainPickerProvider>(),

@@ -19,6 +19,7 @@ dependencies:
   
   # Networking
   dio: ^5.4.0
+  http: ^1.2.2
   # retrofit: ^4.0.3  # Commented out - not used
   json_annotation: ^4.8.1
   

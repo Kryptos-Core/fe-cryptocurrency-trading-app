@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:crypto_trading_app/data/models/chain_picker_options_model.dart';
+import 'package:crypto_trading_app/features/treasury/domain/entities/chain_picker_options_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists last successful [GET /treasury/chain-picker-options] payload so

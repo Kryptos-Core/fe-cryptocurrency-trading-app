@@ -16,7 +16,7 @@
 
 ### Architecture
 
-- **Feature-Sliced Design (FSD):** mỗi feature là một slice với `domain/`, `data/`, `presentation/`
+- **Feature modules** dưới `lib/features/<name>/` với `data/`, `domain/`, `application/`, `presentation/` (application: use case + orchestration; bỏ nếu feature chỉ UI mỏng)
 - Domain layer independent: không import Flutter, Dio, local storage
 - Repository pattern: `domain/repositories/` khai báo interface, `data/repositories/` implement
 

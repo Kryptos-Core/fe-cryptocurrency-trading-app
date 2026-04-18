@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/core/services/fcm_service.dart';
+import 'package:crypto_trading_app/features/notifications/application/services/fcm_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:crypto_trading_app/app/bootstrap/initialize_app_bootstrap.dart';

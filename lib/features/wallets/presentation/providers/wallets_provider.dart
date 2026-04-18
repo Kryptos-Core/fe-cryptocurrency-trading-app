@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/core/services/notifications_socket_service.dart';
-import 'package:crypto_trading_app/domain/entities/admin_wallet_adjustment.dart';
-import 'package:crypto_trading_app/domain/entities/wallet.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/notifications/application/services/notifications_socket_service.dart';
+import 'package:crypto_trading_app/features/admin/wallet_adjust/domain/entities/admin_wallet_adjustment.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_balance.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/features/wallets/domain/repositories/wallets_repository.dart';
 import 'package:crypto_trading_app/features/wallets/domain/repositories/wallet_repository.dart';
 

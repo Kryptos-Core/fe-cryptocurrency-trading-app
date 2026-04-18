@@ -1,7 +1,7 @@
-import 'package:crypto_trading_app/domain/models/runtime_setting_row.dart';
-import 'package:crypto_trading_app/domain/models/system_config.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/screens/payment_config/widgets/runtime_setting_card.dart';
+import 'package:crypto_trading_app/features/settings/domain/models/runtime_setting_row.dart';
+import 'package:crypto_trading_app/features/settings/domain/models/system_config.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/runtime_setting_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';

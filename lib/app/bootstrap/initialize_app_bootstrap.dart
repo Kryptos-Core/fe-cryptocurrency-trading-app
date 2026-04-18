@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart' as di;
-import 'package:crypto_trading_app/core/services/fcm_service.dart';
+import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/features/notifications/application/services/fcm_service.dart';
 
 Future<void> initializeAppBootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();

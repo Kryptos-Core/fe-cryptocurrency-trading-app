@@ -6,8 +6,8 @@ import 'package:crypto_trading_app/core/enums/user_role.dart';
 import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:crypto_trading_app/domain/entities/user.dart';
+import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 
 /// AuthProvider — single source of truth for authentication state.
 ///

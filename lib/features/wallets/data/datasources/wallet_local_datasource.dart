@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/domain/entities/wallet_balance.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_balance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 

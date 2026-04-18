@@ -3,19 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/domain/entities/market_pair.dart';
-import 'package:crypto_trading_app/domain/entities/order.dart';
-import 'package:crypto_trading_app/domain/entities/order_book_level.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
+import 'package:crypto_trading_app/features/orders/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/trading_pair_bookmark_store.dart';
-import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
-import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/markets_repository.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
-import 'package:crypto_trading_app/presentation/widgets/trading_pair_picker_sheet.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/trading_pair_picker_sheet.dart';
 
 // --- Format số hiển thị (best practice: dấu phân cách hàng nghìn, bỏ số 0 thừa) ---
 

@@ -1,5 +1,5 @@
-import 'package:crypto_trading_app/domain/entities/blockchain/onchain_tx_status.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
 String onchainTxStatusUiLabel(AppLocalizations l10n, OnchainTxStatus status) {
   switch (status) {

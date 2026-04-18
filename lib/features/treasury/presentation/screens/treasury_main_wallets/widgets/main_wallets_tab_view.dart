@@ -1,0 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/import_wallet_dialog.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallet_card.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/treasury_main_wallets_empty_placeholder.dart';
+
+class MainWalletsTabView extends StatelessWidget {
+  const MainWalletsTabView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final provider = context.watch<TreasuryMainWalletProvider>();
+    final auth = context.watch<AuthProvider>();
+    final canFinanceTreasuryOps = auth.canManagePaymentConfigs;
+    final wallets = provider.mainWallets;
+
+    return Stack(
+      children: [
+        if (provider.isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (wallets.isEmpty)
+          RefreshIndicator(
+            onRefresh: provider.refreshAllWallets,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: TreasuryMainWalletsEmptyPlaceholder(message: l10n.treasuryMainWalletsEmptyActive),
+                ),
+              ],
+            ),
+          )
+        else
+          RefreshIndicator(
+            onRefresh: provider.refreshAllWallets,
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+              itemCount: wallets.length,
+              itemBuilder: (context, index) {
+                return TreasuryMainWalletCard(wallet: wallets[index]);
+              },
+            ),
+          ),
+        if (canFinanceTreasuryOps)
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton.extended(
+              heroTag: 'importMainWalletFab',
+              onPressed: () {
+                showDialog<void>(
+                  context: context,
+                  builder: (context) => const ImportWalletDialog(),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: Text(l10n.treasuryImportWalletImport),
+            ),
+          ),
+      ],
+    );
+  }
+}

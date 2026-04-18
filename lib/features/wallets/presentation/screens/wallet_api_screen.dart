@@ -2,21 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/dashboard_provider.dart';
-import 'package:crypto_trading_app/domain/entities/wallet.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
-import 'package:crypto_trading_app/data/datasources/currencies_remote_datasource.dart';
-import 'package:crypto_trading_app/data/models/currency_model.dart';
-import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/currencies_repository.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
+import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/currency_bookmark_store.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/blockchain_hub_screen.dart';
-import 'package:crypto_trading_app/presentation/widgets/app_dropdown_field.dart';
-import 'package:crypto_trading_app/presentation/widgets/currency_picker_sheet.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/blockchain_hub_screen.dart';
+import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_picker_sheet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
-import 'package:crypto_trading_app/screens/deposits_screen.dart';
-import 'package:crypto_trading_app/screens/fiat_bank_withdrawal_screen.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/screens/deposits_screen.dart';
+import 'package:crypto_trading_app/features/withdrawals/presentation/screens/fiat_bank_withdrawal_screen.dart';
 
 String _formatAmountForDisplay(String amountStr) =>
     FormatUtils.formatDecimalAmountDisplay(amountStr);
@@ -36,7 +36,7 @@ class WalletApiScreen extends StatefulWidget {
 
 class _WalletApiScreenState extends State<WalletApiScreen> {
   String? _selectedCurrencyId;
-  List<CurrencyModel> _currencies = [];
+  List<Currency> _currencies = [];
   bool _isLoadingCurrencies = true;
   String? _currenciesError;
 
@@ -44,8 +44,8 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   bool _userLockedCurrencySelection = false;
   bool _appliedWalletLoadedDefault = false;
 
-  final CurrenciesRemoteDataSource _currenciesDataSource =
-      sl<CurrenciesRemoteDataSource>();
+  final CurrenciesRepository _currenciesRepository =
+      sl<CurrenciesRepository>();
 
   final TextEditingController _txSearchController = TextEditingController();
   WalletTransactionAction? _txFilterType;
@@ -96,44 +96,48 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   }
 
   Future<void> _loadCurrencies() async {
-    try {
-      setState(() {
-        _isLoadingCurrencies = true;
-        _currenciesError = null;
-      });
+    setState(() {
+      _isLoadingCurrencies = true;
+      _currenciesError = null;
+    });
 
-      final currencies = await _currenciesDataSource.getActiveCurrencies();
+    final result = await _currenciesRepository.getActiveCurrencies();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      final wallets = context.read<WalletsProvider>().wallets;
-      setState(() {
-        _currencies = currencies;
-        _isLoadingCurrencies = false;
-
-        if (_currencies.isNotEmpty && _selectedCurrencyId == null) {
-          _selectedCurrencyId =
-              _defaultSelectedCurrencyId(_currencies, wallets);
-          if (wallets.isNotEmpty) {
-            _appliedWalletLoadedDefault = true;
-          }
-        }
-      });
-
-      if (mounted && _currencies.isNotEmpty && _selectedCurrencyId != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _fetchBalance();
+    result.fold(
+      (failure) {
+        setState(() {
+          _isLoadingCurrencies = false;
+          _currenciesError = failure.message;
         });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingCurrencies = false;
-        _currenciesError = e.toString();
-      });
-      if (kDebugMode) {
-        debugPrint('[WalletApiScreen] Error loading currencies');
-      }
-    }
+        if (kDebugMode) {
+          debugPrint(
+              '[WalletApiScreen] Error loading currencies: ${failure.message}');
+        }
+      },
+      (currencies) {
+        final wallets = context.read<WalletsProvider>().wallets;
+        setState(() {
+          _currencies = currencies;
+          _isLoadingCurrencies = false;
+
+          if (_currencies.isNotEmpty && _selectedCurrencyId == null) {
+            _selectedCurrencyId =
+                _defaultSelectedCurrencyId(_currencies, wallets);
+            if (wallets.isNotEmpty) {
+              _appliedWalletLoadedDefault = true;
+            }
+          }
+        });
+
+        if (mounted && _currencies.isNotEmpty && _selectedCurrencyId != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _fetchBalance();
+          });
+        }
+      },
+    );
   }
 
   void _fetchBalance() {
@@ -158,7 +162,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     _fetchBalance();
   }
 
-  CurrencyModel? get _selectedCurrency {
+  Currency? get _selectedCurrency {
     final id = _selectedCurrencyId;
     if (id == null || _currencies.isEmpty) return null;
     for (final c in _currencies) {
@@ -692,7 +696,7 @@ bool _walletHasNonZeroBalance(Wallet w) {
 
 /// Ưu tiên ví có số dư (theo thứ tự GET /wallets), sau đó USDT, cuối cùng coin đầu danh sách active.
 String? _defaultSelectedCurrencyId(
-  List<CurrencyModel> currencies,
+  List<Currency> currencies,
   List<Wallet> wallets,
 ) {
   if (currencies.isEmpty) return null;

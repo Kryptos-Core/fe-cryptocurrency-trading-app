@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/signing_guide_card.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/signing_guide_card.dart';
 
 Widget _buildHarness({
   required BlockchainNetwork network,

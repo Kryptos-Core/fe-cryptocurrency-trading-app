@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
 /// Snackbar type for styling (replaces ToastType).
 enum SnackBarType { success, error, warning, info }

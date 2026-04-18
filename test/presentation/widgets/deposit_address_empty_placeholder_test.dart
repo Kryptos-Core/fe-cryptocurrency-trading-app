@@ -1,5 +1,5 @@
 import 'package:crypto_trading_app/core/utils/blockchain_public_error_localization.dart';
-import 'package:crypto_trading_app/presentation/widgets/deposit_address_empty_placeholder.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/widgets/deposit_address_empty_placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

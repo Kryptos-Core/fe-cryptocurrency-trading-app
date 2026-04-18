@@ -1,7 +1,7 @@
-import 'package:crypto_trading_app/domain/entities/exchange_rate_preview.dart';
-import 'package:crypto_trading_app/domain/entities/market_price.dart';
-import 'package:crypto_trading_app/domain/repositories/exchange_rate_repository.dart';
-import 'package:crypto_trading_app/presentation/providers/exchange_rate_provider.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/exchange_rate_preview.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_price.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/exchange_rate_repository.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/exchange_rate_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeExchangeRateRepository implements ExchangeRateRepository {

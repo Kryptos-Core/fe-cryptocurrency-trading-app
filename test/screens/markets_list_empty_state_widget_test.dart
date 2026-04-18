@@ -6,11 +6,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:crypto_trading_app/core/services/token_service.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/markets_provider.dart';
-import 'package:crypto_trading_app/screens/markets_list_screen.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/screens/markets_list_screen.dart';
 
 import '../support/empty_markets_repository.dart';
 import '../support/stub_auth_repository.dart';

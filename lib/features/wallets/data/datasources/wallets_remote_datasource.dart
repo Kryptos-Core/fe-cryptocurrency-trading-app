@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
-import 'package:crypto_trading_app/data/models/wallet_model.dart';
+import 'package:crypto_trading_app/features/wallets/data/models/wallet_model.dart';
 import 'package:crypto_trading_app/core/models/api_response.dart';
 
 /// Wallets Remote Data Source

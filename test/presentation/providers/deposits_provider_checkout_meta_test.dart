@@ -1,7 +1,7 @@
 import 'package:crypto_trading_app/core/constants/payos_deposit_limits.dart';
-import 'package:crypto_trading_app/domain/entities/deposit.dart';
-import 'package:crypto_trading_app/domain/repositories/deposit_repository.dart';
-import 'package:crypto_trading_app/presentation/providers/deposits_provider.dart';
+import 'package:crypto_trading_app/features/deposits/domain/entities/deposit.dart';
+import 'package:crypto_trading_app/features/deposits/domain/repositories/deposit_repository.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/providers/deposits_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeDepositRepository implements DepositRepository {

@@ -1,92 +1,77 @@
 # Kryptos Core (Flutter) — Kiến trúc ứng dụng
 
-Ứng dụng **crypto_trading_app** tổ chức theo hướng **Clean Architecture / layered**: domain ở giữa, data triển khai repository, presentation + `screens` gắn UI với backend qua **Dio** và **Socket.IO**.
+Ứng dụng **crypto_trading_app** tổ chức theo **Clean Architecture feature-first**, 4 lớp trong mỗi feature (`data` / `domain` / `application` / `presentation`), nền tảng **Android · iOS · Windows · Web** qua Flutter; mạng **Dio + Socket.IO**, DI **GetIt**, state UI **Provider**.
 
 ## Luồng phụ thuộc (tóm tắt)
 
 ```
-screens / presentation/widgets
-        ↓ Consumer / Provider / trực tiếp sl<>
-presentation/providers (ChangeNotifier)
-        ↓
-domain (entities, use cases, repository interfaces)
-        ↓ implements
-data (repositories, datasources, models)
-        ↓
-core (DioClient, ApiConstants, DI, errors, utils)
+presentation (screens, providers, widgets)
+       ↓
+application (usecases, facade / orchestration services)
+       ↓
+domain (entities, repository contracts)
+       ↑
+data (datasources, DTO/models, repository impl)
+       ↓
+core (network, error, responsive, theme, localization, widgets chung)
 ```
 
-- **`get_it` (`sl`)**: đăng ký singleton — `DioClient`, `TokenService`, data sources, repositories, use cases, một số `ChangeNotifier` (ví dụ `LocaleProvider`).
-- **`provider`**: bọc widget tree trong `main.dart`; màn hình dùng `context.read` / `Consumer` với các provider như `AuthProvider`, `MarketsProvider`, `WalletsProvider`, …
+- **`sl` (`get_it`)**: singleton — `DioClient`, repositories, một số `ChangeNotifier`.
+- **`provider`**: `MultiProvider` trong [`lib/app/app.dart`](lib/app/app.dart).
 
-## Cấu trúc thư mục `lib/`
+## Cấu trúc `lib/` (snapshot)
 
 ```
 lib/
-├── main.dart                 # dotenv, Firebase (mobile), MultiProvider
+├── main.dart
+├── app/
+│   ├── app.dart
+│   ├── bootstrap/
+│   ├── di/injection_container.dart      # Composition root GetIt
+│   └── router/app_routes.dart           # Hằng tab shell / đường gốc
 ├── core/
-│   ├── constants/            # api_constants.dart (BASE_URL, endpoints)
-│   ├── di/                   # injection_container.dart (GetIt)
-│   ├── providers/          # locale_provider.dart, theme_provider.dart
-│   ├── error/                # failures, exceptions
-│   ├── network/              # dio_client.dart, interceptors
-│   ├── services/             # token, cache, notifications, …
-│   ├── wallet_auth/          # WalletBrandLoginConnector + resolver (web / desktop / mobile)
-│   └── utils/
-├── data/
-│   ├── datasources/          # *remote_datasource.dart
-│   ├── models/               # JSON DTOs
-│   └── repositories/         # *repository_impl.dart
-├── domain/
-│   ├── entities/
-│   ├── repositories/         # abstract contracts
-│   └── usecases/
-├── presentation/
-│   ├── providers/            # auth, markets, orders, wallets, admin, treasury, …
-│   ├── widgets/
-│   └── screens/              # một số feature (blockchain, managed wallets, payment_config, …)
-├── screens/                  # màn chính: main, home, login, admin, orders, …
-├── gen_l10n/                 # generated — không sửa tay
-└── l10n/                     # app_en.arb, app_vi.arb
+│   ├── constants/
+│   ├── network/
+│   ├── error/
+│   ├── localization/
+│   ├── theme/
+│   ├── responsive/
+│   ├── widgets/                       # Atom UI dùng chung
+│   ├── gen_l10n/                     # codegen — không sửa tay
+│   └── l10n/                         # *.arb
+└── features/
+    ├── auth/
+    ├── home/
+    ├── dashboard/
+    ├── markets/
+    ├── trading/
+    ├── wallets/
+    ├── orders/
+    ├── deposits/
+    ├── withdrawals/
+    ├── blockchain/
+    ├── managed_wallets/
+    ├── treasury/
+    ├── notifications/
+    ├── profile/
+    ├── settings/
+    ├── user/                          # Entity user + datasource dùng chéo (admin/profile)
+    └── admin/                       # users, transactions, currencies, markets, wallet_adjust,
+                                    # security_requests, broadcast, payment_config,
+                                    # withdrawal_management, market_maker, fiat_withdrawals, …
 ```
 
-## Thư viện chính (tóm tắt)
+Mỗi feature có thể có đủ `data/` · `domain/` · `application/` · `presentation/` (feature “mỏng” có thể không có `data/`).
 
-| Thành phần | Package |
-|------------|---------|
-| State | `provider` |
-| DI | `get_it` |
-| HTTP | `dio` |
-| JSON | `json_annotation` + codegen |
-| Local | `shared_preferences`, `hive` |
-| Realtime | `socket_io_client` |
-| Biểu đồ (Windows) | Lightweight Charts qua `webview_windows` |
-| i18n | `flutter_localizations` + ARB |
-| Push (mobile) | `firebase_core`, `firebase_messaging`, local notifications |
+## Đa nền tảng & responsive
 
-## Màn hình tiêu biểu (`lib/screens/`)
-
-Auth & shell: `login_screen`, `register_screen`, `main_screen`, `home_screen`, `settings_screen`, `profile_screen`.
-
-Giao dịch & thị trường: `markets_list_screen`, `market_detail_screen`, `advanced_trading_screen`, `orders_screen`, `dashboard_screen`, `currencies_list_screen`, `currency_detail_screen`.
-
-Ví & nạp: `wallets_overview_screen`, `wallet_detail_screen`, `deposits_screen`, `wallet_api_screen`, …
-
-**Ví / WalletConnect:** **Đăng nhập** — `wallet_connect_auth_login_dialog.dart`: **Android/iOS** — Reown AppKit (`reown_appkit`, `reown_wallet_auth_config.dart`) → `/auth/wallet-verify`. **Desktop native** — QR từ **`POST /auth/wallet/wc/init`** (server **SignClient** + relay khi có project id; poll `status`). **Web** — extension (bridge JS); WC modal tùy chọn — xem [`docs/WALLETCONNECT_FLUTTER_WEB.md`](docs/WALLETCONNECT_FLUTTER_WEB.md). **Liên kết ví (đã JWT)** — `link_wallet_dialog.dart`, `wc_qr_session_card`, `wc_deeplink_launcher`, … (QR **`/blockchain/wallets/wc/*`**). Tron (web): TronLink. Biến môi trường & API: [`../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md`](../be-cryptocurrency-trading-app/docs/WALLETCONNECT.md) (bảng **Primary stack**).
-
-## Guest và tích xanh email
-
-**Guest** = chưa đăng nhập (không JWT), không phải `role` trên server. **Tích xanh** (`Icons.verified`) khi `email_verified` (OTP / xác minh inbox). Khác với KYC (`identity_verified`).
-
-Admin / vận hành: `admin_user_list_screen`, `admin_user_detail_screen`, `admin_transactions_screen`, `admin_currencies_screen`, `admin_wallet_adjust_screen`, `security_requests_review_screen`, `broadcast_notification_screen`, …
-
-Market maker: `market_maker/market_maker_hub_screen`, `market_maker_config_screen`.
-
-## Mạng & realtime
-
-- **HTTP:** `ApiConstants.baseUrl` (từ `.env` `BASE_URL` hoặc default theo nền tảng). Android emulator: `http://10.0.2.2:3000/api/v1`.
-- **Socket.IO:** `ApiConstants.webSocketUrl` / namespace trading — dùng cho feed giá, v.v.
+- Phân nhánh native **conditional import**: ví dụ [`lib/core/utils/checkout_tab_preopen.dart`](lib/core/utils/checkout_tab_preopen.dart), wallet auth connectors trong [`lib/core/wallet_auth/`](lib/core/wallet_auth/).
+- Layout: [`lib/core/responsive/app_responsive.dart`](lib/core/responsive/app_responsive.dart).
 
 ## i18n
 
-ARB trong `lib/l10n/`; chạy `flutter gen-l10n`. Locale lưu `SharedPreferences` qua **`LocaleProvider`** (`lib/core/providers/locale_provider.dart`); đổi ngôn ngữ tại **Settings** (và các chỗ bind `LocaleProvider` khác nếu có).
+ARB: [`lib/core/l10n/`](lib/core/l10n/) · cấu hình [`l10n.yaml`](l10n.yaml) (`arb-dir`, `output-dir`: `lib/core/gen_l10n`). Chạy codegen: `flutter gen-l10n`.
+
+## Kiểm thử
+
+Thư mục [`test/`](test/) đang chứa widget/unit tests theo nhóm chức năng; import trỏ trực tiếp `package:crypto_trading_app/features/...`.

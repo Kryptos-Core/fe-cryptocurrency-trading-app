@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:flutter/foundation.dart';
-import 'package:crypto_trading_app/data/models/admin_wallet_adjustment_model.dart';
-import 'package:crypto_trading_app/data/models/wallet_balance_model.dart';
-import 'package:crypto_trading_app/data/models/wallet_transaction_model.dart';
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/admin/wallet_adjust/data/models/admin_wallet_adjustment_model.dart';
+import 'package:crypto_trading_app/features/wallets/data/models/wallet_balance_model.dart';
+import 'package:crypto_trading_app/features/wallets/data/models/wallet_transaction_model.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 
 /// Remote data source for wallet API operations

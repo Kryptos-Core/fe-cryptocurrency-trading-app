@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/domain/entities/wallet_transaction.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_transaction.dart';
 
 /// Utility class for wallet validation and formatting
 ///

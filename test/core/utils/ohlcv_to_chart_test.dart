@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
-import 'package:crypto_trading_app/domain/entities/market_pair.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 
 void main() {
   group('ohlcvRowsToChartCandles', () {

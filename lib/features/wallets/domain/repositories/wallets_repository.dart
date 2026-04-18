@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/domain/entities/wallet.dart';
+import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
 
 /// Wallets Repository Interface
 /// Following Dependency Inversion Principle (DIP)

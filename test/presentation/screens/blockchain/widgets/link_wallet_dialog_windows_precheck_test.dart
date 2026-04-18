@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_dtos.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/linked_wallet.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/onchain_transaction.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_link_session_poll_result.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
-import 'package:crypto_trading_app/domain/repositories/blockchain_repository.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/presentation/providers/blockchain_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/link_wallet_dialog.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_dtos.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_link_session_poll_result.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_status.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/repositories/blockchain_repository.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/link_wallet_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../support/stub_treasury_remote_data_source.dart';
 
@@ -131,7 +131,7 @@ Future<Widget> _buildTestApp() async {
     blockchainRepository: const _FakeBlockchainRepository(),
   );
   final chainPicker = OnchainChainPickerProvider(
-    dataSource: StubTreasuryRemoteDataSource(
+    repository: StubTreasuryRepository(
       chainPickerJson: {
         'operatorMode': 'sandbox',
         'tronDefaultNetwork': 'TRON_NILE',

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
-import 'package:crypto_trading_app/data/models/create_market_pair_dto.dart';
-import 'package:crypto_trading_app/data/models/update_market_pair_dto.dart';
-import 'package:crypto_trading_app/domain/entities/market_pair.dart';
-import 'package:crypto_trading_app/domain/repositories/markets_repository.dart';
+import 'package:crypto_trading_app/features/markets/data/models/create_market_pair_dto.dart';
+import 'package:crypto_trading_app/features/markets/data/models/update_market_pair_dto.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
+import 'package:crypto_trading_app/features/markets/domain/repositories/markets_repository.dart';
 
 /// [MarketsRepository] that returns an empty catalog (post–db:clean style).
 class EmptyMarketsRepository implements MarketsRepository {

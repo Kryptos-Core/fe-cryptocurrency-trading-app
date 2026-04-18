@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:crypto_trading_app/presentation/utils/deposit_methods_recommended_chain.dart';
+import 'package:crypto_trading_app/features/deposits/presentation/utils/deposit_methods_recommended_chain.dart';
 
 void main() {
   group('resolveDepositMethodsHeaderRecommendedChain', () {

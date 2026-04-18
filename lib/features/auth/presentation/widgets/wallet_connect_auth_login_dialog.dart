@@ -7,21 +7,22 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 
-import 'package:crypto_trading_app/core/di/injection_container.dart';
+import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/wallet_connect/reown_wallet_auth_config.dart';
-import 'package:crypto_trading_app/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/wallet_web_extension_auth.dart';
-import 'package:crypto_trading_app/data/datasources/auth_remote_datasource.dart';
-import 'package:crypto_trading_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
-import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_status.dart';
+import 'package:crypto_trading_app/features/auth/data/datasources/auth_remote_datasource.dart'
+    show WcAuthInitResult, WcAuthStatusResult;
+import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_proposal.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_status.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/presentation/providers/onchain_chain_picker_provider.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_deeplink_launcher.dart';
-import 'package:crypto_trading_app/presentation/widgets/onchain_sandbox_operator_banner.dart';
-import 'package:crypto_trading_app/presentation/screens/blockchain/widgets/wc_qr_session_card.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/wc_deeplink_launcher.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/wc_qr_session_card.dart';
 
 /// Đăng nhập bằng ví:
 /// - **Web:** TronLink extension; QR WalletConnect trong mục mở rộng.
@@ -71,7 +72,6 @@ class _WalletConnectAuthLoginDialogState
   late void Function(ModalConnect) _reownConnectHandler;
 
   AuthRepository get _repo => sl<AuthRepository>();
-  AuthRemoteDataSource get _authDs => sl<AuthRemoteDataSource>();
 
   bool get _showDeepLinks {
     if (kIsWeb) return false;
@@ -206,11 +206,15 @@ class _WalletConnectAuthLoginDialogState
 
     setState(() => _reownAuthBusy = true);
     try {
-      final nonce = await _authDs.walletNonce(
+      final nonceResult = await _repo.walletNonce(
         chain: chain.apiValue,
         address: address,
       );
       if (!mounted) return;
+      final nonce = nonceResult.fold(
+        (f) => throw Exception(f.message),
+        (v) => v,
+      );
 
       final hexMsg = _utf8MessageToHex0x(nonce.message);
       final sig = await _reownModal!.request(
@@ -457,7 +461,10 @@ class _WalletConnectAuthLoginDialogState
       await loginWithWebBrowserExtension(
         context,
         metaMask: false,
-        datasource: _authDs,
+        fetchNonce: ({required chain, required address}) async {
+          final r = await _repo.walletNonce(chain: chain, address: address);
+          return r.fold((f) => throw Exception(f.message), (v) => v);
+        },
         onSuccess: () {
           if (mounted) Navigator.of(context).pop(true);
         },

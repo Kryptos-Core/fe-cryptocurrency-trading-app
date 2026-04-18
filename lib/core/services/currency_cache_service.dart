@@ -1,4 +1,4 @@
-import 'package:crypto_trading_app/domain/entities/currency.dart';
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
 
 /// Currency Cache Service
 /// Following Strategy Pattern - different caching strategies can be implemented
