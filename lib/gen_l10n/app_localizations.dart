@@ -7830,6 +7830,66 @@ abstract class AppLocalizations {
   /// **'TronLink link wallet'**
   String get wcTronlinkSignMessage;
 
+  /// No description provided for @tronLinkAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'TronLink address'**
+  String get tronLinkAddressLabel;
+
+  /// No description provided for @tronLinkGetChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Get challenge'**
+  String get tronLinkGetChallenge;
+
+  /// No description provided for @tronLinkChallengeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge message (sign in TronLink)'**
+  String get tronLinkChallengeTitle;
+
+  /// No description provided for @tronLinkChallengeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open TronLink, go to Sign / Messages, paste the challenge text, sign, then paste the signature below.'**
+  String get tronLinkChallengeHint;
+
+  /// No description provided for @tronLinkSignatureLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature (paste)'**
+  String get tronLinkSignatureLabel;
+
+  /// No description provided for @tronLinkVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify and link'**
+  String get tronLinkVerify;
+
+  /// No description provided for @tronLinkExtensionAutoSign.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-sign with TronLink extension'**
+  String get tronLinkExtensionAutoSign;
+
+  /// No description provided for @tronLinkNativePlatformHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your Tron address, request the challenge, sign it in TronLink, then paste the signature here.'**
+  String get tronLinkNativePlatformHint;
+
+  /// No description provided for @tronLinkAddressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your Tron wallet address.'**
+  String get tronLinkAddressRequired;
+
+  /// No description provided for @tronLinkSignatureRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please paste the signature from TronLink.'**
+  String get tronLinkSignatureRequired;
+
   /// No description provided for @wcOpenWalletOnPhone.
   ///
   /// In en, this message translates to:

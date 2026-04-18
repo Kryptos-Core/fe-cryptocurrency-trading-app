@@ -4275,6 +4275,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wcTronlinkSignMessage => 'TronLink link wallet';
 
   @override
+  String get tronLinkAddressLabel => 'TronLink address';
+
+  @override
+  String get tronLinkGetChallenge => 'Get challenge';
+
+  @override
+  String get tronLinkChallengeTitle => 'Challenge message (sign in TronLink)';
+
+  @override
+  String get tronLinkChallengeHint =>
+      'Open TronLink, go to Sign / Messages, paste the challenge text, sign, then paste the signature below.';
+
+  @override
+  String get tronLinkSignatureLabel => 'Signature (paste)';
+
+  @override
+  String get tronLinkVerify => 'Verify and link';
+
+  @override
+  String get tronLinkExtensionAutoSign => 'Auto-sign with TronLink extension';
+
+  @override
+  String get tronLinkNativePlatformHint =>
+      'Enter your Tron address, request the challenge, sign it in TronLink, then paste the signature here.';
+
+  @override
+  String get tronLinkAddressRequired =>
+      'Please enter your Tron wallet address.';
+
+  @override
+  String get tronLinkSignatureRequired =>
+      'Please paste the signature from TronLink.';
+
+  @override
   String get wcOpenWalletOnPhone => 'Open with wallet on phone';
 
   @override

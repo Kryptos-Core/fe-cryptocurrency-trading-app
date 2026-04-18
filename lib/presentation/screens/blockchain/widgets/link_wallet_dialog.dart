@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/domain/entities/blockchain/wc_session_proposal.dart';
@@ -42,8 +43,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   String? _errorMessage;
   bool _isCompleted = false;
 
-  /// Chỉ hiện tab Extension khi chạy trên Web và có window.ethereum
-  bool get _showExtensionTab => kIsWeb;
+  final TextEditingController _tronAddressController = TextEditingController();
+  final TextEditingController _tronSigController = TextEditingController();
+  String? _tronChallengeMessage;
+  bool _tronFlowBusy = false;
 
   /// Chỉ hiện deep link button khi chạy trên mobile native
   bool get _showDeepLink {
@@ -66,7 +69,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       if (!mounted) return;
       final wc = picker.walletConnectLinkNetworksFromApi;
       final tron = picker.tronExtensionLinkNetworksFromApi;
-      final all = [...wc, if (_showExtensionTab) ...tron];
+      final all = [...wc, ...tron];
       if (all.isEmpty) return;
       setState(() {
         if (!all.contains(_selectedChain)) {
@@ -147,8 +150,15 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     });
   }
 
+  void _resetTronLinkFlow() {
+    _tronChallengeMessage = null;
+    _tronSigController.clear();
+  }
+
   @override
   void dispose() {
+    _tronAddressController.dispose();
+    _tronSigController.dispose();
     _blockchainProvider?.clearWcSession();
     super.dispose();
   }
@@ -278,15 +288,11 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         if (_hasPendingSession && _session != null)
           _buildWcSessionView(theme, l10n),
 
-        // ── Connect Button ──
+        // ── Connect: WC QR or TronLink challenge flow ──
         if (!_hasPendingSession && !_isLoading)
-          _buildConnectButton(theme, l10n),
-
-        // ── Extension fallback (Web only) ──
-        if (_showExtensionTab && !_hasPendingSession && !_isLoading) ...[
-          const SizedBox(height: 16),
-          _buildExtensionFallback(theme, l10n),
-        ],
+          _selectedChain.isTronFamily
+              ? _buildTronLinkFlow(theme, l10n)
+              : _buildConnectButton(theme, l10n),
 
         const SizedBox(height: 8),
 
@@ -330,7 +336,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         final tronChains = picker.tronExtensionLinkNetworksFromApi;
         final allChains = [
           ...wcChains,
-          if (_showExtensionTab) ...tronChains,
+          ...tronChains,
         ];
 
         if (allChains.isEmpty) {
@@ -381,7 +387,14 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                 return ChoiceChip(
                   label: Text(chain.label),
                   selected: isSelected,
-                  onSelected: (_) => setState(() => _selectedChain = chain),
+                  onSelected: (_) {
+                    setState(() {
+                      if (_selectedChain != chain) {
+                        _resetTronLinkFlow();
+                      }
+                      _selectedChain = chain;
+                    });
+                  },
                   avatar: isTron
                       ? const Icon(Icons.extension, size: 16)
                       : const Icon(Icons.qr_code, size: 16),
@@ -402,7 +415,9 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        l10n.wcTronChromeExtensionWebOnly,
+                        kIsWeb
+                            ? l10n.wcTronChromeExtensionWebOnly
+                            : l10n.tronLinkNativePlatformHint,
                         style: theme.textTheme.bodySmall!.copyWith(
                           color: theme.colorScheme.primary.withOpacity(0.7),
                         ),
@@ -462,24 +477,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   }
 
   Widget _buildConnectButton(ThemeData theme, AppLocalizations l10n) {
-    final isTron = _selectedChain.isTronFamily;
-
-    if (isTron && !_showExtensionTab) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.orange.withOpacity(0.3)),
-        ),
-        child: Text(
-          l10n.wcTronChromeOnlyLong,
-          style: theme.textTheme.bodySmall!.copyWith(color: Colors.orange),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
     return ElevatedButton.icon(
       onPressed: _initiateWcSession,
       icon: const Icon(Icons.qr_code),
@@ -491,43 +488,219 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildExtensionFallback(ThemeData theme, AppLocalizations l10n) {
-    final isTron = _selectedChain.isTronFamily;
+  Future<void> _fetchTronChallenge() async {
+    final l10n = AppLocalizations.of(context);
+    final provider = context.read<BlockchainProvider>();
+    final addr = _tronAddressController.text.trim();
+    if (addr.isEmpty) {
+      setState(() => _errorMessage = l10n.tronLinkAddressRequired);
+      return;
+    }
+    setState(() {
+      _tronFlowBusy = true;
+      _errorMessage = null;
+      _tronChallengeMessage = null;
+    });
+    final res = await provider.initiateWalletLink(
+      chain: _selectedChain,
+      address: addr,
+      label: 'TronLink',
+    );
+    if (!mounted) return;
+    setState(() {
+      _tronFlowBusy = false;
+      if (res != null && res.message.isNotEmpty) {
+        _tronChallengeMessage = res.message;
+      } else {
+        _errorMessage = provider.error ?? l10n.requestFailed;
+      }
+    });
+  }
 
-    if (!isTron) return const SizedBox.shrink();
+  Future<void> _verifyTronLink() async {
+    final l10n = AppLocalizations.of(context);
+    final provider = context.read<BlockchainProvider>();
+    final addr = _tronAddressController.text.trim();
+    final sig = _tronSigController.text.trim();
+    if (addr.isEmpty) {
+      setState(() => _errorMessage = l10n.tronLinkAddressRequired);
+      return;
+    }
+    if (sig.isEmpty) {
+      setState(() => _errorMessage = l10n.tronLinkSignatureRequired);
+      return;
+    }
+    setState(() {
+      _tronFlowBusy = true;
+      _errorMessage = null;
+    });
+    final ok = await provider.verifyWalletLink(
+      chain: _selectedChain,
+      address: addr,
+      signature: sig,
+    );
+    if (!mounted) return;
+    setState(() => _tronFlowBusy = false);
+    if (ok) {
+      _handleSessionSigned();
+    } else {
+      setState(() => _errorMessage = provider.error ?? l10n.requestFailed);
+    }
+  }
 
-    return OutlinedButton.icon(
-      onPressed: () async {
-        // Trigger TronLink web signing (giữ lại flow cũ cho Tron trên web)
-        final result = await tronLinkSignOnWeb(
-          message: l10n.wcTronlinkSignMessage,
-          expectedAddress: '',
-        );
-        if (!mounted) return;
-        if (result.signature != null) {
-          // Verify signature qua flow cũ
-          final provider = context.read<BlockchainProvider>();
-          final address = result.connectedAddress ?? '';
-          if (address.isNotEmpty) {
-            await provider.verifyWalletLink(
-              chain: _selectedChain,
-              address: address,
-              signature: result.signature!,
-            );
-            if (!mounted) return;
-            if (provider.error == null) {
-              Navigator.of(context).pop(true);
-            }
-          }
-        } else {
-          setState(() {
-            _errorMessage =
-                result.message.isNotEmpty ? result.message : l10n.wcTronlinkSignFailed;
-          });
-        }
-      },
-      icon: const Icon(Icons.extension),
-      label: Text(l10n.wcSignWithTronlinkExtension),
+  Future<void> _tronAutoSignOnWeb() async {
+    if (!kIsWeb) return;
+    final l10n = AppLocalizations.of(context);
+    final provider = context.read<BlockchainProvider>();
+
+    var addr = _tronAddressController.text.trim();
+    if (addr.isEmpty) {
+      addr = (await tronLinkGetAddressOnWeb())?.trim() ?? '';
+      if (!mounted) return;
+      if (addr.isNotEmpty) {
+        _tronAddressController.text = addr;
+      }
+    }
+    if (addr.isEmpty) {
+      setState(() => _errorMessage = l10n.tronLinkAddressRequired);
+      return;
+    }
+
+    setState(() {
+      _tronFlowBusy = true;
+      _errorMessage = null;
+    });
+
+    if (_tronChallengeMessage == null || _tronChallengeMessage!.isEmpty) {
+      final res = await provider.initiateWalletLink(
+        chain: _selectedChain,
+        address: addr,
+        label: 'TronLink',
+      );
+      if (!mounted) return;
+      if (res != null && res.message.isNotEmpty) {
+        setState(() => _tronChallengeMessage = res.message);
+      } else {
+        setState(() {
+          _tronFlowBusy = false;
+          _errorMessage = provider.error ?? l10n.requestFailed;
+        });
+        return;
+      }
+    }
+
+    final msg = _tronChallengeMessage ?? '';
+    final result = await tronLinkSignOnWeb(
+      message: msg,
+      expectedAddress: addr,
+    );
+    if (!mounted) return;
+
+    if (result.signature != null && result.signature!.isNotEmpty) {
+      final ok = await provider.verifyWalletLink(
+        chain: _selectedChain,
+        address: addr,
+        signature: result.signature!,
+      );
+      setState(() => _tronFlowBusy = false);
+      if (!mounted) return;
+      if (ok) {
+        _handleSessionSigned();
+      } else {
+        setState(() => _errorMessage = provider.error ?? l10n.wcTronlinkSignFailed);
+      }
+    } else {
+      setState(() {
+        _tronFlowBusy = false;
+        _errorMessage =
+            result.message.isNotEmpty ? result.message : l10n.wcTronlinkSignFailed;
+      });
+    }
+  }
+
+  Widget _buildTronLinkFlow(ThemeData theme, AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _tronAddressController,
+          enabled: !_tronFlowBusy,
+          decoration: InputDecoration(
+            labelText: l10n.tronLinkAddressLabel,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton(
+          onPressed: _tronFlowBusy ? null : _fetchTronChallenge,
+          child: Text(l10n.tronLinkGetChallenge),
+        ),
+        if (_tronChallengeMessage != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            l10n.tronLinkChallengeTitle,
+            style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          SelectableText(
+            _tronChallengeMessage!,
+            style: theme.textTheme.bodySmall?.copyWith(height: 1.35),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              IconButton(
+                tooltip: l10n.copyAddressTooltip,
+                onPressed: () async {
+                  await Clipboard.setData(
+                    ClipboardData(text: _tronChallengeMessage!),
+                  );
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.depositDetailCopied)),
+                  );
+                },
+                icon: const Icon(Icons.copy, size: 20),
+              ),
+              Expanded(
+                child: Text(
+                  l10n.tronLinkChallengeHint,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (kIsWeb) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _tronFlowBusy ? null : _tronAutoSignOnWeb,
+              icon: const Icon(Icons.extension_outlined),
+              label: Text(l10n.tronLinkExtensionAutoSign),
+            ),
+          ],
+          const SizedBox(height: 16),
+          TextField(
+            controller: _tronSigController,
+            enabled: !_tronFlowBusy,
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: l10n.tronLinkSignatureLabel,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: _tronFlowBusy ? null : _verifyTronLink,
+            child: Text(l10n.tronLinkVerify),
+          ),
+        ],
+        if (_tronFlowBusy) ...[
+          const SizedBox(height: 16),
+          const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        ],
+      ],
     );
   }
 

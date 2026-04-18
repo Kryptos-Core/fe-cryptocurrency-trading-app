@@ -4269,6 +4269,38 @@ class AppLocalizationsVi extends AppLocalizations {
   String get wcTronlinkSignMessage => 'TronLink liên kết ví';
 
   @override
+  String get tronLinkAddressLabel => 'Địa chỉ TronLink';
+
+  @override
+  String get tronLinkGetChallenge => 'Lấy challenge';
+
+  @override
+  String get tronLinkChallengeTitle => 'Challenge (ký trong TronLink)';
+
+  @override
+  String get tronLinkChallengeHint =>
+      'Mở TronLink → phần Sign / Messages → dán nội dung challenge → ký → dán chữ ký vào ô bên dưới.';
+
+  @override
+  String get tronLinkSignatureLabel => 'Chữ ký (dán vào)';
+
+  @override
+  String get tronLinkVerify => 'Xác minh và liên kết';
+
+  @override
+  String get tronLinkExtensionAutoSign => 'Ký tự động bằng TronLink extension';
+
+  @override
+  String get tronLinkNativePlatformHint =>
+      'Nhập địa chỉ ví Tron, lấy challenge, ký trong TronLink rồi dán chữ ký vào đây.';
+
+  @override
+  String get tronLinkAddressRequired => 'Vui lòng nhập địa chỉ ví Tron.';
+
+  @override
+  String get tronLinkSignatureRequired => 'Vui lòng dán chữ ký từ TronLink.';
+
+  @override
   String get wcOpenWalletOnPhone => 'Mở bằng ví trên điện thoại';
 
   @override
