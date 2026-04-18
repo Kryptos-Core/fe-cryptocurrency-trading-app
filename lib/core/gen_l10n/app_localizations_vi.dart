@@ -1899,6 +1899,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Phương thức';
 
   @override
+  String get paymentConfigMasterWalletTab => 'Ví chính';
+
+  @override
   String get paymentConfigTreasuryWalletsTab => 'Ví vận hành';
 
   @override
@@ -2269,6 +2272,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryCreateWalletCta => 'Tạo ví';
+
+  @override
+  String get treasuryCreateWalletNoChainListFromApi =>
+      'Không tải được danh sách mạng từ máy chủ. Kiểm tra kết nối và chạm Thử lại.';
 
   @override
   String get treasuryCreateWalletNetworkTronTrc20Testnet =>
@@ -3473,20 +3480,43 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get treasuryTronCrossEnvBalancesHint =>
-      'Cùng địa chỉ trên từng mạng Tron';
+  String get treasuryNetworkLabel => 'Mạng';
 
   @override
-  String get treasuryTronEnvNile => 'Nile';
+  String get treasuryChainEcosystemTron => 'Tron';
 
   @override
-  String get treasuryTronEnvShasta => 'Shasta';
+  String get treasuryChainEcosystemEthereum => 'Ethereum';
 
   @override
-  String get treasuryTronEnvMainnet => 'Mainnet';
+  String get treasuryChainEcosystemBsc => 'BSC';
 
   @override
-  String get treasuryTronEnvThisWalletChain => 'ví này';
+  String get treasuryChainEcosystemSolana => 'Solana';
+
+  @override
+  String get treasuryChainEcosystemBase => 'Base';
+
+  @override
+  String get treasuryChainEcosystemArbitrum => 'Arbitrum';
+
+  @override
+  String get treasuryChainEcosystemOptimism => 'Optimism';
+
+  @override
+  String get treasuryChainEcosystemPolygon => 'Polygon';
+
+  @override
+  String get treasuryChainEcosystemAvalanche => 'Avalanche';
+
+  @override
+  String get treasuryChainEcosystemGnosis => 'Gnosis';
+
+  @override
+  String get treasuryChainEcosystemLinea => 'Linea';
+
+  @override
+  String get treasuryChainEcosystemFantom => 'Fantom';
 
   @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {

@@ -1,16 +1,3 @@
-/// On-chain snapshot for one Tron env (Nile / Shasta / Mainnet) at the same base58 address.
-class TreasuryTronEnvBalanceRow {
-  final String balance;
-  final String symbol;
-  final String? usdtTrc20Balance;
-
-  const TreasuryTronEnvBalanceRow({
-    required this.balance,
-    required this.symbol,
-    this.usdtTrc20Balance,
-  });
-}
-
 class TreasuryWalletModel {
   final String walletId;
   final String chain;
@@ -24,8 +11,6 @@ class TreasuryWalletModel {
   final String? symbol;
   /// TRON: USDT (TRC-20) human balance from API
   final String? usdtTrc20Balance;
-  /// Nile, Shasta, Mainnet balances for the same address (treasury API).
-  final Map<String, TreasuryTronEnvBalanceRow>? tronCrossEnvBalances;
   final DateTime? createdAt;
 
   const TreasuryWalletModel({
@@ -39,28 +24,8 @@ class TreasuryWalletModel {
     this.balance,
     this.symbol,
     this.usdtTrc20Balance,
-    this.tronCrossEnvBalances,
     this.createdAt,
   });
-
-  static Map<String, TreasuryTronEnvBalanceRow>? _parseTronCrossEnv(dynamic raw) {
-    if (raw is! Map) return null;
-    const keys = ['TRON_NILE', 'TRON_SHASTA', 'TRON_MAINNET'];
-    final out = <String, TreasuryTronEnvBalanceRow>{};
-    for (final k in keys) {
-      final v = raw[k];
-      if (v is Map) {
-        final m = Map<String, dynamic>.from(v);
-        out[k] = TreasuryTronEnvBalanceRow(
-          balance: m['balance']?.toString() ?? '',
-          symbol: m['symbol']?.toString() ?? 'TRX',
-          usdtTrc20Balance: m['usdtTrc20Balance']?.toString() ??
-              m['usdt_trc20_balance']?.toString(),
-        );
-      }
-    }
-    return out.isEmpty ? null : out;
-  }
 
   factory TreasuryWalletModel.fromJson(Map<String, dynamic> json) {
     return TreasuryWalletModel(
@@ -77,9 +42,6 @@ class TreasuryWalletModel {
       symbol: json['symbol']?.toString(),
       usdtTrc20Balance: json['usdtTrc20Balance']?.toString() ??
           json['usdt_trc20_balance']?.toString(),
-      tronCrossEnvBalances: _parseTronCrossEnv(
-        json['tron_cross_env_balances'] ?? json['tronCrossEnvBalances'],
-      ),
       createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()),
     );
   }

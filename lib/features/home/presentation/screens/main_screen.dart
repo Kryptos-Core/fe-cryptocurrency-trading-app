@@ -565,28 +565,6 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: openManagedWallets,
                               ),
-                            if (auth.isRiskOfficer &&
-                                !auth.canManagePaymentConfigs)
-                              ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 2),
-                                leading: Icon(
-                                  Icons.admin_panel_settings_outlined,
-                                  size: 22,
-                                  color: cs.primary,
-                                ),
-                                title:
-                                    Text(l10n.drawerTreasuryMainWalletsTitle),
-                                subtitle: Text(
-                                  l10n.drawerTreasuryMainWalletsSubtitle,
-                                  style: subtitleStyle,
-                                ),
-                                mouseCursor: SystemMouseCursors.click,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  context.push(AppRoutes.treasury);
-                                },
-                              ),
                             ListTile(
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 2),
@@ -1007,15 +985,6 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
       onTap: () {
         Navigator.pop(context);
         context.push(AppRoutes.adminPaymentConfig);
-      },
-    ),
-    _FinanceDrawerItemSpec(
-      icon: Icons.admin_panel_settings_outlined,
-      title: (l) => l.drawerTreasuryMainWalletsTitle,
-      subtitle: (l) => l.drawerTreasuryMainWalletsSubtitle,
-      onTap: () {
-        Navigator.pop(context);
-        context.push(AppRoutes.treasury);
       },
     ),
     _FinanceDrawerItemSpec(

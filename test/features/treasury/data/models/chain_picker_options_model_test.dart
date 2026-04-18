@@ -8,7 +8,7 @@ void main() {
         'operatorMode': 'sandbox',
         'tronDefaultNetwork': 'TRON_NILE',
         'pickers': {
-          'treasury_ops': ['TRON_NILE', 'SOLANA_DEVNET', 'BSC_CHAPEL'],
+          'treasury_ops': ['TRON_NILE', 'TRON_SHASTA', 'SOLANA_DEVNET', 'BSC_CHAPEL'],
           'treasury_main_wallet': ['TRON_NILE'],
           'treasury_history_filter': ['TRON_NILE'],
           'withdrawal_admin_filter': ['TRON_NILE', 'BSC_CHAPEL'],
@@ -26,7 +26,7 @@ void main() {
       });
       expect(m.operatorMode, 'sandbox');
       expect(m.tronDefaultNetwork, 'TRON_NILE');
-      expect(m.treasuryOps, ['TRON_NILE', 'SOLANA_DEVNET', 'BSC_CHAPEL']);
+      expect(m.treasuryOps, ['TRON_NILE', 'TRON_SHASTA', 'SOLANA_DEVNET', 'BSC_CHAPEL']);
       expect(m.treasuryMainWallet, ['TRON_NILE']);
       expect(m.treasuryHistoryFilter, ['TRON_NILE']);
       expect(m.withdrawalAdminFilter, ['TRON_NILE', 'BSC_CHAPEL']);

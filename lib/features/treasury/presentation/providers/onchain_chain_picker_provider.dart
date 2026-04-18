@@ -64,8 +64,15 @@ class OnchainChainPickerProvider extends ChangeNotifier {
   List<String> get treasuryOpsChains =>
       _orFallback(_options?.treasuryOps ?? const [], treasuryOpsWalletCreationChainsForCurrentEnv);
 
+  /// `pickers.treasury_ops` from GET /treasury/chain-picker-options (or disk cache).
+  /// No env-based fallback — use for operator UI that must mirror the server contract.
+  List<String> get treasuryOpsChainsFromApi => _options?.treasuryOps ?? const [];
+
   List<String> get treasuryMainWalletChains =>
       _orFallback(_options?.treasuryMainWallet ?? const [], treasuryMainWalletChainsForCurrentEnv);
+
+  /// `pickers.treasury_main_wallet` from GET /treasury/chain-picker-options (or cache); no env fallback.
+  List<String> get treasuryMainWalletChainsFromApi => _options?.treasuryMainWallet ?? const [];
 
   List<String> get treasuryHistoryFilterChains =>
       _orFallback(_options?.treasuryHistoryFilter ?? const [], treasuryHistoryFilterChainsForCurrentEnv);

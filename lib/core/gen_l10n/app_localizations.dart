@@ -3538,6 +3538,12 @@ abstract class AppLocalizations {
   /// **'Methods'**
   String get paymentConfigMethodsTab;
 
+  /// No description provided for @paymentConfigMasterWalletTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Master wallet'**
+  String get paymentConfigMasterWalletTab;
+
   /// No description provided for @paymentConfigTreasuryWalletsTab.
   ///
   /// In en, this message translates to:
@@ -4167,6 +4173,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create wallet'**
   String get treasuryCreateWalletCta;
+
+  /// No description provided for @treasuryCreateWalletNoChainListFromApi.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load networks from the server. Check your connection and tap Retry.'**
+  String get treasuryCreateWalletNoChainListFromApi;
 
   /// No description provided for @treasuryCreateWalletNetworkTronTrc20Testnet.
   ///
@@ -6390,35 +6402,83 @@ abstract class AppLocalizations {
   /// **'USDT (TRC-20): {balance} USDT'**
   String treasuryTrc20UsdtBalanceLine(String balance);
 
-  /// No description provided for @treasuryTronCrossEnvBalancesHint.
+  /// No description provided for @treasuryNetworkLabel.
   ///
   /// In en, this message translates to:
-  /// **'Same address on each Tron network'**
-  String get treasuryTronCrossEnvBalancesHint;
+  /// **'Network'**
+  String get treasuryNetworkLabel;
 
-  /// No description provided for @treasuryTronEnvNile.
+  /// No description provided for @treasuryChainEcosystemTron.
   ///
   /// In en, this message translates to:
-  /// **'Nile'**
-  String get treasuryTronEnvNile;
+  /// **'Tron'**
+  String get treasuryChainEcosystemTron;
 
-  /// No description provided for @treasuryTronEnvShasta.
+  /// No description provided for @treasuryChainEcosystemEthereum.
   ///
   /// In en, this message translates to:
-  /// **'Shasta'**
-  String get treasuryTronEnvShasta;
+  /// **'Ethereum'**
+  String get treasuryChainEcosystemEthereum;
 
-  /// No description provided for @treasuryTronEnvMainnet.
+  /// No description provided for @treasuryChainEcosystemBsc.
   ///
   /// In en, this message translates to:
-  /// **'Mainnet'**
-  String get treasuryTronEnvMainnet;
+  /// **'BSC'**
+  String get treasuryChainEcosystemBsc;
 
-  /// No description provided for @treasuryTronEnvThisWalletChain.
+  /// No description provided for @treasuryChainEcosystemSolana.
   ///
   /// In en, this message translates to:
-  /// **'this wallet'**
-  String get treasuryTronEnvThisWalletChain;
+  /// **'Solana'**
+  String get treasuryChainEcosystemSolana;
+
+  /// No description provided for @treasuryChainEcosystemBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get treasuryChainEcosystemBase;
+
+  /// No description provided for @treasuryChainEcosystemArbitrum.
+  ///
+  /// In en, this message translates to:
+  /// **'Arbitrum'**
+  String get treasuryChainEcosystemArbitrum;
+
+  /// No description provided for @treasuryChainEcosystemOptimism.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimism'**
+  String get treasuryChainEcosystemOptimism;
+
+  /// No description provided for @treasuryChainEcosystemPolygon.
+  ///
+  /// In en, this message translates to:
+  /// **'Polygon'**
+  String get treasuryChainEcosystemPolygon;
+
+  /// No description provided for @treasuryChainEcosystemAvalanche.
+  ///
+  /// In en, this message translates to:
+  /// **'Avalanche'**
+  String get treasuryChainEcosystemAvalanche;
+
+  /// No description provided for @treasuryChainEcosystemGnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Gnosis'**
+  String get treasuryChainEcosystemGnosis;
+
+  /// No description provided for @treasuryChainEcosystemLinea.
+  ///
+  /// In en, this message translates to:
+  /// **'Linea'**
+  String get treasuryChainEcosystemLinea;
+
+  /// No description provided for @treasuryChainEcosystemFantom.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantom'**
+  String get treasuryChainEcosystemFantom;
 
   /// No description provided for @treasuryMainWalletBalanceLine.
   ///

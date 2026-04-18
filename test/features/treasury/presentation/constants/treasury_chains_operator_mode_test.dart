@@ -16,6 +16,7 @@ ONCHAIN_OPERATOR_MODE=sandbox
 ''');
       final chains = treasuryOpsChainsForCurrentEnv();
       expect(chains, contains('TRON_NILE'));
+      expect(chains, contains('TRON_SHASTA'));
       expect(chains, contains('ETH_SEPOLIA'));
       expect(chains, isNot(contains('TRON_MAINNET')));
     });
@@ -55,18 +56,22 @@ ONCHAIN_OPERATOR_MODE=sandbox
       expect(chains, contains('SOLANA_DEVNET'));
       expect(chains, contains('BSC_CHAPEL'));
       expect(chains, contains('ETH_SEPOLIA'));
-      expect(chains.where((c) => c == 'TRON_NILE' || c == 'TRON_SHASTA').length, 1);
+      expect(chains.where((c) => c == 'TRON_NILE' || c == 'TRON_SHASTA').length, 2);
       expect(chains, isNot(contains('TRON_MAINNET')));
     });
 
-    test('TRON_DEFAULT_NETWORK=TRON_SHASTA includes Shasta as sole Tron row', () {
+    test('TRON_DEFAULT_NETWORK=TRON_SHASTA orders Tron rows Shasta then Nile', () {
       dotenv.loadFromString(envString: '''
 ONCHAIN_OPERATOR_MODE=sandbox
 TRON_DEFAULT_NETWORK=TRON_SHASTA
 ''');
       expect(treasurySandboxDefaultTronChain(), 'TRON_SHASTA');
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('TRON_SHASTA'));
-      expect(treasuryOpsWalletCreationChainsForCurrentEnv(), isNot(contains('TRON_NILE')));
+      expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('TRON_NILE'));
+      expect(
+        treasuryOpsWalletCreationChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).toList(),
+        ['TRON_SHASTA', 'TRON_NILE'],
+      );
     });
 
     test('production onchain mode matches expanded mainnet list', () {
@@ -77,6 +82,17 @@ ONCHAIN_OPERATOR_MODE=production
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), treasuryOpsChainsForCurrentEnv());
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('TRON_MAINNET'));
       expect(treasuryOpsWalletCreationChainsForCurrentEnv(), contains('BASE_MAINNET'));
+    });
+  });
+
+  group('managedWalletsChainsForCurrentEnv vs treasury ops (sandbox)', () {
+    test('managed keeps a single Tron testnet; treasury ops lists both Nile and Shasta', () {
+      dotenv.loadFromString(envString: '''
+ENV=development
+ONCHAIN_OPERATOR_MODE=sandbox
+''');
+      expect(managedWalletsChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).length, 1);
+      expect(treasuryOpsChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).length, 2);
     });
   });
 

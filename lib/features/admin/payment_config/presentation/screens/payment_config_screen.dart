@@ -8,6 +8,8 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/treasury_main_wallets_panel.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_create_wallet_sheet.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_history_tab_view.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_wallets_tab_view.dart';
@@ -50,7 +52,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabIndex = _tabController.index;
     _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,14 +83,19 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       case 1:
         await context.read<OnchainChainPickerProvider>().ensureLoaded();
         if (!mounted) return;
-        await context.read<TreasuryProvider>().loadWallets();
+        await context.read<TreasuryMainWalletProvider>().refreshAllWallets();
         break;
       case 2:
         await context.read<OnchainChainPickerProvider>().ensureLoaded();
         if (!mounted) return;
-        await context.read<TreasuryProvider>().loadHistory();
+        await context.read<TreasuryProvider>().loadWallets();
         break;
       case 3:
+        await context.read<OnchainChainPickerProvider>().ensureLoaded();
+        if (!mounted) return;
+        await context.read<TreasuryProvider>().loadHistory();
+        break;
+      case 4:
         await context.read<RuntimeSettingsProvider>().load();
         break;
     }
@@ -118,6 +125,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
           controller: _tabController,
           tabs: [
             Tab(text: l10n.paymentConfigMethodsTab),
+            Tab(text: l10n.paymentConfigMasterWalletTab),
             Tab(text: l10n.paymentConfigTreasuryWalletsTab),
             Tab(text: l10n.paymentConfigHistoryTab),
             Tab(text: l10n.paymentConfigRuntimeTab),
@@ -129,6 +137,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
         controller: _tabController,
         children: const [
           _PaymentConfigTabView(),
+          TreasuryMainWalletsPanel(),
           TreasuryWalletsTabView(),
           TreasuryHistoryTabView(),
           RuntimeSettingsTabView(),
@@ -147,7 +156,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       );
     }
 
-    if (_tabIndex == 1) {
+    if (_tabIndex == 2) {
       return FloatingActionButton.extended(
         onPressed: () => _showCreateTreasuryWalletSheet(context),
         icon: const Icon(Icons.account_balance_wallet_outlined),
@@ -164,15 +173,22 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       return;
     }
 
-    final treasuryProvider = context.read<TreasuryProvider>();
     if (_tabIndex == 1) {
+      await context.read<OnchainChainPickerProvider>().ensureLoaded(force: true);
+      if (!mounted) return;
+      await context.read<TreasuryMainWalletProvider>().refreshAllWallets();
+      return;
+    }
+
+    final treasuryProvider = context.read<TreasuryProvider>();
+    if (_tabIndex == 2) {
       // Must reload operations too so TreasuryProvider can clear optimistic
       // pending state when sweep/fund is already COMPLETED (prune runs in loadHistory).
       await treasuryProvider.refreshAll(force: true);
       return;
     }
 
-    if (_tabIndex == 2) {
+    if (_tabIndex == 3) {
       await treasuryProvider.loadHistory(force: true);
       return;
     }
@@ -207,6 +223,9 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
   Future<void> _showCreateTreasuryWalletSheet(BuildContext context) async {
     final provider = context.read<TreasuryProvider>();
     final l10n = AppLocalizations.of(context);
+
+    await context.read<OnchainChainPickerProvider>().ensureLoaded();
+    if (!context.mounted) return;
 
     final created = await showModalBottomSheet<bool>(
       context: context,

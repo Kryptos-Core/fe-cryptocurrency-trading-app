@@ -1896,6 +1896,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigMethodsTab => 'Methods';
 
   @override
+  String get paymentConfigMasterWalletTab => 'Master wallet';
+
+  @override
   String get paymentConfigTreasuryWalletsTab => 'Operational wallets';
 
   @override
@@ -2267,6 +2270,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryCreateWalletCta => 'Create wallet';
+
+  @override
+  String get treasuryCreateWalletNoChainListFromApi =>
+      'Could not load networks from the server. Check your connection and tap Retry.';
 
   @override
   String get treasuryCreateWalletNetworkTronTrc20Testnet =>
@@ -3474,20 +3481,43 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get treasuryTronCrossEnvBalancesHint =>
-      'Same address on each Tron network';
+  String get treasuryNetworkLabel => 'Network';
 
   @override
-  String get treasuryTronEnvNile => 'Nile';
+  String get treasuryChainEcosystemTron => 'Tron';
 
   @override
-  String get treasuryTronEnvShasta => 'Shasta';
+  String get treasuryChainEcosystemEthereum => 'Ethereum';
 
   @override
-  String get treasuryTronEnvMainnet => 'Mainnet';
+  String get treasuryChainEcosystemBsc => 'BSC';
 
   @override
-  String get treasuryTronEnvThisWalletChain => 'this wallet';
+  String get treasuryChainEcosystemSolana => 'Solana';
+
+  @override
+  String get treasuryChainEcosystemBase => 'Base';
+
+  @override
+  String get treasuryChainEcosystemArbitrum => 'Arbitrum';
+
+  @override
+  String get treasuryChainEcosystemOptimism => 'Optimism';
+
+  @override
+  String get treasuryChainEcosystemPolygon => 'Polygon';
+
+  @override
+  String get treasuryChainEcosystemAvalanche => 'Avalanche';
+
+  @override
+  String get treasuryChainEcosystemGnosis => 'Gnosis';
+
+  @override
+  String get treasuryChainEcosystemLinea => 'Linea';
+
+  @override
+  String get treasuryChainEcosystemFantom => 'Fantom';
 
   @override
   String treasuryMainWalletBalanceLine(String balance, String symbol) {
