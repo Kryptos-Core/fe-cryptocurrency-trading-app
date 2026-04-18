@@ -66,6 +66,9 @@ jobs:
       - name: Analyze
         run: flutter analyze --fatal-infos
 
+      - name: Import boundaries (import_lint)
+        run: dart run import_lint
+
       - name: Test
         run: flutter test
 

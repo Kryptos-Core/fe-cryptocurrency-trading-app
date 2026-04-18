@@ -15,9 +15,9 @@ import 'package:crypto_trading_app/features/markets/presentation/providers/marke
 import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
 import 'package:crypto_trading_app/features/markets/presentation/screens/markets_list_screen.dart';
 
-import '../support/empty_markets_repository.dart';
-import '../support/stub_auth_repository.dart';
-import '../support/stub_currencies_repository.dart';
+import '../../support/empty_markets_repository.dart';
+import '../../support/stub_auth_repository.dart';
+import '../../support/stub_currencies_repository.dart';
 
 class _StubDashboardProvider extends ChangeNotifier
     implements DashboardProvider {

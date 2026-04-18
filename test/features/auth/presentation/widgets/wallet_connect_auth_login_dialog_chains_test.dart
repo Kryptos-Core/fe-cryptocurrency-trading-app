@@ -8,7 +8,7 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/auth/presentation/widgets/wallet_connect_auth_login_dialog.dart';
 
-import '../../support/stub_treasury_remote_data_source.dart';
+import '../../../../support/stub_treasury_remote_data_source.dart';
 
 /// Đăng nhập WC (legacy QR) phải dùng cùng tập EVM+Solana như liên kết ví (chain-picker API),
 /// không dùng danh sách hardcode; Tron chỉ qua extension — không có chip Tron trong Wrap QR.

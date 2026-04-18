@@ -12,9 +12,9 @@ import 'package:crypto_trading_app/features/markets/presentation/providers/curre
 import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/screens/markets_list_screen.dart';
 
-import '../support/empty_markets_repository.dart';
-import '../support/stub_auth_repository.dart';
-import '../support/stub_currencies_repository.dart';
+import '../../../support/empty_markets_repository.dart';
+import '../../../support/stub_auth_repository.dart';
+import '../../../support/stub_currencies_repository.dart';
 
 /// Unsigned JWT-shaped string; [AuthProvider] only base64-decodes the payload.
 String _testAccessToken({

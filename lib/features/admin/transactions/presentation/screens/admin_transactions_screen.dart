@@ -7,7 +7,7 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' show sl;
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
-import 'package:crypto_trading_app/features/user/data/models/user_model.dart';
+import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:crypto_trading_app/features/admin/transactions/presentation/providers/admin_transactions_provider.dart';
 import 'package:crypto_trading_app/features/admin/shared/presentation/providers/admin_enums_provider.dart';
 import 'package:crypto_trading_app/features/admin/users/presentation/providers/admin_users_provider.dart';
@@ -1241,7 +1241,7 @@ Future<void> _openUserDetail(BuildContext context, String userId) async {
     final raw = resp.data is Map<String, dynamic>
         ? ((resp.data as Map<String, dynamic>)['data'] ?? resp.data) as Map<String, dynamic>
         : resp.data as Map<String, dynamic>;
-    final user = UserModel.fromJson(raw).toEntity();
+    final user = User.fromJson(raw);
     if (!context.mounted) return;
     Navigator.push(
       context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/network/dio_client.dart';
@@ -35,7 +36,9 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/trea
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/providers/withdrawal_management_provider.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
+import 'package:crypto_trading_app/app/router/app_router.dart';
+
+GoRouter? _cachedAppRouter;
 
 class CryptoTradingApp extends StatelessWidget {
   const CryptoTradingApp({super.key});
@@ -172,26 +175,33 @@ class CryptoTradingApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Consumer2<LocaleProvider, ThemeProvider>(
-        builder: (context, localeProvider, themeProvider, _) => MaterialApp(
-          title: localeProvider.locale.languageCode == 'vi'
-              ? 'Ung dung Giao dich Crypto'
-              : 'Crypto Trading App',
-          debugShowCheckedModeBanner: false,
-          scrollBehavior: appScrollBehavior,
-          theme: themeProvider.lightTheme,
-          darkTheme: themeProvider.darkTheme,
-          themeMode: themeProvider.themeMode,
-          locale: localeProvider.locale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: LocaleProvider.supportedLocales,
-          home: const MainScreen(),
-        ),
+      child: Builder(
+        builder: (context) {
+          _cachedAppRouter ??=
+              createAppRouter(context.read<AuthProvider>());
+          return Consumer2<LocaleProvider, ThemeProvider>(
+            builder: (context, localeProvider, themeProvider, _) =>
+                MaterialApp.router(
+              title: localeProvider.locale.languageCode == 'vi'
+                  ? 'Ung dung Giao dich Crypto'
+                  : 'Crypto Trading App',
+              debugShowCheckedModeBanner: false,
+              scrollBehavior: appScrollBehavior,
+              theme: themeProvider.lightTheme,
+              darkTheme: themeProvider.darkTheme,
+              themeMode: themeProvider.themeMode,
+              locale: localeProvider.locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: LocaleProvider.supportedLocales,
+              routerConfig: _cachedAppRouter!,
+            ),
+          );
+        },
       ),
     );
   }

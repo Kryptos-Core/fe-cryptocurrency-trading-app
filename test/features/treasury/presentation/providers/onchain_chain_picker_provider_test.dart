@@ -6,7 +6,7 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/onch
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../support/stub_treasury_remote_data_source.dart';
+import '../../../../support/stub_treasury_remote_data_source.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

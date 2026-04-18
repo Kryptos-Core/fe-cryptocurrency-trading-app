@@ -16,7 +16,7 @@ import 'package:crypto_trading_app/features/blockchain/presentation/providers/bl
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/link_wallet_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../support/stub_treasury_remote_data_source.dart';
+import '../../../../../support/stub_treasury_remote_data_source.dart';
 
 /// Fake repository để test UI — tất cả WC methods trả về stub hợp lệ
 class _FakeBlockchainRepository implements BlockchainRepository {

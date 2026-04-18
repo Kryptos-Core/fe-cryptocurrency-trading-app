@@ -4,8 +4,7 @@ import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/features/user/data/datasources/user_remote_datasource.dart'
-    show SecurityChangeRequestItem;
+import 'package:crypto_trading_app/features/auth/domain/entities/security_change_request.dart';
 
 /// Màn hình cho Admin/Risk Officer duyệt yêu cầu thay đổi bảo mật (email/password).
 class SecurityRequestsReviewScreen extends StatefulWidget {

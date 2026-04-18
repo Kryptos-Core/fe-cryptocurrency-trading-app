@@ -10,7 +10,7 @@ import 'package:crypto_trading_app/features/auth/domain/repositories/auth_reposi
 import 'package:crypto_trading_app/features/home/presentation/screens/home_screen.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 
-import 'support/stub_auth_repository.dart';
+import '../../support/stub_auth_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

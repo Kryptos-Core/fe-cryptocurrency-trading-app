@@ -32,6 +32,24 @@ class AdminWalletAdjustment {
     this.currencySymbol,
   });
 
+  factory AdminWalletAdjustment.fromJson(Map<String, dynamic> json) {
+    return AdminWalletAdjustment(
+      adjustmentId: json['adjustmentId']?.toString() ?? '',
+      actorUserId: json['actorUserId']?.toString() ?? '',
+      targetUserId: json['targetUserId']?.toString() ?? '',
+      currencyId: json['currencyId']?.toString() ?? '',
+      amount: json['amount']?.toString() ?? '0',
+      type: json['type']?.toString() ?? 'DEPOSIT',
+      note: json['note']?.toString(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      actorEmail: json['actorEmail']?.toString(),
+      targetEmail: json['targetEmail']?.toString(),
+      currencySymbol: json['currencySymbol']?.toString(),
+    );
+  }
+
   bool get isDeposit => type == 'DEPOSIT';
   bool get isWithdraw => type == 'WITHDRAW';
 

@@ -1,0 +1,36 @@
+# import_lint ^0.1.6 — regexp-based CLI (see package README).
+# Run: dart run import_lint
+
+rules:
+  # Feature presentation layers must not import feature data layers.
+  presentation_no_feature_data:
+    search_file_path_reg_exp: ".*[/\\\\]features[/\\\\][^/\\\\]+[/\\\\]presentation[/\\\\].*\\.dart"
+    not_allow_import_reg_exps:
+      - "package:crypto_trading_app/features/[^/]+/data/"
+    ignore_import_reg_exps: []
+
+  # Domain layer must not import feature data (repository API files may still
+  # reference datasources — those paths are ignored until refactored).
+  domain_no_feature_data:
+    search_file_path_reg_exp: ".*[/\\\\]features[/\\\\][^/\\\\]+[/\\\\]domain[/\\\\].*\\.dart"
+    not_allow_import_reg_exps:
+      - "package:crypto_trading_app/features/[^/]+/data/"
+    ignore_import_reg_exps:
+      - "features/auth/data/datasources/auth_remote_datasource"
+      - "features/user/data/datasources/user_remote_datasource"
+      - "features/markets/data/models/create_market_pair_dto"
+      - "features/markets/data/models/update_market_pair_dto"
+
+  # Core must not depend on feature modules (legacy exceptions listed).
+  core_no_features:
+    search_file_path_reg_exp: ".*[/\\\\]lib[/\\\\]core[/\\\\].*\\.dart"
+    not_allow_import_reg_exps:
+      - "package:crypto_trading_app/features/"
+    ignore_import_reg_exps:
+      - "package:crypto_trading_app/features/markets/domain/"
+      - "package:crypto_trading_app/features/treasury/domain/"
+      - "package:crypto_trading_app/features/blockchain/domain/"
+      - "package:crypto_trading_app/features/wallets/domain/"
+      - "package:crypto_trading_app/features/auth/domain/"
+      - "package:crypto_trading_app/features/auth/presentation/"
+      - "package:crypto_trading_app/features/auth/domain/repositories/"

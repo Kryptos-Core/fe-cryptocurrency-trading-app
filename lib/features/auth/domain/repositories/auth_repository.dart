@@ -5,6 +5,8 @@ import 'package:crypto_trading_app/features/auth/data/datasources/auth_remote_da
 import 'package:crypto_trading_app/features/user/data/datasources/user_remote_datasource.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_response.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/wc_auth_results.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/security_change_request.dart';
 
 /// Auth Repository Interface (Domain Layer)
 abstract class AuthRepository {

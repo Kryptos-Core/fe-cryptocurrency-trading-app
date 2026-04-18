@@ -55,54 +55,21 @@ class UserModel {
   /// Create UserModel from JSON
   /// Handles both snake_case (from register/login) and camelCase (from other endpoints) formats
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Handle both camelCase and snake_case field names from backend
-    final id = (json['id'] ?? json['user_id'] ?? '').toString();
-    final email = json['email'] as String? ?? '';
-    final firstName = (json['firstName'] ?? json['first_name'] ?? '') as String;
-    final lastName = (json['lastName'] ?? json['last_name'] ?? '') as String;
-    final statusStr = json['status'] as String? ?? '';
-    final isActive = json['isActive'] as bool? ??
-                     (statusStr == 'ACTIVE' ? true : false);
-    final status = statusStr.isNotEmpty
-        ? statusStr
-        : (isActive ? 'ACTIVE' : 'BANNED');
-    final role = json['role'] as String? ?? 'TRADER';
-    final avatarUrl = json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
-    final twoFaEnabledRaw = json['two_fa_enabled'] ?? json['twoFaEnabled'] ?? 0;
-    final twoFaEnabled = twoFaEnabledRaw == true || twoFaEnabledRaw == 1 || twoFaEnabledRaw == '1';
-    final idvRaw = json['identity_verified'] ?? json['identityVerified'] ?? 0;
-    final identityVerified =
-        idvRaw == true || idvRaw == 1 || idvRaw == '1';
-    final evRaw = json['email_verified'] ?? json['emailVerified'] ?? 0;
-    final emailVerified =
-        evRaw == true || evRaw == 1 || evRaw == '1';
-
-    // Parse createdAt - handle both ISO 8601 string and snake_case key
-    final createdAtStr = json['createdAt'] as String? ?? json['created_at'] as String?;
-    final createdAt = createdAtStr != null 
-        ? DateTime.parse(createdAtStr) 
-        : DateTime.now();
-    
-    // Parse updatedAt - handle both ISO 8601 string and snake_case key
-    final updatedAtStr = json['updatedAt'] as String? ?? json['updated_at'] as String?;
-    final updatedAt = updatedAtStr != null 
-        ? DateTime.parse(updatedAtStr) 
-        : DateTime.now();
-    
+    final u = User.fromJson(json);
     return UserModel(
-      id: id,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      isActive: isActive,
-      status: status,
-      role: role,
-      avatarUrl: avatarUrl,
-      twoFaEnabled: twoFaEnabled,
-      identityVerified: identityVerified,
-      emailVerified: emailVerified,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      id: u.id,
+      email: u.email,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      isActive: u.isActive,
+      status: u.status,
+      role: u.role,
+      avatarUrl: u.avatarUrl,
+      twoFaEnabled: u.twoFaEnabled,
+      identityVerified: u.identityVerified,
+      emailVerified: u.emailVerified,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
     );
   }
 

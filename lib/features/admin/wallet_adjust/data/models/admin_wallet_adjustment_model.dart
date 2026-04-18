@@ -30,20 +30,19 @@ class AdminWalletAdjustmentModel {
   });
 
   factory AdminWalletAdjustmentModel.fromJson(Map<String, dynamic> json) {
+    final e = AdminWalletAdjustment.fromJson(json);
     return AdminWalletAdjustmentModel(
-      adjustmentId: json['adjustmentId']?.toString() ?? '',
-      actorUserId: json['actorUserId']?.toString() ?? '',
-      targetUserId: json['targetUserId']?.toString() ?? '',
-      currencyId: json['currencyId']?.toString() ?? '',
-      amount: json['amount']?.toString() ?? '0',
-      type: json['type']?.toString() ?? 'DEPOSIT',
-      note: json['note']?.toString(),
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
-          : DateTime.now(),
-      actorEmail: json['actorEmail']?.toString(),
-      targetEmail: json['targetEmail']?.toString(),
-      currencySymbol: json['currencySymbol']?.toString(),
+      adjustmentId: e.adjustmentId,
+      actorUserId: e.actorUserId,
+      targetUserId: e.targetUserId,
+      currencyId: e.currencyId,
+      amount: e.amount,
+      type: e.type,
+      note: e.note,
+      createdAt: e.createdAt,
+      actorEmail: e.actorEmail,
+      targetEmail: e.targetEmail,
+      currencySymbol: e.currencySymbol,
     );
   }
 

@@ -12,8 +12,7 @@ import 'package:crypto_trading_app/core/services/wallet_connect/reown_wallet_aut
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/wallet_web_extension_auth.dart';
-import 'package:crypto_trading_app/features/auth/data/datasources/auth_remote_datasource.dart'
-    show WcAuthInitResult, WcAuthStatusResult;
+import 'package:crypto_trading_app/features/auth/domain/entities/wc_auth_results.dart';
 import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_proposal.dart';

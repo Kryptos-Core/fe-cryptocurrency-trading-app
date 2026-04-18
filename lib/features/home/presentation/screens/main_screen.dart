@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' show sl;
@@ -12,31 +14,11 @@ import 'package:crypto_trading_app/features/markets/presentation/providers/marke
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
 import 'package:crypto_trading_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:crypto_trading_app/features/dashboard/presentation/screens/dashboard_screen.dart';
-import 'package:crypto_trading_app/features/markets/presentation/screens/currencies_list_screen.dart';
 import 'package:crypto_trading_app/features/markets/presentation/screens/markets_list_screen.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/screens/wallet_api_screen.dart';
 import 'package:crypto_trading_app/features/profile/presentation/screens/profile_screen.dart';
-import 'package:crypto_trading_app/features/auth/presentation/screens/login_screen.dart';
-import 'package:crypto_trading_app/features/auth/presentation/screens/register_screen.dart';
-import 'package:crypto_trading_app/features/orders/presentation/screens/orders_screen.dart';
-import 'package:crypto_trading_app/features/admin/security_requests/presentation/screens/security_requests_review_screen.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/about_screen.dart';
-import 'package:crypto_trading_app/features/settings/presentation/screens/settings_screen.dart';
-import 'package:crypto_trading_app/features/admin/markets/presentation/screens/admin_markets_screen.dart';
-import 'package:crypto_trading_app/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:crypto_trading_app/features/admin/broadcast/presentation/screens/broadcast_notification_screen.dart';
-import 'package:crypto_trading_app/features/trading/presentation/screens/market_maker/market_maker_hub_screen.dart';
-import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/payment_config_screen.dart';
-import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/screens/withdrawal_management_screen.dart';
-import 'package:crypto_trading_app/features/admin/fiat_withdrawals/presentation/screens/fiat_withdrawals_admin_screen.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/treasury_main_wallets_screen.dart';
-import 'package:crypto_trading_app/features/admin/users/presentation/screens/admin_user_list_screen.dart';
-import 'package:crypto_trading_app/features/admin/transactions/presentation/screens/admin_transactions_screen.dart';
-import 'package:crypto_trading_app/features/admin/currencies/presentation/screens/admin_currencies_screen.dart';
-import 'package:crypto_trading_app/features/managed_wallets/presentation/screens/managed_wallets_screen.dart';
-import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -219,10 +201,7 @@ class _MainScreenState extends State<MainScreen> {
       _showAuthRequired();
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const OrdersScreen()),
-    );
+    context.push(AppRoutes.orders);
   }
 
   /// Show a prompt directing the user to sign in before trading.
@@ -233,10 +212,7 @@ class _MainScreenState extends State<MainScreen> {
         content: Text(l10n.authRequiredTitle),
         action: SnackBarAction(
           label: l10n.signIn,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-          ),
+          onPressed: () => context.push(AppRoutes.login),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -322,28 +298,10 @@ class _MainScreenState extends State<MainScreen> {
                       : l10n.drawerPaymentConfig,
                   onPressed: () {
                     if (opensManagedWallets) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChangeNotifierProvider<
-                              ManagedWalletsProvider>.value(
-                            value: context.read<ManagedWalletsProvider>(),
-                            child: const ManagedWalletsScreen(),
-                          ),
-                        ),
-                      );
+                      context.push(AppRoutes.managedWallets);
                       return;
                     }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ChangeNotifierProvider<PaymentConfigProvider>.value(
-                          value: context.read<PaymentConfigProvider>(),
-                          child: const PaymentConfigScreen(),
-                        ),
-                      ),
-                    );
+                    context.push(AppRoutes.adminPaymentConfig);
                   },
                 );
               },
@@ -365,12 +323,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: IconButton(
                   tooltip: l10n.notificationsTooltip,
                   icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationsScreen(),
-                    ),
-                  ),
+                  onPressed: () => context.push(AppRoutes.notifications),
                 ),
               ),
             ),
@@ -464,12 +417,7 @@ class _MainScreenState extends State<MainScreen> {
                 mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CurrenciesListScreen(),
-                    ),
-                  );
+                  context.push(AppRoutes.currencies);
                 },
               ),
               Consumer<AuthProvider>(
@@ -496,12 +444,7 @@ class _MainScreenState extends State<MainScreen> {
                     mouseCursor: SystemMouseCursors.click,
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MarketMakerHubScreen(),
-                        ),
-                      );
+                      context.push(AppRoutes.marketMaker);
                     },
                   );
                 },
@@ -518,12 +461,7 @@ class _MainScreenState extends State<MainScreen> {
                 mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
+                  context.push(AppRoutes.settings);
                 },
               ),
               Consumer<AuthProvider>(
@@ -557,16 +495,7 @@ class _MainScreenState extends State<MainScreen> {
 
                   void openManagedWallets() {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider<
-                            ManagedWalletsProvider>.value(
-                          value: context.read<ManagedWalletsProvider>(),
-                          child: const ManagedWalletsScreen(),
-                        ),
-                      ),
-                    );
+                    context.push(AppRoutes.managedWallets);
                   }
 
                   return Column(
@@ -592,15 +521,10 @@ class _MainScreenState extends State<MainScreen> {
                                 l10n.drawerAdminArea,
                                 style: subtitleStyle,
                               ),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const AdminUserListScreen(),
-                                  ),
-                                );
-                              },
+                      onTap: () {
+                        Navigator.pop(context);
+                        context.push(AppRoutes.adminUsers);
+                      },
                             ),
                             if (auth.canReviewSecurityRequests)
                               ListTile(
@@ -619,13 +543,7 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SecurityRequestsReviewScreen(),
-                                    ),
-                                  );
+                                  context.push(AppRoutes.adminSecurityRequests);
                                 },
                               ),
                             _DrawerSubsectionHeader(l10n.drawerSectionAdminOps),
@@ -666,13 +584,7 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const TreasuryMainWalletsScreen(),
-                                    ),
-                                  );
+                                  context.push(AppRoutes.treasury);
                                 },
                               ),
                             ListTile(
@@ -691,13 +603,7 @@ class _MainScreenState extends State<MainScreen> {
                               mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const AdminTransactionsScreen(),
-                                  ),
-                                );
+                                context.push(AppRoutes.adminTransactions);
                               },
                             ),
                             ListTile(
@@ -718,13 +624,7 @@ class _MainScreenState extends State<MainScreen> {
                               mouseCursor: SystemMouseCursors.click,
                               onTap: () {
                                 Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const AdminCurrenciesScreen(),
-                                  ),
-                                );
+                                context.push(AppRoutes.adminCurrencies);
                               },
                             ),
                             if (auth.isAdmin) ...[
@@ -746,13 +646,7 @@ class _MainScreenState extends State<MainScreen> {
                                 mouseCursor: SystemMouseCursors.click,
                                 onTap: () {
                                   Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const BroadcastNotificationScreen(),
-                                    ),
-                                  );
+                                  context.push(AppRoutes.adminBroadcast);
                                 },
                               ),
                               if (auth.canSyncExchange)
@@ -772,13 +666,7 @@ class _MainScreenState extends State<MainScreen> {
                                   mouseCursor: SystemMouseCursors.click,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const AdminMarketsScreen(),
-                                      ),
-                                    );
+                                    context.push(AppRoutes.adminMarkets);
                                   },
                                 ),
                             ],
@@ -856,12 +744,7 @@ class _MainScreenState extends State<MainScreen> {
                 mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AboutScreen(),
-                    ),
-                  );
+                  context.push(AppRoutes.about);
                 },
               ),
               if (isAuthenticated)
@@ -892,10 +775,7 @@ class _MainScreenState extends State<MainScreen> {
                   mouseCursor: SystemMouseCursors.click,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
+                    context.push(AppRoutes.login);
                   },
                 ),
               const SizedBox(height: 8),
@@ -1109,15 +989,7 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
 }) {
   void openManagedWallets() {
     Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider<ManagedWalletsProvider>.value(
-          value: context.read<ManagedWalletsProvider>(),
-          child: const ManagedWalletsScreen(),
-        ),
-      ),
-    );
+    context.push(AppRoutes.managedWallets);
   }
 
   return <_FinanceDrawerItemSpec>[
@@ -1134,15 +1006,7 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
       subtitle: (l) => l.drawerPaymentConfigSubtitle,
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChangeNotifierProvider.value(
-              value: context.read<PaymentConfigProvider>(),
-              child: const PaymentConfigScreen(),
-            ),
-          ),
-        );
+        context.push(AppRoutes.adminPaymentConfig);
       },
     ),
     _FinanceDrawerItemSpec(
@@ -1151,12 +1015,7 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
       subtitle: (l) => l.drawerTreasuryMainWalletsSubtitle,
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const TreasuryMainWalletsScreen(),
-          ),
-        );
+        context.push(AppRoutes.treasury);
       },
     ),
     _FinanceDrawerItemSpec(
@@ -1165,12 +1024,7 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
       subtitle: (l) => l.drawerWithdrawalManagementSubtitle,
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const WithdrawalManagementScreen(),
-          ),
-        );
+        context.push(AppRoutes.adminWithdrawals);
       },
     ),
     _FinanceDrawerItemSpec(
@@ -1179,12 +1033,7 @@ List<_FinanceDrawerItemSpec> _financeDrawerItemSpecs({
       subtitle: (l) => l.drawerFiatWithdrawalAdminSubtitle,
       onTap: () {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const FiatWithdrawalsAdminScreen(),
-          ),
-        );
+        context.push(AppRoutes.adminFiatWithdrawals);
       },
     ),
   ];
@@ -1270,8 +1119,7 @@ class _AuthRequiredTab extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen())),
+                onPressed: () => context.push(AppRoutes.login),
                 icon: const Icon(Icons.login),
                 label: Text(AppLocalizations.of(context).signIn),
               ),
@@ -1280,8 +1128,7 @@ class _AuthRequiredTab extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                onPressed: () => context.push(AppRoutes.register),
                 child: Text(AppLocalizations.of(context).createAccount),
               ),
             ),
@@ -1335,8 +1182,7 @@ class _GuestProfileTab extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen())),
+              onPressed: () => context.push(AppRoutes.login),
               icon: const Icon(Icons.login),
               label: Text(AppLocalizations.of(context).signIn),
             ),
@@ -1345,8 +1191,7 @@ class _GuestProfileTab extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const RegisterScreen())),
+              onPressed: () => context.push(AppRoutes.register),
               child: Text(AppLocalizations.of(context).createAccount),
             ),
           ),

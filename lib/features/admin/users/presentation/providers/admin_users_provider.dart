@@ -3,8 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/network/dio_client.dart';
-import 'package:crypto_trading_app/features/user/data/models/user_model.dart';
-import 'package:crypto_trading_app/features/admin/wallet_adjust/data/models/admin_wallet_adjustment_model.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:crypto_trading_app/features/admin/wallet_adjust/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/features/admin/users/domain/entities/user_ledger_onchain_transaction.dart';
@@ -236,7 +234,7 @@ class AdminUsersProvider extends ChangeNotifier {
       }
 
       final newUsers = rawUsers
-          .map((e) => UserModel.fromJson(e as Map<String, dynamic>).toEntity())
+          .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList();
 
       _users.addAll(newUsers);
@@ -344,8 +342,8 @@ class AdminUsersProvider extends ChangeNotifier {
       }
 
       _adjustments = raw
-          .map((e) => AdminWalletAdjustmentModel.fromJson(
-              e as Map<String, dynamic>).toEntity())
+          .map((e) =>
+              AdminWalletAdjustment.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
       _adjustmentsError = e.response?.data?['message']?.toString() ??
