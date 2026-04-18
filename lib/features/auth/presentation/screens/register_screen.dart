@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/name_validator.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/features/auth/presentation/screens/login_screen.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -113,9 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             type: SnackBarType.warning,
             duration: const Duration(seconds: 3),
           );
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-          );
+          context.go(AppRoutes.login);
         }
         return;
       }
@@ -130,12 +130,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
 
-      // Step 3: Navigate to home screen
+      // Step 3: Navigate to shell home via GoRouter (same as email login).
       if (mounted) {
-        final navigator = Navigator.of(context);
         Future.delayed(const Duration(milliseconds: 500), () {
           if (!mounted) return;
-          navigator.pushNamedAndRemoveUntil('/', (route) => false);
+          context.go(AppRoutes.root);
         });
       }
     } catch (e) {
@@ -171,10 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-          (_) => false,
-        );
+        context.go(AppRoutes.root);
       }
     });
   }

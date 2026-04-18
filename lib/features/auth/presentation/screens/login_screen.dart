@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
 import 'package:crypto_trading_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -190,18 +192,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Return to the main (guest-capable) shell — pop if this route was pushed, otherwise replace stack.
+  /// Return to the main (guest-capable) shell via GoRouter (avoid imperative [MainScreen] stacking).
   void _exitToGuest() {
     if (!mounted) return;
-    final nav = Navigator.of(context);
-    if (nav.canPop()) {
-      nav.pop();
-    } else {
-      nav.pushAndRemoveUntil<void>(
-        MaterialPageRoute<void>(builder: (_) => const MainScreen()),
-        (_) => false,
-      );
-    }
+    context.go(AppRoutes.root);
   }
 
   Future<void> _handleLogin() async {
@@ -251,9 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const MainScreen()),
-                );
+                context.go(AppRoutes.root);
               }
             });
           }
@@ -290,9 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
+        context.go(AppRoutes.root);
       }
     });
   }

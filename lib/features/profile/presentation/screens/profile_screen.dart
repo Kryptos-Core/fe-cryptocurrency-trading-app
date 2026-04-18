@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
@@ -10,7 +13,6 @@ import 'package:crypto_trading_app/features/auth/domain/repositories/auth_reposi
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:crypto_trading_app/features/auth/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/widgets/wallet_contact_email_verification_dialog.dart';
 import 'package:crypto_trading_app/core/widgets/user_email_verified_mark.dart';
@@ -49,9 +51,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadCurrentUser() async {
     final tokenService = sl<TokenService>();
-    final token = tokenService.getAccessToken();
+    var token = tokenService.getAccessToken();
 
     if (token == null || token.isEmpty) {
+      await Future<void>.delayed(Duration.zero);
+      token = tokenService.getAccessToken();
+    }
+
+    if (token == null || token.isEmpty) {
+      if (!mounted) return;
+      if (context.read<AuthProvider>().isAuthenticated) {
+        await context.read<AuthProvider>().logout();
+      }
       _navigateToLogin();
       return;
     }
@@ -109,9 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _navigateToLogin() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    if (!mounted) return;
+    context.go(AppRoutes.login);
   }
 
   Future<void> _handleLogout() async {
@@ -125,11 +135,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Text(l10nDialog.areYouSureLogout),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
               child: Text(l10nDialog.cancel),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               child: Text(l10nDialog.logout),
             ),
           ],
@@ -138,9 +148,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirmed == true) {
-      final tokenService = sl<TokenService>();
-      await tokenService.clearTokens();
-      
+      await context.read<AuthProvider>().logout();
+
       if (mounted) {
         showAppSnackBar(
           context,

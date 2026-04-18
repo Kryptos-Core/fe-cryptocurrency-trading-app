@@ -736,7 +736,8 @@ class _PortfolioOverview extends StatelessWidget {
     }
     final list = src.toList();
     final nonZero = list.where(_walletHasNonZeroBalance).toList();
-    if (nonZero.isNotEmpty) return nonZero;
+    // Card chỉ tóm tắt — tránh list hàng chục coin đẩy Column cha overflow.
+    if (nonZero.isNotEmpty) return nonZero.take(12).toList();
     if (list.isNotEmpty) return list.take(12).toList();
     return [];
   }
@@ -813,7 +814,20 @@ class _PortfolioOverview extends StatelessWidget {
                 ),
               )
             else
-              ...rows.map((w) => _CoinBalanceRow(wallet: w, fmt: fmt)),
+              SizedBox(
+                height: 260,
+                child: ListView.separated(
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: rows.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  itemBuilder: (context, index) {
+                    return _CoinBalanceRow(
+                      wallet: rows[index],
+                      fmt: fmt,
+                    );
+                  },
+                ),
+              ),
           ],
         ),
       ),
