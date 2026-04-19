@@ -2362,7 +2362,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryFundTooltip => 'Nạp tiền từ ví chính vào ví này';
 
   @override
-  String get treasurySweepQueued => 'Đã gửi gom về — chờ blockchain.';
+  String get treasurySweepQueued => 'Đã gửi gom về — chờ xác nhận.';
 
   @override
   String get treasurySweepFailed => 'Sweep thất bại';
@@ -2383,7 +2383,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryConfirmAction => 'Xác nhận';
 
   @override
-  String get treasuryFundQueued => 'Đã gửi cấp vốn — chờ blockchain.';
+  String get treasuryFundQueued => 'Đã gửi cấp vốn — chờ xác nhận.';
 
   @override
   String get treasuryWalletPendingOnChainBadge => 'Đang xử lý trên chuỗi…';
@@ -2469,6 +2469,56 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryHistoryLoadMore => 'Tải thêm';
+
+  @override
+  String get treasuryOpsManualMenu => 'Thao tác thủ công';
+
+  @override
+  String get treasuryOpsManualRetry => 'Thử lại job';
+
+  @override
+  String get treasuryOpsManualAbort => 'Đánh dấu thất bại';
+
+  @override
+  String get treasuryOpsManualSettle => 'Xác nhận bằng tx hash';
+
+  @override
+  String get treasuryOpsManualRetryTitle => 'Thử lại lệnh treasury';
+
+  @override
+  String get treasuryOpsManualRetryMessage =>
+      'Giải phóng khóa ví và xếp lại worker. Dùng khi lệnh cấp vốn/gom về bị treo.';
+
+  @override
+  String get treasuryOpsManualSweepMainWalletHint =>
+      'Mã ví chính (chỉ gom về, khi không dùng mặc định)';
+
+  @override
+  String get treasuryOpsManualAbortTitle => 'Hủy lệnh';
+
+  @override
+  String get treasuryOpsManualAbortMessage =>
+      'Đánh dấu lệnh thất bại để có thể chạy lệnh mới. Dùng khi job không thể hoàn tất.';
+
+  @override
+  String get treasuryOpsManualAbortReason => 'Lý do (tuỳ chọn)';
+
+  @override
+  String get treasuryOpsManualSettleTitle => 'Xác nhận giao dịch on-chain';
+
+  @override
+  String get treasuryOpsManualSettleMessage =>
+      'Nếu tiền đã chuyển trên chuỗi nhưng lệnh vẫn xếp hàng/đang xử lý, nhập tx hash để đóng lệnh.';
+
+  @override
+  String get treasuryOpsManualTxHash => 'Tx hash';
+
+  @override
+  String get treasuryOpsManualMainWalletOptional =>
+      'Mã ví chính (tuỳ chọn, gom về về ví không mặc định)';
+
+  @override
+  String get treasuryOpsManualSuccess => 'Đã cập nhật';
 
   @override
   String get apiErrorGeneric => 'Đã có lỗi xảy ra. Vui lòng thử lại.';
@@ -3606,7 +3656,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Từ chối xóa (khôi phục ví)';
 
   @override
-  String get treasuryChainTronNile => 'TRON — Testnet';
+  String get treasuryChainTronNile => 'TRON — Nile (mạng thử)';
 
   @override
   String get treasuryChainTronMainnet => 'TRON — Mainnet';
@@ -3624,7 +3674,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryChainSolanaMainnet => 'Solana — Mainnet';
 
   @override
-  String get treasuryChainTronShasta => 'TRON — Testnet Shasta';
+  String get treasuryChainTronShasta => 'TRON — Shasta (mạng thử)';
 
   @override
   String get treasuryChainEthMainnet => 'Ethereum — Mainnet';

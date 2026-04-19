@@ -10,8 +10,8 @@ import 'package:crypto_trading_app/features/auth/presentation/widgets/wallet_con
 
 import '../../../../support/stub_treasury_remote_data_source.dart';
 
-/// Đăng nhập WC (legacy QR) phải dùng cùng tập EVM+Solana như liên kết ví (chain-picker API),
-/// không dùng danh sách hardcode; Tron chỉ qua extension — không có chip Tron trong Wrap QR.
+/// Đăng nhập WC (legacy QR) phải dùng cùng tập relay (chain-picker API), không hardcode.
+/// Desktop Windows: không có Reown → luồng legacy hiện đủ chip relay gồm Tron khi BE có TRON_*.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -67,7 +67,7 @@ void main() {
             findsWidgets,
           );
           expect(find.textContaining('Base (Sepolia)'), findsWidgets);
-          expect(find.textContaining('Tron'), findsNothing);
+          expect(find.textContaining('Tron'), findsWidgets);
         } finally {
           debugDefaultTargetPlatformOverride = null;
         }

@@ -86,13 +86,14 @@ ONCHAIN_OPERATOR_MODE=production
   });
 
   group('managedWalletsChainsForCurrentEnv vs treasury ops (sandbox)', () {
-    test('managed keeps a single Tron testnet; treasury ops lists both Nile and Shasta', () {
+    test('managed and treasury ops both include Nile + Shasta (aligned with BE actionable list)', () {
       dotenv.loadFromString(envString: '''
 ENV=development
 ONCHAIN_OPERATOR_MODE=sandbox
 ''');
-      expect(managedWalletsChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).length, 1);
+      expect(managedWalletsChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).length, 2);
       expect(treasuryOpsChainsForCurrentEnv().where((c) => c.startsWith('TRON_')).length, 2);
+      expect(managedWalletsChainsForCurrentEnv(), treasuryOpsChainsForCurrentEnv());
     });
   });
 
@@ -159,17 +160,23 @@ ONCHAIN_OPERATOR_MODE=sandbox
   });
 
   group('tronExtensionLinkNetworksForCurrentEnv', () {
-    test('sandbox uses default Tron testnet only', () {
+    test('sandbox lists both Tron testnets with Nile default first', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
-      expect(tronExtensionLinkNetworksForCurrentEnv(), [BlockchainNetwork.tronNile]);
+      expect(tronExtensionLinkNetworksForCurrentEnv(), [
+        BlockchainNetwork.tronNile,
+        BlockchainNetwork.tronShasta,
+      ]);
     });
 
-    test('sandbox respects TRON_DEFAULT_NETWORK=TRON_SHASTA', () {
+    test('sandbox orders Shasta before Nile when TRON_DEFAULT_NETWORK=TRON_SHASTA', () {
       dotenv.loadFromString(envString: '''
 ONCHAIN_OPERATOR_MODE=sandbox
 TRON_DEFAULT_NETWORK=TRON_SHASTA
 ''');
-      expect(tronExtensionLinkNetworksForCurrentEnv(), [BlockchainNetwork.tronShasta]);
+      expect(tronExtensionLinkNetworksForCurrentEnv(), [
+        BlockchainNetwork.tronShasta,
+        BlockchainNetwork.tronNile,
+      ]);
     });
 
     test('production is Tron mainnet only', () {
@@ -179,23 +186,23 @@ TRON_DEFAULT_NETWORK=TRON_SHASTA
   });
 
   group('onchainDepositWithdrawNetworksForCurrentEnv', () {
-    test('sandbox lists full actionable testnet set ending with Tron', () {
+    test('sandbox lists full actionable testnet set with both Trons at end (Nile default)', () {
       dotenv.loadFromString(envString: 'ONCHAIN_OPERATOR_MODE=sandbox');
       final nets = onchainDepositWithdrawNetworksForCurrentEnv();
       expect(nets.first, BlockchainNetwork.bscChapel);
       expect(nets, contains(BlockchainNetwork.ethSepolia));
-      expect(nets.last, BlockchainNetwork.tronNile);
+      expect(nets[nets.length - 2], BlockchainNetwork.tronNile);
+      expect(nets.last, BlockchainNetwork.tronShasta);
     });
 
-    test('sandbox ends with Shasta when TRON_DEFAULT_NETWORK set', () {
+    test('sandbox ends with Nile when TRON_DEFAULT_NETWORK=TRON_SHASTA (secondary after default)', () {
       dotenv.loadFromString(envString: '''
 ONCHAIN_OPERATOR_MODE=sandbox
 TRON_DEFAULT_NETWORK=TRON_SHASTA
 ''');
-      expect(
-        onchainDepositWithdrawNetworksForCurrentEnv().last,
-        BlockchainNetwork.tronShasta,
-      );
+      final nets = onchainDepositWithdrawNetworksForCurrentEnv();
+      expect(nets[nets.length - 2], BlockchainNetwork.tronShasta);
+      expect(nets.last, BlockchainNetwork.tronNile);
     });
 
     test('production lists mainnet actionable order (BSC first)', () {

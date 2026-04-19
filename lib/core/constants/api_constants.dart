@@ -320,6 +320,12 @@ class ApiConstants {
   static String treasuryWalletFund(String walletId) =>
       '$treasury/wallets/$walletId/fund';
   static const String treasuryOperations = '$treasury/operations';
+  static String treasuryOperationManualRetry(String operationId) =>
+      '$treasury/operations/$operationId/manual-retry';
+  static String treasuryOperationManualAbort(String operationId) =>
+      '$treasury/operations/$operationId/manual-abort';
+  static String treasuryOperationManualSettle(String operationId) =>
+      '$treasury/operations/$operationId/manual-settle';
   static const String treasuryTransactions = '$treasury/transactions';
 
   /// Env-driven chain lists for admin dropdowns (treasury / hot wallet / withdrawal / managed wallets).

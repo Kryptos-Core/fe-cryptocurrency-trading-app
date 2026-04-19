@@ -2362,7 +2362,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryFundTooltip => 'Fund this wallet from the main wallet';
 
   @override
-  String get treasurySweepQueued => 'Sweep queued — waiting on-chain.';
+  String get treasurySweepQueued => 'Sweep sent — pending confirmation.';
 
   @override
   String get treasurySweepFailed => 'Sweep failed';
@@ -2383,7 +2383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryConfirmAction => 'Confirm';
 
   @override
-  String get treasuryFundQueued => 'Fund queued — waiting on-chain.';
+  String get treasuryFundQueued => 'Funding sent — pending confirmation.';
 
   @override
   String get treasuryWalletPendingOnChainBadge => 'Processing on-chain…';
@@ -2469,6 +2469,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryHistoryLoadMore => 'Load more';
+
+  @override
+  String get treasuryOpsManualMenu => 'Manual actions';
+
+  @override
+  String get treasuryOpsManualRetry => 'Retry job';
+
+  @override
+  String get treasuryOpsManualAbort => 'Mark as failed';
+
+  @override
+  String get treasuryOpsManualSettle => 'Confirm with tx hash';
+
+  @override
+  String get treasuryOpsManualRetryTitle => 'Retry treasury job';
+
+  @override
+  String get treasuryOpsManualRetryMessage =>
+      'Releases the wallet lock and queues the worker again. Use when a fund/sweep job is stuck.';
+
+  @override
+  String get treasuryOpsManualSweepMainWalletHint =>
+      'Main wallet ID (sweep only, if not default)';
+
+  @override
+  String get treasuryOpsManualAbortTitle => 'Abort operation';
+
+  @override
+  String get treasuryOpsManualAbortMessage =>
+      'Marks this operation as failed so you can run a new fund or sweep. Use if the job will never complete.';
+
+  @override
+  String get treasuryOpsManualAbortReason => 'Reason (optional)';
+
+  @override
+  String get treasuryOpsManualSettleTitle => 'Confirm on-chain transaction';
+
+  @override
+  String get treasuryOpsManualSettleMessage =>
+      'If funds already moved on-chain but the order is still queued or processing, enter the transaction hash to close the order.';
+
+  @override
+  String get treasuryOpsManualTxHash => 'Transaction hash';
+
+  @override
+  String get treasuryOpsManualMainWalletOptional =>
+      'Main wallet ID (optional, sweep to non-default)';
+
+  @override
+  String get treasuryOpsManualSuccess => 'Updated';
 
   @override
   String get apiErrorGeneric => 'Something went wrong. Please try again.';

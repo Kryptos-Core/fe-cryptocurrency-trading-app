@@ -27,17 +27,27 @@ import 'package:crypto_trading_app/features/blockchain/presentation/screens/widg
 /// - **Web:** TronLink extension; QR WalletConnect trong mục mở rộng.
 /// - **Native:** **Reown AppKit** — URI/QR từ SDK + `personal_sign` + `/auth/wallet-verify`;
 ///   cần `WALLETCONNECT_PROJECT_ID` trong `.env` (cùng project Reown Cloud như backend).
+///
+/// [tronMobileQrEntry]: native/desktop/mobile — chỉ luồng QR WalletConnect relay cho Tron
+/// (cùng backend `/auth/wallet/wc/*` như mục “Legacy QR”; UX giống tab liên kết ví / quét TronLink).
 Future<bool?> showWalletConnectAuthLoginDialog({
   required BuildContext context,
+  bool tronMobileQrEntry = false,
 }) {
   return showDialog<bool>(
     context: context,
-    builder: (ctx) => const WalletConnectAuthLoginDialog(),
+    builder: (ctx) => WalletConnectAuthLoginDialog(tronMobileQrEntry: tronMobileQrEntry),
   );
 }
 
 class WalletConnectAuthLoginDialog extends StatefulWidget {
-  const WalletConnectAuthLoginDialog({super.key});
+  const WalletConnectAuthLoginDialog({
+    super.key,
+    this.tronMobileQrEntry = false,
+  });
+
+  /// `true`: ẩn Reown EVM; mở thẳng luồng QR WC auth cho Tron (TronLink mobile quét).
+  final bool tronMobileQrEntry;
 
   @override
   State<WalletConnectAuthLoginDialog> createState() =>
@@ -70,6 +80,9 @@ class _WalletConnectAuthLoginDialogState
   bool _reownAuthBusy = false;
   late void Function(ModalConnect) _reownConnectHandler;
 
+  /// Không có Tron trong chain-picker → không thể QR TronLink.
+  bool _tronQrEntryUnavailable = false;
+
   AuthRepository get _repo => sl<AuthRepository>();
 
   bool get _showDeepLinks {
@@ -83,7 +96,9 @@ class _WalletConnectAuthLoginDialogState
     super.initState();
     _reownConnectHandler =
         (_) => Future<void>(() => _completeLoginAfterReownConnect());
-    if (!kIsWeb && ReownWalletAuthConfig.isRuntimeSupported) {
+    if (!kIsWeb &&
+        ReownWalletAuthConfig.isRuntimeSupported &&
+        !widget.tronMobileQrEntry) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _initReownModal());
     }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -93,6 +108,25 @@ class _WalletConnectAuthLoginDialogState
       if (!mounted) return;
       final wc = picker.walletConnectLinkNetworksFromApi;
       if (wc.isEmpty) return;
+
+      final tronChoices = wc.where((c) => c.isTronFamily).toList();
+      if (widget.tronMobileQrEntry && !kIsWeb) {
+        if (tronChoices.isEmpty) {
+          setState(() {
+            _tronQrEntryUnavailable = true;
+            if (!wc.contains(_chain)) _chain = wc.first;
+          });
+          return;
+        }
+        setState(() {
+          _tronQrEntryUnavailable = false;
+          _chain = tronChoices.contains(_chain) ? _chain : tronChoices.first;
+        });
+        // Không gọi [_createSession] ở đây: session đang mở sẽ khóa chip mạng
+        // (`proposal != null` → onSelected = null). Trader chọn Nile/Shasta rồi bấm "Tạo mã QR".
+        return;
+      }
+
       setState(() {
         if (!wc.contains(_chain)) {
           _chain = wc.first;
@@ -577,7 +611,10 @@ class _WalletConnectAuthLoginDialogState
         const SizedBox(height: 8),
         Consumer<OnchainChainPickerProvider>(
           builder: (context, picker, _) {
-            final wcChains = picker.walletConnectLinkNetworksFromApi;
+            final raw = picker.walletConnectLinkNetworksFromApi;
+            final wcChains = widget.tronMobileQrEntry
+                ? raw.where((c) => c.isTronFamily).toList()
+                : raw;
             if (wcChains.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -608,9 +645,27 @@ class _WalletConnectAuthLoginDialogState
                     ),
                   ),
                   selected: selected,
-                  onSelected: _loadingInit || proposal != null
+                  onSelected: _loadingInit
                       ? null
-                      : (_) => setState(() => _chain = c),
+                      : proposal != null && !widget.tronMobileQrEntry
+                          ? null
+                          : (bool selectedTap) {
+                              if (!selectedTap) return;
+                              if (proposal != null && widget.tronMobileQrEntry) {
+                                _stopPoll();
+                                setState(() {
+                                  _init = null;
+                                  _expiresAt = null;
+                                  _status = WcSessionStatus.pending;
+                                  _pollHasServerSignature = false;
+                                  _wcAutoVerifyDedupeKey = null;
+                                  _wcAutoVerifyBusy = false;
+                                  _chain = c;
+                                });
+                                return;
+                              }
+                              setState(() => _chain = c);
+                            },
                 );
               }).toList(),
             );
@@ -730,39 +785,68 @@ class _WalletConnectAuthLoginDialogState
             ),
           ],
           if (!_pollHasServerSignature) ...[
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _addressCtrl,
-              decoration: InputDecoration(
-                labelText: l10n.wcSignedWalletAddress,
-                border: const OutlineInputBorder(),
-                hintText: '0x… / Solana',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _signatureCtrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: l10n.wcSignatureField,
-                border: const OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _verifying ? null : _verify,
-              child: _verifying
-                  ? const SizedBox(
-                      height: 22,
+            if (widget.tronMobileQrEntry) ...[
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: SizedBox(
                       width: 22,
+                      height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: theme.colorScheme.primary,
                       ),
-                    )
-                  : Text(l10n.wcVerifyAndLogin),
-            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      l10n.wcReownQrDescription,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _addressCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.wcSignedWalletAddress,
+                  border: const OutlineInputBorder(),
+                  hintText: '0x… / Solana',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _signatureCtrl,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: l10n.wcSignatureField,
+                  border: const OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: _verifying ? null : _verify,
+                child: _verifying
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(l10n.wcVerifyAndLogin),
+              ),
+            ],
           ],
         ],
       ],
@@ -787,11 +871,22 @@ class _WalletConnectAuthLoginDialogState
               padding: const EdgeInsets.fromLTRB(20, 16, 8, 8),
               child: Row(
                 children: [
-                  Icon(Icons.qr_code_2, color: theme.colorScheme.primary),
+                  Icon(
+                    widget.tronMobileQrEntry && !kIsWeb
+                        ? Icons.link
+                        : Icons.qr_code_2,
+                    color: widget.tronMobileQrEntry && !kIsWeb
+                        ? const Color(0xFFEF0027)
+                        : theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      kIsWeb ? l10n.wcLoginTitleWeb : l10n.wcLoginTitleNative,
+                      widget.tronMobileQrEntry && !kIsWeb
+                          ? l10n.desktopTronlinkDialogTitle
+                          : (kIsWeb
+                              ? l10n.wcLoginTitleWeb
+                              : l10n.wcLoginTitleNative),
                       style: theme.textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
@@ -811,7 +906,31 @@ class _WalletConnectAuthLoginDialogState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     OnchainSandboxOperatorBanner(l10n: l10n),
-                    if (kIsWeb) ...[
+                    if (widget.tronMobileQrEntry && !kIsWeb) ...[
+                      if (_tronQrEntryUnavailable) ...[
+                        Text(
+                          l10n.requestFailed,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.wcWcSupportsEvmSolanaTron,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ] else ...[
+                        _buildWcManualFlow(
+                          context,
+                          theme,
+                          l10n,
+                          proposal,
+                          signingMessage,
+                        ),
+                      ],
+                    ] else if (kIsWeb) ...[
                       Card(
                         margin: EdgeInsets.zero,
                         child: Padding(
@@ -879,7 +998,7 @@ class _WalletConnectAuthLoginDialogState
                         proposal,
                         signingMessage,
                       ),
-                    ] else ...[
+                    ] else if (!widget.tronMobileQrEntry) ...[
                       _buildReownNativeSection(theme, l10n),
                       const SizedBox(height: 12),
                       ExpansionTile(

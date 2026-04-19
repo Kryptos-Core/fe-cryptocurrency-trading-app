@@ -79,5 +79,21 @@ abstract class TreasuryRepository {
     int limit = 20,
   });
 
+  Future<Map<String, dynamic>> manualRetryTreasuryOperation(
+    String operationId, {
+    String? mainWalletId,
+  });
+
+  Future<Map<String, dynamic>> manualAbortTreasuryOperation(
+    String operationId, {
+    String? reason,
+  });
+
+  Future<Map<String, dynamic>> manualSettleTreasuryOperation(
+    String operationId, {
+    required String txHash,
+    String? mainWalletId,
+  });
+
   Future<ChainPickerOptionsModel> getChainPickerOptions();
 }

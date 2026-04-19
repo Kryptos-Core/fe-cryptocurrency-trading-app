@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:crypto_trading_app/app/di/injection_container.dart';
@@ -9,7 +10,7 @@ import 'package:crypto_trading_app/features/auth/presentation/widgets/wallet_con
 /// Flow đăng nhập/đăng ký bằng ví dùng chung cho LoginScreen và RegisterScreen.
 ///
 /// EVM: [openWalletConnectQrLogin] (Reown trên mobile, QR server trên desktop/web).
-/// Tron: [connectTronLink] (extension web / gợi ý trên desktop / deep link mobile).
+/// Tron: [connectTronLink] — web = extension; native = QR WC `/auth/wallet/wc/*` (giống liên kết ví Tron).
 class WalletAuthHandler {
   const WalletAuthHandler._();
 
@@ -27,8 +28,9 @@ class WalletAuthHandler {
   static Future<void> connectTronLink(
     BuildContext context, {
     required VoidCallback onSuccess,
-  }) =>
-      WalletBrandLoginConnectorResolver.current.connect(
+  }) async {
+    if (kIsWeb) {
+      await WalletBrandLoginConnectorResolver.current.connect(
         context,
         brand: WalletBrand.tronlink,
         fetchNonce: ({required chain, required address}) async {
@@ -40,5 +42,14 @@ class WalletAuthHandler {
         },
         onSuccess: onSuccess,
       );
+      return;
+    }
+    if (!context.mounted) return;
+    final ok = await showWalletConnectAuthLoginDialog(
+      context: context,
+      tronMobileQrEntry: true,
+    );
+    if (ok == true && context.mounted) onSuccess();
+  }
 }
 

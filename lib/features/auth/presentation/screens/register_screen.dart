@@ -7,7 +7,6 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/name_validator.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {

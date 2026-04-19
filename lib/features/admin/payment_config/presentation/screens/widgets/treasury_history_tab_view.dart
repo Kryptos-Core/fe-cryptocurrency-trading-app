@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/onch
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/core/widgets/debounced_search_text_field.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
@@ -421,6 +422,40 @@ class _TreasuryOperationTile extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                Builder(
+                  builder: (ctx) {
+                    final auth = ctx.watch<AuthProvider>();
+                    final st = op.status.toUpperCase();
+                    final stuck = st == 'PENDING' || st == 'PROCESSING';
+                    if (!auth.canManagePaymentConfigs || !stuck) {
+                      return const SizedBox.shrink();
+                    }
+                    return PopupMenuButton<String>(
+                      tooltip: l10n.treasuryOpsManualMenu,
+                      icon: Icon(Icons.more_vert, color: scheme.onSurfaceVariant),
+                      onSelected: (action) {
+                        switch (action) {
+                          case 'retry':
+                            _runTreasuryManualRetry(ctx, op);
+                            break;
+                          case 'abort':
+                            _runTreasuryManualAbort(ctx, op);
+                            break;
+                          case 'settle':
+                            _runTreasuryManualSettle(ctx, op);
+                            break;
+                          default:
+                            break;
+                        }
+                      },
+                      itemBuilder: (c) => [
+                        PopupMenuItem(value: 'retry', child: Text(l10n.treasuryOpsManualRetry)),
+                        PopupMenuItem(value: 'abort', child: Text(l10n.treasuryOpsManualAbort)),
+                        PopupMenuItem(value: 'settle', child: Text(l10n.treasuryOpsManualSettle)),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(width: 8),
                 Column(
@@ -896,5 +931,170 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+Future<void> _runTreasuryManualRetry(BuildContext context, TreasuryOperationModel op) async {
+  final l10n = AppLocalizations.of(context);
+  final mainCtrl = TextEditingController();
+  final isSweep = op.type.toUpperCase() == 'SWEEP';
+  try {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.treasuryOpsManualRetryTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.treasuryOpsManualRetryMessage),
+              if (isSweep) ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: mainCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.treasuryOpsManualSweepMainWalletHint,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.treasuryConfirmAction)),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final treasury = context.read<TreasuryProvider>();
+    final mw = mainCtrl.text.trim();
+    final ok = await treasury.manualRetryTreasuryOperation(
+      op.operationId,
+      mainWalletId: isSweep && mw.isNotEmpty ? mw : null,
+    );
+    if (!context.mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.treasuryOpsManualSuccess)),
+      );
+    }
+  } finally {
+    mainCtrl.dispose();
+  }
+}
+
+Future<void> _runTreasuryManualAbort(BuildContext context, TreasuryOperationModel op) async {
+  final l10n = AppLocalizations.of(context);
+  final reasonCtrl = TextEditingController();
+  try {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.treasuryOpsManualAbortTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.treasuryOpsManualAbortMessage),
+              const SizedBox(height: 12),
+              TextField(
+                controller: reasonCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.treasuryOpsManualAbortReason,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.treasuryConfirmAction)),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final treasury = context.read<TreasuryProvider>();
+    final ok = await treasury.manualAbortTreasuryOperation(
+      op.operationId,
+      reason: reasonCtrl.text.trim().isEmpty ? null : reasonCtrl.text.trim(),
+    );
+    if (!context.mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.treasuryOpsManualSuccess)),
+      );
+    }
+  } finally {
+    reasonCtrl.dispose();
+  }
+}
+
+Future<void> _runTreasuryManualSettle(BuildContext context, TreasuryOperationModel op) async {
+  final l10n = AppLocalizations.of(context);
+  final txCtrl = TextEditingController();
+  final mainCtrl = TextEditingController();
+  final isSweep = op.type.toUpperCase() == 'SWEEP';
+  try {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.treasuryOpsManualSettleTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.treasuryOpsManualSettleMessage),
+              const SizedBox(height: 12),
+              TextField(
+                controller: txCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.treasuryOpsManualTxHash,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              if (isSweep) ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: mainCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.treasuryOpsManualMainWalletOptional,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.treasuryConfirmAction)),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final tx = txCtrl.text.trim();
+    if (tx.isEmpty) return;
+    final treasury = context.read<TreasuryProvider>();
+    final mw = mainCtrl.text.trim();
+    final ok = await treasury.manualSettleTreasuryOperation(
+      op.operationId,
+      txHash: tx,
+      mainWalletId: isSweep && mw.isNotEmpty ? mw : null,
+    );
+    if (!context.mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.treasuryOpsManualSuccess)),
+      );
+    }
+  } finally {
+    txCtrl.dispose();
+    mainCtrl.dispose();
   }
 }

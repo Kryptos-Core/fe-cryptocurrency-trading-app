@@ -465,6 +465,70 @@ class TreasuryProvider extends ChangeNotifier {
     ]);
   }
 
+  Future<bool> manualRetryTreasuryOperation(
+    String operationId, {
+    String? mainWalletId,
+  }) async {
+    _isSubmitting = true;
+    _resetDisplayedError();
+    notifyListeners();
+    try {
+      await _repository.manualRetryTreasuryOperation(operationId, mainWalletId: mainWalletId);
+      await refreshAll();
+      return true;
+    } catch (e) {
+      _captureError(e);
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> manualAbortTreasuryOperation(String operationId, {String? reason}) async {
+    _isSubmitting = true;
+    _resetDisplayedError();
+    notifyListeners();
+    try {
+      await _repository.manualAbortTreasuryOperation(operationId, reason: reason);
+      await refreshAll();
+      _clearOnChainPendingState();
+      return true;
+    } catch (e) {
+      _captureError(e);
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> manualSettleTreasuryOperation(
+    String operationId, {
+    required String txHash,
+    String? mainWalletId,
+  }) async {
+    _isSubmitting = true;
+    _resetDisplayedError();
+    notifyListeners();
+    try {
+      await _repository.manualSettleTreasuryOperation(
+        operationId,
+        txHash: txHash,
+        mainWalletId: mainWalletId,
+      );
+      await refreshAll();
+      _clearOnChainPendingState();
+      return true;
+    } catch (e) {
+      _captureError(e);
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
   void handleRealtimeEvent(Map<String, dynamic> event) {
     final nested = event['payload'];
     final nestedMap =

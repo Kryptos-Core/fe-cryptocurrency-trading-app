@@ -4339,7 +4339,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasurySweepQueued.
   ///
   /// In en, this message translates to:
-  /// **'Sweep queued — waiting on-chain.'**
+  /// **'Sweep sent — pending confirmation.'**
   String get treasurySweepQueued;
 
   /// No description provided for @treasurySweepFailed.
@@ -4381,7 +4381,7 @@ abstract class AppLocalizations {
   /// No description provided for @treasuryFundQueued.
   ///
   /// In en, this message translates to:
-  /// **'Fund queued — waiting on-chain.'**
+  /// **'Funding sent — pending confirmation.'**
   String get treasuryFundQueued;
 
   /// No description provided for @treasuryWalletPendingOnChainBadge.
@@ -4539,6 +4539,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Load more'**
   String get treasuryHistoryLoadMore;
+
+  /// No description provided for @treasuryOpsManualMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual actions'**
+  String get treasuryOpsManualMenu;
+
+  /// No description provided for @treasuryOpsManualRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry job'**
+  String get treasuryOpsManualRetry;
+
+  /// No description provided for @treasuryOpsManualAbort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as failed'**
+  String get treasuryOpsManualAbort;
+
+  /// No description provided for @treasuryOpsManualSettle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with tx hash'**
+  String get treasuryOpsManualSettle;
+
+  /// No description provided for @treasuryOpsManualRetryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry treasury job'**
+  String get treasuryOpsManualRetryTitle;
+
+  /// No description provided for @treasuryOpsManualRetryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Releases the wallet lock and queues the worker again. Use when a fund/sweep job is stuck.'**
+  String get treasuryOpsManualRetryMessage;
+
+  /// No description provided for @treasuryOpsManualSweepMainWalletHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Main wallet ID (sweep only, if not default)'**
+  String get treasuryOpsManualSweepMainWalletHint;
+
+  /// No description provided for @treasuryOpsManualAbortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Abort operation'**
+  String get treasuryOpsManualAbortTitle;
+
+  /// No description provided for @treasuryOpsManualAbortMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Marks this operation as failed so you can run a new fund or sweep. Use if the job will never complete.'**
+  String get treasuryOpsManualAbortMessage;
+
+  /// No description provided for @treasuryOpsManualAbortReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get treasuryOpsManualAbortReason;
+
+  /// No description provided for @treasuryOpsManualSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm on-chain transaction'**
+  String get treasuryOpsManualSettleTitle;
+
+  /// No description provided for @treasuryOpsManualSettleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'If funds already moved on-chain but the order is still queued or processing, enter the transaction hash to close the order.'**
+  String get treasuryOpsManualSettleMessage;
+
+  /// No description provided for @treasuryOpsManualTxHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction hash'**
+  String get treasuryOpsManualTxHash;
+
+  /// No description provided for @treasuryOpsManualMainWalletOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Main wallet ID (optional, sweep to non-default)'**
+  String get treasuryOpsManualMainWalletOptional;
+
+  /// No description provided for @treasuryOpsManualSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get treasuryOpsManualSuccess;
 
   /// No description provided for @apiErrorGeneric.
   ///

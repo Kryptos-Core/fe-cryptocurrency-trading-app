@@ -369,6 +369,65 @@ class TreasuryRemoteDataSourceImpl implements TreasuryRepository {
   }
 
   @override
+  Future<Map<String, dynamic>> manualRetryTreasuryOperation(
+    String operationId, {
+    String? mainWalletId,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (mainWalletId != null && mainWalletId.trim().isNotEmpty) {
+        body['mainWalletId'] = mainWalletId.trim();
+      }
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryOperationManualRetry(operationId),
+        data: body,
+      );
+      return _unwrap<Map<String, dynamic>>(response.data);
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Manual retry failed');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> manualAbortTreasuryOperation(
+    String operationId, {
+    String? reason,
+  }) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryOperationManualAbort(operationId),
+        data: {
+          if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+        },
+      );
+      return _unwrap<Map<String, dynamic>>(response.data);
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Manual abort failed');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> manualSettleTreasuryOperation(
+    String operationId, {
+    required String txHash,
+    String? mainWalletId,
+  }) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.treasuryOperationManualSettle(operationId),
+        data: {
+          'txHash': txHash.trim(),
+          if (mainWalletId != null && mainWalletId.trim().isNotEmpty)
+            'mainWalletId': mainWalletId.trim(),
+        },
+      );
+      return _unwrap<Map<String, dynamic>>(response.data);
+    } on DioException catch (e) {
+      throw _dioServerError(e, defaultMessage: 'Manual settle failed');
+    }
+  }
+
+  @override
   Future<ChainPickerOptionsModel> getChainPickerOptions() async {
     try {
       final response = await dioClient.dio.get(ApiConstants.treasuryChainPickerOptions);

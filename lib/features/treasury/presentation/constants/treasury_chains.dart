@@ -40,8 +40,11 @@ const List<String> kOnchainActionableProductionCodes = <String>[
   'TRON_MAINNET',
 ];
 
+/// Sandbox actionable chains — **both** Tron testnets (order: [TRON_DEFAULT_NETWORK] first).
+/// Mirrors backend [listActionableOnchainChainCodes] / GET chain-picker-options.
 List<String> kOnchainActionableSandboxCodes(String tronDefault) {
-  final tron = tronDefault == 'TRON_SHASTA' ? 'TRON_SHASTA' : 'TRON_NILE';
+  final first = tronDefault == 'TRON_SHASTA' ? 'TRON_SHASTA' : 'TRON_NILE';
+  final second = first == 'TRON_SHASTA' ? 'TRON_NILE' : 'TRON_SHASTA';
   return <String>[
     'BSC_CHAPEL',
     'SOLANA_DEVNET',
@@ -54,14 +57,15 @@ List<String> kOnchainActionableSandboxCodes(String tronDefault) {
     'GNOSIS_CHIADO',
     'LINEA_SEPOLIA',
     'FANTOM_TESTNET',
-    tron,
+    first,
+    second,
   ];
 }
 
 /// Legacy export for audits — production actionable codes (same as default treasury ops in prod).
 const List<String> kTreasuryOpsChainValues = kOnchainActionableProductionCodes;
 
-/// Actionable chains (single default Tron testnet in sandbox) — mirrors backend
+/// Actionable chains (sandbox: Nile + Shasta order by `TRON_DEFAULT_NETWORK`) — mirrors backend
 /// [listActionableOnchainChainCodes] / user-facing pickers (`managed_wallets`, …).
 List<String> actionableOnchainChainsForCurrentEnv() {
   if (treasuryChainsUseMainnetOnly) {
@@ -101,7 +105,7 @@ List<String> treasuryMainWalletChainsForCurrentEnv() =>
 /// Withdrawal admin filter — matches backend `withdrawal_admin_filter` / actionable list.
 List<String> withdrawalFilterChainsForCurrentEnv() => actionableOnchainChainsForCurrentEnv();
 
-/// Managed deposit — matches backend `managed_wallets` / single Tron testnet in sandbox.
+/// Managed deposit — matches backend `managed_wallets` (sandbox: both Tron testnets).
 List<String> managedWalletsChainsForCurrentEnv() => actionableOnchainChainsForCurrentEnv();
 
 /// Default hot-wallet chain for the current [ENV].
@@ -112,8 +116,8 @@ String treasuryDefaultMainWalletChainForCurrentEnv() =>
 bool isTreasuryMainWalletChainAllowedForCurrentEnv(String chain) =>
     treasuryMainWalletChainsForCurrentEnv().contains(chain);
 
-/// Tron testnet used when sandbox UI offers a single "Tron (TRC-20 testnet)" row.
-/// Matches backend `TRON_DEFAULT_NETWORK` (TRON_NILE | TRON_SHASTA).
+/// Sandbox default Tron row ordering (`TRON_DEFAULT_NETWORK` → Nile | Shasta).
+/// UI may still show both testnets; this picks which is listed first.
 String treasurySandboxDefaultTronChain() {
   if (!dotenv.isInitialized) {
     return 'TRON_NILE';
@@ -262,19 +266,20 @@ List<BlockchainNetwork> walletConnectLinkNetworksForCurrentEnv() {
 
 /// Tron rows in [LinkWalletDialog] (Chrome extension — web only).
 ///
-/// Sandbox: single default testnet from [treasurySandboxDefaultTronChain].
+/// Sandbox: **both** Nile + Shasta, default first — aligned with BE catalog / chain-picker.
 /// Production: mainnet only.
 List<BlockchainNetwork> tronExtensionLinkNetworksForCurrentEnv() {
   if (treasuryChainsUseMainnetOnly) {
     return const [BlockchainNetwork.tronMainnet];
   }
-  switch (treasurySandboxDefaultTronChain()) {
-    case 'TRON_SHASTA':
-      return const [BlockchainNetwork.tronShasta];
-    case 'TRON_NILE':
-    default:
-      return const [BlockchainNetwork.tronNile];
-  }
+  final firstCode = treasurySandboxDefaultTronChain();
+  final firstNet = BlockchainNetworkX.tryFromApiValue(firstCode);
+  final secondCode = firstCode == 'TRON_SHASTA' ? 'TRON_NILE' : 'TRON_SHASTA';
+  final secondNet = BlockchainNetworkX.tryFromApiValue(secondCode);
+  return [
+    if (firstNet != null) firstNet,
+    if (secondNet != null) secondNet,
+  ];
 }
 
 /// Fallback when GET /treasury/chain-picker-options is missing or fails.
@@ -282,8 +287,7 @@ List<BlockchainNetwork> tronExtensionLinkNetworksForCurrentEnv() {
 /// Server should return the same codes under `pickers.onchain_deposit_withdraw`; the app maps
 /// those strings to [BlockchainNetwork] via [BlockchainNetworkX.tryFromApiValue].
 ///
-/// Same universe as [walletConnectLinkNetworksForCurrentEnv] plus one Tron (see
-/// [tronExtensionLinkNetworksForCurrentEnv]) — no mixing mainnet + testnet in sandbox.
+/// Same universe as [walletConnectLinkNetworksForCurrentEnv] (sandbox: both Tron testnets).
 List<BlockchainNetwork> onchainDepositWithdrawNetworksForCurrentEnv() {
   final codes = actionableOnchainChainsForCurrentEnv();
   return codes

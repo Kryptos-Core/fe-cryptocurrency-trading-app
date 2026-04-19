@@ -94,26 +94,11 @@ void _showTreasuryQueuedSnackBar(
     );
     return;
   }
-  final l10n = AppLocalizations.of(context);
   messenger.showSnackBar(
     SnackBar(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(primaryQueued),
-          const SizedBox(height: 6),
-          Text(
-            l10n.treasuryQueuedBalanceHint,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.92),
-            ),
-          ),
-        ],
-      ),
+      content: Text(primaryQueued),
       backgroundColor: Colors.green,
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 4),
     ),
   );
 }
