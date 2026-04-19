@@ -639,10 +639,7 @@ class _WalletConnectAuthLoginDialogState
                 final selected = _chain == c;
                 return ChoiceChip(
                   label: Text(
-                    onchainNetworkFilterChipLabel(
-                      c,
-                      l10n.onchainSandboxShort,
-                    ),
+                    picker.displayLabelForNetwork(c),
                   ),
                   selected: selected,
                   onSelected: _loadingInit
@@ -1035,3 +1032,4 @@ class _WalletConnectAuthLoginDialogState
     );
   }
 }
+

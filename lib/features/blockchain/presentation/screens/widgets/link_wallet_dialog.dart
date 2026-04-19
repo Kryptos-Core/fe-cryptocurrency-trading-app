@@ -3,10 +3,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/features/treasury/domain/entities/chain_network_catalog_item_model.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
@@ -37,6 +39,7 @@ class LinkWalletDialog extends StatefulWidget {
 class _LinkWalletDialogState extends State<LinkWalletDialog>
     with SingleTickerProviderStateMixin {
   late BlockchainNetwork _selectedChain;
+  BlockchainNetwork? _selectedTronNetwork;
   BlockchainProvider? _blockchainProvider;
   WcSessionProposal? _session;
   bool _isLoading = false;
@@ -58,6 +61,83 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   bool get _hasPendingSession =>
       _session != null && !_session!.isExpired && !_isCompleted;
 
+  bool _isSandboxMode(OnchainChainPickerProvider picker) {
+    return picker.rawOptions?.operatorMode.toLowerCase() == 'sandbox';
+  }
+
+  BlockchainNetwork _defaultTronNetwork(OnchainChainPickerProvider picker) {
+    final tronNetworks = _tronNetworksForPicker(picker);
+    final rawDefault = picker.rawOptions?.tronDefaultNetwork;
+    final parsedDefault = rawDefault == null
+        ? null
+        : BlockchainNetworkX.tryFromApiValue(rawDefault);
+    if (parsedDefault != null && tronNetworks.contains(parsedDefault)) {
+      return parsedDefault;
+    }
+    if (tronNetworks.isNotEmpty) {
+      return tronNetworks.first;
+    }
+    return BlockchainNetwork.tronMainnet;
+  }
+
+  List<BlockchainNetwork> _tronNetworksForPicker(
+    OnchainChainPickerProvider picker,
+  ) {
+    final source = kIsWeb
+        ? picker.tronExtensionLinkNetworksFromApi
+        : picker.walletConnectLinkNetworksFromApi
+            .where((network) => network.isTronFamily)
+            .toList(growable: false);
+    if (source.isNotEmpty) return source;
+    return const [
+      BlockchainNetwork.tronNile,
+      BlockchainNetwork.tronShasta,
+    ];
+  }
+
+  ChainNetworkCatalogItemModel? _catalogItemFor(
+    OnchainChainPickerProvider picker,
+    BlockchainNetwork network,
+  ) {
+    final code = network.apiValue;
+    for (final item in picker.networkCatalog) {
+      if (item.code == code) return item;
+    }
+    return null;
+  }
+
+  String _blockchainGroupKey(
+    OnchainChainPickerProvider picker,
+    BlockchainNetwork network,
+  ) {
+    final item = _catalogItemFor(picker, network);
+    final groupKey = item?.blockchainKey.trim();
+    if (groupKey != null && groupKey.isNotEmpty) return groupKey;
+    final iconKey = item?.iconKey.trim();
+    if (iconKey != null && iconKey.isNotEmpty) return iconKey;
+    return network.networkFamily.name;
+  }
+
+  String _blockchainFamilyLabel(
+    OnchainChainPickerProvider picker,
+    BlockchainNetwork network,
+  ) {
+    final item = _catalogItemFor(picker, network);
+    final label = item?.blockchainLabel.trim();
+    if (label != null && label.isNotEmpty) return label;
+    return network.label;
+  }
+
+  String _networkOptionLabel(
+    OnchainChainPickerProvider picker,
+    BlockchainNetwork network,
+  ) {
+    final item = _catalogItemFor(picker, network);
+    final label = item?.networkLabel.trim();
+    if (label != null && label.isNotEmpty) return label;
+    return network.label;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -68,12 +148,20 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       await picker.ensureLoaded();
       if (!mounted) return;
       final wc = picker.walletConnectLinkNetworksFromApi;
-      final tron = picker.tronExtensionLinkNetworksFromApi;
+      final tron = _tronNetworksForPicker(picker);
       final all = [...wc, ...tron];
       if (all.isEmpty) return;
       setState(() {
-        if (!all.contains(_selectedChain)) {
+        if (!wc.contains(_selectedChain) && !tron.contains(_selectedChain)) {
           _selectedChain = wc.isNotEmpty ? wc.first : tron.first;
+        }
+        if (_selectedChain.isTronFamily) {
+          _selectedTronNetwork ??= _defaultTronNetwork(picker);
+          if (_isSandboxMode(picker)) {
+            _selectedChain = _selectedTronNetwork!;
+          } else {
+            _selectedChain = BlockchainNetwork.tronMainnet;
+          }
         }
       });
     });
@@ -156,6 +244,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
   void _resetTronLinkFlow() {
     _tronChallengeMessage = null;
     _tronSigController.clear();
+    _tronAddressController.clear();
   }
 
   @override
@@ -263,49 +352,68 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       return _buildCompletedState(theme, l10n);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // ── Network Selector ──
-        if (!_hasPendingSession) _buildNetworkSelector(theme, l10n),
+    return Consumer<OnchainChainPickerProvider>(
+      builder: (context, picker, _) {
+        final sandboxMode = _isSandboxMode(picker);
+        final tronNetworks = _tronNetworksForPicker(picker);
+        final hasTronSupport = tronNetworks.isNotEmpty;
 
-        if (!_hasPendingSession) const SizedBox(height: 20),
+        if (_selectedChain.isTronFamily) {
+          if (sandboxMode) {
+            _selectedTronNetwork ??= _defaultTronNetwork(picker);
+            if (_selectedChain != _selectedTronNetwork) {
+              _selectedChain = _selectedTronNetwork!;
+            }
+          } else if (_selectedChain != BlockchainNetwork.tronMainnet) {
+            _selectedChain = BlockchainNetwork.tronMainnet;
+          }
+        }
 
-        // ── Error ──
-        if (_errorMessage != null) ...[
-          _buildErrorBanner(theme),
-          const SizedBox(height: 16),
-        ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Network Selector ──
+            if (!_hasPendingSession) _buildNetworkSelector(theme, l10n, picker),
 
-        // ── Loading ──
-        if (_isLoading) ...[
-          Center(
-            child: Column(
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 12),
-                Text(l10n.wcCreatingSession),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
+            if (!_hasPendingSession) const SizedBox(height: 20),
 
-        // ── Active WC Session ──
-        if (_hasPendingSession && _session != null)
-          _buildWcSessionView(theme, l10n),
+            // ── Error ──
+            if (_errorMessage != null) ...[
+              _buildErrorBanner(theme),
+              const SizedBox(height: 16),
+            ],
 
-        // ── Connect: WC QR or TronLink extension challenge flow (web only) ──
-        if (!_hasPendingSession && !_isLoading)
-          (kIsWeb && _selectedChain.isTronFamily)
-              ? _buildTronLinkFlow(theme, l10n)
-              : _buildConnectButton(theme, l10n),
+            // ── Loading ──
+            if (_isLoading) ...[
+              Center(
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 12),
+                    Text(l10n.wcCreatingSession),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
 
-        const SizedBox(height: 8),
+            // ── Active WC Session ──
+            if (_hasPendingSession && _session != null)
+              _buildWcSessionView(theme, l10n),
 
-        // ── Info Footer ──
-        _buildInfoFooter(theme, l10n),
-      ],
+            // ── Connect: WC QR or TronLink extension challenge flow (web only) ──
+            if (!_hasPendingSession && !_isLoading)
+              (kIsWeb && _selectedChain.isTronFamily)
+                  ? _buildTronLinkFlow(theme, l10n)
+                  : _buildConnectButton(theme, l10n),
+
+            const SizedBox(height: 8),
+
+            // ── Info Footer ──
+            _buildInfoFooter(theme, l10n),
+          ],
+        );
+      },
     );
   }
 
@@ -336,127 +444,172 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildNetworkSelector(ThemeData theme, AppLocalizations l10n) {
-    return Consumer<OnchainChainPickerProvider>(
-      builder: (context, picker, _) {
-        final wcChains = picker.walletConnectLinkNetworksFromApi;
-        final tronChains = picker.tronExtensionLinkNetworksFromApi;
-        final allChains = [
-          ...wcChains,
-          ...tronChains,
-        ];
+  Widget _buildNetworkSelector(
+    ThemeData theme,
+    AppLocalizations l10n,
+    OnchainChainPickerProvider picker,
+  ) {
+    final wcChains = picker.walletConnectLinkNetworksFromApi;
+    final tronChains = _tronNetworksForPicker(picker);
+    final allChains = <BlockchainNetwork>[];
+    final seenChainCodes = <String>{};
+    for (final chain in [...wcChains, ...tronChains]) {
+      if (seenChainCodes.add(chain.apiValue)) {
+        allChains.add(chain);
+      }
+    }
 
-        if (allChains.isEmpty) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnchainSandboxOperatorBanner(l10n: l10n),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  l10n.requestFailed,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
+    if (allChains.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnchainSandboxOperatorBanner(l10n: l10n),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              l10n.requestFailed,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final blockchainOptions = <BlockchainNetwork>[];
+    final seenGroups = <String>{};
+    for (final chain in allChains) {
+      final groupKey = _blockchainGroupKey(picker, chain);
+      if (seenGroups.add(groupKey)) {
+        blockchainOptions.add(chain);
+      }
+    }
+
+    final selectedGroupKey = _blockchainGroupKey(picker, _selectedChain);
+    final selectedBlockchain = blockchainOptions.firstWhere(
+      (chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey,
+      orElse: () => blockchainOptions.first,
+    );
+    final selectedNetworks = allChains
+        .where((chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey)
+        .toList(growable: false);
+    final selectedNetwork = selectedNetworks.firstWhere(
+      (chain) => chain == _selectedChain,
+      orElse: () => selectedNetworks.first,
+    );
+
+    if (!allChains.contains(_selectedChain)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedChain = allChains.first;
+          _selectedTronNetwork = _selectedChain.isTronFamily ? _selectedChain : null;
+        });
+      });
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OnchainSandboxOperatorBanner(l10n: l10n),
+        Text(
+          l10n.wcLinkChooseBlockchain,
+          style: theme.textTheme.labelLarge!.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: blockchainOptions.map((chain) {
+            final chainGroupKey = _blockchainGroupKey(picker, chain);
+            final isSelected = _blockchainGroupKey(picker, selectedBlockchain) ==
+                chainGroupKey;
+            return ChoiceChip(
+              label: Text(_blockchainFamilyLabel(picker, chain)),
+              selected: isSelected,
+              onSelected: (_) {
+                final nextNetworks = allChains
+                    .where((network) =>
+                        _blockchainGroupKey(picker, network) == chainGroupKey)
+                    .toList(growable: false);
+                if (nextNetworks.isEmpty) return;
+                final nextChain = nextNetworks.first;
+                setState(() {
+                  if (_selectedChain != nextChain) {
+                    _resetTronLinkFlow();
+                  }
+                  _selectedChain = nextChain;
+                  _selectedTronNetwork = nextChain.isTronFamily ? nextChain : null;
+                });
+              },
+              avatar: Icon(
+                chain.isTronFamily ? Icons.extension : Icons.qr_code,
+                size: 16,
+              ),
+              tooltip: l10n.wcTooltipWalletConnect,
+            );
+          }).toList(),
+        ),
+        if (selectedNetworks.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            l10n.wcNetworkLabel,
+            style: theme.textTheme.labelLarge!.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: selectedNetworks.map((network) {
+              final isSelected = selectedNetwork == network;
+              return ChoiceChip(
+                label: Text(_networkOptionLabel(picker, network)),
+                selected: isSelected,
+                onSelected: (_) {
+                  setState(() {
+                    if (_selectedChain != network) {
+                      _resetTronLinkFlow();
+                    }
+                    _selectedChain = network;
+                    _selectedTronNetwork = network.isTronFamily ? network : null;
+                  });
+                },
+                avatar: const Icon(Icons.qr_code, size: 16),
+                tooltip: l10n.wcTooltipWalletConnect,
+              );
+            }).toList(),
+          ),
+        ],
+        if (!kIsWeb && selectedBlockchain.isTronFamily)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 14,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n.tronLinkNativePlatformHint,
+                    style: theme.textTheme.bodySmall!.copyWith(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        }
-
-        if (!allChains.contains(_selectedChain)) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            setState(() {
-              _selectedChain =
-                  wcChains.isNotEmpty ? wcChains.first : tronChains.first;
-            });
-          });
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            OnchainSandboxOperatorBanner(l10n: l10n),
-            Text(
-              l10n.wcLinkChooseBlockchain,
-              style: theme.textTheme.labelLarge!.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: allChains.map((chain) {
-                final isSelected = _selectedChain == chain;
-                final isTronExtensionChip = tronChains.contains(chain);
-                return ChoiceChip(
-                  label: Text(chain.label),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    setState(() {
-                      if (_selectedChain != chain) {
-                        _resetTronLinkFlow();
-                      }
-                      _selectedChain = chain;
-                    });
-                  },
-                  avatar: isTronExtensionChip
-                      ? const Icon(Icons.extension, size: 16)
-                      : const Icon(Icons.qr_code, size: 16),
-                  tooltip: isTronExtensionChip
-                      ? l10n.wcTooltipTronlinkChrome
-                      : l10n.wcTooltipWalletConnect,
-                );
-              }).toList(),
-            ),
-            if (tronChains.contains(_selectedChain))
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        size: 14,
-                        color: theme.colorScheme.primary.withValues(alpha:0.7)),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        l10n.wcTronChromeExtensionWebOnly,
-                        style: theme.textTheme.bodySmall!.copyWith(
-                          color: theme.colorScheme.primary.withValues(alpha:0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (!kIsWeb && _selectedChain.isTronFamily)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        size: 14,
-                        color: theme.colorScheme.primary.withValues(alpha:0.7)),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        l10n.tronLinkNativePlatformHint,
-                        style: theme.textTheme.bodySmall!.copyWith(
-                          color: theme.colorScheme.primary.withValues(alpha:0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
+          ),
+      ],
     );
   }
-
   Widget _buildWcSessionView(ThemeData theme, AppLocalizations l10n) {
     return Consumer<BlockchainProvider>(
       builder: (ctx, provider, _) {
@@ -698,7 +851,7 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             ],
           ),
           if (kIsWeb) ...[
-            const SizedBox(height: 12),
+          const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _tronFlowBusy ? null : _tronAutoSignOnWeb,
               icon: const Icon(Icons.extension_outlined),
@@ -786,3 +939,19 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

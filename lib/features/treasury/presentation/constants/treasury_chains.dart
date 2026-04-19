@@ -336,7 +336,15 @@ String treasuryWalletCreationDisplayLabel(AppLocalizations l10n, String chain) {
 }
 
 /// User-facing label for a chain API constant (e.g. `TRON_NILE`).
-String treasuryChainDisplayLabel(AppLocalizations l10n, String chain) {
+String treasuryChainDisplayLabel(
+  AppLocalizations l10n,
+  String chain, {
+  String Function(String code)? apiLabelResolver,
+}) {
+  final resolved = apiLabelResolver?.call(chain);
+  if (resolved != null && resolved.trim().isNotEmpty && resolved.trim() != chain) {
+    return resolved.trim();
+  }
   switch (chain) {
     case 'TRON_NILE':
       return l10n.treasuryChainTronNile;
@@ -399,7 +407,14 @@ String treasuryChainDisplayLabel(AppLocalizations l10n, String chain) {
 }
 
 /// Short badge text for deposit method rows (Latin, readable — avoids truncated API enums).
-String depositChainBadgeLabel(String chain) {
+String depositChainBadgeLabel(
+  String chain, {
+  String Function(String code)? apiLabelResolver,
+}) {
+  final resolved = apiLabelResolver?.call(chain);
+  if (resolved != null && resolved.trim().isNotEmpty && resolved.trim() != chain) {
+    return resolved.trim();
+  }
   switch (chain.toUpperCase()) {
     case 'TRON_NILE':
       return 'TRON Nile';
@@ -462,3 +477,4 @@ String depositChainBadgeLabel(String chain) {
       return u.substring(0, 12);
   }
 }
+

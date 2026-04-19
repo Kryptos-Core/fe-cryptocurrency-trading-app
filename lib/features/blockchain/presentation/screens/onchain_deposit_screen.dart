@@ -340,10 +340,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         ? _dateTimeFmt.format(tx.confirmedAt!.toLocal())
         : l10n.onchainValueNotAvailable;
 
+    final picker = context.read<OnchainChainPickerProvider>();
     final hashPreview =
         hash.isNotEmpty ? _ellipsizeMiddle(hash) : l10n.onchainValueNotAvailable;
     final subtitle =
-        '${tx.chain.label} · $hashPreview · $createdShort';
+        '${picker.displayLabelForNetwork(tx.chain)} · $hashPreview · $createdShort';
 
     final theme = Theme.of(context);
 
@@ -438,7 +439,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             _detailPlainLine(
               l10n,
               label: l10n.networkLabel,
-              value: tx.chain.label,
+              value: picker.displayLabelForNetwork(tx.chain),
             ),
             _detailPlainLine(
               l10n,
@@ -672,7 +673,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   ...networks.map(
                     (network) => onchainTxFilterChip(
                       context: context,
-                      label: onchainRecentTxNetworkChipLabel(network),
+                      label: context.read<OnchainChainPickerProvider>().displayLabelForNetwork(network),
                       selected: _txFilterNetwork == network,
                       onSelected: (_) =>
                           setState(() => _txFilterNetwork = network),
@@ -757,3 +758,6 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     );
   }
 }
+
+
+

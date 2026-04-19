@@ -53,8 +53,11 @@ void main() {
         'networkCatalog': [
           {
             'code': 'ETH_SEPOLIA',
-            'iconKey': 'evm',
-            'family': 'evm_eth',
+            'iconKey': 'ethereum',
+            'family': 'evm',
+            'blockchainKey': 'ethereum',
+            'blockchainLabel': 'Ethereum',
+            'networkLabel': 'Sepolia',
             'isTestnet': 'true',
             'sortOrder': '20',
             'capabilities': {'deposit': true, 'withdraw': true, 'linkWallet': true},
@@ -63,6 +66,9 @@ void main() {
       });
       expect(m.networkCatalog, isNotNull);
       expect(m.networkCatalog!.single.sortOrder, 20);
+      expect(m.networkCatalog!.single.blockchainKey, 'ethereum');
+      expect(m.networkCatalog!.single.blockchainLabel, 'Ethereum');
+      expect(m.networkCatalog!.single.networkLabel, 'Sepolia');
       expect(m.networkCatalog!.single.isTestnet, true);
     });
 
@@ -83,3 +89,5 @@ void main() {
     });
   });
 }
+
+

@@ -1,6 +1,8 @@
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// Hàng label mạng + tùy chọn nhãn Sandbox cho testnet (dropdown deposit / withdraw).
 ///
@@ -23,11 +25,12 @@ class OnchainNetworkDropdownMenuChild extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showSuffix = network.isSandbox && !suppressSandboxSuffix;
+    final picker = context.watch<OnchainChainPickerProvider?>();
     return Row(
       children: [
         Expanded(
           child: Text(
-            network.label,
+            picker?.displayLabelForNetwork(network) ?? network.label,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -47,3 +50,5 @@ class OnchainNetworkDropdownMenuChild extends StatelessWidget {
     );
   }
 }
+
+

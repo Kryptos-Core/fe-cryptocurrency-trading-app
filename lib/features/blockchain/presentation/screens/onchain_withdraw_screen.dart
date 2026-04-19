@@ -401,7 +401,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                     ...networks.map(
                       (network) => onchainTxFilterChip(
                         context: context,
-                        label: onchainRecentTxNetworkChipLabel(network),
+                        label: context.read<OnchainChainPickerProvider>().displayLabelForNetwork(network),
                         selected: _txFilterNetwork == network,
                         onSelected: (_) =>
                             setState(() => _txFilterNetwork = network),
@@ -506,7 +506,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                  '${tx.chain.label} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
+                                  '${context.read<OnchainChainPickerProvider>().displayLabelForNetwork(tx.chain)} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
                               const SizedBox(height: 4),
                               Text(l10n
                                   .txToAddress(_formatAddress(tx.toAddress))),
@@ -538,3 +538,6 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     );
   }
 }
+
+
+

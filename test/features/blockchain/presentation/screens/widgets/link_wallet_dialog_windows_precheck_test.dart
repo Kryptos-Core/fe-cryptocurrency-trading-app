@@ -142,6 +142,41 @@ Future<Widget> _buildTestApp() async {
             'TRON_NILE',
           ],
         },
+        'networkCatalog': [
+          {
+            'code': 'BSC_CHAPEL',
+            'iconKey': 'bnb',
+            'family': 'evm',
+            'blockchainKey': 'bnb',
+            'blockchainLabel': 'BNB Smart Chain',
+            'networkLabel': 'Chapel',
+            'isTestnet': true,
+            'sortOrder': 10,
+            'capabilities': {'deposit': true, 'withdraw': true, 'linkWallet': true},
+          },
+          {
+            'code': 'SOLANA_DEVNET',
+            'iconKey': 'solana',
+            'family': 'solana',
+            'blockchainKey': 'solana',
+            'blockchainLabel': 'Solana',
+            'networkLabel': 'devnet',
+            'isTestnet': true,
+            'sortOrder': 20,
+            'capabilities': {'deposit': true, 'withdraw': true, 'linkWallet': true},
+          },
+          {
+            'code': 'TRON_NILE',
+            'iconKey': 'tron',
+            'family': 'tron',
+            'blockchainKey': 'tron',
+            'blockchainLabel': 'Tron',
+            'networkLabel': 'Nile',
+            'isTestnet': true,
+            'sortOrder': 30,
+            'capabilities': {'deposit': true, 'withdraw': true, 'linkWallet': true},
+          },
+        ],
       },
     ),
     prefs: prefs,
@@ -197,19 +232,47 @@ void main() {
         variant: const TargetPlatformVariant(
             <TargetPlatform>{TargetPlatform.windows}));
 
+
+    testWidgets(
+        'Windows: chọn BNB Smart Chain vẫn hiện mục network theo dữ liệu API',
+        (tester) async {
+      await tester.pumpWidget(await _buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('BNB Smart Chain'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Network'), findsOneWidget);
+      expect(find.text('Chapel'), findsOneWidget);
+      expect(find.text('Nile'), findsNothing);
+    },
+        variant: const TargetPlatformVariant(
+            <TargetPlatform>{TargetPlatform.windows}));
     testWidgets(
         'Windows: chọn Tron (Nile) hiện nút tạo QR WalletConnect, không hiện ô dán địa chỉ TronLink',
         (tester) async {
       await tester.pumpWidget(await _buildTestApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Tron (Nile)'));
+      await tester.tap(find.text('Tron'));
       await tester.pumpAndSettle();
 
       expect(find.text('Generate connection QR'), findsOneWidget);
       expect(find.text('TronLink address'), findsNothing);
+      expect(find.text('Nile'), findsOneWidget);
+      expect(find.text('Shasta'), findsNothing);
+      expect(find.text('Tron (mainnet)'), findsNothing);
     },
         variant: const TargetPlatformVariant(
             <TargetPlatform>{TargetPlatform.windows}));
   });
 }
+
+
+
+
+
+
+
+
+

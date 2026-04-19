@@ -219,7 +219,11 @@ List<Widget> _depositDefaultBlocks(
     final chainId = chainIds[i];
     final defaultWallet =
         depositDefaults.where((w) => w.chain.apiValue == chainId).firstOrNull;
-    final chainLabel = treasuryChainDisplayLabel(l10n, chainId);
+    final chainLabel = treasuryChainDisplayLabel(
+      l10n,
+      chainId,
+      apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
+    );
 
     if (i > 0) {
       widgets.add(
@@ -457,3 +461,4 @@ class _EmptyWalletsState extends StatelessWidget {
     );
   }
 }
+

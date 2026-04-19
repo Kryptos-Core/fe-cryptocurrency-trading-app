@@ -150,7 +150,13 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
                   .map(
                     (code) => DropdownMenuItem(
                       value: code,
-                      child: Text(treasuryChainDisplayLabel(l10n, code)),
+                      child: Text(
+                        treasuryChainDisplayLabel(
+                          l10n,
+                          code,
+                          apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
+                        ),
+                      ),
                     ),
                   )
                   .toList(),
@@ -209,3 +215,4 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
     );
   }
 }
+

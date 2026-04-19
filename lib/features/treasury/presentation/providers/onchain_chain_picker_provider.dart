@@ -118,4 +118,64 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     if (c != null && c.isNotEmpty) return c;
     return const [];
   }
+
+  ChainNetworkCatalogItemModel? catalogItemForCode(String code) {
+    final normalized = code.trim().toUpperCase();
+    if (normalized.isEmpty) return null;
+    for (final item in networkCatalog) {
+      if (item.code.trim().toUpperCase() == normalized) return item;
+    }
+    return null;
+  }
+
+  ChainNetworkCatalogItemModel? catalogItemForNetwork(
+    BlockchainNetwork network,
+  ) =>
+      catalogItemForCode(network.apiValue);
+
+  String blockchainLabelForNetwork(BlockchainNetwork network) {
+    final label = catalogItemForNetwork(network)?.blockchainLabel.trim();
+    if (label != null && label.isNotEmpty) return label;
+    return network.label;
+  }
+
+  String networkLabelForNetwork(BlockchainNetwork network) {
+    final label = catalogItemForNetwork(network)?.networkLabel.trim();
+    if (label != null && label.isNotEmpty) return label;
+    return network.label;
+  }
+
+  String displayLabelForNetwork(
+    BlockchainNetwork network, {
+    bool compact = false,
+  }) {
+    return displayLabelForCode(network.apiValue, compact: compact);
+  }
+
+  String displayLabelForCode(
+    String code, {
+    bool compact = false,
+  }) {
+    final item = catalogItemForCode(code);
+    if (item == null) {
+      final network = BlockchainNetworkX.tryFromApiValue(code);
+      if (network == null) return code;
+      return compact ? network.label.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '') : network.label;
+    }
+
+    final blockchainLabel = item.blockchainLabel.trim();
+    final networkLabel = item.networkLabel.trim();
+
+    if (blockchainLabel.isEmpty) return code;
+    if (networkLabel.isEmpty) return blockchainLabel;
+
+    if (compact) {
+      return networkLabel.toLowerCase() == 'mainnet'
+          ? blockchainLabel
+          : '$blockchainLabel $networkLabel';
+    }
+
+    return '$blockchainLabel ($networkLabel)';
+  }
 }
+

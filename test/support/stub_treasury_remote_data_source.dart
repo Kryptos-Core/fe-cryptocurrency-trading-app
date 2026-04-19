@@ -87,6 +87,27 @@ class StubTreasuryRepository implements TreasuryRepository {
       _u();
 
   @override
+  Future<Map<String, dynamic>> manualRetryTreasuryOperation(
+    String operationId, {
+    String? mainWalletId,
+  }) async =>
+      _u();
+
+  @override
+  Future<Map<String, dynamic>> manualAbortTreasuryOperation(
+    String operationId, {
+    String? reason,
+  }) async =>
+      _u();
+
+  @override
+  Future<Map<String, dynamic>> manualSettleTreasuryOperation(
+    String operationId, {
+    required String txHash,
+    String? mainWalletId,
+  }) async =>
+      _u();
+  @override
   Future<List<TreasuryWalletModel>> listWallets({
     String? chain,
     String? purpose,
@@ -127,3 +148,4 @@ class StubTreasuryRepository implements TreasuryRepository {
   }) async =>
       _u();
 }
+

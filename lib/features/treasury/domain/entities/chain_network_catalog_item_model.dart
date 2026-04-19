@@ -6,6 +6,9 @@ class ChainNetworkCatalogItemModel {
     required this.code,
     required this.iconKey,
     required this.family,
+    required this.blockchainKey,
+    required this.blockchainLabel,
+    required this.networkLabel,
     required this.isTestnet,
     required this.sortOrder,
     required this.deposit,
@@ -17,6 +20,9 @@ class ChainNetworkCatalogItemModel {
   final String code;
   final String iconKey;
   final String family;
+  final String blockchainKey;
+  final String blockchainLabel;
+  final String networkLabel;
   final bool isTestnet;
   final int sortOrder;
   final bool deposit;
@@ -33,6 +39,9 @@ class ChainNetworkCatalogItemModel {
       code: json['code']?.toString() ?? '',
       iconKey: json['iconKey']?.toString() ?? 'evm',
       family: json['family']?.toString() ?? 'evm',
+      blockchainKey: json['blockchainKey']?.toString() ?? json['iconKey']?.toString() ?? json['family']?.toString() ?? 'evm',
+      blockchainLabel: json['blockchainLabel']?.toString() ?? '',
+      networkLabel: json['networkLabel']?.toString() ?? '',
       isTestnet: parseJsonBool(json['isTestnet'], false),
       sortOrder: parseJsonInt(json['sortOrder'], 0),
       deposit: cap('deposit'),
@@ -42,3 +51,4 @@ class ChainNetworkCatalogItemModel {
     );
   }
 }
+

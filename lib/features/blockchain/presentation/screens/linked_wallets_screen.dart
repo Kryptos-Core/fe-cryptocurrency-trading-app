@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchai
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/screens/widgets/link_wallet_dialog.dart';
 
 class LinkedWalletsScreen extends StatefulWidget {
@@ -292,7 +293,7 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                wallet.chain.label,
+                                context.watch<OnchainChainPickerProvider>().displayLabelForNetwork(wallet.chain),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -370,3 +371,4 @@ class _LinkedWalletsScreenState extends State<LinkedWalletsScreen> {
     );
   }
 }
+

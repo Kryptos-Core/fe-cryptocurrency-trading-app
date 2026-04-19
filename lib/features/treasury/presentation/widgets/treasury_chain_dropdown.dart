@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
@@ -42,6 +44,7 @@ class TreasuryChainDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final picker = context.watch<OnchainChainPickerProvider>();
     final mh = menuMaxHeight ??
         defaultTreasuryDropdownMenuMaxHeight(MediaQuery.sizeOf(context).height);
 
@@ -65,7 +68,11 @@ class TreasuryChainDropdown extends StatelessWidget {
           child: Text(
             displayLabelForChain != null
                 ? displayLabelForChain!(l10n, v)
-                : treasuryChainDisplayLabel(l10n, v),
+                : treasuryChainDisplayLabel(
+                    l10n,
+                    v,
+                    apiLabelResolver: picker.displayLabelForCode,
+                  ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -84,3 +91,4 @@ class TreasuryChainDropdown extends StatelessWidget {
     );
   }
 }
+

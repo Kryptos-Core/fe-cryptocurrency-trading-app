@@ -141,7 +141,7 @@ class _CardHeader extends StatelessWidget {
                   Icon(Icons.star_rounded, size: 14, color: colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    depositChainBadgeLabel(recommendedChain!),
+                    context.watch<OnchainChainPickerProvider>().displayLabelForCode(recommendedChain!, compact: true),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -195,10 +195,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                         children: [
                           Expanded(
                             child: Text(
-                              treasuryChainDisplayLabel(
-                                AppLocalizations.of(context),
-                                method.chain,
-                              ),
+                              context.watch<OnchainChainPickerProvider>().displayLabelForCode(method.chain),
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: method.depositEnabled ? null : colorScheme.onSurfaceVariant,
@@ -456,7 +453,7 @@ class _ChainBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = _badgeColors(apiChain);
-    final label = depositChainBadgeLabel(apiChain);
+    final label = context.watch<OnchainChainPickerProvider>().displayLabelForCode(apiChain, compact: true);
     return Container(
       constraints: const BoxConstraints(minWidth: 0),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -480,3 +477,4 @@ class _ChainBadge extends StatelessWidget {
     );
   }
 }
+

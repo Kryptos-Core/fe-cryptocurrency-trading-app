@@ -202,7 +202,13 @@ class _TreasuryMainWalletsPanelState extends State<TreasuryMainWalletsPanel> {
                 .map(
                   (code) => DropdownMenuItem(
                     value: code,
-                    child: Text(treasuryChainDisplayLabel(l10n, code)),
+                    child: Text(
+                      treasuryChainDisplayLabel(
+                        l10n,
+                        code,
+                        apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
+                      ),
+                    ),
                   ),
                 )
                 .toList(),
@@ -270,3 +276,4 @@ class _TreasuryMainWalletsPanelState extends State<TreasuryMainWalletsPanel> {
           );
   }
 }
+

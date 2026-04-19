@@ -61,6 +61,7 @@ String onchainNetworkFilterChipLabel(
 String onchainRecentTxNetworkChipLabel(BlockchainNetwork network) => network.label;
 
 extension BlockchainNetworkX on BlockchainNetwork {
+
   String get apiValue {
     switch (this) {
       case BlockchainNetwork.tronMainnet:
@@ -463,3 +464,6 @@ extension BlockchainNetworkX on BlockchainNetwork {
     return tryFromApiValue(raw) ?? fallback;
   }
 }
+
+
+
