@@ -3,7 +3,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/wc_session_proposal.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';

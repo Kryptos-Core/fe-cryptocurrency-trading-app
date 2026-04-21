@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
-import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
