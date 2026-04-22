@@ -11,6 +11,10 @@ String onchainTxStatusUiLabel(AppLocalizations l10n, OnchainTxStatus status) {
       return l10n.onchainTxStatusCompleted;
     case OnchainTxStatus.failed:
       return l10n.onchainTxStatusFailed;
+    case OnchainTxStatus.txBroadcast:
+      return l10n.onchainTxStatusTxBroadcast;
+    case OnchainTxStatus.unmatched:
+      return l10n.onchainTxStatusUnmatched;
     case OnchainTxStatus.unknown:
       return l10n.onchainTxStatusUnknown;
   }

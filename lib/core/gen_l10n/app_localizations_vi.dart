@@ -3345,6 +3345,74 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get adminUnmatchedDepositsTab => 'Chưa khớp';
+
+  @override
+  String get adminUnmatchedDepositsEmpty => 'Không có giao dịch nạp chưa khớp';
+
+  @override
+  String adminUnmatchedDepositsCountLabel(int count) {
+    return '$count chưa khớp';
+  }
+
+  @override
+  String get adminUnmatchedDepositTitle => 'Nạp tiền chưa khớp';
+
+  @override
+  String get adminUnmatchedDepositChain => 'Mạng';
+
+  @override
+  String get adminUnmatchedDepositAmount => 'Số tiền';
+
+  @override
+  String get adminUnmatchedDepositFrom => 'Địa chỉ gửi';
+
+  @override
+  String get adminUnmatchedDepositTxHash => 'Tx Hash';
+
+  @override
+  String get adminUnmatchedDepositDetectedAt => 'Phát hiện lúc';
+
+  @override
+  String get adminMatchUserButton => 'Khớp User';
+
+  @override
+  String get adminMatchUserDialogTitle => 'Gán User cho Nạp tiền';
+
+  @override
+  String adminMatchUserDialogSubtitle(String txId) {
+    return 'Giao dịch: $txId';
+  }
+
+  @override
+  String get adminMatchUserIdHint => 'User ID (UUID)';
+
+  @override
+  String get adminMatchUserIdLabel => 'User ID';
+
+  @override
+  String get adminMatchUserProposeButton => 'Đề xuất khớp';
+
+  @override
+  String get adminMatchUserApproveButton => 'Duyệt khớp';
+
+  @override
+  String adminMatchUserPendingInfo(String matchId) {
+    return 'Đã có đề xuất khớp đang chờ (Match ID: $matchId). Duyệt để hoàn tất.';
+  }
+
+  @override
+  String get adminMatchUserProposedSuccess =>
+      'Đề xuất khớp đã tạo. Chờ duyệt lần 2.';
+
+  @override
+  String get adminMatchUserApprovedSuccess =>
+      'Khớp đã duyệt. Nạp tiền đã gán cho user.';
+
+  @override
+  String get adminMatchUserErrorTitle => 'Lỗi khớp user';
+
+  @override
   String get adminWithdrawalsEmpty => 'Không có lần rút tiền';
 
   @override
@@ -4452,6 +4520,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get onchainTxStatusFailed => 'Thất bại';
+
+  @override
+  String get onchainTxStatusTxBroadcast => 'Đã phát sóng';
+
+  @override
+  String get onchainTxStatusUnmatched => 'Chưa khớp user';
 
   @override
   String get onchainTxStatusUnknown => 'Không xác định';

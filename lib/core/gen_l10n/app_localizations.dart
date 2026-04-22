@@ -6143,6 +6143,126 @@ abstract class AppLocalizations {
   /// **'{count} deposits'**
   String adminDepositsCountLabel(int count);
 
+  /// No description provided for @adminUnmatchedDepositsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmatched'**
+  String get adminUnmatchedDepositsTab;
+
+  /// No description provided for @adminUnmatchedDepositsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No unmatched deposits'**
+  String get adminUnmatchedDepositsEmpty;
+
+  /// No description provided for @adminUnmatchedDepositsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unmatched'**
+  String adminUnmatchedDepositsCountLabel(int count);
+
+  /// No description provided for @adminUnmatchedDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmatched Deposit'**
+  String get adminUnmatchedDepositTitle;
+
+  /// No description provided for @adminUnmatchedDepositChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain'**
+  String get adminUnmatchedDepositChain;
+
+  /// No description provided for @adminUnmatchedDepositAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get adminUnmatchedDepositAmount;
+
+  /// No description provided for @adminUnmatchedDepositFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From Address'**
+  String get adminUnmatchedDepositFrom;
+
+  /// No description provided for @adminUnmatchedDepositTxHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Tx Hash'**
+  String get adminUnmatchedDepositTxHash;
+
+  /// No description provided for @adminUnmatchedDepositDetectedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected at'**
+  String get adminUnmatchedDepositDetectedAt;
+
+  /// No description provided for @adminMatchUserButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Match User'**
+  String get adminMatchUserButton;
+
+  /// No description provided for @adminMatchUserDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign User to Deposit'**
+  String get adminMatchUserDialogTitle;
+
+  /// No description provided for @adminMatchUserDialogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit: {txId}'**
+  String adminMatchUserDialogSubtitle(String txId);
+
+  /// No description provided for @adminMatchUserIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID (UUID)'**
+  String get adminMatchUserIdHint;
+
+  /// No description provided for @adminMatchUserIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get adminMatchUserIdLabel;
+
+  /// No description provided for @adminMatchUserProposeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose Match'**
+  String get adminMatchUserProposeButton;
+
+  /// No description provided for @adminMatchUserApproveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Match'**
+  String get adminMatchUserApproveButton;
+
+  /// No description provided for @adminMatchUserPendingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'A match proposal is pending (Match ID: {matchId}). Approve to finalize.'**
+  String adminMatchUserPendingInfo(String matchId);
+
+  /// No description provided for @adminMatchUserProposedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Match proposed. Awaiting second approval.'**
+  String get adminMatchUserProposedSuccess;
+
+  /// No description provided for @adminMatchUserApprovedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Match approved. Deposit assigned to user.'**
+  String get adminMatchUserApprovedSuccess;
+
+  /// No description provided for @adminMatchUserErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Error'**
+  String get adminMatchUserErrorTitle;
+
   /// No description provided for @adminWithdrawalsEmpty.
   ///
   /// In en, this message translates to:
@@ -8165,6 +8285,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get onchainTxStatusFailed;
+
+  /// No description provided for @onchainTxStatusTxBroadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast'**
+  String get onchainTxStatusTxBroadcast;
+
+  /// No description provided for @onchainTxStatusUnmatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmatched'**
+  String get onchainTxStatusUnmatched;
 
   /// No description provided for @onchainTxStatusUnknown.
   ///

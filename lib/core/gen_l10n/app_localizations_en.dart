@@ -3346,6 +3346,74 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get adminUnmatchedDepositsTab => 'Unmatched';
+
+  @override
+  String get adminUnmatchedDepositsEmpty => 'No unmatched deposits';
+
+  @override
+  String adminUnmatchedDepositsCountLabel(int count) {
+    return '$count unmatched';
+  }
+
+  @override
+  String get adminUnmatchedDepositTitle => 'Unmatched Deposit';
+
+  @override
+  String get adminUnmatchedDepositChain => 'Chain';
+
+  @override
+  String get adminUnmatchedDepositAmount => 'Amount';
+
+  @override
+  String get adminUnmatchedDepositFrom => 'From Address';
+
+  @override
+  String get adminUnmatchedDepositTxHash => 'Tx Hash';
+
+  @override
+  String get adminUnmatchedDepositDetectedAt => 'Detected at';
+
+  @override
+  String get adminMatchUserButton => 'Match User';
+
+  @override
+  String get adminMatchUserDialogTitle => 'Assign User to Deposit';
+
+  @override
+  String adminMatchUserDialogSubtitle(String txId) {
+    return 'Deposit: $txId';
+  }
+
+  @override
+  String get adminMatchUserIdHint => 'User ID (UUID)';
+
+  @override
+  String get adminMatchUserIdLabel => 'User ID';
+
+  @override
+  String get adminMatchUserProposeButton => 'Propose Match';
+
+  @override
+  String get adminMatchUserApproveButton => 'Approve Match';
+
+  @override
+  String adminMatchUserPendingInfo(String matchId) {
+    return 'A match proposal is pending (Match ID: $matchId). Approve to finalize.';
+  }
+
+  @override
+  String get adminMatchUserProposedSuccess =>
+      'Match proposed. Awaiting second approval.';
+
+  @override
+  String get adminMatchUserApprovedSuccess =>
+      'Match approved. Deposit assigned to user.';
+
+  @override
+  String get adminMatchUserErrorTitle => 'Match Error';
+
+  @override
   String get adminWithdrawalsEmpty => 'No withdrawals';
 
   @override
@@ -4460,6 +4528,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onchainTxStatusFailed => 'Failed';
+
+  @override
+  String get onchainTxStatusTxBroadcast => 'Broadcast';
+
+  @override
+  String get onchainTxStatusUnmatched => 'Unmatched';
 
   @override
   String get onchainTxStatusUnknown => 'Unknown';

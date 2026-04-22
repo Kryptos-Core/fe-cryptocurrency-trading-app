@@ -117,6 +117,10 @@ class ApiConstants {
   }
 
   static const String depositsAdminAll = '/deposits/admin/all';
+  static const String blockchainAdminDepositsIngest =
+      '/blockchain/admin/deposits/ingest';
+  static String blockchainAdminDepositsMatchUser(String txId) =>
+      '/blockchain/admin/deposits/$txId/match-user';
   static const String blockchainAdminWithdrawals =
       '/blockchain/admin/withdrawals';
   static const String blockchainAdminWithdrawalStats =

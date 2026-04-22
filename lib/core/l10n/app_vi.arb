@@ -1211,6 +1211,41 @@
       "count": { "type": "int" }
     }
   },
+  "adminUnmatchedDepositsTab": "Chưa khớp",
+  "adminUnmatchedDepositsEmpty": "Không có giao dịch nạp chưa khớp",
+  "adminUnmatchedDepositsCountLabel": "{count} chưa khớp",
+  "@adminUnmatchedDepositsCountLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "adminUnmatchedDepositTitle": "Nạp tiền chưa khớp",
+  "adminUnmatchedDepositChain": "Mạng",
+  "adminUnmatchedDepositAmount": "Số tiền",
+  "adminUnmatchedDepositFrom": "Địa chỉ gửi",
+  "adminUnmatchedDepositTxHash": "Tx Hash",
+  "adminUnmatchedDepositDetectedAt": "Phát hiện lúc",
+  "adminMatchUserButton": "Khớp User",
+  "adminMatchUserDialogTitle": "Gán User cho Nạp tiền",
+  "adminMatchUserDialogSubtitle": "Giao dịch: {txId}",
+  "@adminMatchUserDialogSubtitle": {
+    "placeholders": {
+      "txId": { "type": "String" }
+    }
+  },
+  "adminMatchUserIdHint": "User ID (UUID)",
+  "adminMatchUserIdLabel": "User ID",
+  "adminMatchUserProposeButton": "Đề xuất khớp",
+  "adminMatchUserApproveButton": "Duyệt khớp",
+  "adminMatchUserPendingInfo": "Đã có đề xuất khớp đang chờ (Match ID: {matchId}). Duyệt để hoàn tất.",
+  "@adminMatchUserPendingInfo": {
+    "placeholders": {
+      "matchId": { "type": "String" }
+    }
+  },
+  "adminMatchUserProposedSuccess": "Đề xuất khớp đã tạo. Chờ duyệt lần 2.",
+  "adminMatchUserApprovedSuccess": "Khớp đã duyệt. Nạp tiền đã gán cho user.",
+  "adminMatchUserErrorTitle": "Lỗi khớp user",
   "adminWithdrawalsEmpty": "Không có lần rút tiền",
   "adminWithdrawalsCountLabel": "{count} lần rút tiền",
   "@adminWithdrawalsCountLabel": {
@@ -1669,5 +1704,7 @@
   "onchainTxStatusConfirming": "Đang xác nhận",
   "onchainTxStatusCompleted": "Hoàn thành",
   "onchainTxStatusFailed": "Thất bại",
+  "onchainTxStatusTxBroadcast": "Đã phát sóng",
+  "onchainTxStatusUnmatched": "Chưa khớp user",
   "onchainTxStatusUnknown": "Không xác định"
 }

@@ -1311,6 +1311,41 @@
       "count": { "type": "int" }
     }
   },
+  "adminUnmatchedDepositsTab": "Unmatched",
+  "adminUnmatchedDepositsEmpty": "No unmatched deposits",
+  "adminUnmatchedDepositsCountLabel": "{count} unmatched",
+  "@adminUnmatchedDepositsCountLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "adminUnmatchedDepositTitle": "Unmatched Deposit",
+  "adminUnmatchedDepositChain": "Chain",
+  "adminUnmatchedDepositAmount": "Amount",
+  "adminUnmatchedDepositFrom": "From Address",
+  "adminUnmatchedDepositTxHash": "Tx Hash",
+  "adminUnmatchedDepositDetectedAt": "Detected at",
+  "adminMatchUserButton": "Match User",
+  "adminMatchUserDialogTitle": "Assign User to Deposit",
+  "adminMatchUserDialogSubtitle": "Deposit: {txId}",
+  "@adminMatchUserDialogSubtitle": {
+    "placeholders": {
+      "txId": { "type": "String" }
+    }
+  },
+  "adminMatchUserIdHint": "User ID (UUID)",
+  "adminMatchUserIdLabel": "User ID",
+  "adminMatchUserProposeButton": "Propose Match",
+  "adminMatchUserApproveButton": "Approve Match",
+  "adminMatchUserPendingInfo": "A match proposal is pending (Match ID: {matchId}). Approve to finalize.",
+  "@adminMatchUserPendingInfo": {
+    "placeholders": {
+      "matchId": { "type": "String" }
+    }
+  },
+  "adminMatchUserProposedSuccess": "Match proposed. Awaiting second approval.",
+  "adminMatchUserApprovedSuccess": "Match approved. Deposit assigned to user.",
+  "adminMatchUserErrorTitle": "Match Error",
   "adminWithdrawalsEmpty": "No withdrawals",
   "adminWithdrawalsCountLabel": "{count} withdrawals",
   "@adminWithdrawalsCountLabel": {
@@ -1769,5 +1804,7 @@
   "onchainTxStatusConfirming": "Confirming",
   "onchainTxStatusCompleted": "Completed",
   "onchainTxStatusFailed": "Failed",
+  "onchainTxStatusTxBroadcast": "Broadcast",
+  "onchainTxStatusUnmatched": "Unmatched",
   "onchainTxStatusUnknown": "Unknown"
 }

@@ -92,10 +92,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         return const Color(0xFFEAF8F1);
       case OnchainTxStatus.confirming:
         return const Color(0xFFEAF2FD);
+      case OnchainTxStatus.txBroadcast:
+        return const Color(0xFFEAF2FD);
       case OnchainTxStatus.pending:
         return const Color(0xFFFFF6E8);
       case OnchainTxStatus.failed:
         return const Color(0xFFFDECEF);
+      case OnchainTxStatus.unmatched:
+        return const Color(0xFFFFF6E8);
       case OnchainTxStatus.unknown:
         return const Color(0xFFF1F5F9);
     }
@@ -107,10 +111,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         return const Color(0xFF0F8A49);
       case OnchainTxStatus.confirming:
         return const Color(0xFF0A5DC2);
+      case OnchainTxStatus.txBroadcast:
+        return const Color(0xFF0A5DC2);
       case OnchainTxStatus.pending:
         return const Color(0xFFB56900);
       case OnchainTxStatus.failed:
         return const Color(0xFFB3261E);
+      case OnchainTxStatus.unmatched:
+        return const Color(0xFFB56900);
       case OnchainTxStatus.unknown:
         return const Color(0xFF64748B);
     }
