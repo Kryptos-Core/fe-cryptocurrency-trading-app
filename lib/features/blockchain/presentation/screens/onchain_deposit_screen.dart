@@ -7,16 +7,17 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
+import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/deposits/presentation/widgets/deposit_methods_card.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
-import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_recent_tx_filter_dropdowns.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_tx_filter_chip.dart';
 import 'package:crypto_trading_app/features/deposits/presentation/screens/deposits_screen.dart';
 
@@ -32,6 +33,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   static final DateFormat _dateTimeCompact = DateFormat('dd/MM/yy HH:mm');
 
   BlockchainNetwork? _txFilterNetwork;
+
   /// Default: chỉ lịch sử nạp tiền (DEPOSIT). FUND/SWEEP là quỹ nội bộ, không hiển thị ở API consumer.
   OnchainTxType? _txFilterType = OnchainTxType.deposit;
   bool _sortNewestFirst = true;
@@ -291,7 +293,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   tooltip: l10n.copyAddressTooltip,
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -350,8 +353,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         : l10n.onchainValueNotAvailable;
 
     final picker = context.read<OnchainChainPickerProvider>();
-    final hashPreview =
-        hash.isNotEmpty ? _ellipsizeMiddle(hash) : l10n.onchainValueNotAvailable;
+    final hashPreview = hash.isNotEmpty
+        ? _ellipsizeMiddle(hash)
+        : l10n.onchainValueNotAvailable;
     final subtitle =
         '${picker.displayLabelForNetwork(tx.chain)} · $hashPreview · $createdShort';
 
@@ -387,8 +391,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
               ),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: _txStatusBg(tx.status),
                   borderRadius: BorderRadius.circular(16),
@@ -510,6 +513,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
+        final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
         final networks = context
             .watch<OnchainChainPickerProvider>()
             .onchainDepositWithdrawNetworks;
@@ -668,19 +672,60 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 l10n.recentTransactions,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
-              OnchainRecentTxFilterDropdowns(
-                networks: networks,
-                selectedNetwork: _txFilterNetwork,
-                onNetworkChanged: (network) {
-                  setState(() => _txFilterNetwork = network);
-                },
-                selectedType: _txFilterType,
-                onTypeChanged: (type) {
-                  setState(() => _txFilterType = type);
+              const SizedBox(height: 6),
+              TreasuryChainDropdown(
+                chains: networks.map((n) => n.apiValue).toList(),
+                value: _txFilterNetwork?.apiValue,
+                allowAllOption: true,
+                labelText: l10n.networkLabel,
+                hintText: l10n.allNetworks,
+                allOptionLabel: l10n.allNetworks,
+                menuMaxHeight: menuHeight,
+                onChanged: (value) {
+                  setState(
+                    () => _txFilterNetwork = value == null
+                        ? null
+                        : BlockchainNetworkX.tryFromApiValue(value),
+                  );
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
+              AppDropdownField<OnchainTxType?>(
+                value: _txFilterType,
+                labelText: l10n.type,
+                hintText: l10n.allTypes,
+                menuMaxHeight: menuHeight,
+                items: [
+                  DropdownMenuItem<OnchainTxType?>(
+                    value: null,
+                    child: Text(
+                      l10n.allTypes,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  DropdownMenuItem<OnchainTxType?>(
+                    value: OnchainTxType.deposit,
+                    child: Text(
+                      l10n.txTypeDeposits,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  DropdownMenuItem<OnchainTxType?>(
+                    value: OnchainTxType.transfer,
+                    child: Text(
+                      l10n.txTypeTransfers,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() => _txFilterType = value);
+                },
+              ),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Text(
@@ -733,6 +778,3 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     );
   }
 }
-
-
-

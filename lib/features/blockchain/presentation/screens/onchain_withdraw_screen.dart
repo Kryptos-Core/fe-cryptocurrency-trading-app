@@ -11,12 +11,12 @@ import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchai
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
-import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_recent_tx_filter_dropdowns.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_tx_filter_chip.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
@@ -37,7 +37,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   late BlockchainNetwork _selectedNetwork;
   String? _selectedWalletId;
   BlockchainNetwork? _txFilterNetwork;
-  OnchainTxType? _txFilterType;
+  OnchainTxType _txFilterType = OnchainTxType.withdrawal;
   bool _sortNewestFirst = true;
 
   String _formatAddress(String value) {
@@ -87,10 +87,10 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     List<OnchainTransaction> source,
   ) {
     final filtered = source.where((tx) {
+      final byType = tx.type == _txFilterType;
       final byNetwork =
           _txFilterNetwork == null || tx.chain == _txFilterNetwork;
-      final byType = _txFilterType == null || tx.type == _txFilterType;
-      return byNetwork && byType;
+      return byType && byNetwork;
     }).toList();
 
     filtered.sort(
@@ -263,6 +263,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     return Consumer<BlockchainProvider>(
       builder: (context, provider, _) {
         final l10n = AppLocalizations.of(context);
+        final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
         final networks = context
             .watch<OnchainChainPickerProvider>()
             .onchainDepositWithdrawNetworks;
@@ -395,19 +396,54 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   l10n.recentTransactions,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
-                OnchainRecentTxFilterDropdowns(
-                  networks: networks,
-                  selectedNetwork: _txFilterNetwork,
-                  onNetworkChanged: (network) {
-                    setState(() => _txFilterNetwork = network);
-                  },
-                  selectedType: _txFilterType,
-                  onTypeChanged: (type) {
-                    setState(() => _txFilterType = type);
+                const SizedBox(height: 6),
+                TreasuryChainDropdown(
+                  chains: networks.map((n) => n.apiValue).toList(),
+                  value: _txFilterNetwork?.apiValue,
+                  allowAllOption: true,
+                  labelText: l10n.networkLabel,
+                  hintText: l10n.allNetworks,
+                  allOptionLabel: l10n.allNetworks,
+                  menuMaxHeight: menuHeight,
+                  onChanged: (value) {
+                    setState(
+                      () => _txFilterNetwork = value == null
+                          ? null
+                          : BlockchainNetworkX.tryFromApiValue(value),
+                    );
                   },
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
+                AppDropdownField<OnchainTxType>(
+                  value: _txFilterType,
+                  labelText: l10n.type,
+                  hintText: l10n.txTypeWithdrawals,
+                  menuMaxHeight: menuHeight,
+                  items: [
+                    DropdownMenuItem<OnchainTxType>(
+                      value: OnchainTxType.withdrawal,
+                      child: Text(
+                        l10n.txTypeWithdrawals,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    DropdownMenuItem<OnchainTxType>(
+                      value: OnchainTxType.transfer,
+                      child: Text(
+                        l10n.txTypeTransfers,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _txFilterType = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Text(
@@ -512,6 +548,3 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     );
   }
 }
-
-
-

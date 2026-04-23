@@ -44,8 +44,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   bool _userLockedCurrencySelection = false;
   bool _appliedWalletLoadedDefault = false;
 
-  final CurrenciesRepository _currenciesRepository =
-      sl<CurrenciesRepository>();
+  final CurrenciesRepository _currenciesRepository = sl<CurrenciesRepository>();
 
   final TextEditingController _txSearchController = TextEditingController();
   WalletTransactionAction? _txFilterType;
@@ -717,8 +716,12 @@ String? _defaultSelectedCurrencyId(
 ///
 /// Nguồn dòng coin: ưu tiên [WalletsProvider] (GET /wallets, `include_zero=true`);
 /// nếu rỗng (lỗi mạng / user chưa có ví) thì fallback [DashboardSummary.wallets].
-/// Ưu tiên các dòng có số dư; nếu toàn 0 vẫn hiện tối đa 12 dòng để thấy USDT/0G…
+/// Chỉ hiển thị các dòng có số dư khác 0 để card gọn và dễ đọc.
 class _PortfolioOverview extends StatelessWidget {
+  static const int _maxVisibleRows = 5;
+  static const double _rowExtent = 52;
+  static const double _rowSpacing = 4;
+
   final WalletsProvider walletsProvider;
   final DashboardProvider dashboardProvider;
 
@@ -736,10 +739,8 @@ class _PortfolioOverview extends StatelessWidget {
     }
     final list = src.toList();
     final nonZero = list.where(_walletHasNonZeroBalance).toList();
-    // Card chỉ tóm tắt — tránh list hàng chục coin đẩy Column cha overflow.
-    if (nonZero.isNotEmpty) return nonZero.take(12).toList();
-    if (list.isNotEmpty) return list.take(12).toList();
-    return [];
+    // Chỉ hiển thị coin có số dư > 0.
+    return nonZero;
   }
 
   @override
@@ -748,6 +749,8 @@ class _PortfolioOverview extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final fmt = NumberFormat('#,##0.########');
     final rows = _rowsForDisplay();
+    final maxListHeight =
+        (_maxVisibleRows * _rowExtent) + ((_maxVisibleRows - 1) * _rowSpacing);
 
     final totalUsdt = dashboardProvider.portfolioTotal;
 
@@ -814,10 +817,14 @@ class _PortfolioOverview extends StatelessWidget {
                 ),
               )
             else
-              SizedBox(
-                height: 260,
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxListHeight),
                 child: ListView.separated(
-                  physics: const ClampingScrollPhysics(),
+                  primary: false,
+                  shrinkWrap: true,
+                  physics: rows.length > _maxVisibleRows
+                      ? const ClampingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
                   itemCount: rows.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 4),
                   itemBuilder: (context, index) {
