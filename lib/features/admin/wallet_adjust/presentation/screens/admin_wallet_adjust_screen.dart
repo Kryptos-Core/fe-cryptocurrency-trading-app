@@ -125,8 +125,11 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       return;
     }
     if (_selectedCurrency == null) {
-      showAppSnackBar(context,
-          message: 'Vui lòng chọn loại coin', type: SnackBarType.warning);
+      showAppSnackBar(
+        context,
+        message: l10n.adminWalletAdjustSelectCoinRequired,
+        type: SnackBarType.warning,
+      );
       return;
     }
     if (!_formKey.currentState!.validate()) return;
@@ -411,6 +414,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
 
   Widget _buildCurrencyPicker(
       BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context);
     if (_isLoadingCurrencies) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
@@ -421,7 +425,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Loại coin',
+          l10n.adminWalletAdjustCoinTypeLabel,
           style: theme.textTheme.labelMedium
               ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
@@ -429,7 +433,7 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
         TextField(
           controller: _currencySearchController,
           decoration: InputDecoration(
-            hintText: 'Tìm coin...',
+            hintText: l10n.adminWalletAdjustCoinSearchHint,
             prefixIcon: const Icon(Icons.search, size: 18),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             isDense: true,
@@ -445,10 +449,12 @@ class _AdminWalletAdjustScreenState extends State<AdminWalletAdjustScreen>
             borderRadius: BorderRadius.circular(8),
           ),
           child: _filteredCurrencies.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text('Không tìm thấy coin nào',
-                      textAlign: TextAlign.center),
+              ? Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    l10n.adminWalletAdjustNoCoinsFound,
+                    textAlign: TextAlign.center,
+                  ),
                 )
               : ListView.separated(
                   shrinkWrap: true,

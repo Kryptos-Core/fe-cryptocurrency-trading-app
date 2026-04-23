@@ -272,6 +272,102 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @comingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature coming soon'**
+  String get comingSoonTitle;
+
+  /// No description provided for @comingSoonDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is under construction and will be available soon.'**
+  String get comingSoonDesc;
+
+  /// No description provided for @chartNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get chartNoData;
+
+  /// No description provided for @chartZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get chartZoomIn;
+
+  /// No description provided for @chartZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get chartZoomOut;
+
+  /// No description provided for @chartShowIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'Show indicators'**
+  String get chartShowIndicators;
+
+  /// No description provided for @chartRsi.
+  ///
+  /// In en, this message translates to:
+  /// **'RSI'**
+  String get chartRsi;
+
+  /// No description provided for @chartMacd.
+  ///
+  /// In en, this message translates to:
+  /// **'MACD'**
+  String get chartMacd;
+
+  /// No description provided for @chartSignal.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal'**
+  String get chartSignal;
+
+  /// No description provided for @chartHistogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Histogram'**
+  String get chartHistogram;
+
+  /// No description provided for @chartOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get chartOpen;
+
+  /// No description provided for @chartHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get chartHigh;
+
+  /// No description provided for @chartLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get chartLow;
+
+  /// No description provided for @chartClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get chartClose;
+
+  /// No description provided for @chartVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get chartVolume;
+
+  /// No description provided for @chartCandleAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Candle at {time}'**
+  String chartCandleAt(String time);
+
   /// No description provided for @noMarkets.
   ///
   /// In en, this message translates to:
@@ -4690,6 +4786,18 @@ abstract class AppLocalizations {
   /// **'You cannot deactivate the current default user deposit wallet.'**
   String get apiErrorDefaultUserDepositDeactivate;
 
+  /// No description provided for @apiErrorTronUsdtDestinationNotActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'The destination TRON wallet is not activated yet. Deposit TRX to that address before sending USDT.'**
+  String get apiErrorTronUsdtDestinationNotActivated;
+
+  /// No description provided for @apiErrorTronAccountPreflightUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not check the destination TRON wallet status right now. Please try again later.'**
+  String get apiErrorTronAccountPreflightUnavailable;
+
   /// No description provided for @treasuryWalletCreatedSuccess.
   ///
   /// In en, this message translates to:
@@ -7571,6 +7679,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter user ID'**
   String get adminWalletAdjustSelectUserHint;
+
+  /// No description provided for @adminWalletAdjustCoinTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin type'**
+  String get adminWalletAdjustCoinTypeLabel;
+
+  /// No description provided for @adminWalletAdjustCoinSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search coin...'**
+  String get adminWalletAdjustCoinSearchHint;
+
+  /// No description provided for @adminWalletAdjustNoCoinsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No coins found'**
+  String get adminWalletAdjustNoCoinsFound;
+
+  /// No description provided for @adminWalletAdjustSelectCoinRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a coin type'**
+  String get adminWalletAdjustSelectCoinRequired;
+
+  /// No description provided for @adminUserDetailAdjustDepositSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited {symbol} successfully!'**
+  String adminUserDetailAdjustDepositSuccess(Object symbol);
+
+  /// No description provided for @adminUserDetailAdjustWithdrawSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrew {symbol} successfully!'**
+  String adminUserDetailAdjustWithdrawSuccess(Object symbol);
+
+  /// No description provided for @adminUserDetailAdjustmentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get adminUserDetailAdjustmentFailed;
 
   /// No description provided for @adminWalletAdjustAmountLabel.
   ///

@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/chart_websocket_policy.dart';
 import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
 import 'package:crypto_trading_app/features/trading/presentation/providers/chart_provider.dart';
@@ -248,6 +249,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   }
 
   Widget _buildIndicators(ChartProvider chartProvider) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -258,17 +260,20 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          _buildIndicatorRow('RSI', chartProvider.rsiValues),
+          _buildIndicatorRow(context, l10n.chartRsi, chartProvider.rsiValues),
           const SizedBox(height: 8),
-          _buildIndicatorRow('Volume', chartProvider.volumeValues),
+          _buildIndicatorRow(
+              context, l10n.chartVolume, chartProvider.volumeValues),
           const SizedBox(height: 8),
-          _buildMACDIndicator(chartProvider.macdValues),
+          _buildMACDIndicator(context, chartProvider.macdValues),
         ],
       ),
     );
   }
 
-  Widget _buildIndicatorRow(String label, List<IndicatorValue>? values) {
+  Widget _buildIndicatorRow(
+      BuildContext context, String label, List<IndicatorValue>? values) {
+    final l10n = AppLocalizations.of(context);
     if (values == null || values.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -276,7 +281,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-            const Text('No data', style: TextStyle(color: Colors.grey)),
+            Text(l10n.chartNoData, style: const TextStyle(color: Colors.grey)),
           ],
         ),
       );
@@ -292,7 +297,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           Text(
             lastValue.toStringAsFixed(2),
             style: TextStyle(
-              color: label == 'RSI'
+              color: label == l10n.chartRsi
                   ? (lastValue > 70
                       ? Colors.red
                       : lastValue < 30
@@ -307,15 +312,18 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
     );
   }
 
-  Widget _buildMACDIndicator(List<MACDValue>? macdValues) {
+  Widget _buildMACDIndicator(
+      BuildContext context, List<MACDValue>? macdValues) {
+    final l10n = AppLocalizations.of(context);
     if (macdValues == null || macdValues.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('MACD', style: TextStyle(fontWeight: FontWeight.w500)),
-            Text('No data', style: TextStyle(color: Colors.grey)),
+            Text(l10n.chartMacd,
+                style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(l10n.chartNoData, style: const TextStyle(color: Colors.grey)),
           ],
         ),
       );
@@ -332,7 +340,8 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('MACD', style: TextStyle(fontWeight: FontWeight.w500)),
+              Text(l10n.chartMacd,
+                  style: const TextStyle(fontWeight: FontWeight.w500)),
               Text(
                 lastMACD.macd.toStringAsFixed(4),
                 style: const TextStyle(
@@ -344,10 +353,12 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 16),
-                child: Text('Signal',
-                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Text(
+                  l10n.chartSignal,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ),
               Text(
                 lastMACD.signal.toStringAsFixed(4),
@@ -362,10 +373,12 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 16),
-                child: Text('Histogram',
-                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Text(
+                  l10n.chartHistogram,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ),
               Text(
                 lastMACD.histogram.toStringAsFixed(4),
@@ -390,8 +403,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
         child: Row(
           children: ApiConstants.ohlcvIntervals.map((e) {
             final apiInterval = e.value;
-            final isSelected =
-                chartProvider.selectedInterval == apiInterval;
+            final isSelected = chartProvider.selectedInterval == apiInterval;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: FilterChip(
@@ -409,6 +421,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   }
 
   Widget _buildCandleDetails(ChartProvider chartProvider) {
+    final l10n = AppLocalizations.of(context);
     if (_selectedCandleIndex == null ||
         _selectedCandleIndex! >= chartProvider.candles.length) {
       return const SizedBox(height: 0);
@@ -428,21 +441,25 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Candle at ${DateTime.fromMillisecondsSinceEpoch(candle.openTime).toString().split('.')[0]}',
+            l10n.chartCandleAt(
+              DateTime.fromMillisecondsSinceEpoch(candle.openTime)
+                  .toString()
+                  .split('.')[0],
+            ),
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          _buildDetailRow('Open', candle.open),
-          _buildDetailRow('High', candle.high),
-          _buildDetailRow('Low', candle.low),
-          _buildDetailRow('Close', candle.close),
-          _buildDetailRow('Volume', candle.volume),
+          _buildDetailRow(context, l10n.chartOpen, candle.open),
+          _buildDetailRow(context, l10n.chartHigh, candle.high),
+          _buildDetailRow(context, l10n.chartLow, candle.low),
+          _buildDetailRow(context, l10n.chartClose, candle.close),
+          _buildDetailRow(context, l10n.chartVolume, candle.volume),
         ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, double value) {
+  Widget _buildDetailRow(BuildContext context, String label, double value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -459,6 +476,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
   }
 
   void _showMoreOptions() {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -468,19 +486,19 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.zoom_in),
-              title: const Text('Zoom In'),
+              title: Text(l10n.chartZoomIn),
               mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.zoom_out),
-              title: const Text('Zoom Out'),
+              title: Text(l10n.chartZoomOut),
               mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.show_chart),
-              title: const Text('Show Indicators'),
+              title: Text(l10n.chartShowIndicators),
               mouseCursor: SystemMouseCursors.click,
               onTap: () => Navigator.pop(context),
             ),

@@ -33,7 +33,17 @@ String localizeTreasuryApiError(
       return l10n.apiErrorTreasuryWalletBusyTimeout;
     case 'DEFAULT_USER_DEPOSIT_DEACTIVATE_FORBIDDEN':
       return l10n.apiErrorDefaultUserDepositDeactivate;
+    case 'TRON_USDT_DESTINATION_NOT_ACTIVATED':
+      return l10n.apiErrorTronUsdtDestinationNotActivated;
+    case 'TRON_ACCOUNT_PREFLIGHT_UNAVAILABLE':
+      return l10n.apiErrorTronAccountPreflightUnavailable;
     default:
+      if (RegExp(
+        r'Contract validate error\s*:\s*account\s*\[.+\]\s*does not exist',
+        caseSensitive: false,
+      ).hasMatch(m)) {
+        return l10n.apiErrorTronUsdtDestinationNotActivated;
+      }
       if (m.isNotEmpty) return m;
       return l10n.apiErrorGeneric;
   }

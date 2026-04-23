@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final result = await authRepository.getCurrentUser(token);
 
       result.fold(
-        (failure) {
+        (failure) async {
           setState(() {
             _errorMessage = failure.message;
             _isLoading = false;
@@ -81,13 +81,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (mounted) {
             showAppSnackBar(
               context,
-              message: '${AppLocalizations.of(context).failedToLoadProfile}: ${failure.message}',
+              message:
+                  '${AppLocalizations.of(context).failedToLoadProfile}: ${failure.message}',
               type: SnackBarType.error,
               duration: const Duration(seconds: 3),
             );
           }
 
           if (failure is AuthenticationFailure) {
+            if (mounted && context.read<AuthProvider>().isAuthenticated) {
+              await context.read<AuthProvider>().logout();
+            }
             Future.delayed(const Duration(seconds: 1), () {
               _navigateToLogin();
             });
@@ -126,6 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _handleLogout() async {
     final l10n = AppLocalizations.of(context);
+    final authProvider = context.read<AuthProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -148,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirmed == true) {
-      await context.read<AuthProvider>().logout();
+      await authProvider.logout();
 
       if (mounted) {
         showAppSnackBar(
@@ -184,11 +189,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final token = sl<TokenService>().getAccessToken();
     if (token == null || token.isEmpty) return;
     final picker = ImagePicker();
-    final xFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, imageQuality: 85);
+    final xFile = await picker.pickImage(
+        source: ImageSource.gallery, maxWidth: 512, imageQuality: 85);
     if (xFile == null || !mounted) return;
     final bytes = await xFile.readAsBytes();
     final ext = xFile.name.split('.').last.toLowerCase();
-    final mime = ext == 'jpg' || ext == 'jpeg' ? 'image/jpeg' : ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+    final mime = ext == 'jpg' || ext == 'jpeg'
+        ? 'image/jpeg'
+        : ext == 'png'
+            ? 'image/png'
+            : ext == 'webp'
+                ? 'image/webp'
+                : 'image/jpeg';
     final authRepo = sl<AuthRepository>();
     final result = await authRepo.uploadAvatar(
       token: token,
@@ -199,7 +211,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     result.fold(
       (f) {
         if (mounted) {
-          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+          showAppSnackBar(context,
+              message: f.message, type: SnackBarType.error);
         }
       },
       (user) {
@@ -228,13 +241,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: first, decoration: InputDecoration(labelText: AppLocalizations.of(ctx).profileFirstName)),
+            TextField(
+                controller: first,
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(ctx).profileFirstName)),
             const SizedBox(height: 12),
-            TextField(controller: last, decoration: InputDecoration(labelText: AppLocalizations.of(ctx).profileLastName)),
+            TextField(
+                controller: last,
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(ctx).profileLastName)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx).cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppLocalizations.of(ctx).cancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(AppLocalizations.of(ctx).save),
@@ -253,7 +274,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     result.fold(
       (f) {
         if (mounted) {
-          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+          showAppSnackBar(context,
+              message: f.message, type: SnackBarType.error);
         }
       },
       (user) {
@@ -302,7 +324,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final otpSent = await authRepo.send2faOtp(token);
     final canContinue = otpSent.fold((f) {
-      if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      if (mounted) {
+        showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+      }
       return false;
     }, (_) => true);
     if (!canContinue) return;
@@ -316,7 +340,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     if (!mounted) return;
 
-    final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+    final otp =
+        await OtpVerificationDialog.show(context, repo: authRepo, token: token);
     if (otp == null || otp.length != 6) return;
 
     final newPassword = await _showChangePasswordDialog();
@@ -329,7 +354,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     result.fold(
       (f) {
-        if (mounted) showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        if (mounted) {
+          showAppSnackBar(context,
+              message: f.message, type: SnackBarType.error);
+        }
       },
       (_) {
         if (mounted) {
@@ -370,7 +398,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final otpSent = await authRepo.send2faOtp(token);
       final canContinue = otpSent.fold((f) {
         if (mounted) {
-          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+          showAppSnackBar(context,
+              message: f.message, type: SnackBarType.error);
         }
         return false;
       }, (_) => true);
@@ -385,11 +414,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       if (!mounted) return;
 
-      final otp = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+      final otp = await OtpVerificationDialog.show(context,
+          repo: authRepo, token: token);
       if (otp == null || otp.length != 6) return;
 
-      final newEmail =
-          await _showChangeEmailDialog(label: 'New email', hint: 'Enter new email');
+      final newEmail = await _showChangeEmailDialog(
+        label: l10n.profileChangeEmail,
+        hint: l10n.registerEmailHint,
+      );
       if (newEmail == null || newEmail.isEmpty) return;
 
       final result = await authRepo.requestSecurityChange(
@@ -401,7 +433,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       result.fold(
         (f) {
           if (mounted) {
-            showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+            showAppSnackBar(context,
+                message: f.message, type: SnackBarType.error);
           }
         },
         (_) {
@@ -438,11 +471,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(label ?? 'New email'),
+        title: Text(label ?? AppLocalizations.of(ctx).profileChangeEmail),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(hintText: hint ?? 'Enter new email'),
+          decoration: InputDecoration(
+            hintText: hint ?? AppLocalizations.of(ctx).registerEmailHint,
+          ),
         ),
         actions: [
           TextButton(
@@ -451,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Submit request'),
+            child: Text(AppLocalizations.of(ctx).submit),
           ),
         ],
       ),
@@ -513,7 +548,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                   Navigator.pop(ctx, true);
                 },
-                child: const Text('Submit request'),
+                child: Text(l10n.submit),
               ),
             ],
           );
@@ -573,23 +608,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: GestureDetector(
                 onTap: _pickAndUploadAvatar,
                 child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                    ? (user.avatarUrl!.startsWith('http')
-                        ? NetworkImage(user.avatarUrl!)
-                        : null)
-                    : null,
-                child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                    ? Text(
-                        _getInitials(user),
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      )
-                    : null,
+                  radius: 50,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
+                  backgroundImage:
+                      user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                          ? (user.avatarUrl!.startsWith('http')
+                              ? NetworkImage(user.avatarUrl!)
+                              : null)
+                          : null,
+                  child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+                      ? Text(
+                          _getInitials(user),
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -597,7 +636,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
             Text(
               l10n.profileTapToChangeAvatar,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 24),
 
@@ -635,35 +677,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: user.isActive
-                    ? Colors.green[50]
-                    : Colors.red[50],
+                color: user.isActive ? Colors.green[50] : Colors.red[50],
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: user.isActive
-                      ? Colors.green[300]!
-                      : Colors.red[300]!,
+                  color: user.isActive ? Colors.green[300]! : Colors.red[300]!,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    user.isActive
-                        ? Icons.check_circle
-                        : Icons.cancel,
+                    user.isActive ? Icons.check_circle : Icons.cancel,
                     size: 16,
-                    color: user.isActive
-                        ? Colors.green[700]
-                        : Colors.red[700],
+                    color: user.isActive ? Colors.green[700] : Colors.red[700],
                   ),
                   const SizedBox(width: 8),
                   Text(
                     user.isActive ? l10n.active : l10n.inactive,
                     style: TextStyle(
-                      color: user.isActive
-                          ? Colors.green[700]
-                          : Colors.red[700],
+                      color:
+                          user.isActive ? Colors.green[700] : Colors.red[700],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -764,8 +797,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const Divider(),
             ListTile(
-              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
-              title: Text(l10n.logout, style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+              leading: Icon(Icons.logout,
+                  color: Theme.of(context).colorScheme.error),
+              title: Text(l10n.logout,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w600)),
               mouseCursor: SystemMouseCursors.click,
               onTap: _handleLogout,
             ),

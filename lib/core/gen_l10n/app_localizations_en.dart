@@ -96,6 +96,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
+  String get comingSoonTitle => 'Feature coming soon';
+
+  @override
+  String get comingSoonDesc =>
+      'This feature is under construction and will be available soon.';
+
+  @override
+  String get chartNoData => 'No data';
+
+  @override
+  String get chartZoomIn => 'Zoom in';
+
+  @override
+  String get chartZoomOut => 'Zoom out';
+
+  @override
+  String get chartShowIndicators => 'Show indicators';
+
+  @override
+  String get chartRsi => 'RSI';
+
+  @override
+  String get chartMacd => 'MACD';
+
+  @override
+  String get chartSignal => 'Signal';
+
+  @override
+  String get chartHistogram => 'Histogram';
+
+  @override
+  String get chartOpen => 'Open';
+
+  @override
+  String get chartHigh => 'High';
+
+  @override
+  String get chartLow => 'Low';
+
+  @override
+  String get chartClose => 'Close';
+
+  @override
+  String get chartVolume => 'Volume';
+
+  @override
+  String chartCandleAt(String time) {
+    return 'Candle at $time';
+  }
+
+  @override
   String get noMarkets => 'No markets';
 
   @override
@@ -2561,6 +2612,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'You cannot deactivate the current default user deposit wallet.';
 
   @override
+  String get apiErrorTronUsdtDestinationNotActivated =>
+      'The destination TRON wallet is not activated yet. Deposit TRX to that address before sending USDT.';
+
+  @override
+  String get apiErrorTronAccountPreflightUnavailable =>
+      'We could not check the destination TRON wallet status right now. Please try again later.';
+
+  @override
   String get treasuryWalletCreatedSuccess => 'Transaction wallet created';
 
   @override
@@ -4130,6 +4189,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminWalletAdjustSelectUserHint => 'Enter user ID';
+
+  @override
+  String get adminWalletAdjustCoinTypeLabel => 'Coin type';
+
+  @override
+  String get adminWalletAdjustCoinSearchHint => 'Search coin...';
+
+  @override
+  String get adminWalletAdjustNoCoinsFound => 'No coins found';
+
+  @override
+  String get adminWalletAdjustSelectCoinRequired => 'Please select a coin type';
+
+  @override
+  String adminUserDetailAdjustDepositSuccess(Object symbol) {
+    return 'Deposited $symbol successfully!';
+  }
+
+  @override
+  String adminUserDetailAdjustWithdrawSuccess(Object symbol) {
+    return 'Withdrew $symbol successfully!';
+  }
+
+  @override
+  String get adminUserDetailAdjustmentFailed =>
+      'Something went wrong. Please try again.';
 
   @override
   String get adminWalletAdjustAmountLabel => 'Amount';

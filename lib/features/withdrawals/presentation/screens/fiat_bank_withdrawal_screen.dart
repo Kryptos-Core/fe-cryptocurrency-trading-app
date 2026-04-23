@@ -22,7 +22,7 @@ class FiatBankWithdrawalScreen extends StatelessWidget {
               Icon(Icons.construction_rounded, size: 64, color: scheme.primary),
               const SizedBox(height: 24),
               Text(
-                'Tính năng đang được phát triển',
+                l10n.comingSoonTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -30,7 +30,7 @@ class FiatBankWithdrawalScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Chức năng rút tiền pháp định đang trong quá trình xây dựng và sẽ sớm ra mắt.',
+                l10n.comingSoonDesc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -39,7 +39,7 @@ class FiatBankWithdrawalScreen extends StatelessWidget {
               const SizedBox(height: 32),
               FilledButton.tonal(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Quay lại'),
+                child: Text(l10n.back),
               ),
             ],
           ),

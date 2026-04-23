@@ -96,6 +96,57 @@ class AppLocalizationsVi extends AppLocalizations {
   String get search => 'Tìm kiếm';
 
   @override
+  String get comingSoonTitle => 'Tính năng sắp ra mắt';
+
+  @override
+  String get comingSoonDesc =>
+      'Tính năng này đang được xây dựng và sẽ sớm khả dụng.';
+
+  @override
+  String get chartNoData => 'Không có dữ liệu';
+
+  @override
+  String get chartZoomIn => 'Phóng to';
+
+  @override
+  String get chartZoomOut => 'Thu nhỏ';
+
+  @override
+  String get chartShowIndicators => 'Hiển thị chỉ báo';
+
+  @override
+  String get chartRsi => 'RSI';
+
+  @override
+  String get chartMacd => 'MACD';
+
+  @override
+  String get chartSignal => 'Tín hiệu';
+
+  @override
+  String get chartHistogram => 'Histogram';
+
+  @override
+  String get chartOpen => 'Mở';
+
+  @override
+  String get chartHigh => 'Cao';
+
+  @override
+  String get chartLow => 'Thấp';
+
+  @override
+  String get chartClose => 'Đóng';
+
+  @override
+  String get chartVolume => 'Khối lượng';
+
+  @override
+  String chartCandleAt(String time) {
+    return 'Nến tại $time';
+  }
+
+  @override
   String get noMarkets => 'Không có thị trường';
 
   @override
@@ -2561,6 +2612,14 @@ class AppLocalizationsVi extends AppLocalizations {
       'Không thể vô hiệu hóa ví nạp tiền mặc định hiện tại.';
 
   @override
+  String get apiErrorTronUsdtDestinationNotActivated =>
+      'Ví TRON đích chưa được kích hoạt. Hãy nạp TRX vào địa chỉ trước khi cấp USDT.';
+
+  @override
+  String get apiErrorTronAccountPreflightUnavailable =>
+      'Tạm thời không kiểm tra được trạng thái ví TRON đích. Vui lòng thử lại sau.';
+
+  @override
   String get treasuryWalletCreatedSuccess => 'Đã tạo ví giao dịch';
 
   @override
@@ -4129,6 +4188,32 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get adminWalletAdjustSelectUserHint => 'Nhập ID người dùng';
+
+  @override
+  String get adminWalletAdjustCoinTypeLabel => 'Loại coin';
+
+  @override
+  String get adminWalletAdjustCoinSearchHint => 'Tìm coin...';
+
+  @override
+  String get adminWalletAdjustNoCoinsFound => 'Không tìm thấy coin nào';
+
+  @override
+  String get adminWalletAdjustSelectCoinRequired => 'Vui lòng chọn loại coin';
+
+  @override
+  String adminUserDetailAdjustDepositSuccess(Object symbol) {
+    return 'Nạp $symbol thành công!';
+  }
+
+  @override
+  String adminUserDetailAdjustWithdrawSuccess(Object symbol) {
+    return 'Rút $symbol thành công!';
+  }
+
+  @override
+  String get adminUserDetailAdjustmentFailed =>
+      'Có lỗi xảy ra. Vui lòng thử lại.';
 
   @override
   String get adminWalletAdjustAmountLabel => 'Số tiền';

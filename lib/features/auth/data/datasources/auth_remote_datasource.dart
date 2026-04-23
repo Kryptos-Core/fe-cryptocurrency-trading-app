@@ -149,13 +149,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           // Email already exists or validation error
           throw ValidationException(message: message);
         }
-        
+
         throw ServerException(message: message);
       }
-      
+
       final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
-        message: 'Cannot reach server. Ensure backend is running (npm run start:dev). '
+        message:
+            'Cannot reach server. Ensure backend is running (npm run start:dev). '
             'Check in browser: $healthUrl',
       );
     } catch (e) {
@@ -198,7 +199,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
-        message: 'Cannot reach server. Ensure backend is running (npm run start:dev). '
+        message:
+            'Cannot reach server. Ensure backend is running (npm run start:dev). '
             'Check in browser: $healthUrl',
       );
     } catch (e) {
@@ -232,11 +234,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final statusCode = e.response!.statusCode;
         final message = e.response!.data['message'] ?? 'Failed to get user';
 
-        if (statusCode == 401) {
-          // Unauthorized - token expired or invalid
+        if (statusCode == 401 || statusCode == 404) {
+          // Unauthorized or user deleted/not found - clear stale session in UI
           throw AuthenticationException(message: message);
         }
-        
+
         throw ServerException(message: message);
       }
       final healthUrl = '${ApiConstants.baseUrl}/health';
@@ -277,9 +279,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final raw = response.data as Map<String, dynamic>?;
         if (raw == null) throw ServerException(message: 'Invalid response');
-        final data = raw['data'] != null
-            ? raw['data'] as Map<String, dynamic>
-            : raw;
+        final data =
+            raw['data'] != null ? raw['data'] as Map<String, dynamic> : raw;
         return WalletNonceResponse.fromJson(data);
       }
       throw ServerException(
@@ -319,9 +320,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final raw = response.data as Map<String, dynamic>?;
         if (raw == null) throw ServerException(message: 'Invalid response');
-        final data = raw['data'] != null
-            ? raw['data'] as Map<String, dynamic>
-            : raw;
+        final data =
+            raw['data'] != null ? raw['data'] as Map<String, dynamic> : raw;
         return AuthResponseModel(
           accessToken: data['accessToken'] as String,
           refreshToken: data['refreshToken'] as String?,
@@ -372,8 +372,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message =
-            e.response!.data['message'] ?? 'WC auth init failed';
+        final message = e.response!.data['message'] ?? 'WC auth init failed';
         if (e.response!.statusCode == 400) {
           throw ValidationException(message: message);
         }
@@ -441,9 +440,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final raw = response.data as Map<String, dynamic>?;
         if (raw == null) throw ServerException(message: 'Invalid response');
-        final data = raw['data'] != null
-            ? raw['data'] as Map<String, dynamic>
-            : raw;
+        final data =
+            raw['data'] != null ? raw['data'] as Map<String, dynamic> : raw;
         return AuthResponseModel(
           accessToken: data['accessToken'] as String,
           refreshToken: data['refreshToken'] as String?,
@@ -455,8 +453,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message =
-            e.response!.data['message'] ?? 'WC auth verify failed';
+        final message = e.response!.data['message'] ?? 'WC auth verify failed';
         if (e.response!.statusCode == 401 || e.response!.statusCode == 400) {
           throw AuthenticationException(message: message);
         }
@@ -644,8 +641,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final msg = e.response!.data['message'] ?? 'Failed to change password';
-        if (e.response!.statusCode == 401) throw AuthenticationException(message: msg);
-        if (e.response!.statusCode == 400) throw ValidationException(message: msg);
+        if (e.response!.statusCode == 401)
+          throw AuthenticationException(message: msg);
+        if (e.response!.statusCode == 400)
+          throw ValidationException(message: msg);
         throw ServerException(message: msg);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
