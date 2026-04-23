@@ -28,6 +28,7 @@ class OrdersProvider extends ChangeNotifier {
   Order? _selectedOrder;
   bool _isLoading = false;
   String? _error;
+  String? _apiErrorCode;
   WalletBalance? _baseBalance;
   WalletBalance? _quoteBalance;
 
@@ -42,11 +43,13 @@ class OrdersProvider extends ChangeNotifier {
   Order? get selectedOrder => _selectedOrder;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get apiErrorCode => _apiErrorCode;
   WalletBalance? get baseBalance => _baseBalance;
   WalletBalance? get quoteBalance => _quoteBalance;
 
   void clearError() {
     _error = null;
+    _apiErrorCode = null;
     notifyListeners();
   }
 
@@ -86,7 +89,7 @@ class OrdersProvider extends ChangeNotifier {
 
     return result.fold<Order?>(
       (failure) {
-        _error = _mapFailureToMessage(failure);
+        _setFailure(failure);
         _isLoading = false;
         notifyListeners();
         return null;
@@ -110,7 +113,7 @@ class OrdersProvider extends ChangeNotifier {
 
     return result.fold<Order?>(
       (failure) {
-        _error = _mapFailureToMessage(failure);
+        _setFailure(failure);
         _isLoading = false;
         notifyListeners();
         return null;
@@ -145,7 +148,7 @@ class OrdersProvider extends ChangeNotifier {
 
     bidResult.fold(
       (failure) {
-        _error = _mapFailureToMessage(failure);
+        _setFailure(failure);
         _orderBookBids = [];
       },
       (list) => _orderBookBids = list,
@@ -153,6 +156,7 @@ class OrdersProvider extends ChangeNotifier {
     askResult.fold(
       (failure) {
         _error ??= _mapFailureToMessage(failure);
+        _apiErrorCode ??= failure.code;
         _orderBookAsks = [];
       },
       (list) => _orderBookAsks = list,
@@ -188,7 +192,7 @@ class OrdersProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _error = _mapFailureToMessage(failure);
+        _setFailure(failure);
         _isLoading = false;
         notifyListeners();
       },
@@ -217,7 +221,7 @@ class OrdersProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
-        _error = _mapFailureToMessage(failure);
+        _setFailure(failure);
         _selectedOrder = null;
         _isLoading = false;
         notifyListeners();
@@ -242,6 +246,11 @@ class OrdersProvider extends ChangeNotifier {
     if (i >= 0) {
       _myOrders = List.from(_myOrders)..[i] = order;
     }
+  }
+
+  void _setFailure(Failure failure) {
+    _error = _mapFailureToMessage(failure);
+    _apiErrorCode = failure.code;
   }
 
   String _mapFailureToMessage(Failure failure) {

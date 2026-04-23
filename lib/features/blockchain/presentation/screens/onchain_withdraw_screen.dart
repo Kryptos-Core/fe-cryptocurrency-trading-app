@@ -16,6 +16,7 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/onch
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
+import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_recent_tx_filter_dropdowns.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_tx_filter_chip.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
@@ -395,51 +396,16 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    onchainTxFilterChip(
-                      context: context,
-                      label: l10n.allNetworks,
-                      selected: _txFilterNetwork == null,
-                      onSelected: (_) =>
-                          setState(() => _txFilterNetwork = null),
-                    ),
-                    ...networks.map(
-                      (network) => onchainTxFilterChip(
-                        context: context,
-                        label: context.read<OnchainChainPickerProvider>().displayLabelForNetwork(network),
-                        selected: _txFilterNetwork == network,
-                        onSelected: (_) =>
-                            setState(() => _txFilterNetwork = network),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    onchainTxFilterChip(
-                      context: context,
-                      label: l10n.allTypes,
-                      selected: _txFilterType == null,
-                      onSelected: (_) => setState(() => _txFilterType = null),
-                    ),
-                    ...OnchainTxType.values
-                        .where((t) => t != OnchainTxType.unknown)
-                        .map(
-                          (type) => onchainTxFilterChip(
-                            context: context,
-                            label: _typeLabel(type),
-                            selected: _txFilterType == type,
-                            onSelected: (_) =>
-                                setState(() => _txFilterType = type),
-                          ),
-                        ),
-                  ],
+                OnchainRecentTxFilterDropdowns(
+                  networks: networks,
+                  selectedNetwork: _txFilterNetwork,
+                  onNetworkChanged: (network) {
+                    setState(() => _txFilterNetwork = network);
+                  },
+                  selectedType: _txFilterType,
+                  onTypeChanged: (type) {
+                    setState(() => _txFilterType = type);
+                  },
                 ),
                 const SizedBox(height: 10),
                 Row(

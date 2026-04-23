@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/features/orders/domain/entities/order_book_le
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/order_api_error_localization.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/trading_pair_bookmark_store.dart';
@@ -575,7 +576,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   borderRadius: BorderRadius.circular(_kInputRadius),
                 ),
                 child: Text(
-                  ordersProvider.error!,
+                  localizeOrderApiError(
+                    l10n,
+                    code: ordersProvider.apiErrorCode,
+                    message: ordersProvider.error,
+                  ),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: colorScheme.onErrorContainer),
                 ),
@@ -1270,9 +1275,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   color: colorScheme.errorContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(provider.error!,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: colorScheme.onErrorContainer)),
+                child: Text(
+                  localizeOrderApiError(
+                    l10n,
+                    code: provider.apiErrorCode,
+                    message: provider.error,
+                  ),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.onErrorContainer),
+                ),
               ),
             ],
             if (provider.orderBookBids.isNotEmpty ||
@@ -1331,10 +1342,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
               Icon(Icons.error_outline_rounded,
                   size: 48, color: colorScheme.error),
               const SizedBox(height: 12),
-              Text(provider.error!,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: colorScheme.error),
-                  textAlign: TextAlign.center),
+              Text(
+                localizeOrderApiError(
+                  l10n,
+                  code: provider.apiErrorCode,
+                  message: provider.error,
+                ),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
               FilledButton.tonal(
                   onPressed: () => provider.fetchMyOrders(refresh: true),

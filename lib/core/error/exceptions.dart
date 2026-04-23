@@ -49,10 +49,12 @@ class CacheException implements Exception {
 class ValidationException implements Exception {
   final String message;
   final Map<String, dynamic>? errors;
+  final String? code;
 
   ValidationException({
     this.message = 'Validation Error',
     this.errors,
+    this.code,
   });
 
   @override
@@ -61,8 +63,9 @@ class ValidationException implements Exception {
 
 class NotFoundException implements Exception {
   final String message;
+  final String? code;
 
-  NotFoundException({this.message = 'Resource not found'});
+  NotFoundException({this.message = 'Resource not found', this.code});
 
   @override
   String toString() => 'NotFoundException: $message';

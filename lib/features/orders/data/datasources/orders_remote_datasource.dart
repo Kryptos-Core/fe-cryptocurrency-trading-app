@@ -167,22 +167,29 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     final statusCode = e.response?.statusCode;
     final body = e.response?.data;
     final message = _extractMessage(body);
+    final code = _extractCode(body);
 
     if (statusCode == 404) {
       return NotFoundException(
-          message: message.isNotEmpty ? message : 'Order not found');
+        message: message.isNotEmpty ? message : 'Order not found',
+        code: code,
+      );
     }
     if (statusCode == 403) {
       return ValidationException(
         message: message.isNotEmpty ? message : 'Not your order',
+        code: code,
       );
     }
     if (statusCode != null && statusCode >= 400 && statusCode < 500) {
       return ValidationException(
-          message: message.isNotEmpty ? message : 'Request failed');
+        message: message.isNotEmpty ? message : 'Request failed',
+        code: code,
+      );
     }
     if (statusCode != null && statusCode >= 500) {
-      return ServerException(message: message, statusCode: statusCode);
+      return ServerException(
+          message: message, statusCode: statusCode, code: code);
     }
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
@@ -201,5 +208,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       }
     }
     return '';
+  }
+
+  String? _extractCode(dynamic body) {
+    if (body is Map<String, dynamic>) {
+      final code = body['code'];
+      if (code != null && code.toString().trim().isNotEmpty) {
+        return code.toString();
+      }
+    }
+    return null;
   }
 }

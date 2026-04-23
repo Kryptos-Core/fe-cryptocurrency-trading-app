@@ -31,15 +31,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
       final model = await remoteDataSource.createOrder(dto);
       return Right(model.toDomain());
     } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      return Left(ServerFailure(message: e.message, code: e.code));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
     } on ValidationException catch (e) {
-      return Left(ValidationFailure(message: e.message));
+      return Left(ValidationFailure(message: e.message, code: e.code));
     } on NotFoundException catch (e) {
-      return Left(NotFoundFailure(message: e.message));
+      return Left(NotFoundFailure(message: e.message, code: e.code));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
@@ -51,15 +51,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
       final model = await remoteDataSource.cancelOrder(orderId);
       return Right(model.toDomain());
     } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      return Left(ServerFailure(message: e.message, code: e.code));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
     } on ValidationException catch (e) {
-      return Left(ValidationFailure(message: e.message));
+      return Left(ValidationFailure(message: e.message, code: e.code));
     } on NotFoundException catch (e) {
-      return Left(NotFoundFailure(message: e.message));
+      return Left(NotFoundFailure(message: e.message, code: e.code));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
@@ -79,7 +79,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
       );
       return Right(list.map((e) => e.toDomain()).toList());
     } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      return Left(ServerFailure(message: e.message, code: e.code));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on AuthenticationException catch (e) {
@@ -108,7 +108,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
         limit: result.limit,
       ));
     } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      return Left(ServerFailure(message: e.message, code: e.code));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on AuthenticationException catch (e) {
@@ -124,13 +124,13 @@ class OrdersRepositoryImpl implements OrdersRepository {
       final model = await remoteDataSource.getOrderById(orderId);
       return Right(model.toDomain());
     } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      return Left(ServerFailure(message: e.message, code: e.code));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
     } on NotFoundException catch (e) {
-      return Left(NotFoundFailure(message: e.message));
+      return Left(NotFoundFailure(message: e.message, code: e.code));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
