@@ -102,6 +102,9 @@ class AuthProvider extends ChangeNotifier {
   bool get canManagePaymentConfigs =>
       hasPermission('payment_configs:manage') || isAdmin || isFinanceManager;
 
+  bool get canManageTreasuryE2EConfigs =>
+      hasPermission('treasury_e2e_configs:manage') || isAdmin || isFinanceManager;
+
   bool hasPermission(String permission) => _permissions.contains(permission);
 
   // ── Public API ─────────────────────────────────────────────────────────────
@@ -298,3 +301,4 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 }
+

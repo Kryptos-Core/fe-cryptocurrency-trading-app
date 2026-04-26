@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/core/responsive/app_scroll_behavior.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/features/notifications/domain/repositories/notification_repository.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/data/datasources/payment_config_remote_datasource.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/data/datasources/treasury_e2e_config_remote_datasource.dart';
 import 'package:crypto_trading_app/features/treasury/domain/repositories/treasury_repository.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/data/datasources/withdrawal_admin_remote_datasource.dart';
 import 'package:crypto_trading_app/features/settings/domain/repositories/system_config_repository.dart';
@@ -32,6 +33,7 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/onch
 import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/runtime_settings_provider.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/treasury_e2e_config_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
@@ -142,6 +144,11 @@ class CryptoTradingApp extends StatelessWidget {
             repository: di.sl<SystemConfigRepository>(),
           ),
         ),
+        ChangeNotifierProvider<TreasuryE2EConfigProvider>(
+          create: (_) => TreasuryE2EConfigProvider(
+            dataSource: TreasuryE2EConfigRemoteDataSourceImpl(dioClient: di.sl()),
+          ),
+        ),
         ChangeNotifierProvider<OnchainChainPickerProvider>(
           create: (_) => OnchainChainPickerProvider(
             repository: di.sl<TreasuryRepository>(),
@@ -206,3 +213,4 @@ class CryptoTradingApp extends StatelessWidget {
     );
   }
 }
+

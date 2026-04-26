@@ -4614,4 +4614,184 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get onchainTxStatusUnknown => 'Không xác định';
+
+  @override
+  String get treasuryE2eTabTitle => 'Treasury E2E';
+
+  @override
+  String get treasuryE2eAddAction => 'Thêm Treasury E2E';
+
+  @override
+  String get treasuryE2eEditAction => 'Sửa';
+
+  @override
+  String get treasuryE2eActivateAction => 'Kích hoạt';
+
+  @override
+  String get treasuryE2eDeactivateAction => 'Tắt kích hoạt';
+
+  @override
+  String get treasuryE2eArchiveAction => 'Lưu trữ';
+
+  @override
+  String get treasuryE2eEmptyState => 'Chưa có cấu hình Treasury E2E.';
+
+  @override
+  String get treasuryE2eCreateTitle => 'Tạo cấu hình Treasury E2E';
+
+  @override
+  String get treasuryE2eEditTitle => 'Sửa cấu hình Treasury E2E';
+
+  @override
+  String get treasuryE2eEnvironmentLabel => 'Môi trường';
+
+  @override
+  String get treasuryE2eDisplayNameLabel => 'Tên hiển thị';
+
+  @override
+  String get treasuryE2eApiBaseUrlLabel => 'API base URL';
+
+  @override
+  String get treasuryE2eChainLabel => 'Chain';
+
+  @override
+  String get treasuryE2eLinkedWalletLabel => 'Ví liên kết';
+
+  @override
+  String get treasuryE2eLinkedWalletHelper =>
+      'Chỉ hiển thị ví đã xác minh trên chain đã chọn.';
+
+  @override
+  String get treasuryE2eLinkedWalletEmpty => 'Chưa chọn ví liên kết';
+
+  @override
+  String get treasuryE2eWithdrawAutoLabel => 'Số tiền rút auto';
+
+  @override
+  String get treasuryE2eWithdrawManualLabel => 'Số tiền rút manual';
+
+  @override
+  String get treasuryE2eDepositTxHashLabel => 'Deposit tx hash (tùy chọn)';
+
+  @override
+  String get treasuryE2eDepositAmountLabel => 'Số tiền nạp (tùy chọn)';
+
+  @override
+  String get treasuryE2eAllowSkipLabel => 'Cho phép skip khi cấu hình chưa đủ';
+
+  @override
+  String get treasuryE2eFailOnCriticalLabel =>
+      'Fail health khi có critical alert';
+
+  @override
+  String get treasuryE2eStaleManualLabel => 'Số phút manual stale';
+
+  @override
+  String get treasuryE2eStaleConfirmingLabel => 'Số phút confirming stale';
+
+  @override
+  String get treasuryE2eFailed24hLabel => 'Số lệnh rút fail /24h';
+
+  @override
+  String get treasuryE2eReconcileLimitLabel => 'Giới hạn cặp reconcile';
+
+  @override
+  String get treasuryE2eReconciliationThresholdLabel => 'Ngưỡng reconciliation';
+
+  @override
+  String get treasuryE2eTraderTokenLabel =>
+      'Thay trader bearer token (tùy chọn)';
+
+  @override
+  String get treasuryE2eRiskTokenLabel => 'Thay risk bearer token (tùy chọn)';
+
+  @override
+  String get treasuryE2eValidateAction => 'Kiểm tra cấu hình';
+
+  @override
+  String get treasuryE2eValidationPassed => 'Kiểm tra hợp lệ.';
+
+  @override
+  String get treasuryE2eSaving => 'Đang lưu...';
+
+  @override
+  String get treasuryE2eActivateDialogTitle =>
+      'Kích hoạt cấu hình Treasury E2E';
+
+  @override
+  String get treasuryE2eDeactivateDialogTitle =>
+      'Tắt kích hoạt cấu hình Treasury E2E';
+
+  @override
+  String get treasuryE2eArchiveDialogTitle => 'Lưu trữ cấu hình Treasury E2E';
+
+  @override
+  String treasuryE2eListSummary(
+      String allowSkip, String strictHealth, String wallet) {
+    return 'allowSkip=$allowSkip • strictHealth=$strictHealth • wallet=$wallet';
+  }
+
+  @override
+  String treasuryE2eListTokens(String trader, String risk) {
+    return 'Trader: $trader • Risk: $risk';
+  }
+
+  @override
+  String treasuryE2eCurrentTraderToken(String masked) {
+    return 'Trader token hiện tại: $masked';
+  }
+
+  @override
+  String treasuryE2eCurrentRiskToken(String masked) {
+    return 'Risk token hiện tại: $masked';
+  }
+
+  @override
+  String treasuryE2eActivateDialogContent(String name, String environment) {
+    return 'Kích hoạt $name cho môi trường $environment?';
+  }
+
+  @override
+  String treasuryE2eDeactivateDialogContent(String name) {
+    return 'Tắt kích hoạt $name?';
+  }
+
+  @override
+  String treasuryE2eArchiveDialogContent(String name) {
+    return 'Lưu trữ $name?';
+  }
+
+  @override
+  String get treasuryE2eTraderSearchLabel => 'Tìm trader test account';
+
+  @override
+  String get treasuryE2eLoadTraderAction => 'Tải trader / ví';
+
+  @override
+  String get treasuryE2eTraderSelectLabel => 'Trader test account';
+
+  @override
+  String get treasuryE2eTraderEmpty => 'Tất cả trader';
+
+  @override
+  String get treasuryE2eTestConnectionAction => 'Test API / Test tokens';
+
+  @override
+  String get treasuryE2eTestConnectionPassed => 'Kiểm tra kết nối thành công.';
+
+  @override
+  String get treasuryE2eTestConnectionFailed => 'Kiểm tra kết nối thất bại.';
+
+  @override
+  String get treasuryE2eIdentityPreferredHint =>
+      'Khuyến nghị: chọn test identities để backend tự mint short-lived token.';
+
+  @override
+  String get treasuryE2eRiskActorLabel => 'Định danh reviewer rủi ro';
+
+  @override
+  String get treasuryE2eRiskActorEmpty => 'Chưa chọn định danh risk';
+
+  @override
+  String get treasuryE2eLegacyTokenSection => 'Fallback token kiểu cũ';
 }

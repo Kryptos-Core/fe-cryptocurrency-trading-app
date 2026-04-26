@@ -47,7 +47,9 @@
   "chartCandleAt": "Nến tại {time}",
   "@chartCandleAt": {
     "placeholders": {
-      "time": { "type": "String" }
+      "time": {
+        "type": "String"
+      }
     }
   },
   "noMarkets": "Không có thị trường",
@@ -180,10 +182,18 @@
   "exchangeSyncResultSummary": "+{pairsCreated} cặp mới, {pairsSkipped} giữ nguyên; +{currenciesCreated} tiền tệ, {currenciesSkipped} giữ nguyên.",
   "@exchangeSyncResultSummary": {
     "placeholders": {
-      "pairsCreated": { "type": "int" },
-      "pairsSkipped": { "type": "int" },
-      "currenciesCreated": { "type": "int" },
-      "currenciesSkipped": { "type": "int" }
+      "pairsCreated": {
+        "type": "int"
+      },
+      "pairsSkipped": {
+        "type": "int"
+      },
+      "currenciesCreated": {
+        "type": "int"
+      },
+      "currenciesSkipped": {
+        "type": "int"
+      }
     }
   },
   "exchangeSyncWarningsTitle": "Đồng bộ xong nhưng có cảnh báo",
@@ -204,7 +214,6 @@
   "marketsFuzzySearch": "Tìm kiếm thông minh",
   "marketsResultSuffix": "cặp",
   "clearFilters": "Xóa bộ lọc",
-
   "payosTopupVnd": "Nạp VND qua PayOS",
   "payosDepositTitle": "Nạp tiền VND (PayOS)",
   "payosCreateOrder": "Tạo đơn nạp tiền",
@@ -216,19 +225,25 @@
   "payosInvalidAmountMin": "Số tiền không hợp lệ. Tối thiểu là {minVnd} VND.",
   "@payosInvalidAmountMin": {
     "placeholders": {
-      "minVnd": { "type": "int" }
+      "minVnd": {
+        "type": "int"
+      }
     }
   },
   "payosInvalidAmountMax": "Số tiền không hợp lệ. Tối đa là {maxVnd} VND.",
   "@payosInvalidAmountMax": {
     "placeholders": {
-      "maxVnd": { "type": "int" }
+      "maxVnd": {
+        "type": "int"
+      }
     }
   },
   "payosMinAmountHintDynamic": "Tối thiểu {minFormatted}",
   "@payosMinAmountHintDynamic": {
     "placeholders": {
-      "minFormatted": { "type": "String" }
+      "minFormatted": {
+        "type": "String"
+      }
     }
   },
   "payosOpenLinkFailed": "Không thể mở liên kết thanh toán.",
@@ -241,26 +256,36 @@
   "payosDepositRateOneUsdt": "1 USDT ~ {vndFormatted} VND",
   "@payosDepositRateOneUsdt": {
     "placeholders": {
-      "vndFormatted": { "type": "String" }
+      "vndFormatted": {
+        "type": "String"
+      }
     }
   },
   "payosDepositSpreadBps": "Spread: {bps} bps",
   "@payosDepositSpreadBps": {
     "placeholders": {
-      "bps": { "type": "String" }
+      "bps": {
+        "type": "String"
+      }
     }
   },
   "payosDepositYouReceive": "Bạn nhận được {amount} {currency}",
   "@payosDepositYouReceive": {
     "placeholders": {
-      "amount": { "type": "String" },
-      "currency": { "type": "String" }
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
     }
   },
   "payosUsdtMarketPrice": "Giá thị trường USDT: {value} VND",
   "@payosUsdtMarketPrice": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "payosMarketPricesTooltip": "Bảng giá thị trường",
@@ -268,13 +293,17 @@
   "marketPricesUsdLine": "USD: {price}",
   "@marketPricesUsdLine": {
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "marketPricesVndAmount": "{value} VND",
   "@marketPricesVndAmount": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "marketPricesEmpty": "Chưa có dữ liệu giá thị trường.",
@@ -299,7 +328,6 @@
   "fiatWithdrawTransferRef": "Mã tham chiếu CK",
   "drawerFiatWithdrawalAdmin": "Rút NH (admin)",
   "drawerFiatWithdrawalAdminSubtitle": "Duyệt STK & rút USDT thủ công",
-
   "onchainWalletsTitle": "Ví On-chain",
   "onchainLinkedWallets": "Ví đã liên kết",
   "addressCopied": "Đã sao chép địa chỉ",
@@ -376,20 +404,26 @@
   "walletExtensionCheckTitle": "Kiểm tra {extension}",
   "@walletExtensionCheckTitle": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionCheckMessage": "Đã mở trình duyệt để bạn kiểm tra {extension}. Nếu đã cài và mở khóa extension, chọn Sẵn sàng để tiếp tục liên kết ví.",
   "@walletExtensionCheckMessage": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionCheckClose": "Đóng",
   "walletExtensionInstallAction": "Cài {extension}",
   "@walletExtensionInstallAction": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionReadyAction": "Sẵn sàng",
@@ -401,7 +435,9 @@
   "walletExtensionInstallOpenedInfo": "Đã mở trang cài {extension}. Cài đặt xong, quay lại và kiểm tra lại.",
   "@walletExtensionInstallOpenedInfo": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionPrecheckSuccess": "Pre-check hoàn tất. Mở extension, ký challenge rồi dán chữ ký vào ô bên dưới.",
@@ -420,15 +456,23 @@
   "onchainCreditConversionLine": "Đã quy đổi: {credited} · tỷ giá 1 {native} = {rate} USDT",
   "@onchainCreditConversionLine": {
     "placeholders": {
-      "credited": { "type": "String" },
-      "native": { "type": "String" },
-      "rate": { "type": "String" }
+      "credited": {
+        "type": "String"
+      },
+      "native": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "onchainDepositTransitioningMinutes": "Địa chỉ ví đang được cập nhật (còn ~{minutes} phút). Danh sách sẽ tự làm mới khi xong.",
   "@onchainDepositTransitioningMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "onchainDepositTransitioningUnderOneMinute": "Địa chỉ ví đang được cập nhật (còn dưới 1 phút). Danh sách sẽ tự làm mới khi xong.",
@@ -488,7 +532,6 @@
   "payosLinkCopied": "Đã sao chép link thanh toán",
   "payosTapToOpenCheckout": "Nhấn để mở trang thanh toán",
   "payosPaymentCancelled": "Thanh toán đã bị hủy hoặc hết hạn.",
-
   "currenciesSearchHint": "Tìm kiếm tiền tệ...",
   "currenciesFilterAll": "Tất cả",
   "currenciesTradable": "Có thể giao dịch",
@@ -565,7 +608,6 @@
   "broadcastSendAllUsers": "Gửi đến tất cả người dùng",
   "broadcastSuccess": "Phát thông báo thành công",
   "broadcastFailedTryAgain": "Gửi thông báo thất bại. Vui lòng thử lại.",
-
   "noPermissionMessage": "Bạn không có quyền thực hiện thao tác này.",
   "menuTooltip": "Menu",
   "onchainTooltip": "On-chain",
@@ -596,7 +638,6 @@
   "guestFeatureCurrencies": "Các đồng tiền & mạng lưới được hỗ trợ",
   "guestFeatureDeposit": "Phương thức nạp tiền của sàn",
   "continueAsGuest": "Tiếp tục xem không đăng nhập",
-
   "notificationsTitle": "Thông báo",
   "notificationsMarkAllRead": "Đánh dấu tất cả đã đọc",
   "notificationsEmpty": "Chưa có thông báo nào",
@@ -608,7 +649,6 @@
   "notificationsTypeAlert": "Cảnh báo",
   "notificationsTypePromo": "Khuyến mãi",
   "notificationsTypeSystem": "Hệ thống",
-
   "dashboardTopMarkets": "Thị trường hàng đầu",
   "dashboardMyWallets": "Ví của tôi",
   "dashboardTotalPortfolioValue": "Tổng giá trị danh mục",
@@ -623,8 +663,13 @@
   "dashboardBankProvidersHealthCouldNotCheck": "Không kiểm tra được health",
   "dashboardBankProvidersHealthLoading": "Đang kiểm tra provider…",
   "dashboardBankProvidersHealthMs": "{ms} ms",
-  "@dashboardBankProvidersHealthMs": { "placeholders": { "ms": { "type": "int" } } },
-
+  "@dashboardBankProvidersHealthMs": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
   "securityRequestsTitle": "Yêu cầu thay đổi bảo mật",
   "securityRequestApproved": "Yêu cầu đã được duyệt",
   "securityRequestRejected": "Yêu cầu đã bị từ chối",
@@ -634,7 +679,6 @@
   "securityRequestRequested": "Yêu cầu lúc: {date}",
   "securityRequestApprove": "Duyệt",
   "securityRequestReject": "Từ chối",
-
   "registerCreateAccount": "Tạo tài khoản",
   "registerSignUpSubtitle": "Đăng ký để bắt đầu",
   "registerFirstNameLabel": "Tên",
@@ -665,10 +709,11 @@
   "registerUnexpectedError": "Lỗi không mong đợi: {error}",
   "@registerUnexpectedError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-
   "walletDetails": "Chi tiết ví",
   "walletNotFound": "Không tìm thấy ví",
   "walletAvailableBalance": "Số dư khả dụng",
@@ -687,7 +732,6 @@
   "coinAssetsSectionTitle": "Tài sản",
   "coinAssetsSectionSubtitle": "Coin sở hữu từ giao dịch",
   "depositOnchainHint": "Tự động quy USDT vào Ví tiền",
-
   "treasuryTitle": "Nạp tiền & ví quản lý",
   "treasuryManageSubtitle": "Địa chỉ nạp mặc định, chain ưu tiên và ví công ty cho luồng hiển thị cho người dùng.",
   "treasuryToolbarTooltip": "Nạp tiền & ví quản lý — địa chỉ nạp mặc định và chain ưu tiên",
@@ -842,7 +886,9 @@
   "treasuryPendingOnChainTooltipWithId": "Lệnh {operationId} đang PENDING/PROCESSING trên chuỗi. Số dư ví chưa đổi cho đến khi hoàn tất.",
   "@treasuryPendingOnChainTooltipWithId": {
     "placeholders": {
-      "operationId": { "type": "String" }
+      "operationId": {
+        "type": "String"
+      }
     }
   },
   "treasuryFundFailed": "Fund thất bại",
@@ -886,8 +932,12 @@
   "apiErrorTxWalletNonZeroBalance": "Hãy gom về trước — số dư on-chain tối đa {maxAmount} {symbol} mới được xóa ví.",
   "@apiErrorTxWalletNonZeroBalance": {
     "placeholders": {
-      "maxAmount": { "type": "String" },
-      "symbol": { "type": "String" }
+      "maxAmount": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "apiErrorTxWalletNonZeroBalanceShort": "Hãy gom về trước — cần giảm số dư on-chain trước khi xóa ví này.",
@@ -919,7 +969,6 @@
   "managedWalletsNoWallets": "Chưa có ví nào",
   "managedWalletsNoWalletsDesc": "Hãy tạo ví Tron ở Cấu hình thanh toán → Ví vận hành (mục đích DEPOSIT hoặc BOTH), sau đó chọn ví mặc định nhận nạp theo từng chain tại đây.",
   "managedWalletsCreateFirst": "Tạo ví đầu tiên",
-
   "walletSetAsDefault": "Đã đặt làm địa chỉ nạp tiền mặc định",
   "walletDeactivated": "Đã vô hiệu hóa ví",
   "deactivateWalletTitle": "Vô hiệu hóa ví",
@@ -936,7 +985,6 @@
   "managedWalletSendTrx": "Gửi TRX",
   "managedWalletTxHistory": "Lịch sử giao dịch",
   "managedWalletNoTx": "Chưa có giao dịch nào",
-
   "sendTrxTitle": "Gửi TRX",
   "sendTrxConfirmTitle": "Xác nhận gửi",
   "sendTrxConfirmContent": "Gửi {amount} TRX tới\n{address}?",
@@ -952,7 +1000,6 @@
   "sendTrxSending": "Đang gửi...",
   "sendTrxSend": "Gửi",
   "sendTrxSuccess": "Giao dịch đã được gửi thành công",
-
   "createWalletTitle": "Tạo ví kho quỹ",
   "createWalletBlockchainLabel": "Blockchain",
   "createWalletLabelField": "Nhãn (không bắt buộc)",
@@ -965,14 +1012,12 @@
   "createWalletAddressCopied": "Đã sao chép địa chỉ",
   "createWalletDone": "Xong",
   "createWalletFailed": "Không thể tạo ví",
-
   "walletBadgeDefault": "MẶC ĐỊNH",
   "walletBadgeInactive": "KHÔNG HOẠT ĐỘNG",
   "depositMethodsTitle": "Phương thức nạp tiền của sàn",
   "depositMethodRecommended": "Khuyến nghị",
   "depositMethodUnavailable": "Chưa hỗ trợ",
   "copyAddressTooltip": "Sao chép địa chỉ",
-
   "marketMakerHubTitle": "Khu vực Market Maker",
   "marketMakerHubDrawerSubtitle": "Dashboard · Cấu hình · Lệnh Maker",
   "marketMakerConfigCardTitle": "Cấu hình Market Maker",
@@ -982,7 +1027,6 @@
   "marketMakerPositionDashboardCardTitle": "Dashboard vị thế",
   "marketMakerPositionDashboardCardSubtitle": "Theo dõi lệnh mở, vị thế và P/L chưa thực hiện theo thời gian thực.",
   "marketMakerDashboardComingSoon": "Dashboard vị thế — sắp ra mắt",
-
   "marketMakerFieldPair": "Cặp giao dịch",
   "marketMakerFieldSpreadBps": "Spread (bps)",
   "marketMakerFieldSpreadAlertBps": "Ngưỡng cảnh báo spread (bps)",
@@ -1002,7 +1046,9 @@
   "marketMakerLastUpdated": "Cập nhật lần cuối: {when}",
   "@marketMakerLastUpdated": {
     "placeholders": {
-      "when": { "type": "String" }
+      "when": {
+        "type": "String"
+      }
     }
   },
   "marketMakerSnackSavedConfig": "Đã lưu cấu hình market maker",
@@ -1015,15 +1061,24 @@
   "marketMakerOrdersPlacedSummary": "{action}: đã hủy {cancelled}, đặt {placed} (MUA: {buyPrice}, BÁN: {sellPrice})",
   "@marketMakerOrdersPlacedSummary": {
     "placeholders": {
-      "action": { "type": "String" },
-      "cancelled": { "type": "String" },
-      "placed": { "type": "String" },
-      "buyPrice": { "type": "String" },
-      "sellPrice": { "type": "String" }
+      "action": {
+        "type": "String"
+      },
+      "cancelled": {
+        "type": "String"
+      },
+      "placed": {
+        "type": "String"
+      },
+      "buyPrice": {
+        "type": "String"
+      },
+      "sellPrice": {
+        "type": "String"
+      }
     }
   },
   "marketMakerPlaceOrdersFormHint": "Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.",
-
   "adminCurrenciesTitle": "Quản lý - Tiền tệ",
   "adminCurrenciesCreateTitle": "Tạo coin mới",
   "adminCurrenciesDeleteTitle": "Xoá coin",
@@ -1031,7 +1086,9 @@
   "adminCurrenciesEditTitle": "Chỉnh sửa {symbol}",
   "@adminCurrenciesEditTitle": {
     "placeholders": {
-      "symbol": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesEdit": "Chỉnh sửa",
@@ -1055,7 +1112,6 @@
   "adminCurrenciesCreateSuccess": "Đã tạo coin thành công!",
   "adminCurrenciesUpdateSuccess": "Đã cập nhật coin thành công!",
   "adminCurrenciesDeleteSuccess": "Đã xoá coin thành công!",
-
   "depositDetailStatus": "Trạng thái",
   "depositDetailOrderCode": "Mã đơn",
   "depositDetailCopied": "Đã sao chép",
@@ -1066,7 +1122,6 @@
   "depositStatusPaid": "Đã thanh toán",
   "depositStatusPending": "Đang chờ",
   "depositStatusCancelled": "Đã hủy",
-
   "withdrawalDetailInfoTitle": "Thông tin rút tiền",
   "withdrawalDetailAmount": "Số lượng",
   "withdrawalDetailChain": "Chain",
@@ -1103,7 +1158,6 @@
   "withdrawalStatusSent": "Đã gửi",
   "withdrawalStatusLabel": "Trạng thái",
   "withdrawalStatusRejected": "Đã từ chối",
-
   "adminCurrenciesSearchHint": "Tìm kiếm tiền tệ...",
   "adminCurrenciesFilterAll": "Tất cả",
   "adminCurrenciesFilterActive": "Hoạt động",
@@ -1116,55 +1170,69 @@
   "adminCurrenciesDeleteConfirmWithPair": "Bạn có chắc muốn xoá \"{symbol} — {name}\"?\nThao tác này không thể hoàn tác.",
   "@adminCurrenciesDeleteConfirmWithPair": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "name": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesListMeta": "Độ chính xác: {precision} · Rút tối thiểu: {minWithdraw}",
   "@adminCurrenciesListMeta": {
     "placeholders": {
-      "precision": { "type": "String" },
-      "minWithdraw": { "type": "String" }
+      "precision": {
+        "type": "String"
+      },
+      "minWithdraw": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesTradableBadgeOn": "GD",
   "adminCurrenciesTradableBadgeOff": "Tắt",
   "adminCurrenciesTradingPausedTooltip": "Tạm dừng giao dịch",
-
   "adminShowingCount": "Hiển thị {shown} trong {total} {label}",
   "@adminShowingCount": {
     "placeholders": {
-      "shown": { "type": "int" },
-      "total": { "type": "int" },
-      "label": { "type": "String" }
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "adminRetryButton": "Thử lại",
-
   "payosTransitioningBanner": "Phương thức thanh toán PayOS sẽ được kích hoạt trong {minutes} phút",
   "@payosTransitioningBanner": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "payosTransitioningGraceMinutes": "Kích hoạt trong {minutes} phút",
   "@payosTransitioningGraceMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "payosTransitioningUnderOneMinute": "PayOS sẽ được kích hoạt trong chưa đầy một phút",
   "payosTransitioningFinalizePending": "Đang hoàn tất kích hoạt PayOS — vui lòng chờ",
   "dismiss": "Bỏ qua",
   "snackbarOk": "Đồng ý",
-
   "adminUserDetailTabWallets": "Ví",
   "adminUserDetailTabAdjust": "Điều chỉnh",
   "adminUserDetailTabOrders": "Lệnh",
   "adminUserDetailTabOnchain": "On-chain",
   "adminUserDetailTabSecurity": "Bảo mật",
   "adminUserDetailCreatedAtLabel": "Tạo lúc",
-
   "withdrawalManagementTitle": "Quản lý rút tiền",
   "withdrawalManagementTabPending": "Đang chờ",
   "withdrawalManagementTabAll": "Tất cả",
@@ -1175,13 +1243,14 @@
   "withdrawalStatsPendingCount": "{count} đang chờ",
   "@withdrawalStatsPendingCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminFilterAll": "Tất cả",
   "withdrawalSearchHint": "Tìm theo ID người dùng hoặc địa chỉ ví...",
   "withdrawalNoRequests": "Không có yêu cầu rút tiền",
-
   "drawerTransactionMonitoring": "Giám sát giao dịch",
   "adminTabOrders": "Lệnh",
   "adminTabDeposits": "Nạp tiền",
@@ -1202,7 +1271,9 @@
   "adminReconcileMatchingConfirmMessage": "Thử khớp lại mọi lệnh đang mở trên cặp: {pairId}",
   "@adminReconcileMatchingConfirmMessage": {
     "placeholders": {
-      "pairId": { "type": "String" }
+      "pairId": {
+        "type": "String"
+      }
     }
   },
   "adminReconcileMatchingRun": "Chạy",
@@ -1210,9 +1281,15 @@
   "adminReconcileMatchingSuccess": "Hoàn tất. Giao dịch khớp: {trades}, còn mở: {open}, kết quả: {reason}",
   "@adminReconcileMatchingSuccess": {
     "placeholders": {
-      "trades": { "type": "int" },
-      "open": { "type": "int" },
-      "reason": { "type": "String" }
+      "trades": {
+        "type": "int"
+      },
+      "open": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
     }
   },
   "adminReconcileReasonAllMatched": "đã khớp hết",
@@ -1222,14 +1299,18 @@
   "adminOrdersCountLabel": "{count} lệnh",
   "@adminOrdersCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminDepositsEmpty": "Không có lần nạp tiền",
   "adminDepositsCountLabel": "{count} lần nạp tiền",
   "@adminDepositsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUnmatchedDepositsTab": "Chưa khớp",
@@ -1237,7 +1318,9 @@
   "adminUnmatchedDepositsCountLabel": "{count} chưa khớp",
   "@adminUnmatchedDepositsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUnmatchedDepositTitle": "Nạp tiền chưa khớp",
@@ -1251,7 +1334,9 @@
   "adminMatchUserDialogSubtitle": "Giao dịch: {txId}",
   "@adminMatchUserDialogSubtitle": {
     "placeholders": {
-      "txId": { "type": "String" }
+      "txId": {
+        "type": "String"
+      }
     }
   },
   "adminMatchUserIdHint": "User ID (UUID)",
@@ -1261,7 +1346,9 @@
   "adminMatchUserPendingInfo": "Đã có đề xuất khớp đang chờ (Match ID: {matchId}). Duyệt để hoàn tất.",
   "@adminMatchUserPendingInfo": {
     "placeholders": {
-      "matchId": { "type": "String" }
+      "matchId": {
+        "type": "String"
+      }
     }
   },
   "adminMatchUserProposedSuccess": "Đề xuất khớp đã tạo. Chờ duyệt lần 2.",
@@ -1271,7 +1358,9 @@
   "adminWithdrawalsCountLabel": "{count} lần rút tiền",
   "@adminWithdrawalsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "orderDetailTypeLimitLabel": "Giới hạn",
@@ -1330,21 +1419,31 @@
   "treasuryMainWalletCardSubtitle": "Số dư: {balance} {symbol}\nNhãn: {label}",
   "@treasuryMainWalletCardSubtitle": {
     "placeholders": {
-      "balance": { "type": "String" },
-      "symbol": { "type": "String" },
-      "label": { "type": "String" }
+      "balance": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletPendingSubtitle": "Thêm lúc: {dateTime}",
   "@treasuryMainWalletPendingSubtitle": {
     "placeholders": {
-      "dateTime": { "type": "String" }
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "treasuryTrc20UsdtBalanceLine": "Tether USDT (TRC-20): {balance} USDT",
   "@treasuryTrc20UsdtBalanceLine": {
     "placeholders": {
-      "balance": { "type": "String" }
+      "balance": {
+        "type": "String"
+      }
     }
   },
   "treasuryNetworkLabel": "Mạng",
@@ -1363,14 +1462,20 @@
   "treasuryMainWalletBalanceLine": "Số dư: {balance} {symbol}",
   "@treasuryMainWalletBalanceLine": {
     "placeholders": {
-      "balance": { "type": "String" },
-      "symbol": { "type": "String" }
+      "balance": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletLabelLine": "Nhãn: {label}",
   "@treasuryMainWalletLabelLine": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletPublicAddressLabel": "Địa chỉ công khai (public)",
@@ -1425,7 +1530,9 @@
   "treasuryImportWalletDialogTitle": "Nhập ví chính ({chainName})",
   "@treasuryImportWalletDialogTitle": {
     "placeholders": {
-      "chainName": { "type": "String" }
+      "chainName": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletDialogHeading": "Nhập ví chính",
@@ -1440,7 +1547,9 @@
   "treasuryImportWalletMfaFailedSnack": "Gửi MFA thất bại: {error}",
   "@treasuryImportWalletMfaFailedSnack": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletRequiredSnack": "Cần nhập khóa bí mật và mã MFA.",
@@ -1450,7 +1559,9 @@
   "treasuryImportWalletOtpVerifyFailed": "Không xác nhận được: {message}",
   "@treasuryImportWalletOtpVerifyFailed": {
     "placeholders": {
-      "message": { "type": "String" }
+      "message": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletPrivateKeyRequired": "Cần nhập khóa bí mật.",
@@ -1460,7 +1571,9 @@
   "treasuryImportWalletErrorSnack": "Lỗi: {error}",
   "@treasuryImportWalletErrorSnack": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletMfaExpiredOnImport": "Mã email đã hết hạn hoặc đã dùng. Nhấn Gửi OTP để lấy mã mới, xác nhận mã, rồi nhập ví lại.",
@@ -1475,7 +1588,9 @@
   "managedWalletOwnerHint": "Chủ ví: {userIdShort}",
   "@managedWalletOwnerHint": {
     "placeholders": {
-      "userIdShort": { "type": "String" }
+      "userIdShort": {
+        "type": "String"
+      }
     }
   },
   "drawerSectionAccount": "Tài khoản",
@@ -1489,14 +1604,18 @@
   "amountMaxDecimals": "Số lượng tối đa {max} chữ số thập phân",
   "@amountMaxDecimals": {
     "placeholders": {
-      "max": { "type": "int" }
+      "max": {
+        "type": "int"
+      }
     }
   },
   "priceMustBePositive": "Giá phải lớn hơn 0",
   "priceMaxDecimals": "Giá tối đa {max} chữ số thập phân",
   "@priceMaxDecimals": {
     "placeholders": {
-      "max": { "type": "int" }
+      "max": {
+        "type": "int"
+      }
     }
   },
   "tickerBid": "Giá mua",
@@ -1509,19 +1628,25 @@
   "timeSecondsShort": "{seconds}s",
   "@timeSecondsShort": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "timeMinutesShort": "{minutes}p",
   "@timeMinutesShort": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "timeHoursShort": "{hours}g",
   "@timeHoursShort": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "ordersSelectPairFirst": "Vui lòng chọn cặp giao dịch trước",
@@ -1529,7 +1654,9 @@
   "ordersMyOrdersWithCount": "Lệnh của tôi ({count})",
   "@ordersMyOrdersWithCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "orderBookColumnSize": "Khối lượng",
@@ -1561,7 +1688,9 @@
   "adminUserListTotalUsers": "Tổng người dùng: {count}",
   "@adminUserListTotalUsers": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUserListNoUsersFound": "Không tìm thấy người dùng",
@@ -1616,7 +1745,6 @@
   "homeCryptoPlatform": "Nền tảng giao dịch tiền mã hóa",
   "homeAuthReady": "Xác thực sẵn sàng",
   "homeLastUpdated": "Cập nhật lần cuối",
-
   "wcLoginTitleWeb": "Đăng nhập bằng ví (Web)",
   "wcLoginTitleNative": "Đăng nhập WalletConnect",
   "wcReownDesktopUnsupportedBody": "Chọn mạng, bấm «Tạo mã QR», quét bằng ví trên điện thoại và ký khi được hỏi.",
@@ -1624,7 +1752,9 @@
   "wcReownInitFailed": "Không khởi tạo Reown: {error}",
   "@wcReownInitFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "wcReownSessionNoEvmAddress": "Session không có địa chỉ EVM (eip155). Chọn ví EVM (ví dụ BSC Chapel hoặc Ethereum mainnet).",
@@ -1632,7 +1762,9 @@
   "wcReownLoginError": "Lỗi đăng nhập WC: {error}",
   "@wcReownLoginError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "wcReownQrDescription": "Mở QR, kết nối ví trên điện thoại, rồi ký message đăng nhập.",
@@ -1662,7 +1794,6 @@
   "desktopTronlinkDialogTitle": "TronLink",
   "desktopTronlinkDialogBody": "Chỉ dùng TronLink trên Chrome (web). Trên app này: đăng nhập email hoặc mở bản web.",
   "desktopTronlinkDialogOk": "Đã hiểu",
-
   "wcLinkDialogTitle": "Liên kết ví điện tử",
   "wcLinkDialogSubtitle": "Kết nối bằng WalletConnect • Bảo mật cao",
   "wcQrScanHintEvm": "Mở Trust Wallet hoặc MetaMask Mobile → Scan QR",
@@ -1708,19 +1839,25 @@
   "wcWalletNotInstalled": "{name} chưa được cài đặt",
   "@wcWalletNotInstalled": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "wcDownloadFromStore": "Tải xuống từ {store}",
   "@wcDownloadFromStore": {
     "placeholders": {
-      "store": { "type": "String" }
+      "store": {
+        "type": "String"
+      }
     }
   },
   "wcOpenWalletNamed": "Mở {name}",
   "@wcOpenWalletNamed": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "wcStoreGooglePlay": "Google Play",
@@ -1734,5 +1871,119 @@
   "onchainTxStatusFailed": "Thất bại",
   "onchainTxStatusTxBroadcast": "Đã phát sóng",
   "onchainTxStatusUnmatched": "Chưa khớp user",
-  "onchainTxStatusUnknown": "Không xác định"
+  "onchainTxStatusUnknown": "Không xác định",
+  "treasuryE2eTabTitle": "Treasury E2E",
+  "treasuryE2eAddAction": "Thêm Treasury E2E",
+  "treasuryE2eEditAction": "Sửa",
+  "treasuryE2eActivateAction": "Kích hoạt",
+  "treasuryE2eDeactivateAction": "Tắt kích hoạt",
+  "treasuryE2eArchiveAction": "Lưu trữ",
+  "treasuryE2eEmptyState": "Chưa có cấu hình Treasury E2E.",
+  "treasuryE2eCreateTitle": "Tạo cấu hình Treasury E2E",
+  "treasuryE2eEditTitle": "Sửa cấu hình Treasury E2E",
+  "treasuryE2eEnvironmentLabel": "Môi trường",
+  "treasuryE2eDisplayNameLabel": "Tên hiển thị",
+  "treasuryE2eApiBaseUrlLabel": "API base URL",
+  "treasuryE2eChainLabel": "Chain",
+  "treasuryE2eLinkedWalletLabel": "Ví liên kết",
+  "treasuryE2eLinkedWalletHelper": "Chỉ hiển thị ví đã xác minh trên chain đã chọn.",
+  "treasuryE2eLinkedWalletEmpty": "Chưa chọn ví liên kết",
+  "treasuryE2eWithdrawAutoLabel": "Số tiền rút auto",
+  "treasuryE2eWithdrawManualLabel": "Số tiền rút manual",
+  "treasuryE2eDepositTxHashLabel": "Deposit tx hash (tùy chọn)",
+  "treasuryE2eDepositAmountLabel": "Số tiền nạp (tùy chọn)",
+  "treasuryE2eAllowSkipLabel": "Cho phép skip khi cấu hình chưa đủ",
+  "treasuryE2eFailOnCriticalLabel": "Fail health khi có critical alert",
+  "treasuryE2eStaleManualLabel": "Số phút manual stale",
+  "treasuryE2eStaleConfirmingLabel": "Số phút confirming stale",
+  "treasuryE2eFailed24hLabel": "Số lệnh rút fail /24h",
+  "treasuryE2eReconcileLimitLabel": "Giới hạn cặp reconcile",
+  "treasuryE2eReconciliationThresholdLabel": "Ngưỡng reconciliation",
+  "treasuryE2eTraderTokenLabel": "Thay trader bearer token (tùy chọn)",
+  "treasuryE2eRiskTokenLabel": "Thay risk bearer token (tùy chọn)",
+  "treasuryE2eValidateAction": "Kiểm tra cấu hình",
+  "treasuryE2eValidationPassed": "Kiểm tra hợp lệ.",
+  "treasuryE2eSaving": "Đang lưu...",
+  "treasuryE2eActivateDialogTitle": "Kích hoạt cấu hình Treasury E2E",
+  "treasuryE2eDeactivateDialogTitle": "Tắt kích hoạt cấu hình Treasury E2E",
+  "treasuryE2eArchiveDialogTitle": "Lưu trữ cấu hình Treasury E2E",
+  "treasuryE2eListSummary": "allowSkip={allowSkip} • strictHealth={strictHealth} • wallet={wallet}",
+  "@treasuryE2eListSummary": {
+    "placeholders": {
+      "allowSkip": {
+        "type": "String"
+      },
+      "strictHealth": {
+        "type": "String"
+      },
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eListTokens": "Trader: {trader} • Risk: {risk}",
+  "@treasuryE2eListTokens": {
+    "placeholders": {
+      "trader": {
+        "type": "String"
+      },
+      "risk": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eCurrentTraderToken": "Trader token hiện tại: {masked}",
+  "@treasuryE2eCurrentTraderToken": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eCurrentRiskToken": "Risk token hiện tại: {masked}",
+  "@treasuryE2eCurrentRiskToken": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eActivateDialogContent": "Kích hoạt {name} cho môi trường {environment}?",
+  "@treasuryE2eActivateDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "environment": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eDeactivateDialogContent": "Tắt kích hoạt {name}?",
+  "@treasuryE2eDeactivateDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eArchiveDialogContent": "Lưu trữ {name}?",
+  "@treasuryE2eArchiveDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eTraderSearchLabel": "Tìm trader test account",
+  "treasuryE2eLoadTraderAction": "Tải trader / ví",
+  "treasuryE2eTraderSelectLabel": "Trader test account",
+  "treasuryE2eTraderEmpty": "Tất cả trader",
+  "treasuryE2eTestConnectionAction": "Test API / Test tokens",
+  "treasuryE2eTestConnectionPassed": "Kiểm tra kết nối thành công.",
+  "treasuryE2eTestConnectionFailed": "Kiểm tra kết nối thất bại.",
+  "treasuryE2eIdentityPreferredHint": "Khuyến nghị: chọn test identities để backend tự mint short-lived token.",
+  "treasuryE2eRiskActorLabel": "Định danh reviewer rủi ro",
+  "treasuryE2eRiskActorEmpty": "Chưa chọn định danh risk",
+  "treasuryE2eLegacyTokenSection": "Fallback token kiểu cũ"
 }

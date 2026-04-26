@@ -47,7 +47,9 @@
   "chartCandleAt": "Candle at {time}",
   "@chartCandleAt": {
     "placeholders": {
-      "time": { "type": "String" }
+      "time": {
+        "type": "String"
+      }
     }
   },
   "noMarkets": "No markets",
@@ -181,10 +183,18 @@
   "exchangeSyncResultSummary": "+{pairsCreated} pairs created, {pairsSkipped} unchanged; +{currenciesCreated} currencies, {currenciesSkipped} unchanged.",
   "@exchangeSyncResultSummary": {
     "placeholders": {
-      "pairsCreated": { "type": "int" },
-      "pairsSkipped": { "type": "int" },
-      "currenciesCreated": { "type": "int" },
-      "currenciesSkipped": { "type": "int" }
+      "pairsCreated": {
+        "type": "int"
+      },
+      "pairsSkipped": {
+        "type": "int"
+      },
+      "currenciesCreated": {
+        "type": "int"
+      },
+      "currenciesSkipped": {
+        "type": "int"
+      }
     }
   },
   "exchangeSyncWarningsTitle": "Sync completed with warnings",
@@ -205,7 +215,6 @@
   "marketsFuzzySearch": "Smart search",
   "marketsResultSuffix": "pairs",
   "clearFilters": "Clear filters",
-
   "payosTopupVnd": "Top up VND via PayOS",
   "payosDepositTitle": "VND Deposit (PayOS)",
   "payosCreateOrder": "Create deposit order",
@@ -217,19 +226,25 @@
   "payosInvalidAmountMin": "Invalid amount. Minimum is {minVnd} VND.",
   "@payosInvalidAmountMin": {
     "placeholders": {
-      "minVnd": { "type": "int" }
+      "minVnd": {
+        "type": "int"
+      }
     }
   },
   "payosInvalidAmountMax": "Invalid amount. Maximum is {maxVnd} VND.",
   "@payosInvalidAmountMax": {
     "placeholders": {
-      "maxVnd": { "type": "int" }
+      "maxVnd": {
+        "type": "int"
+      }
     }
   },
   "payosMinAmountHintDynamic": "Minimum {minFormatted}",
   "@payosMinAmountHintDynamic": {
     "placeholders": {
-      "minFormatted": { "type": "String" }
+      "minFormatted": {
+        "type": "String"
+      }
     }
   },
   "payosOpenLinkFailed": "Could not open payment link.",
@@ -242,26 +257,36 @@
   "payosDepositRateOneUsdt": "1 USDT ~ {vndFormatted} VND",
   "@payosDepositRateOneUsdt": {
     "placeholders": {
-      "vndFormatted": { "type": "String" }
+      "vndFormatted": {
+        "type": "String"
+      }
     }
   },
   "payosDepositSpreadBps": "Spread: {bps} bps",
   "@payosDepositSpreadBps": {
     "placeholders": {
-      "bps": { "type": "String" }
+      "bps": {
+        "type": "String"
+      }
     }
   },
   "payosDepositYouReceive": "You receive {amount} {currency}",
   "@payosDepositYouReceive": {
     "placeholders": {
-      "amount": { "type": "String" },
-      "currency": { "type": "String" }
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
     }
   },
   "payosUsdtMarketPrice": "USDT market: {value} VND",
   "@payosUsdtMarketPrice": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "payosMarketPricesTooltip": "Market prices",
@@ -269,13 +294,17 @@
   "marketPricesUsdLine": "USD: {price}",
   "@marketPricesUsdLine": {
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "marketPricesVndAmount": "{value} VND",
   "@marketPricesVndAmount": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "marketPricesEmpty": "No market prices available.",
@@ -300,7 +329,6 @@
   "fiatWithdrawTransferRef": "Transfer reference",
   "drawerFiatWithdrawalAdmin": "Fiat bank (admin)",
   "drawerFiatWithdrawalAdminSubtitle": "Verify bank accounts & approve USDT payouts",
-
   "onchainWalletsTitle": "On-chain Wallets",
   "onchainLinkedWallets": "Linked Wallets",
   "addressCopied": "Address copied",
@@ -314,7 +342,9 @@
   "confirmUnlinkWallet": "Are you sure you want to unlink {address}?",
   "@confirmUnlinkWallet": {
     "placeholders": {
-      "address": { "type": "String" }
+      "address": {
+        "type": "String"
+      }
     }
   },
   "walletUnlinkedSuccess": "Wallet unlinked successfully",
@@ -322,13 +352,17 @@
   "walletLabelPrefix": "Label: {label}",
   "@walletLabelPrefix": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "linkedAtPrefix": "Linked at: {datetime}",
   "@linkedAtPrefix": {
     "placeholders": {
-      "datetime": { "type": "String" }
+      "datetime": {
+        "type": "String"
+      }
     }
   },
   "unlinkAction": "Unlink",
@@ -352,7 +386,9 @@
   "challengeReceived": "Challenge received. Expires in {seconds}s",
   "@challengeReceived": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "manualModeCopied": "Manual mode: challenge copied. Sign it in wallet manually, then paste signature below.",
@@ -360,7 +396,9 @@
   "useConnectedAccount": "Use connected account ({address})",
   "@useConnectedAccount": {
     "placeholders": {
-      "address": { "type": "String" }
+      "address": {
+        "type": "String"
+      }
     }
   },
   "requestChallengeFirst": "Please request challenge first.",
@@ -373,13 +411,17 @@
   "browserSignGuideTitle": "Browser signing guide ({wallet})",
   "@browserSignGuideTitle": {
     "placeholders": {
-      "wallet": { "type": "String" }
+      "wallet": {
+        "type": "String"
+      }
     }
   },
   "desktopSignGuideTitle": "Desktop/Mobile signing guide ({wallet})",
   "@desktopSignGuideTitle": {
     "placeholders": {
-      "wallet": { "type": "String" }
+      "wallet": {
+        "type": "String"
+      }
     }
   },
   "walletGuideTestStep1": "Step 2 copies the challenge text to your clipboard.",
@@ -412,20 +454,26 @@
   "walletExtensionCheckTitle": "Check {extension}",
   "@walletExtensionCheckTitle": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionCheckMessage": "Browser has been opened so you can check {extension}. If installed and unlocked, click Ready to continue wallet linking.",
   "@walletExtensionCheckMessage": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionCheckClose": "Close",
   "walletExtensionInstallAction": "Install {extension}",
   "@walletExtensionInstallAction": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionReadyAction": "Ready",
@@ -437,7 +485,9 @@
   "walletExtensionInstallOpenedInfo": "Opened {extension} install page. After installation, return and run check again.",
   "@walletExtensionInstallOpenedInfo": {
     "placeholders": {
-      "extension": { "type": "String" }
+      "extension": {
+        "type": "String"
+      }
     }
   },
   "walletExtensionPrecheckSuccess": "Pre-check completed. Open extension, sign challenge, then paste signature below.",
@@ -456,15 +506,23 @@
   "onchainCreditConversionLine": "Credited: {credited} · rate 1 {native} = {rate} USDT",
   "@onchainCreditConversionLine": {
     "placeholders": {
-      "credited": { "type": "String" },
-      "native": { "type": "String" },
-      "rate": { "type": "String" }
+      "credited": {
+        "type": "String"
+      },
+      "native": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "onchainDepositTransitioningMinutes": "Wallet addresses are updating (~{minutes} min left). This list will refresh when ready.",
   "@onchainDepositTransitioningMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "onchainDepositTransitioningUnderOneMinute": "Wallet addresses are updating (under one minute left). This list will refresh when ready.",
@@ -474,7 +532,9 @@
   "sendAssetsToAddress": "Send {network} assets to this address or scan the QR code.",
   "@sendAssetsToAddress": {
     "placeholders": {
-      "network": { "type": "String" }
+      "network": {
+        "type": "String"
+      }
     }
   },
   "onlyTransferSelectedChain": "Only transfer on the selected chain. Sending from wrong chain may cause permanent loss.",
@@ -489,22 +549,27 @@
   "senderWalletNotLinkedError": "Sender wallet is not linked. Link that wallet before submitting deposit.",
   "depositSubmittedSuccess": "Deposit submitted successfully",
   "amountRequired": "Amount is required",
-  "amountMustBePositive": "Amount must be > 0",
+  "amountMustBePositive": "Amount must be positive",
   "depositPreviewLinked": "Sender wallet is linked. Amount auto-filled from on-chain data.",
   "depositPreviewNotLinked": "Sender wallet is not linked to your account. Link that wallet before submit.",
   "depositPreviewLabel": "Preview: {status} · Amount {amount}",
   "@depositPreviewLabel": {
     "placeholders": {
-      "status": { "type": "String" },
-      "amount": { "type": "String" }
+      "status": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "allNetworks": "All networks",
-  "allTypes": "All types",
   "txResultCount": "{count, plural, =1{1 result} other{{count} results}}",
   "@txResultCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sortNewest": "Newest",
@@ -514,7 +579,9 @@
   "txToAddress": "To: {address}",
   "@txToAddress": {
     "placeholders": {
-      "address": { "type": "String" }
+      "address": {
+        "type": "String"
+      }
     }
   },
   "txTypeDeposits": "Deposits",
@@ -546,7 +613,6 @@
   "payosLinkCopied": "Payment link copied",
   "payosTapToOpenCheckout": "Tap to open checkout",
   "payosPaymentCancelled": "Payment was cancelled or expired.",
-
   "currenciesSearchHint": "Search currencies...",
   "currenciesFilterAll": "All",
   "currenciesTradable": "Tradable",
@@ -623,7 +689,6 @@
   "broadcastSendAllUsers": "Send to all users",
   "broadcastSuccess": "Notification broadcast successfully",
   "broadcastFailedTryAgain": "Failed to send notification. Please try again.",
-
   "noPermissionMessage": "You do not have permission to perform this action.",
   "menuTooltip": "Menu",
   "onchainTooltip": "On-chain",
@@ -654,22 +719,38 @@
   "guestFeatureCurrencies": "Supported currencies & networks",
   "guestFeatureDeposit": "Platform deposit methods",
   "continueAsGuest": "Continue without signing in",
-
   "notificationsTitle": "Notifications",
   "notificationsMarkAllRead": "Mark all read",
   "notificationsEmpty": "No notifications yet",
   "notificationsJustNow": "Just now",
   "notificationsMinAgo": "{count}m ago",
-  "@notificationsMinAgo": { "placeholders": { "count": { "type": "int" } } },
+  "@notificationsMinAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationsHourAgo": "{count}h ago",
-  "@notificationsHourAgo": { "placeholders": { "count": { "type": "int" } } },
+  "@notificationsHourAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationsDayAgo": "{count}d ago",
-  "@notificationsDayAgo": { "placeholders": { "count": { "type": "int" } } },
+  "@notificationsDayAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationsDetails": "Details",
   "notificationsTypeAlert": "Alert",
   "notificationsTypePromo": "Promo",
   "notificationsTypeSystem": "System",
-
   "dashboardTopMarkets": "Top Markets",
   "dashboardMyWallets": "My Wallets",
   "dashboardTotalPortfolioValue": "Total Portfolio Value",
@@ -684,8 +765,13 @@
   "dashboardBankProvidersHealthCouldNotCheck": "Health check failed",
   "dashboardBankProvidersHealthLoading": "Checking providers…",
   "dashboardBankProvidersHealthMs": "{ms} ms",
-  "@dashboardBankProvidersHealthMs": { "placeholders": { "ms": { "type": "int" } } },
-
+  "@dashboardBankProvidersHealthMs": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
   "securityRequestsTitle": "Security change requests",
   "securityRequestApproved": "Request approved",
   "securityRequestRejected": "Request rejected",
@@ -693,10 +779,15 @@
   "securityRejectReasonHint": "Optional reason",
   "securityRequestNoPending": "No pending requests",
   "securityRequestRequested": "Requested: {date}",
-  "@securityRequestRequested": { "placeholders": { "date": { "type": "String" } } },
+  "@securityRequestRequested": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "securityRequestApprove": "Approve",
   "securityRequestReject": "Reject",
-
   "registerCreateAccount": "Create Account",
   "registerSignUpSubtitle": "Sign up to get started",
   "registerFirstNameLabel": "First Name",
@@ -727,10 +818,11 @@
   "registerUnexpectedError": "Unexpected error: {error}",
   "@registerUnexpectedError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-
   "walletDetails": "Wallet Details",
   "walletNotFound": "Wallet not found",
   "walletAvailableBalance": "Available Balance",
@@ -740,7 +832,13 @@
   "walletTransactionHistory": "Transaction History",
   "walletNoTransactions": "No transactions found",
   "walletBalanceAfter": "Balance: {amount}",
-  "@walletBalanceAfter": { "placeholders": { "amount": { "type": "String" } } },
+  "@walletBalanceAfter": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "walletUsdValue": "USD Value",
   "totalPortfolioValue": "Total Portfolio Value",
   "noWalletsFound": "No wallets found",
@@ -750,7 +848,6 @@
   "coinAssetsSectionTitle": "Assets",
   "coinAssetsSectionSubtitle": "Coins from trading",
   "depositOnchainHint": "Credited as USDT to your cash wallet",
-
   "treasuryTitle": "User deposits & managed wallets",
   "treasuryManageSubtitle": "Default deposit addresses, priority chain, and company wallets for user-facing flows.",
   "treasuryToolbarTooltip": "User deposits & managed wallets — default addresses and priority chain",
@@ -768,7 +865,9 @@
   "paymentConfigActivateTarget": "Activate: {name}",
   "@paymentConfigActivateTarget": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "paymentConfigActivateWarning": "The system will move to TRANSITIONING. Traders will see a warning banner during the grace period.",
@@ -778,13 +877,17 @@
   "paymentConfigActivationStartedMinutes": "Grace period of {minutes} minutes started",
   "@paymentConfigActivationStartedMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "paymentConfigActivationAt": "Activates at: {time}",
   "@paymentConfigActivationAt": {
     "placeholders": {
-      "time": { "type": "String" }
+      "time": {
+        "type": "String"
+      }
     }
   },
   "paymentConfigActivateFailed": "Failed to activate configuration",
@@ -792,7 +895,9 @@
   "paymentConfigDeactivateDialogContent": "Are you sure you want to deactivate \"{name}\"?\nThis action takes effect immediately.",
   "@paymentConfigDeactivateDialogContent": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "paymentConfigDeactivateAction": "Deactivate",
@@ -800,7 +905,9 @@
   "paymentConfigTransitioningRemaining": "~{minutes} minutes remaining before activation",
   "@paymentConfigTransitioningRemaining": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "paymentConfigGraceUnderOneMinute": "Less than one minute remaining before activation",
@@ -809,14 +916,20 @@
   "paymentConfigVersionAndSort": "Version: v{version} · Order: {sortOrder}",
   "@paymentConfigVersionAndSort": {
     "placeholders": {
-      "version": { "type": "int" },
-      "sortOrder": { "type": "int" }
+      "version": {
+        "type": "int"
+      },
+      "sortOrder": {
+        "type": "int"
+      }
     }
   },
   "paymentConfigActivatedAt": "Activated: {datetime}",
   "@paymentConfigActivatedAt": {
     "placeholders": {
-      "datetime": { "type": "String" }
+      "datetime": {
+        "type": "String"
+      }
     }
   },
   "paymentConfigEditAction": "Edit",
@@ -941,7 +1054,9 @@
   "treasuryPendingOnChainTooltipWithId": "Operation {operationId} is pending on-chain. The balance will not reflect new funds until it completes.",
   "@treasuryPendingOnChainTooltipWithId": {
     "placeholders": {
-      "operationId": { "type": "String" }
+      "operationId": {
+        "type": "String"
+      }
     }
   },
   "treasuryFundFailed": "Fund failed",
@@ -985,8 +1100,12 @@
   "apiErrorTxWalletNonZeroBalance": "Sweep funds first (on-chain balance must be at most {maxAmount} {symbol})",
   "@apiErrorTxWalletNonZeroBalance": {
     "placeholders": {
-      "maxAmount": { "type": "String" },
-      "symbol": { "type": "String" }
+      "maxAmount": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "apiErrorTxWalletNonZeroBalanceShort": "Sweep funds first — reduce on-chain balance before deleting this wallet.",
@@ -1006,10 +1125,22 @@
   "treasuryOpsDeleteWalletSuccessSnack": "Transaction wallet deleted.",
   "treasuryOpsDeleteWalletAction": "Delete",
   "recommendedChainUpdated": "Recommended chain updated to {chain}",
-  "@recommendedChainUpdated": { "placeholders": { "chain": { "type": "String" } } },
+  "@recommendedChainUpdated": {
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
   "managedWalletsSection": "Wallets",
   "managedWalletsTotalCount": "{count} total",
-  "@managedWalletsTotalCount": { "placeholders": { "count": { "type": "int" } } },
+  "@managedWalletsTotalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "managedWalletsNewWallet": "New Wallet",
   "managedWalletsActiveDefaults": "Active Deposit Defaults",
   "managedWalletsNotConfigured": "Not configured",
@@ -1020,7 +1151,6 @@
   "managedWalletsNoWallets": "No wallets yet",
   "managedWalletsNoWalletsDesc": "Create Tron operational wallets under Payment configuration → Treasury (purpose DEPOSIT or BOTH), then pick the default deposit address per chain here.",
   "managedWalletsCreateFirst": "Create First Wallet",
-
   "walletSetAsDefault": "Wallet set as default deposit address",
   "walletDeactivated": "Wallet deactivated",
   "deactivateWalletTitle": "Deactivate Wallet",
@@ -1037,11 +1167,19 @@
   "managedWalletSendTrx": "Send TRX",
   "managedWalletTxHistory": "Transaction History",
   "managedWalletNoTx": "No transactions yet",
-
   "sendTrxTitle": "Send TRX",
   "sendTrxConfirmTitle": "Confirm Send",
   "sendTrxConfirmContent": "Send {amount} TRX to\n{address}?",
-  "@sendTrxConfirmContent": { "placeholders": { "amount": { "type": "String" }, "address": { "type": "String" } } },
+  "@sendTrxConfirmContent": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
   "sendTrxConfirm": "Confirm",
   "sendTrxRecipientLabel": "Recipient Address",
   "sendTrxRecipientHint": "T...",
@@ -1054,7 +1192,6 @@
   "sendTrxSending": "Sending...",
   "sendTrxSend": "Send",
   "sendTrxSuccess": "Transaction sent successfully",
-
   "createWalletTitle": "Create Treasury Wallet",
   "createWalletBlockchainLabel": "Blockchain",
   "createWalletLabelField": "Label (optional)",
@@ -1067,14 +1204,12 @@
   "createWalletAddressCopied": "Address copied",
   "createWalletDone": "Done",
   "createWalletFailed": "Failed to create wallet",
-
   "walletBadgeDefault": "DEFAULT",
   "walletBadgeInactive": "INACTIVE",
   "depositMethodsTitle": "Platform Deposit Methods",
   "depositMethodRecommended": "Recommended",
   "depositMethodUnavailable": "Not available",
   "copyAddressTooltip": "Copy address",
-
   "marketMakerHubTitle": "Market Maker",
   "marketMakerHubDrawerSubtitle": "Dashboard · Config · Maker orders",
   "marketMakerConfigCardTitle": "Market Maker configuration",
@@ -1084,7 +1219,6 @@
   "marketMakerPositionDashboardCardTitle": "Position dashboard",
   "marketMakerPositionDashboardCardSubtitle": "Monitor open orders, positions, and unrealized P/L in real time.",
   "marketMakerDashboardComingSoon": "Position dashboard — coming soon",
-
   "marketMakerFieldPair": "Pair",
   "marketMakerFieldSpreadBps": "Spread (bps)",
   "marketMakerFieldSpreadAlertBps": "Spread alert threshold (bps)",
@@ -1104,7 +1238,9 @@
   "marketMakerLastUpdated": "Last updated: {when}",
   "@marketMakerLastUpdated": {
     "placeholders": {
-      "when": { "type": "String" }
+      "when": {
+        "type": "String"
+      }
     }
   },
   "marketMakerSnackSavedConfig": "Saved market maker configuration",
@@ -1117,15 +1253,24 @@
   "marketMakerOrdersPlacedSummary": "{action}: cancelled {cancelled}, placed {placed} (BUY: {buyPrice}, SELL: {sellPrice})",
   "@marketMakerOrdersPlacedSummary": {
     "placeholders": {
-      "action": { "type": "String" },
-      "cancelled": { "type": "String" },
-      "placed": { "type": "String" },
-      "buyPrice": { "type": "String" },
-      "sellPrice": { "type": "String" }
+      "action": {
+        "type": "String"
+      },
+      "cancelled": {
+        "type": "String"
+      },
+      "placed": {
+        "type": "String"
+      },
+      "buyPrice": {
+        "type": "String"
+      },
+      "sellPrice": {
+        "type": "String"
+      }
     }
   },
   "marketMakerPlaceOrdersFormHint": "Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.",
-
   "adminCurrenciesTitle": "Admin - Currencies",
   "adminCurrenciesCreateTitle": "Create new coin",
   "adminCurrenciesDeleteTitle": "Delete coin",
@@ -1133,7 +1278,9 @@
   "adminCurrenciesEditTitle": "Edit {symbol}",
   "@adminCurrenciesEditTitle": {
     "placeholders": {
-      "symbol": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesEdit": "Edit",
@@ -1157,7 +1304,6 @@
   "adminCurrenciesCreateSuccess": "Coin created successfully!",
   "adminCurrenciesUpdateSuccess": "Coin updated successfully!",
   "adminCurrenciesDeleteSuccess": "Coin deleted successfully!",
-
   "depositDetailStatus": "Status",
   "depositDetailOrderCode": "Order Code",
   "depositDetailCopied": "Copied",
@@ -1168,7 +1314,6 @@
   "depositStatusPaid": "Paid",
   "depositStatusPending": "Pending",
   "depositStatusCancelled": "Cancelled",
-
   "withdrawalDetailInfoTitle": "Withdrawal Information",
   "withdrawalDetailAmount": "Amount",
   "withdrawalDetailChain": "Chain",
@@ -1205,7 +1350,6 @@
   "withdrawalStatusSent": "Sent",
   "withdrawalStatusLabel": "Status",
   "withdrawalStatusRejected": "Rejected",
-
   "adminCurrenciesSearchHint": "Search currencies...",
   "adminCurrenciesFilterAll": "All",
   "adminCurrenciesFilterActive": "Active",
@@ -1218,55 +1362,69 @@
   "adminCurrenciesDeleteConfirmWithPair": "Are you sure you want to delete \"{symbol} — {name}\"?\nThis action cannot be undone.",
   "@adminCurrenciesDeleteConfirmWithPair": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "name": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesListMeta": "Precision: {precision} · Min withdraw: {minWithdraw}",
   "@adminCurrenciesListMeta": {
     "placeholders": {
-      "precision": { "type": "String" },
-      "minWithdraw": { "type": "String" }
+      "precision": {
+        "type": "String"
+      },
+      "minWithdraw": {
+        "type": "String"
+      }
     }
   },
   "adminCurrenciesTradableBadgeOn": "Trade",
   "adminCurrenciesTradableBadgeOff": "Off",
   "adminCurrenciesTradingPausedTooltip": "Trading paused",
-
   "adminShowingCount": "Showing {shown} of {total} {label}",
   "@adminShowingCount": {
     "placeholders": {
-      "shown": { "type": "int" },
-      "total": { "type": "int" },
-      "label": { "type": "String" }
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "adminRetryButton": "Retry",
-
   "payosTransitioningBanner": "PayOS payment method will be activated in {minutes} minute(s)",
   "@payosTransitioningBanner": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "payosTransitioningGraceMinutes": "Activation in {minutes} minute(s)",
   "@payosTransitioningGraceMinutes": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "payosTransitioningUnderOneMinute": "PayOS will be activated in less than a minute",
   "payosTransitioningFinalizePending": "PayOS activation is finishing — please wait",
   "dismiss": "Dismiss",
   "snackbarOk": "OK",
-
   "adminUserDetailTabWallets": "Wallets",
   "adminUserDetailTabAdjust": "Adjust",
   "adminUserDetailTabOrders": "Orders",
   "adminUserDetailTabOnchain": "On-chain",
   "adminUserDetailTabSecurity": "Security",
   "adminUserDetailCreatedAtLabel": "Created at",
-
   "withdrawalManagementTitle": "Withdrawal Management",
   "withdrawalManagementTabPending": "Pending",
   "withdrawalManagementTabAll": "All",
@@ -1277,13 +1435,14 @@
   "withdrawalStatsPendingCount": "{count} pending",
   "@withdrawalStatsPendingCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminFilterAll": "All",
   "withdrawalSearchHint": "Search by user ID or wallet address...",
   "withdrawalNoRequests": "No withdrawal requests",
-
   "drawerTransactionMonitoring": "Transaction Monitoring",
   "adminTabOrders": "Orders",
   "adminTabDeposits": "Deposits",
@@ -1304,7 +1463,9 @@
   "adminReconcileMatchingConfirmMessage": "Retry matching for all open orders on this pair: {pairId}",
   "@adminReconcileMatchingConfirmMessage": {
     "placeholders": {
-      "pairId": { "type": "String" }
+      "pairId": {
+        "type": "String"
+      }
     }
   },
   "adminReconcileMatchingRun": "Run",
@@ -1312,9 +1473,15 @@
   "adminReconcileMatchingSuccess": "Reconcile done. Trades: {trades}, still open: {open}, outcome: {reason}",
   "@adminReconcileMatchingSuccess": {
     "placeholders": {
-      "trades": { "type": "int" },
-      "open": { "type": "int" },
-      "reason": { "type": "String" }
+      "trades": {
+        "type": "int"
+      },
+      "open": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
     }
   },
   "adminReconcileReasonAllMatched": "all matched",
@@ -1324,14 +1491,18 @@
   "adminOrdersCountLabel": "{count} orders",
   "@adminOrdersCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminDepositsEmpty": "No deposits",
   "adminDepositsCountLabel": "{count} deposits",
   "@adminDepositsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUnmatchedDepositsTab": "Unmatched",
@@ -1339,7 +1510,9 @@
   "adminUnmatchedDepositsCountLabel": "{count} unmatched",
   "@adminUnmatchedDepositsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUnmatchedDepositTitle": "Unmatched Deposit",
@@ -1353,7 +1526,9 @@
   "adminMatchUserDialogSubtitle": "Deposit: {txId}",
   "@adminMatchUserDialogSubtitle": {
     "placeholders": {
-      "txId": { "type": "String" }
+      "txId": {
+        "type": "String"
+      }
     }
   },
   "adminMatchUserIdHint": "User ID (UUID)",
@@ -1363,7 +1538,9 @@
   "adminMatchUserPendingInfo": "A match proposal is pending (Match ID: {matchId}). Approve to finalize.",
   "@adminMatchUserPendingInfo": {
     "placeholders": {
-      "matchId": { "type": "String" }
+      "matchId": {
+        "type": "String"
+      }
     }
   },
   "adminMatchUserProposedSuccess": "Match proposed. Awaiting second approval.",
@@ -1373,7 +1550,9 @@
   "adminWithdrawalsCountLabel": "{count} withdrawals",
   "@adminWithdrawalsCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "orderDetailTypeLimitLabel": "Limit",
@@ -1432,21 +1611,31 @@
   "treasuryMainWalletCardSubtitle": "Balance: {balance} {symbol}\nLabel: {label}",
   "@treasuryMainWalletCardSubtitle": {
     "placeholders": {
-      "balance": { "type": "String" },
-      "symbol": { "type": "String" },
-      "label": { "type": "String" }
+      "balance": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletPendingSubtitle": "Added at: {dateTime}",
   "@treasuryMainWalletPendingSubtitle": {
     "placeholders": {
-      "dateTime": { "type": "String" }
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "treasuryTrc20UsdtBalanceLine": "USDT (TRC-20): {balance} USDT",
   "@treasuryTrc20UsdtBalanceLine": {
     "placeholders": {
-      "balance": { "type": "String" }
+      "balance": {
+        "type": "String"
+      }
     }
   },
   "treasuryNetworkLabel": "Network",
@@ -1465,14 +1654,20 @@
   "treasuryMainWalletBalanceLine": "Balance: {balance} {symbol}",
   "@treasuryMainWalletBalanceLine": {
     "placeholders": {
-      "balance": { "type": "String" },
-      "symbol": { "type": "String" }
+      "balance": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletLabelLine": "Label: {label}",
   "@treasuryMainWalletLabelLine": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "treasuryMainWalletPublicAddressLabel": "Public address",
@@ -1527,7 +1722,9 @@
   "treasuryImportWalletDialogTitle": "Import main wallet ({chainName})",
   "@treasuryImportWalletDialogTitle": {
     "placeholders": {
-      "chainName": { "type": "String" }
+      "chainName": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletDialogHeading": "Import main wallet",
@@ -1542,7 +1739,9 @@
   "treasuryImportWalletMfaFailedSnack": "Failed to send MFA: {error}",
   "@treasuryImportWalletMfaFailedSnack": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletRequiredSnack": "Private key and MFA code are required.",
@@ -1552,7 +1751,9 @@
   "treasuryImportWalletOtpVerifyFailed": "Could not verify: {message}",
   "@treasuryImportWalletOtpVerifyFailed": {
     "placeholders": {
-      "message": { "type": "String" }
+      "message": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletPrivateKeyRequired": "Private key is required.",
@@ -1562,7 +1763,9 @@
   "treasuryImportWalletErrorSnack": "Error: {error}",
   "@treasuryImportWalletErrorSnack": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "treasuryImportWalletMfaExpiredOnImport": "This email code expired or was already used. Tap Send OTP for a new code, confirm it, then try importing again.",
@@ -1577,7 +1780,9 @@
   "managedWalletOwnerHint": "Owner: {userIdShort}",
   "@managedWalletOwnerHint": {
     "placeholders": {
-      "userIdShort": { "type": "String" }
+      "userIdShort": {
+        "type": "String"
+      }
     }
   },
   "drawerSectionAccount": "Account",
@@ -1587,18 +1792,21 @@
   "priceHintExample": "e.g. 65000",
   "amountHintExample": "e.g. 0.01",
   "maxAmountButton": "MAX",
-  "amountMustBePositive": "Amount must be positive",
   "amountMaxDecimals": "Amount supports up to {max} decimal places",
   "@amountMaxDecimals": {
     "placeholders": {
-      "max": { "type": "int" }
+      "max": {
+        "type": "int"
+      }
     }
   },
   "priceMustBePositive": "Price must be positive",
   "priceMaxDecimals": "Price supports up to {max} decimal places",
   "@priceMaxDecimals": {
     "placeholders": {
-      "max": { "type": "int" }
+      "max": {
+        "type": "int"
+      }
     }
   },
   "tickerBid": "Bid",
@@ -1611,19 +1819,25 @@
   "timeSecondsShort": "{seconds}s",
   "@timeSecondsShort": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "timeMinutesShort": "{minutes}m",
   "@timeMinutesShort": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "timeHoursShort": "{hours}h",
   "@timeHoursShort": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "ordersSelectPairFirst": "Select a trading pair first",
@@ -1631,7 +1845,9 @@
   "ordersMyOrdersWithCount": "My Orders ({count})",
   "@ordersMyOrdersWithCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "orderBookColumnSize": "Size",
@@ -1663,7 +1879,9 @@
   "adminUserListTotalUsers": "Total users: {count}",
   "@adminUserListTotalUsers": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminUserListNoUsersFound": "No users found",
@@ -1718,7 +1936,6 @@
   "homeCryptoPlatform": "Crypto trading platform",
   "homeAuthReady": "Authentication ready",
   "homeLastUpdated": "Last updated",
-
   "wcLoginTitleWeb": "Login with wallet (Web)",
   "wcLoginTitleNative": "WalletConnect login",
   "wcReownDesktopUnsupportedBody": "Pick a network, tap “Create QR code”, scan with your phone wallet, then sign when asked.",
@@ -1726,7 +1943,9 @@
   "wcReownInitFailed": "Could not initialize Reown: {error}",
   "@wcReownInitFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "wcReownSessionNoEvmAddress": "Session has no EVM address (eip155). Choose an EVM wallet (e.g. BSC Chapel or Ethereum mainnet).",
@@ -1734,7 +1953,9 @@
   "wcReownLoginError": "Wallet login error: {error}",
   "@wcReownLoginError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "wcReownQrDescription": "Open QR, connect your phone wallet, then sign the login message.",
@@ -1764,7 +1985,6 @@
   "desktopTronlinkDialogTitle": "TronLink",
   "desktopTronlinkDialogBody": "TronLink works in Chrome (web) only. On this app: sign in with email or open the web version.",
   "desktopTronlinkDialogOk": "OK",
-
   "wcLinkDialogTitle": "Link digital wallet",
   "wcLinkDialogSubtitle": "Connect via WalletConnect • High security",
   "wcQrScanHintEvm": "Open Trust Wallet or MetaMask Mobile → Scan QR",
@@ -1810,19 +2030,25 @@
   "wcWalletNotInstalled": "{name} is not installed",
   "@wcWalletNotInstalled": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "wcDownloadFromStore": "Download from {store}",
   "@wcDownloadFromStore": {
     "placeholders": {
-      "store": { "type": "String" }
+      "store": {
+        "type": "String"
+      }
     }
   },
   "wcOpenWalletNamed": "Open {name}",
   "@wcOpenWalletNamed": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "wcStoreGooglePlay": "Google Play",
@@ -1836,5 +2062,119 @@
   "onchainTxStatusFailed": "Failed",
   "onchainTxStatusTxBroadcast": "Broadcast",
   "onchainTxStatusUnmatched": "Unmatched",
-  "onchainTxStatusUnknown": "Unknown"
+  "onchainTxStatusUnknown": "Unknown",
+  "treasuryE2eTabTitle": "Treasury E2E",
+  "treasuryE2eAddAction": "Add Treasury E2E",
+  "treasuryE2eEditAction": "Edit",
+  "treasuryE2eActivateAction": "Activate",
+  "treasuryE2eDeactivateAction": "Deactivate",
+  "treasuryE2eArchiveAction": "Archive",
+  "treasuryE2eEmptyState": "No treasury E2E configs yet.",
+  "treasuryE2eCreateTitle": "Create Treasury E2E Config",
+  "treasuryE2eEditTitle": "Edit Treasury E2E Config",
+  "treasuryE2eEnvironmentLabel": "Environment",
+  "treasuryE2eDisplayNameLabel": "Display name",
+  "treasuryE2eApiBaseUrlLabel": "API base URL",
+  "treasuryE2eChainLabel": "Chain",
+  "treasuryE2eLinkedWalletLabel": "Linked wallet",
+  "treasuryE2eLinkedWalletHelper": "Only verified wallets on the selected chain are shown.",
+  "treasuryE2eLinkedWalletEmpty": "No linked wallet selected",
+  "treasuryE2eWithdrawAutoLabel": "Withdraw auto amount",
+  "treasuryE2eWithdrawManualLabel": "Withdraw manual amount",
+  "treasuryE2eDepositTxHashLabel": "Deposit tx hash (optional)",
+  "treasuryE2eDepositAmountLabel": "Deposit amount (optional)",
+  "treasuryE2eAllowSkipLabel": "Allow skip when config incomplete",
+  "treasuryE2eFailOnCriticalLabel": "Fail health on critical alerts",
+  "treasuryE2eStaleManualLabel": "Stale manual minutes",
+  "treasuryE2eStaleConfirmingLabel": "Stale confirming minutes",
+  "treasuryE2eFailed24hLabel": "Failed withdrawals /24h",
+  "treasuryE2eReconcileLimitLabel": "Reconcile pair limit",
+  "treasuryE2eReconciliationThresholdLabel": "Reconciliation threshold",
+  "treasuryE2eTraderTokenLabel": "Replace trader bearer token (optional)",
+  "treasuryE2eRiskTokenLabel": "Replace risk bearer token (optional)",
+  "treasuryE2eValidateAction": "Validate config",
+  "treasuryE2eValidationPassed": "Validation passed.",
+  "treasuryE2eSaving": "Saving...",
+  "treasuryE2eActivateDialogTitle": "Activate Treasury E2E config",
+  "treasuryE2eDeactivateDialogTitle": "Deactivate Treasury E2E config",
+  "treasuryE2eArchiveDialogTitle": "Archive Treasury E2E config",
+  "treasuryE2eListSummary": "allowSkip={allowSkip} • strictHealth={strictHealth} • wallet={wallet}",
+  "@treasuryE2eListSummary": {
+    "placeholders": {
+      "allowSkip": {
+        "type": "String"
+      },
+      "strictHealth": {
+        "type": "String"
+      },
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eListTokens": "Trader: {trader} • Risk: {risk}",
+  "@treasuryE2eListTokens": {
+    "placeholders": {
+      "trader": {
+        "type": "String"
+      },
+      "risk": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eCurrentTraderToken": "Current trader token: {masked}",
+  "@treasuryE2eCurrentTraderToken": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eCurrentRiskToken": "Current risk token: {masked}",
+  "@treasuryE2eCurrentRiskToken": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eActivateDialogContent": "Activate {name} for {environment}?",
+  "@treasuryE2eActivateDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "environment": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eDeactivateDialogContent": "Deactivate {name}?",
+  "@treasuryE2eDeactivateDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eArchiveDialogContent": "Archive {name}?",
+  "@treasuryE2eArchiveDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "treasuryE2eTraderSearchLabel": "Search trader test account",
+  "treasuryE2eLoadTraderAction": "Load traders / wallets",
+  "treasuryE2eTraderSelectLabel": "Trader test account",
+  "treasuryE2eTraderEmpty": "All traders",
+  "treasuryE2eTestConnectionAction": "Test API / Test tokens",
+  "treasuryE2eTestConnectionPassed": "Connection test passed.",
+  "treasuryE2eTestConnectionFailed": "Connection test failed.",
+  "treasuryE2eIdentityPreferredHint": "Preferred: select test identities so the backend mints short-lived tokens automatically.",
+  "treasuryE2eRiskActorLabel": "Risk reviewer identity",
+  "treasuryE2eRiskActorEmpty": "No risk identity selected",
+  "treasuryE2eLegacyTokenSection": "Legacy token fallback"
 }

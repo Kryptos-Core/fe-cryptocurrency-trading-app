@@ -4622,4 +4622,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onchainTxStatusUnknown => 'Unknown';
+
+  @override
+  String get treasuryE2eTabTitle => 'Treasury E2E';
+
+  @override
+  String get treasuryE2eAddAction => 'Add Treasury E2E';
+
+  @override
+  String get treasuryE2eEditAction => 'Edit';
+
+  @override
+  String get treasuryE2eActivateAction => 'Activate';
+
+  @override
+  String get treasuryE2eDeactivateAction => 'Deactivate';
+
+  @override
+  String get treasuryE2eArchiveAction => 'Archive';
+
+  @override
+  String get treasuryE2eEmptyState => 'No treasury E2E configs yet.';
+
+  @override
+  String get treasuryE2eCreateTitle => 'Create Treasury E2E Config';
+
+  @override
+  String get treasuryE2eEditTitle => 'Edit Treasury E2E Config';
+
+  @override
+  String get treasuryE2eEnvironmentLabel => 'Environment';
+
+  @override
+  String get treasuryE2eDisplayNameLabel => 'Display name';
+
+  @override
+  String get treasuryE2eApiBaseUrlLabel => 'API base URL';
+
+  @override
+  String get treasuryE2eChainLabel => 'Chain';
+
+  @override
+  String get treasuryE2eLinkedWalletLabel => 'Linked wallet';
+
+  @override
+  String get treasuryE2eLinkedWalletHelper =>
+      'Only verified wallets on the selected chain are shown.';
+
+  @override
+  String get treasuryE2eLinkedWalletEmpty => 'No linked wallet selected';
+
+  @override
+  String get treasuryE2eWithdrawAutoLabel => 'Withdraw auto amount';
+
+  @override
+  String get treasuryE2eWithdrawManualLabel => 'Withdraw manual amount';
+
+  @override
+  String get treasuryE2eDepositTxHashLabel => 'Deposit tx hash (optional)';
+
+  @override
+  String get treasuryE2eDepositAmountLabel => 'Deposit amount (optional)';
+
+  @override
+  String get treasuryE2eAllowSkipLabel => 'Allow skip when config incomplete';
+
+  @override
+  String get treasuryE2eFailOnCriticalLabel => 'Fail health on critical alerts';
+
+  @override
+  String get treasuryE2eStaleManualLabel => 'Stale manual minutes';
+
+  @override
+  String get treasuryE2eStaleConfirmingLabel => 'Stale confirming minutes';
+
+  @override
+  String get treasuryE2eFailed24hLabel => 'Failed withdrawals /24h';
+
+  @override
+  String get treasuryE2eReconcileLimitLabel => 'Reconcile pair limit';
+
+  @override
+  String get treasuryE2eReconciliationThresholdLabel =>
+      'Reconciliation threshold';
+
+  @override
+  String get treasuryE2eTraderTokenLabel =>
+      'Replace trader bearer token (optional)';
+
+  @override
+  String get treasuryE2eRiskTokenLabel =>
+      'Replace risk bearer token (optional)';
+
+  @override
+  String get treasuryE2eValidateAction => 'Validate config';
+
+  @override
+  String get treasuryE2eValidationPassed => 'Validation passed.';
+
+  @override
+  String get treasuryE2eSaving => 'Saving...';
+
+  @override
+  String get treasuryE2eActivateDialogTitle => 'Activate Treasury E2E config';
+
+  @override
+  String get treasuryE2eDeactivateDialogTitle =>
+      'Deactivate Treasury E2E config';
+
+  @override
+  String get treasuryE2eArchiveDialogTitle => 'Archive Treasury E2E config';
+
+  @override
+  String treasuryE2eListSummary(
+      String allowSkip, String strictHealth, String wallet) {
+    return 'allowSkip=$allowSkip • strictHealth=$strictHealth • wallet=$wallet';
+  }
+
+  @override
+  String treasuryE2eListTokens(String trader, String risk) {
+    return 'Trader: $trader • Risk: $risk';
+  }
+
+  @override
+  String treasuryE2eCurrentTraderToken(String masked) {
+    return 'Current trader token: $masked';
+  }
+
+  @override
+  String treasuryE2eCurrentRiskToken(String masked) {
+    return 'Current risk token: $masked';
+  }
+
+  @override
+  String treasuryE2eActivateDialogContent(String name, String environment) {
+    return 'Activate $name for $environment?';
+  }
+
+  @override
+  String treasuryE2eDeactivateDialogContent(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String treasuryE2eArchiveDialogContent(String name) {
+    return 'Archive $name?';
+  }
+
+  @override
+  String get treasuryE2eTraderSearchLabel => 'Search trader test account';
+
+  @override
+  String get treasuryE2eLoadTraderAction => 'Load traders / wallets';
+
+  @override
+  String get treasuryE2eTraderSelectLabel => 'Trader test account';
+
+  @override
+  String get treasuryE2eTraderEmpty => 'All traders';
+
+  @override
+  String get treasuryE2eTestConnectionAction => 'Test API / Test tokens';
+
+  @override
+  String get treasuryE2eTestConnectionPassed => 'Connection test passed.';
+
+  @override
+  String get treasuryE2eTestConnectionFailed => 'Connection test failed.';
+
+  @override
+  String get treasuryE2eIdentityPreferredHint =>
+      'Preferred: select test identities so the backend mints short-lived tokens automatically.';
+
+  @override
+  String get treasuryE2eRiskActorLabel => 'Risk reviewer identity';
+
+  @override
+  String get treasuryE2eRiskActorEmpty => 'No risk identity selected';
+
+  @override
+  String get treasuryE2eLegacyTokenSection => 'Legacy token fallback';
 }

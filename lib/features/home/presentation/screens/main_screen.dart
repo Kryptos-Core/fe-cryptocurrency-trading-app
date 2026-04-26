@@ -287,7 +287,7 @@ class _MainScreenState extends State<MainScreen> {
             // Managed user-deposit wallets (Risk/Admin) or Payment / treasury ops (Finance Manager).
             Consumer<AuthProvider>(
               builder: (_, auth, __) {
-                if (!auth.canManageWallets && !auth.canManagePaymentConfigs) {
+                if (!auth.canManageWallets && !auth.canManagePaymentConfigs && !auth.canManageTreasuryE2EConfigs) {
                   return const SizedBox.shrink();
                 }
                 final opensManagedWallets = auth.canManageWallets;
@@ -467,7 +467,7 @@ class _MainScreenState extends State<MainScreen> {
               Consumer<AuthProvider>(
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
-                  final showFinance = auth.canManagePaymentConfigs;
+                  final showFinance = auth.canManagePaymentConfigs || auth.canManageTreasuryE2EConfigs;
                   final showManagedStandalone =
                       auth.canManageWallets && !showFinance && !showAdmin;
                   if (!showAdmin && !showFinance && !showManagedStandalone) {
@@ -481,7 +481,7 @@ class _MainScreenState extends State<MainScreen> {
               Consumer<AuthProvider>(
                 builder: (_, auth, __) {
                   final showAdmin = auth.canViewUserList;
-                  final showFinance = auth.canManagePaymentConfigs;
+                  final showFinance = auth.canManagePaymentConfigs || auth.canManageTreasuryE2EConfigs;
                   final showManagedStandalone =
                       auth.canManageWallets && !showFinance && !showAdmin;
                   if (!showAdmin && !showFinance && !showManagedStandalone) {
@@ -548,7 +548,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             _DrawerSubsectionHeader(l10n.drawerSectionAdminOps),
                             if (auth.canManageWallets &&
-                                !auth.canManagePaymentConfigs)
+                                !auth.canManagePaymentConfigs && !auth.canManageTreasuryE2EConfigs)
                               ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 2),

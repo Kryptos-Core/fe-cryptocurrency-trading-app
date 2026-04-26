@@ -252,6 +252,14 @@ class ApiConstants {
       '$blockchain/withdraw/request';
   static const String blockchainTransactions = '$blockchain/transactions';
 
+  static const String treasuryE2EConfigs = '/treasury/e2e-configs';
+  static String treasuryE2EConfigById(String id) => '/treasury/e2e-configs/$id';
+  static String treasuryE2EConfigActivate(String id) => '/treasury/e2e-configs/$id/activate';
+  static String treasuryE2EConfigDeactivate(String id) => '/treasury/e2e-configs/$id/deactivate';
+  static const String treasuryE2EConfigOptions = '/treasury/e2e-configs/options';
+  static const String treasuryE2EConfigValidate = '/treasury/e2e-configs/validate';
+  static const String treasuryE2EConfigTestConnection = '/treasury/e2e-configs/test-connection';
+
   // ============ WalletConnect v2 Endpoints ============
   /// POST — Tạo WC session URI (trả về wcUri, sessionId)
   static const String blockchainWcInit = '$blockchain/wallets/wc/init';
@@ -363,3 +371,4 @@ class ApiConstants {
   static const Duration receiveTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 30);
 }
+

@@ -8453,6 +8453,325 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown'**
   String get onchainTxStatusUnknown;
+
+  /// No description provided for @treasuryE2eTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury E2E'**
+  String get treasuryE2eTabTitle;
+
+  /// No description provided for @treasuryE2eAddAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Treasury E2E'**
+  String get treasuryE2eAddAction;
+
+  /// No description provided for @treasuryE2eEditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get treasuryE2eEditAction;
+
+  /// No description provided for @treasuryE2eActivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get treasuryE2eActivateAction;
+
+  /// No description provided for @treasuryE2eDeactivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get treasuryE2eDeactivateAction;
+
+  /// No description provided for @treasuryE2eArchiveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get treasuryE2eArchiveAction;
+
+  /// No description provided for @treasuryE2eEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No treasury E2E configs yet.'**
+  String get treasuryE2eEmptyState;
+
+  /// No description provided for @treasuryE2eCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Treasury E2E Config'**
+  String get treasuryE2eCreateTitle;
+
+  /// No description provided for @treasuryE2eEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Treasury E2E Config'**
+  String get treasuryE2eEditTitle;
+
+  /// No description provided for @treasuryE2eEnvironmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment'**
+  String get treasuryE2eEnvironmentLabel;
+
+  /// No description provided for @treasuryE2eDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get treasuryE2eDisplayNameLabel;
+
+  /// No description provided for @treasuryE2eApiBaseUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API base URL'**
+  String get treasuryE2eApiBaseUrlLabel;
+
+  /// No description provided for @treasuryE2eChainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain'**
+  String get treasuryE2eChainLabel;
+
+  /// No description provided for @treasuryE2eLinkedWalletLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked wallet'**
+  String get treasuryE2eLinkedWalletLabel;
+
+  /// No description provided for @treasuryE2eLinkedWalletHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Only verified wallets on the selected chain are shown.'**
+  String get treasuryE2eLinkedWalletHelper;
+
+  /// No description provided for @treasuryE2eLinkedWalletEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked wallet selected'**
+  String get treasuryE2eLinkedWalletEmpty;
+
+  /// No description provided for @treasuryE2eWithdrawAutoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw auto amount'**
+  String get treasuryE2eWithdrawAutoLabel;
+
+  /// No description provided for @treasuryE2eWithdrawManualLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw manual amount'**
+  String get treasuryE2eWithdrawManualLabel;
+
+  /// No description provided for @treasuryE2eDepositTxHashLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit tx hash (optional)'**
+  String get treasuryE2eDepositTxHashLabel;
+
+  /// No description provided for @treasuryE2eDepositAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit amount (optional)'**
+  String get treasuryE2eDepositAmountLabel;
+
+  /// No description provided for @treasuryE2eAllowSkipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow skip when config incomplete'**
+  String get treasuryE2eAllowSkipLabel;
+
+  /// No description provided for @treasuryE2eFailOnCriticalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fail health on critical alerts'**
+  String get treasuryE2eFailOnCriticalLabel;
+
+  /// No description provided for @treasuryE2eStaleManualLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stale manual minutes'**
+  String get treasuryE2eStaleManualLabel;
+
+  /// No description provided for @treasuryE2eStaleConfirmingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stale confirming minutes'**
+  String get treasuryE2eStaleConfirmingLabel;
+
+  /// No description provided for @treasuryE2eFailed24hLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed withdrawals /24h'**
+  String get treasuryE2eFailed24hLabel;
+
+  /// No description provided for @treasuryE2eReconcileLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconcile pair limit'**
+  String get treasuryE2eReconcileLimitLabel;
+
+  /// No description provided for @treasuryE2eReconciliationThresholdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconciliation threshold'**
+  String get treasuryE2eReconciliationThresholdLabel;
+
+  /// No description provided for @treasuryE2eTraderTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace trader bearer token (optional)'**
+  String get treasuryE2eTraderTokenLabel;
+
+  /// No description provided for @treasuryE2eRiskTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace risk bearer token (optional)'**
+  String get treasuryE2eRiskTokenLabel;
+
+  /// No description provided for @treasuryE2eValidateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate config'**
+  String get treasuryE2eValidateAction;
+
+  /// No description provided for @treasuryE2eValidationPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation passed.'**
+  String get treasuryE2eValidationPassed;
+
+  /// No description provided for @treasuryE2eSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get treasuryE2eSaving;
+
+  /// No description provided for @treasuryE2eActivateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Treasury E2E config'**
+  String get treasuryE2eActivateDialogTitle;
+
+  /// No description provided for @treasuryE2eDeactivateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate Treasury E2E config'**
+  String get treasuryE2eDeactivateDialogTitle;
+
+  /// No description provided for @treasuryE2eArchiveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive Treasury E2E config'**
+  String get treasuryE2eArchiveDialogTitle;
+
+  /// No description provided for @treasuryE2eListSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'allowSkip={allowSkip} • strictHealth={strictHealth} • wallet={wallet}'**
+  String treasuryE2eListSummary(
+      String allowSkip, String strictHealth, String wallet);
+
+  /// No description provided for @treasuryE2eListTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Trader: {trader} • Risk: {risk}'**
+  String treasuryE2eListTokens(String trader, String risk);
+
+  /// No description provided for @treasuryE2eCurrentTraderToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Current trader token: {masked}'**
+  String treasuryE2eCurrentTraderToken(String masked);
+
+  /// No description provided for @treasuryE2eCurrentRiskToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Current risk token: {masked}'**
+  String treasuryE2eCurrentRiskToken(String masked);
+
+  /// No description provided for @treasuryE2eActivateDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate {name} for {environment}?'**
+  String treasuryE2eActivateDialogContent(String name, String environment);
+
+  /// No description provided for @treasuryE2eDeactivateDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String treasuryE2eDeactivateDialogContent(String name);
+
+  /// No description provided for @treasuryE2eArchiveDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive {name}?'**
+  String treasuryE2eArchiveDialogContent(String name);
+
+  /// No description provided for @treasuryE2eTraderSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trader test account'**
+  String get treasuryE2eTraderSearchLabel;
+
+  /// No description provided for @treasuryE2eLoadTraderAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Load traders / wallets'**
+  String get treasuryE2eLoadTraderAction;
+
+  /// No description provided for @treasuryE2eTraderSelectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trader test account'**
+  String get treasuryE2eTraderSelectLabel;
+
+  /// No description provided for @treasuryE2eTraderEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'All traders'**
+  String get treasuryE2eTraderEmpty;
+
+  /// No description provided for @treasuryE2eTestConnectionAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Test API / Test tokens'**
+  String get treasuryE2eTestConnectionAction;
+
+  /// No description provided for @treasuryE2eTestConnectionPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection test passed.'**
+  String get treasuryE2eTestConnectionPassed;
+
+  /// No description provided for @treasuryE2eTestConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection test failed.'**
+  String get treasuryE2eTestConnectionFailed;
+
+  /// No description provided for @treasuryE2eIdentityPreferredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred: select test identities so the backend mints short-lived tokens automatically.'**
+  String get treasuryE2eIdentityPreferredHint;
+
+  /// No description provided for @treasuryE2eRiskActorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk reviewer identity'**
+  String get treasuryE2eRiskActorLabel;
+
+  /// No description provided for @treasuryE2eRiskActorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No risk identity selected'**
+  String get treasuryE2eRiskActorEmpty;
+
+  /// No description provided for @treasuryE2eLegacyTokenSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy token fallback'**
+  String get treasuryE2eLegacyTokenSection;
 }
 
 class _AppLocalizationsDelegate

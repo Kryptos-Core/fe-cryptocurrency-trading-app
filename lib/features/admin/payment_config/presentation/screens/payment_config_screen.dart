@@ -15,6 +15,9 @@ import 'package:crypto_trading_app/features/admin/payment_config/presentation/sc
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_wallets_tab_view.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/runtime_settings_tab_view.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/runtime_settings_provider.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/treasury_e2e_config_provider.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_e2e_config_form_sheet.dart';
+import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_e2e_config_tab_view.dart';
 import 'package:crypto_trading_app/features/admin/shared/presentation/providers/admin_enums_provider.dart';
 
 String _paymentConfigDetailStr(dynamic v) {
@@ -52,7 +55,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabIndex = _tabController.index;
     _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,6 +99,9 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
         await context.read<TreasuryProvider>().loadHistory();
         break;
       case 4:
+        await context.read<TreasuryE2EConfigProvider>().loadConfigs();
+        break;
+      case 5:
         await context.read<RuntimeSettingsProvider>().load();
         break;
     }
@@ -128,6 +134,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
             Tab(text: l10n.paymentConfigMasterWalletTab),
             Tab(text: l10n.paymentConfigTreasuryWalletsTab),
             Tab(text: l10n.paymentConfigHistoryTab),
+            Tab(text: l10n.treasuryE2eTabTitle),
             Tab(text: l10n.paymentConfigRuntimeTab),
           ],
         ),
@@ -135,11 +142,18 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       floatingActionButton: _buildFloatingActionButton(context),
       body: TabBarView(
         controller: _tabController,
-        children: const [
+        children: [
           _PaymentConfigTabView(),
           TreasuryMainWalletsPanel(),
           TreasuryWalletsTabView(),
           TreasuryHistoryTabView(),
+          TreasuryE2EConfigTabView(
+            onCreate: () => _showTreasuryE2ECreateSheet(context),
+            onEdit: (config) => _showTreasuryE2EEditSheet(context, config),
+            onActivate: (config) => _confirmTreasuryE2EActivate(context, config),
+            onDeactivate: (config) => _confirmTreasuryE2EDeactivate(context, config),
+            onArchive: (config) => _confirmTreasuryE2EArchive(context, config),
+          ),
           RuntimeSettingsTabView(),
         ],
       ),
@@ -161,6 +175,14 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
         onPressed: () => _showCreateTreasuryWalletSheet(context),
         icon: const Icon(Icons.account_balance_wallet_outlined),
         label: Text(l10n.treasuryCreateWalletFab),
+      );
+    }
+
+    if (_tabIndex == 4) {
+      return FloatingActionButton.extended(
+        onPressed: () => _showTreasuryE2ECreateSheet(context),
+        icon: const Icon(Icons.playlist_add),
+        label: Text(l10n.treasuryE2eAddAction),
       );
     }
 
@@ -190,6 +212,11 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
 
     if (_tabIndex == 3) {
       await treasuryProvider.loadHistory(force: true);
+      return;
+    }
+
+    if (_tabIndex == 4) {
+      await context.read<TreasuryE2EConfigProvider>().loadConfigs(force: true);
       return;
     }
 
@@ -361,6 +388,88 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       ),
     );
   }
+
+  void _showTreasuryE2ECreateSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<TreasuryE2EConfigProvider>(),
+        child: const TreasuryE2EConfigFormSheet(),
+      ),
+    );
+  }
+
+  Future<void> _showTreasuryE2EEditSheet(BuildContext context, dynamic config) async {
+    final provider = context.read<TreasuryE2EConfigProvider>();
+    final detail = await provider.fetchDetail(config.configId);
+    if (!context.mounted || detail == null) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<TreasuryE2EConfigProvider>(),
+        child: TreasuryE2EConfigFormSheet(existing: detail),
+      ),
+    );
+  }
+
+  Future<void> _confirmTreasuryE2EActivate(BuildContext context, dynamic config) async {
+    final provider = context.read<TreasuryE2EConfigProvider>();
+    final ok = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(AppLocalizations.of(context).treasuryE2eActivateDialogTitle),
+            content: Text(AppLocalizations.of(context).treasuryE2eActivateDialogContent(config.displayName, config.environment)),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).treasuryE2eActivateAction)),
+            ],
+          ),
+        ) ??
+        false;
+    if (!ok || !context.mounted) return;
+    await provider.activateConfig(config.configId);
+  }
+
+  Future<void> _confirmTreasuryE2EDeactivate(BuildContext context, dynamic config) async {
+    final provider = context.read<TreasuryE2EConfigProvider>();
+    final ok = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(AppLocalizations.of(context).treasuryE2eDeactivateDialogTitle),
+            content: Text(AppLocalizations.of(context).treasuryE2eDeactivateDialogContent(config.displayName)),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).treasuryE2eDeactivateAction)),
+            ],
+          ),
+        ) ??
+        false;
+    if (!ok || !context.mounted) return;
+    await provider.deactivateConfig(config.configId);
+  }
+
+  Future<void> _confirmTreasuryE2EArchive(BuildContext context, dynamic config) async {
+    final provider = context.read<TreasuryE2EConfigProvider>();
+    final ok = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(AppLocalizations.of(context).treasuryE2eArchiveDialogTitle),
+            content: Text(AppLocalizations.of(context).treasuryE2eArchiveDialogContent(config.displayName)),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).treasuryE2eArchiveAction)),
+            ],
+          ),
+        ) ??
+        false;
+    if (!ok || !context.mounted) return;
+    await provider.archiveConfig(config.configId);
+  }
+
 }
 
 class _PaymentConfigTabView extends StatelessWidget {
