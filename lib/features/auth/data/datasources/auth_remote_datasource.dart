@@ -641,10 +641,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final msg = e.response!.data['message'] ?? 'Failed to change password';
-        if (e.response!.statusCode == 401)
+        if (e.response!.statusCode == 401) {
           throw AuthenticationException(message: msg);
-        if (e.response!.statusCode == 400)
+        }
+        if (e.response!.statusCode == 400) {
           throw ValidationException(message: msg);
+        }
         throw ServerException(message: msg);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');

@@ -749,7 +749,7 @@ class _PortfolioOverview extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final fmt = NumberFormat('#,##0.########');
     final rows = _rowsForDisplay();
-    final maxListHeight =
+    const maxListHeight =
         (_maxVisibleRows * _rowExtent) + ((_maxVisibleRows - 1) * _rowSpacing);
 
     final totalUsdt = dashboardProvider.portfolioTotal;
