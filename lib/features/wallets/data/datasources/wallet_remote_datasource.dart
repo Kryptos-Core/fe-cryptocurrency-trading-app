@@ -72,6 +72,58 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   WalletRemoteDataSourceImpl({required this.dioClient});
 
+  String _messageFromResponse(dynamic data, String fallback) {
+    if (data is Map) {
+      final message = data['message'];
+      if (message is String && message.trim().isNotEmpty) {
+        return message.trim();
+      }
+      if (message != null) {
+        final text = message.toString().trim();
+        if (text.isNotEmpty) return text;
+      }
+      final error = data['error'];
+      if (error is String && error.trim().isNotEmpty) {
+        return error.trim();
+      }
+      if (error != null) {
+        final text = error.toString().trim();
+        if (text.isNotEmpty) return text;
+      }
+    }
+    return fallback;
+  }
+
+  Never _throwMappedDioError(
+    DioException e, {
+    required String fallback,
+  }) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.connectionError) {
+      throw NetworkException(message: 'Connection timeout');
+    }
+
+    final statusCode = e.response?.statusCode;
+    final message = _messageFromResponse(e.response?.data, fallback);
+
+    if (statusCode == 401 || statusCode == 403) {
+      throw AuthenticationException(message: message);
+    }
+    if (statusCode == 400 || statusCode == 422) {
+      throw ValidationException(message: message);
+    }
+    if (statusCode == 404) {
+      throw NotFoundException(message: message);
+    }
+    if (statusCode != null && statusCode >= 500) {
+      throw ServerException(message: message, statusCode: statusCode);
+    }
+
+    throw ServerException(message: message, statusCode: statusCode);
+  }
+
   @override
   Future<WalletBalanceModel> getBalance(String currencyId) async {
     try {
@@ -112,6 +164,8 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       final balanceModel = WalletBalanceModel.fromJson(balanceData);
       return balanceModel;
+    } on DioException catch (e) {
+      _throwMappedDioError(e, fallback: 'Failed to fetch wallet balance');
     } on ServerException {
       rethrow;
     } on NetworkException {
@@ -153,6 +207,8 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         );
       }
       return [];
+    } on DioException catch (e) {
+      _throwMappedDioError(e, fallback: 'Failed to fetch transaction history');
     } on ServerException {
       rethrow;
     } on NetworkException {
@@ -214,23 +270,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       return WalletTransactionResponseModel.fromJson(transactionData);
     } on DioException catch (e) {
-      final data = e.response?.data;
-      final statusCode = e.response?.statusCode;
-      if (e.response != null && data is Map<String, dynamic>) {
-        final message = (data['message'] ?? data['error'])?.toString();
-        if (message != null && message.isNotEmpty) {
-          if (statusCode != null && statusCode >= 400 && statusCode < 500) {
-            throw ValidationException(message: message);
-          }
-          if (statusCode != null && statusCode >= 500) {
-            throw ServerException(
-              message: message,
-              statusCode: statusCode,
-            );
-          }
-        }
-      }
-      rethrow;
+      _throwMappedDioError(e, fallback: 'Failed to execute wallet transaction');
     } on ServerException {
       rethrow;
     } on NetworkException {
@@ -315,19 +355,6 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   }
 
   void _handleDioError(DioException e) {
-    final data = e.response?.data;
-    final statusCode = e.response?.statusCode;
-    if (e.response != null && data is Map<String, dynamic>) {
-      final message = (data['message'] ?? data['error'])?.toString();
-      if (message != null && message.isNotEmpty) {
-        if (statusCode != null && statusCode >= 400 && statusCode < 500) {
-          throw ValidationException(message: message);
-        }
-        if (statusCode != null && statusCode >= 500) {
-          throw ServerException(message: message, statusCode: statusCode);
-        }
-      }
-    }
-    throw ServerException(message: e.message ?? 'Network error');
+    _throwMappedDioError(e, fallback: e.message ?? 'Network error');
   }
 }

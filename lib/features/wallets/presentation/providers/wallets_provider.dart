@@ -473,6 +473,14 @@ class WalletsProvider extends ChangeNotifier {
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure) {
+      case AuthenticationFailure _:
+        return failure.message.isNotEmpty
+            ? failure.message
+            : 'Session expired. Please sign in again.';
+      case AuthorizationFailure _:
+        return failure.message.isNotEmpty
+            ? failure.message
+            : 'You do not have permission to access this wallet data.';
       case ServerFailure _:
         return failure.message.isNotEmpty
             ? failure.message
