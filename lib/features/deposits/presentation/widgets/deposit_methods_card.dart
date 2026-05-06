@@ -7,10 +7,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/features/managed_wallets/domain/entities/managed_wallet/deposit_method.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
-import 'package:crypto_trading_app/features/deposits/presentation/utils/deposit_methods_recommended_chain.dart';
 
 /// Public widget — shows platform deposit methods (no auth required).
 /// Embeds in OnchainDepositScreen above the submission form.
@@ -29,7 +26,6 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ManagedWalletsProvider>().fetchDepositMethods();
-      context.read<OnchainChainPickerProvider>().ensureLoaded();
       _paymentConfigProvider = context.read<PaymentConfigProvider>();
       _paymentConfigProvider!.addListener(_onPaymentConfigChanged);
     });
@@ -51,8 +47,8 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ManagedWalletsProvider, OnchainChainPickerProvider>(
-      builder: (context, provider, chainPicker, _) {
+    return Consumer<ManagedWalletsProvider>(
+      builder: (context, provider, _) {
         if (provider.isLoading && provider.depositMethods == null) {
           return const Card(
             child: Padding(
@@ -73,13 +69,9 @@ class _DepositMethodsCardState extends State<DepositMethodsCard> {
           return const SizedBox.shrink();
         }
 
-        var headerRecommended = resolveDepositMethodsHeaderRecommendedChain(
-          apiRecommended: methods.recommendedChain,
-          onchainDepositWithdrawCodes: chainPicker.onchainDepositWithdrawChainCodes,
-          tronDefaultFromPickerApi: chainPicker.rawOptions?.tronDefaultNetwork,
-        );
         final supportedCodes = supportedMethods.map((m) => m.chain).toSet();
-        if (headerRecommended != null && !supportedCodes.contains(headerRecommended)) {
+        var headerRecommended = methods.recommendedChain;
+        if (headerRecommended == null || !supportedCodes.contains(headerRecommended)) {
           final recommendedRows = supportedMethods.where((m) => m.isRecommended).toList();
           headerRecommended = recommendedRows.isNotEmpty
               ? recommendedRows.first.chain
@@ -141,12 +133,8 @@ class _CardHeader extends StatelessWidget {
                   Icon(Icons.star_rounded, size: 14, color: colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    context.watch<OnchainChainPickerProvider>().displayLabelForCode(recommendedChain!, compact: true),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onPrimaryContainer,
-                    ),
+                    recommendedChain!,
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colorScheme.onPrimaryContainer),
                   ),
                 ],
               ),
@@ -175,6 +163,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
     final colorScheme = Theme.of(context).colorScheme;
     final method = widget.method;
     final canExpand = method.depositEnabled && method.hasAddress;
+    final title = method.label.trim().isNotEmpty ? method.label : method.chain;
 
     return Column(
       children: [
@@ -185,7 +174,10 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                _ChainBadge(apiChain: method.chain),
+                _ChainBadge(
+                  apiChain: method.chain,
+                  displayLabel: method.label,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -195,7 +187,7 @@ class _DepositMethodTileState extends State<_DepositMethodTile> {
                         children: [
                           Expanded(
                             child: Text(
-                              context.watch<OnchainChainPickerProvider>().displayLabelForCode(method.chain),
+                              title,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: method.depositEnabled ? null : colorScheme.onSurfaceVariant,
@@ -332,8 +324,9 @@ class _QrSection extends StatelessWidget {
 
 class _ChainBadge extends StatelessWidget {
   final String apiChain;
+  final String displayLabel;
 
-  const _ChainBadge({required this.apiChain});
+  const _ChainBadge({required this.apiChain, required this.displayLabel});
 
   /// Row / header badge colors by chain family (label from [depositChainBadgeLabel]).
   static ({Color bg, Color border, Color fg}) _badgeColors(String raw) {
@@ -453,7 +446,7 @@ class _ChainBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = _badgeColors(apiChain);
-    final label = context.watch<OnchainChainPickerProvider>().displayLabelForCode(apiChain, compact: true);
+    final label = displayLabel.trim().isNotEmpty ? displayLabel : apiChain;
     return Container(
       constraints: const BoxConstraints(minWidth: 0),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),

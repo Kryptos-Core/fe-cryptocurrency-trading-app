@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
-import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/managed_wallets/domain/entities/managed_wallet/deposit_method.dart';
 import 'package:crypto_trading_app/features/managed_wallets/domain/entities/managed_wallet/managed_wallet.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/screens/managed_wallet_detail_screen.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/screens/widgets/managed_wallet_card.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
 
 /// User-facing deposit & managed wallets (`/managed-wallets`).
 /// Chain list matches Ví On-chain → Nạp tiền (same `managed_wallets` / `onchain_deposit_withdraw` picker).
@@ -26,7 +23,6 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<OnchainChainPickerProvider>().ensureLoaded();
       if (!mounted) return;
       await _loadAll();
     });
@@ -36,28 +32,11 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
     final provider = context.read<ManagedWalletsProvider>();
     await Future.wait([
       provider.fetchWallets(),
-      provider.fetchDepositDefaults(),
       provider.fetchDepositMethods(),
     ]);
     if (mounted && provider.error != null) {
       showAppSnackBar(context, message: provider.error!, type: SnackBarType.error);
       provider.clearError();
-    }
-  }
-
-  Future<void> _onSetRecommendedChain(String? chain) async {
-    if (chain == null) return;
-    final provider = context.read<ManagedWalletsProvider>();
-    final error = await provider.setRecommendedChain(chain);
-    if (!mounted) return;
-    if (error == null) {
-      showAppSnackBar(
-        context,
-        message: AppLocalizations.of(context).recommendedChainUpdated(chain),
-        type: SnackBarType.success,
-      );
-    } else {
-      showAppSnackBar(context, message: error, type: SnackBarType.error);
     }
   }
 
@@ -69,7 +48,10 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
       ),
     ).then((_) {
       if (mounted) {
-        context.read<ManagedWalletsProvider>().fetchWallets();
+        Future.wait([
+          context.read<ManagedWalletsProvider>().fetchWallets(),
+          context.read<ManagedWalletsProvider>().fetchDepositMethods(),
+        ]);
       }
     });
   }
@@ -77,8 +59,6 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final chainPicker = context.watch<OnchainChainPickerProvider>();
-    final mwChains = chainPicker.managedWalletsChains;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.treasuryTitle),
@@ -113,57 +93,9 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
                         title: l10n.managedWalletsActiveDefaults,
                       ),
                       const SizedBox(height: 4),
-                      ..._depositDefaultBlocks(context, provider.depositDefaults, mwChains),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _ManagedSurfaceCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.star_outline_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.managedWalletsRecommendedChainTitle,
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.1,
-                                      ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  l10n.managedWalletsRecommendedChainDesc,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        height: 1.35,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (provider.isSubmitting)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      TreasuryChainDropdown(
-                        chains: mwChains,
-                        value: provider.recommendedChain,
-                        labelText: l10n.managedWalletsRecommendedChainLabel,
-                        hintText: l10n.managedWalletsSelectChain,
-                        onChanged: provider.isSubmitting ? null : _onSetRecommendedChain,
+                      ..._depositDefaultBlocks(
+                        context,
+                        provider.depositMethods?.methods ?? const [],
                       ),
                     ],
                   ),
@@ -208,22 +140,38 @@ class _ManagedWalletsScreenState extends State<ManagedWalletsScreen> {
 
 List<Widget> _depositDefaultBlocks(
   BuildContext context,
-  List<ManagedWallet> depositDefaults,
-  List<String> chainIds,
+  List<DepositMethod> methods,
 ) {
   final l10n = AppLocalizations.of(context);
   final scheme = Theme.of(context).colorScheme;
-  final widgets = <Widget>[];
+  final configuredMethods = methods.where((m) => m.depositEnabled && m.hasAddress).toList();
 
-  for (var i = 0; i < chainIds.length; i++) {
-    final chainId = chainIds[i];
-    final defaultWallet =
-        depositDefaults.where((w) => w.chain.apiValue == chainId).firstOrNull;
-    final chainLabel = treasuryChainDisplayLabel(
-      l10n,
-      chainId,
-      apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
-    );
+  if (configuredMethods.isEmpty) {
+    return [
+      Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Row(
+          children: [
+            Icon(Icons.radio_button_unchecked_rounded, size: 18, color: scheme.outline),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                l10n.managedWalletsNotConfigured,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      height: 1.35,
+                    ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  final widgets = <Widget>[];
+  for (var i = 0; i < configuredMethods.length; i++) {
+    final method = configuredMethods[i];
 
     if (i > 0) {
       widgets.add(
@@ -238,58 +186,41 @@ List<Widget> _depositDefaultBlocks(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _ManagedChainCapsule(label: chainLabel, scheme: scheme),
+          _ManagedChainCapsule(label: method.label, scheme: scheme),
           const SizedBox(height: 8),
-          if (defaultWallet != null)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SelectableText(
-                        defaultWallet.truncatedAddress,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontFamily: 'monospace',
-                              height: 1.4,
-                            ),
-                      ),
-                      if (defaultWallet.label != null && defaultWallet.label!.trim().isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            defaultWallet.label!.trim(),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SelectableText(
+                      method.truncatedAddress,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontFamily: 'monospace',
+                            height: 1.4,
                           ),
+                    ),
+                    if (method.label.trim().isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          method.label.trim(),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              ],
-            )
-          else
-            Row(
-              children: [
-                Icon(Icons.radio_button_unchecked_rounded, size: 18, color: scheme.outline),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.managedWalletsNotConfigured,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          height: 1.35,
-                        ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -146,8 +146,11 @@ class ManagedWalletsProvider extends ChangeNotifier {
       },
     );
     if (errorMessage == null) {
-      await fetchWallets();
-      await fetchDepositDefaults();
+      await Future.wait([
+        fetchWallets(),
+        fetchDepositDefaults(),
+        fetchDepositMethods(), // Refresh default deposit addresses UI
+      ]);
     }
     _setSubmitting(false);
     return errorMessage;
@@ -167,9 +170,11 @@ class ManagedWalletsProvider extends ChangeNotifier {
       },
     );
     if (errorMessage == null) {
-      await fetchWallets();
-      await fetchDepositDefaults();
-      await fetchDepositMethods();
+      await Future.wait([
+        fetchWallets(),
+        fetchDepositDefaults(),
+        fetchDepositMethods(), // Refresh default deposit addresses UI
+      ]);
     }
     _setSubmitting(false);
     return errorMessage;

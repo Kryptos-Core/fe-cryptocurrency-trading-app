@@ -178,14 +178,6 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       );
     }
 
-    if (_tabIndex == 4) {
-      return FloatingActionButton.extended(
-        onPressed: () => _showTreasuryE2ECreateSheet(context),
-        icon: const Icon(Icons.playlist_add),
-        label: Text(l10n.treasuryE2eAddAction),
-      );
-    }
-
     return null;
   }
 
