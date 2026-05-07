@@ -16,7 +16,7 @@ class RuntimeSettingsProvider extends ChangeNotifier {
   String? _error;
   DateTime? _runtimeFetchedAt;
 
-  List<RuntimeSettingRow> get rows => _rowsByCategory['tech'] ?? [];
+  List<RuntimeSettingRow> rowsFor(String category) => _rowsByCategory[category] ?? [];
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   String? get error => _error;

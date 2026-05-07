@@ -27,6 +27,7 @@ abstract final class AppRoutes {
   static const String adminCurrencies = '/admin/currencies';
   static const String adminMarkets = '/admin/markets';
   static const String adminPaymentConfig = '/admin/payment-config';
+  static const String adminSystemConfig = '/admin/system-config';
   static const String adminWithdrawals = '/admin/withdrawals';
   static const String adminFiatWithdrawals = '/admin/fiat-withdrawals';
   static const String adminBroadcast = '/admin/broadcast';

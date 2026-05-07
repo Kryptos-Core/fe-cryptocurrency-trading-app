@@ -3928,6 +3928,30 @@ abstract class AppLocalizations {
   /// **'Hidden - tap \"Show\" to reveal'**
   String get paymentConfigMaskedHelper;
 
+  /// No description provided for @systemConfigScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Configuration'**
+  String get systemConfigScreenTitle;
+
+  /// No description provided for @drawerSystemConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'System Configuration'**
+  String get drawerSystemConfig;
+
+  /// No description provided for @drawerSystemConfigSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment variables, RPC, limits, engine'**
+  String get drawerSystemConfigSubtitle;
+
+  /// No description provided for @systemConfigRefreshHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull down to refresh'**
+  String get systemConfigRefreshHint;
+
   /// No description provided for @paymentConfigRuntimeTab.
   ///
   /// In en, this message translates to:

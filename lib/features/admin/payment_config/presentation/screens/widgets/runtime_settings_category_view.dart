@@ -72,7 +72,7 @@ class _RuntimeSettingsCategoryViewState
   Future<void> _save(BuildContext context, RuntimeSettingsProvider provider) async {
     final l10n = AppLocalizations.of(context);
     final updates = <String, String>{};
-    for (final r in provider.rows) {
+    for (final r in provider.rowsFor(widget.category)) {
       if (r.isReadOnly) continue;
       updates[r.key] = _controllers[r.key]?.text.trim() ?? '';
     }
@@ -99,10 +99,11 @@ class _RuntimeSettingsCategoryViewState
 
     return Consumer<RuntimeSettingsProvider>(
       builder: (context, provider, _) {
-        if (provider.isLoading && provider.rows.isEmpty) {
+        final rows = provider.rowsFor(widget.category);
+        if (provider.isLoading && rows.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (provider.error != null && provider.rows.isEmpty) {
+        if (provider.error != null && rows.isEmpty) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -132,7 +133,7 @@ class _RuntimeSettingsCategoryViewState
           );
         }
 
-        _ensureControllers(provider.rows);
+        _ensureControllers(rows);
 
         return Column(
           children: [
@@ -167,7 +168,7 @@ class _RuntimeSettingsCategoryViewState
                     ),
                     const SizedBox(height: 16),
                     ..._runtimeCards(
-                      rows: provider.rows,
+                      rows: rows,
                       l10n: l10n,
                       textTheme: textTheme,
                       controllers: _controllers,

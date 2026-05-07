@@ -2121,6 +2121,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigMaskedHelper => 'Ẩn — nhấn \"Hiện\" để xem';
 
   @override
+  String get systemConfigScreenTitle => 'Cấu hình hệ thống';
+
+  @override
+  String get drawerSystemConfig => 'Cấu hình hệ thống';
+
+  @override
+  String get drawerSystemConfigSubtitle =>
+      'Biến môi trường, RPC, giới hạn, engine';
+
+  @override
+  String get systemConfigRefreshHint => 'Kéo xuống để làm mới';
+
+  @override
   String get paymentConfigRuntimeTab => 'Nền tảng';
 
   @override

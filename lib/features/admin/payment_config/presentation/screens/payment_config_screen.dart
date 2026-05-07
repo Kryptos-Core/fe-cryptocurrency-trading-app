@@ -13,8 +13,6 @@ import 'package:crypto_trading_app/features/treasury/presentation/screens/treasu
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_create_wallet_sheet.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_history_tab_view.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_wallets_tab_view.dart';
-import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/runtime_settings_tab_view.dart';
-import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/runtime_settings_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/treasury_e2e_config_provider.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_e2e_config_form_sheet.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/widgets/treasury_e2e_config_tab_view.dart';
@@ -55,7 +53,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabIndex = _tabController.index;
     _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,10 +99,6 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       case 4:
         await context.read<TreasuryE2EConfigProvider>().loadConfigs();
         break;
-      case 5:
-        // Runtime settings tabs load their own data internally via
-        // RuntimeSettingsCategoryView.initState → RuntimeSettingsProvider.load(category).
-        break;
     }
   }
 
@@ -136,7 +130,6 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
             Tab(text: l10n.paymentConfigTreasuryWalletsTab),
             Tab(text: l10n.paymentConfigHistoryTab),
             Tab(text: l10n.treasuryE2eTabTitle),
-            Tab(text: l10n.paymentConfigRuntimeTab),
           ],
         ),
       ),
@@ -155,7 +148,6 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
             onDeactivate: (config) => _confirmTreasuryE2EDeactivate(context, config),
             onArchive: (config) => _confirmTreasuryE2EArchive(context, config),
           ),
-          const RuntimeSettingsTabView(),
         ],
       ),
     );
@@ -212,15 +204,6 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       await context.read<TreasuryE2EConfigProvider>().loadConfigs(force: true);
       return;
     }
-
-    // Runtime settings: refresh all 4 categories.
-    final rt = context.read<RuntimeSettingsProvider>();
-    await Future.wait([
-      rt.load(category: 'tech', force: true),
-      rt.load(category: 'finance', force: true),
-      rt.load(category: 'ops', force: true),
-      rt.load(category: 'core', force: true),
-    ]);
   }
 
   void _showCreateConfigSheet(BuildContext context) {

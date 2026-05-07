@@ -2118,6 +2118,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigMaskedHelper => 'Hidden - tap \"Show\" to reveal';
 
   @override
+  String get systemConfigScreenTitle => 'System Configuration';
+
+  @override
+  String get drawerSystemConfig => 'System Configuration';
+
+  @override
+  String get drawerSystemConfigSubtitle =>
+      'Environment variables, RPC, limits, engine';
+
+  @override
+  String get systemConfigRefreshHint => 'Pull down to refresh';
+
+  @override
   String get paymentConfigRuntimeTab => 'Platform';
 
   @override

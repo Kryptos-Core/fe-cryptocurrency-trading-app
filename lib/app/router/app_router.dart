@@ -12,6 +12,7 @@ import 'package:crypto_trading_app/features/admin/markets/presentation/screens/a
 import 'package:crypto_trading_app/features/admin/fiat_withdrawals/presentation/screens/fiat_withdrawals_admin_screen.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/screens/payment_config_screen.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
+import 'package:crypto_trading_app/features/admin/system_config/presentation/screens/system_config_screen.dart';
 import 'package:crypto_trading_app/features/admin/security_requests/presentation/screens/security_requests_review_screen.dart';
 import 'package:crypto_trading_app/features/admin/transactions/presentation/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/features/admin/users/presentation/screens/admin_user_list_screen.dart';
@@ -104,6 +105,10 @@ GoRouter createAppRouter(AuthProvider auth) {
           value: context.read<PaymentConfigProvider>(),
           child: const PaymentConfigScreen(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSystemConfig,
+        builder: (_, __) => const SystemConfigScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminUsers,
