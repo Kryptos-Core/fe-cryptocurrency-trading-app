@@ -818,7 +818,7 @@ class _PortfolioOverview extends StatelessWidget {
               )
             else
               ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: maxListHeight),
+                constraints: const BoxConstraints(maxHeight: maxListHeight),
                 child: ListView.separated(
                   primary: false,
                   shrinkWrap: true,

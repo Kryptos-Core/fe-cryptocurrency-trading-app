@@ -10,10 +10,10 @@ import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchai
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
@@ -34,7 +34,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
 
-  late BlockchainNetwork _selectedNetwork;
+  BlockchainNetwork? _selectedNetwork;
   String? _selectedWalletId;
   BlockchainNetwork? _txFilterNetwork;
   OnchainTxType _txFilterType = OnchainTxType.withdrawal;
@@ -202,18 +202,13 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedNetwork = onchainDepositWithdrawNetworksForCurrentEnv().first;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final picker = context.read<OnchainChainPickerProvider>();
-      await picker.ensureLoaded();
+      final chainPicker = context.read<OnchainChainPickerProvider>();
+      final treasuryProvider = context.read<TreasuryProvider>();
+      await chainPicker.ensureLoaded();
+      await treasuryProvider.loadWallets();
+
       if (!mounted) return;
-      final nets = picker.onchainDepositWithdrawNetworks;
-      if (nets.isNotEmpty && !nets.contains(_selectedNetwork)) {
-        setState(() {
-          _selectedNetwork = nets.first;
-          _selectedWalletId = null;
-        });
-      }
       context.read<BlockchainProvider>().fetchLinkedWallets();
     });
   }
@@ -235,9 +230,12 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
       return;
     }
 
+    final selectedNetwork = _selectedNetwork;
+    if (selectedNetwork == null) return;
+
     final provider = context.read<BlockchainProvider>();
     final ok = await provider.requestWithdrawal(
-      chain: _selectedNetwork,
+      chain: selectedNetwork,
       linkedWalletId: _selectedWalletId!,
       amount: _amountController.text.trim(),
     );
@@ -260,17 +258,63 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
 
   @override
   Widget build(BuildContext outerContext) {
-    return Consumer<BlockchainProvider>(
-      builder: (context, provider, _) {
+    return Consumer2<BlockchainProvider, TreasuryProvider>(
+      builder: (context, provider, treasuryProvider, _) {
         final l10n = AppLocalizations.of(context);
         final menuHeight = MediaQuery.sizeOf(context).height * 0.35;
-        final networks = context
+        final allNetworks = context
             .watch<OnchainChainPickerProvider>()
             .onchainDepositWithdrawNetworks;
+
+        final treasuryWallets = treasuryProvider.wallets;
+        final withdrawalWalletChains = treasuryWallets
+            .where((w) =>
+                w.isActive &&
+                (w.purpose == 'WITHDRAWAL' || w.purpose == 'BOTH'))
+            .map((w) => w.chain)
+            .toSet()
+            .toList();
+
+        final withdrawalNetworks = allNetworks
+            .where((network) => withdrawalWalletChains.contains(network.apiValue))
+            .toList();
+
+        if (withdrawalNetworks.isEmpty) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.requestOnchainWithdrawal,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                OnchainSandboxOperatorBanner(l10n: l10n),
+                const SizedBox(height: 16),
+                _buildEmptyState(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: l10n.noVerifiedWalletTitle,
+                  message: l10n.noVerifiedWalletDesc,
+                ),
+              ],
+            ),
+          );
+        }
+
+        final networks = withdrawalNetworks;
+
+        final effectiveNetwork = networks.contains(_selectedNetwork)
+            ? _selectedNetwork!
+            : networks.isNotEmpty
+                ? networks.first
+                : null;
+
         final wallets = provider.linkedWallets
             .where(
               (wallet) =>
-                  wallet.chain == _selectedNetwork &&
+                  wallet.chain == effectiveNetwork &&
                   wallet.status == LinkedWalletStatus.verified,
             )
             .toList();
@@ -280,6 +324,30 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
         if (_selectedWalletId != null &&
             wallets.every((wallet) => wallet.linkId != _selectedWalletId)) {
           _selectedWalletId = null;
+        }
+
+        if (effectiveNetwork == null) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.requestOnchainWithdrawal,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                OnchainSandboxOperatorBanner(l10n: l10n),
+                const SizedBox(height: 16),
+                _buildEmptyState(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: l10n.noVerifiedWalletTitle,
+                  message: l10n.noVerifiedWalletDesc,
+                ),
+              ],
+            ),
+          );
         }
 
         return SingleChildScrollView(
@@ -299,7 +367,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 const SizedBox(height: 16),
                 OnchainSandboxOperatorBanner(l10n: l10n),
                 AppDropdownField<BlockchainNetwork>(
-                  value: _selectedNetwork,
+                  value: effectiveNetwork,
                   menuMaxHeight: 300,
                   labelText: l10n.networkLabel,
                   contentPadding:
@@ -367,7 +435,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                       labelText: l10n.amount,
                       border: const OutlineInputBorder(),
                     ),
-                    currencySymbol: _selectedNetwork.nativeSymbol,
+                    currencySymbol: effectiveNetwork.nativeSymbol,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

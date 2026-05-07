@@ -34,6 +34,11 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
     };
   }
 
+  String _runtimeUrl([String? category]) {
+    if (category != null) return '${ApiConstants.baseUrl}/system-configs/runtime/$category';
+    return '${ApiConstants.baseUrl}/system-configs/runtime';
+  }
+
   @override
   Future<List<SystemConfig>> getAllConfigs() async {
     final response = await _client.get(
@@ -53,9 +58,9 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
   }
 
   @override
-  Future<List<RuntimeSettingRow>> getRuntimeSettings() async {
+  Future<List<RuntimeSettingRow>> getRuntimeSettings({String? category}) async {
     final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/system-configs/runtime'),
+      Uri.parse(_runtimeUrl(category)),
       headers: await _headers(),
     );
 
@@ -72,9 +77,9 @@ class SystemConfigRepositoryImpl implements SystemConfigRepository {
   }
 
   @override
-  Future<void> patchRuntimeBulk(Map<String, String> updates) async {
+  Future<void> patchRuntimeBulk(Map<String, String> updates, {String? category}) async {
     final response = await _client.patch(
-      Uri.parse('${ApiConstants.baseUrl}/system-configs/runtime'),
+      Uri.parse(_runtimeUrl(category)),
       headers: await _headers(),
       body: jsonEncode({'updates': updates}),
     );

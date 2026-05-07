@@ -41,6 +41,7 @@ class RuntimeSettingRow {
   static ConfigCategory _parseCategory(String? cat) {
     if (cat == 'tech') return ConfigCategory.tech;
     if (cat == 'finance') return ConfigCategory.finance;
+    if (cat == 'ops') return ConfigCategory.ops;
     return ConfigCategory.core;
   }
 }

@@ -9,19 +9,23 @@ class RuntimeSettingsProvider extends ChangeNotifier {
 
   final SystemConfigRepository _repository;
 
-  List<RuntimeSettingRow> _rows = [];
+  /// Per-category rows (keyed by ConfigCategory name).
+  final Map<String, List<RuntimeSettingRow>> _rowsByCategory = {};
   bool _isLoading = false;
   bool _isSaving = false;
   String? _error;
   DateTime? _runtimeFetchedAt;
 
-  List<RuntimeSettingRow> get rows => _rows;
+  List<RuntimeSettingRow> get rows => _rowsByCategory['tech'] ?? [];
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   String? get error => _error;
 
-  Future<void> load({bool force = false}) async {
-    if (!force && isStaleQueryFresh(_runtimeFetchedAt) && _error == null) {
+  Future<void> load({required String category, bool force = false}) async {
+    if (!force &&
+        isStaleQueryFresh(_runtimeFetchedAt) &&
+        _error == null &&
+        _rowsByCategory.containsKey(category)) {
       return;
     }
 
@@ -29,7 +33,8 @@ class RuntimeSettingsProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _rows = await _repository.getRuntimeSettings();
+      final rows = await _repository.getRuntimeSettings(category: category);
+      _rowsByCategory[category] = rows;
       _runtimeFetchedAt = DateTime.now();
     } catch (e) {
       _error = e.toString();
@@ -39,13 +44,13 @@ class RuntimeSettingsProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveAll(Map<String, String> updates) async {
+  Future<bool> saveAll(Map<String, String> updates, {required String category}) async {
     _isSaving = true;
     _error = null;
     notifyListeners();
     try {
-      await _repository.patchRuntimeBulk(updates);
-      await load(force: true);
+      await _repository.patchRuntimeBulk(updates, category: category);
+      await load(category: category, force: true);
       return true;
     } catch (e) {
       _error = e.toString();

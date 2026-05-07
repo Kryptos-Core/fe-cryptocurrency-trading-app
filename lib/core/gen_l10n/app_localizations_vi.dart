@@ -2147,6 +2147,29 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigRuntimeSectionFinance => 'Tài chính & giới hạn';
 
   @override
+  String get paymentConfigRuntimeSectionOps => 'Vận hành & Engine';
+
+  @override
+  String get paymentConfigRuntimeSectionOpsDesc =>
+      'Matching engine, Go aggregator, outbox alerts, rollout strategy và market read — dành cho đội vận hành.';
+
+  @override
+  String get paymentConfigRuntimeSectionTechDesc =>
+      'RPC URLs, API endpoints và cấu hình blockchain infra — dành cho đội kỹ thuật.';
+
+  @override
+  String get paymentConfigRuntimeSectionFinanceDesc =>
+      'Withdraw limits, transfer limits, rate fallbacks và MM defaults — dành cho đội tài chính.';
+
+  @override
+  String get paymentConfigRuntimeSectionCoreDesc =>
+      'Default symbols, market sources và wallet config — dành cho đội vận hành.';
+
+  @override
+  String get paymentConfigRuntimeNoPermission =>
+      'Bạn không có quyền chỉnh sửa cấu hình nền tảng.';
+
+  @override
   String get paymentConfigRuntimeSourceEnv => 'Mặc định (env)';
 
   @override

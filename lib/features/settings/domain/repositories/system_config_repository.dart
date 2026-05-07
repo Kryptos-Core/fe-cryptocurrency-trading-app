@@ -5,9 +5,9 @@ import 'package:crypto_trading_app/features/settings/domain/models/system_config
 abstract class SystemConfigRepository {
   Future<List<SystemConfig>> getAllConfigs();
 
-  Future<List<RuntimeSettingRow>> getRuntimeSettings();
+  Future<List<RuntimeSettingRow>> getRuntimeSettings({String? category});
 
-  Future<void> patchRuntimeBulk(Map<String, String> updates);
+  Future<void> patchRuntimeBulk(Map<String, String> updates, {String? category});
 
   Future<SystemConfig> updateConfig(String key, String value);
 }

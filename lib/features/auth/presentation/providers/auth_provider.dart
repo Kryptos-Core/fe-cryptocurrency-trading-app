@@ -105,6 +105,24 @@ class AuthProvider extends ChangeNotifier {
   bool get canManageTreasuryE2EConfigs =>
       hasPermission('treasury_e2e_configs:manage') || isAdmin || isFinanceManager;
 
+  // ── Runtime Settings ────────────────────────────────────────────────────────
+
+  /// TECH: manage TECH runtime settings (RPC URLs, blockchain infra)
+  bool get canEditSystemConfigTech =>
+      hasPermission('system_config:edit_tech') || isAdmin;
+
+  /// FINANCE: manage FINANCE runtime settings (withdraw limits, rate fallbacks, MM defaults)
+  bool get canEditSystemConfigFinance =>
+      hasPermission('system_config:edit_finance') || isAdmin || isFinanceManager;
+
+  /// OPS: manage OPS runtime settings (matching engine, Go aggregator, outbox, rollout)
+  bool get canEditSystemConfigOps =>
+      hasPermission('system_config:edit_ops') || isAdmin;
+
+  /// CORE: manage CORE runtime settings (symbols, market sources, wallet config)
+  bool get canEditSystemConfigCore =>
+      hasPermission('system_config:edit_core') || isAdmin;
+
   bool hasPermission(String permission) => _permissions.contains(permission);
 
   // ── Public API ─────────────────────────────────────────────────────────────

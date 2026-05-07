@@ -102,7 +102,8 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
         await context.read<TreasuryE2EConfigProvider>().loadConfigs();
         break;
       case 5:
-        await context.read<RuntimeSettingsProvider>().load();
+        // Runtime settings tabs load their own data internally via
+        // RuntimeSettingsCategoryView.initState → RuntimeSettingsProvider.load(category).
         break;
     }
   }
@@ -143,10 +144,10 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _PaymentConfigTabView(),
-          TreasuryMainWalletsPanel(),
-          TreasuryWalletsTabView(),
-          TreasuryHistoryTabView(),
+          const _PaymentConfigTabView(),
+          const TreasuryMainWalletsPanel(),
+          const TreasuryWalletsTabView(),
+          const TreasuryHistoryTabView(),
           TreasuryE2EConfigTabView(
             onCreate: () => _showTreasuryE2ECreateSheet(context),
             onEdit: (config) => _showTreasuryE2EEditSheet(context, config),
@@ -154,7 +155,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
             onDeactivate: (config) => _confirmTreasuryE2EDeactivate(context, config),
             onArchive: (config) => _confirmTreasuryE2EArchive(context, config),
           ),
-          RuntimeSettingsTabView(),
+          const RuntimeSettingsTabView(),
         ],
       ),
     );
@@ -212,7 +213,14 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       return;
     }
 
-    await context.read<RuntimeSettingsProvider>().load(force: true);
+    // Runtime settings: refresh all 4 categories.
+    final rt = context.read<RuntimeSettingsProvider>();
+    await Future.wait([
+      rt.load(category: 'tech', force: true),
+      rt.load(category: 'finance', force: true),
+      rt.load(category: 'ops', force: true),
+      rt.load(category: 'core', force: true),
+    ]);
   }
 
   void _showCreateConfigSheet(BuildContext context) {

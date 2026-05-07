@@ -2141,7 +2141,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigRuntimeSectionTech => 'Infrastructure & RPC';
 
   @override
-  String get paymentConfigRuntimeSectionFinance => 'Finance & limits';
+  String get paymentConfigRuntimeSectionFinance => 'Finance & Limits';
+
+  @override
+  String get paymentConfigRuntimeSectionOps => 'Ops & Engine';
+
+  @override
+  String get paymentConfigRuntimeSectionOpsDesc =>
+      'Matching engine, Go aggregator, outbox alerts, rollout strategy, and market read — for ops team.';
+
+  @override
+  String get paymentConfigRuntimeSectionTechDesc =>
+      'RPC URLs, API endpoints, and blockchain infra configuration — for tech team.';
+
+  @override
+  String get paymentConfigRuntimeSectionFinanceDesc =>
+      'Withdraw limits, transfer limits, rate fallbacks, and MM defaults — for finance team.';
+
+  @override
+  String get paymentConfigRuntimeSectionCoreDesc =>
+      'Default symbols, market sources, and wallet config — for ops team.';
+
+  @override
+  String get paymentConfigRuntimeNoPermission =>
+      'You do not have permission to edit platform settings.';
 
   @override
   String get paymentConfigRuntimeSourceEnv => 'Default (env)';

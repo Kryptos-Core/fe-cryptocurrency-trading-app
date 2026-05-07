@@ -9,6 +9,7 @@ import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
+import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_dtos.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_tx_status.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/providers/blockchain_provider.dart';
@@ -41,6 +42,13 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
   PaymentConfigProvider? _paymentConfigProvider;
 
+  // ── Manual txHash submit form ──────────────────────────────────────────────
+  final _txHashController = TextEditingController();
+  bool _showManualForm = false;
+  DepositPreviewResponse? _pendingPreview;
+  String? _previewError;
+  bool _isSubmittingDeposit = false;
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +78,74 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     if (event?.event == 'ACTIVATED' && mounted) {
       context.read<BlockchainProvider>().fetchRecentTransactions();
       context.read<ManagedWalletsProvider>().fetchDepositMethods();
+    }
+  }
+
+  // ── Manual txHash submit handlers ─────────────────────────────────────────
+
+  void _resetManualForm() {
+    setState(() {
+      _txHashController.clear();
+      _pendingPreview = null;
+      _previewError = null;
+      _showManualForm = false;
+    });
+  }
+
+  Future<void> _previewDepositTx() async {
+    final txHash = _txHashController.text.trim();
+    if (txHash.isEmpty) {
+      setState(() {
+        _previewError = AppLocalizations.of(context).txHashRequired;
+        _pendingPreview = null;
+      });
+      return;
+    }
+
+    final prov = context.read<BlockchainProvider>();
+    final selectedChain = _txFilterNetwork ?? BlockchainNetwork.tronNile;
+
+    final preview = await prov.previewDeposit(selectedChain, txHash);
+    if (!mounted) return;
+
+    setState(() {
+      if (preview != null) {
+        _pendingPreview = preview;
+        _previewError = null;
+      } else {
+        _pendingPreview = null;
+        _previewError = prov.error ?? AppLocalizations.of(context).txHashRequired;
+      }
+    });
+  }
+
+  Future<void> _submitDepositTx() async {
+    final preview = _pendingPreview;
+    if (preview == null) return;
+
+    setState(() => _isSubmittingDeposit = true);
+
+    final ok = await context.read<BlockchainProvider>().submitDeposit(
+          chain: preview.chain,
+          txHash: preview.txHash,
+          amount: preview.onchainAmount,
+        );
+
+    if (!mounted) return;
+    setState(() => _isSubmittingDeposit = false);
+
+    showAppSnackBar(
+      context,
+      message: ok
+          ? AppLocalizations.of(context).depositSubmittedSuccess
+          : (context.read<BlockchainProvider>().error ??
+              AppLocalizations.of(context).depositFailed),
+      type: ok ? SnackBarType.success : SnackBarType.error,
+    );
+
+    if (ok) {
+      _resetManualForm();
+      context.read<BlockchainProvider>().fetchRecentTransactions();
     }
   }
 
@@ -496,6 +572,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
 
   @override
   void dispose() {
+    _txHashController.dispose();
     _txListPoll?.cancel();
     _paymentConfigProvider?.removeListener(_onPaymentConfigChanged);
     super.dispose();
@@ -665,6 +742,31 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // ── Manual txHash submit form ───────────────────────────────────
+              if (_showManualForm)
+                _ManualDepositFormWidget(
+                  txHashController: _txHashController,
+                  preview: _pendingPreview,
+                  previewError: _previewError,
+                  isSubmitting: _isSubmittingDeposit,
+                  isLoadingPreview: provider.isLoading,
+                  onPreview: _previewDepositTx,
+                  onSubmit: _submitDepositTx,
+                  onCancel: _resetManualForm,
+                  l10n: l10n,
+                )
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => setState(() => _showManualForm = true),
+                    icon: const Icon(Icons.qr_code_scanner, size: 18),
+                    label: Text(l10n.submitOnchainDeposit),
+                  ),
+                ),
+
               const SizedBox(height: 16),
               OnchainSandboxOperatorBanner(l10n: l10n),
               const SizedBox(height: 20),
@@ -775,6 +877,246 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+// ── Manual txHash submit form widget ──────────────────────────────────────────
+
+class _ManualDepositFormWidget extends StatelessWidget {
+  final TextEditingController txHashController;
+  final DepositPreviewResponse? preview;
+  final String? previewError;
+  final bool isSubmitting;
+  final bool isLoadingPreview;
+  final VoidCallback onPreview;
+  final VoidCallback onSubmit;
+  final VoidCallback onCancel;
+  final AppLocalizations l10n;
+
+  const _ManualDepositFormWidget({
+    required this.txHashController,
+    required this.preview,
+    required this.previewError,
+    required this.isSubmitting,
+    required this.isLoadingPreview,
+    required this.onPreview,
+    required this.onSubmit,
+    required this.onCancel,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasError = previewError != null && preview == null;
+    final hasPreview = preview != null;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F9FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF90B8F5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.qr_code_scanner, size: 20, color: Color(0xFF0A5DC2)),
+              const SizedBox(width: 8),
+              Text(
+                l10n.submitOnchainDeposit,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Color(0xFF0A3A8A),
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: onCancel,
+                visualDensity: VisualDensity.compact,
+                tooltip: l10n.close,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // TxHash input
+          TextField(
+            controller: txHashController,
+            decoration: InputDecoration(
+              labelText: l10n.transactionHashLabel,
+              hintText: 'e.g. abc123def456...',
+              border: const OutlineInputBorder(),
+              isDense: true,
+              errorText: hasError ? previewError : null,
+            ),
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+            maxLines: 1,
+          ),
+          const SizedBox(height: 10),
+
+          // Preview / Submit buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: isLoadingPreview ? null : onPreview,
+                  child: isLoadingPreview
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Preview'),
+                ),
+              ),
+              if (hasPreview) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: isSubmitting ? null : onSubmit,
+                    child: isSubmitting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(l10n.submit),
+                  ),
+                ),
+              ],
+            ],
+          ),
+
+          // Preview result card
+          if (hasPreview) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.depositPreviewLabel(preview!.status, preview!.onchainAmount),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Color(0xFF0F8A49),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _PreviewRow(label: l10n.networkLabel, value: preview!.chain.label),
+                  _PreviewRow(
+                    label: l10n.transactionHashLabel,
+                    value: preview!.txHash.length > 20
+                        ? '${preview!.txHash.substring(0, 12)}...${preview!.txHash.substring(preview!.txHash.length - 8)}'
+                        : preview!.txHash,
+                  ),
+                  if (preview!.fromAddress.isNotEmpty)
+                    _PreviewRow(label: 'From', value: preview!.fromAddress),
+                  _PreviewRow(label: 'To', value: preview!.toAddress),
+                  const SizedBox(height: 4),
+                  if (!preview!.senderLinked)
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3CD),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber,
+                              size: 14, color: Color(0xFFB56900)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              l10n.depositPreviewNotLinked,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFB56900),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+
+          if (hasError) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDECEF),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline,
+                      size: 16, color: Color(0xFFB3261E)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      previewError!,
+                      style: const TextStyle(
+                          fontSize: 12, color: Color(0xFFB3261E)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PreviewRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _PreviewRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

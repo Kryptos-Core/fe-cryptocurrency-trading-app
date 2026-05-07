@@ -3973,8 +3973,44 @@ abstract class AppLocalizations {
   /// No description provided for @paymentConfigRuntimeSectionFinance.
   ///
   /// In en, this message translates to:
-  /// **'Finance & limits'**
+  /// **'Finance & Limits'**
   String get paymentConfigRuntimeSectionFinance;
+
+  /// No description provided for @paymentConfigRuntimeSectionOps.
+  ///
+  /// In en, this message translates to:
+  /// **'Ops & Engine'**
+  String get paymentConfigRuntimeSectionOps;
+
+  /// No description provided for @paymentConfigRuntimeSectionOpsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching engine, Go aggregator, outbox alerts, rollout strategy, and market read — for ops team.'**
+  String get paymentConfigRuntimeSectionOpsDesc;
+
+  /// No description provided for @paymentConfigRuntimeSectionTechDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'RPC URLs, API endpoints, and blockchain infra configuration — for tech team.'**
+  String get paymentConfigRuntimeSectionTechDesc;
+
+  /// No description provided for @paymentConfigRuntimeSectionFinanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw limits, transfer limits, rate fallbacks, and MM defaults — for finance team.'**
+  String get paymentConfigRuntimeSectionFinanceDesc;
+
+  /// No description provided for @paymentConfigRuntimeSectionCoreDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Default symbols, market sources, and wallet config — for ops team.'**
+  String get paymentConfigRuntimeSectionCoreDesc;
+
+  /// No description provided for @paymentConfigRuntimeNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to edit platform settings.'**
+  String get paymentConfigRuntimeNoPermission;
 
   /// No description provided for @paymentConfigRuntimeSourceEnv.
   ///
