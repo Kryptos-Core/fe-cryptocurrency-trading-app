@@ -14,6 +14,8 @@ import 'package:crypto_trading_app/features/admin/payment_config/presentation/sc
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/admin/system_config/presentation/screens/system_config_screen.dart';
 import 'package:crypto_trading_app/features/admin/security_requests/presentation/screens/security_requests_review_screen.dart';
+import 'package:crypto_trading_app/features/admin/deposit_watcher/presentation/screens/deposit_watcher_admin_screen.dart';
+import 'package:crypto_trading_app/features/admin/deposit_watcher/presentation/providers/deposit_watcher_provider.dart';
 import 'package:crypto_trading_app/features/admin/transactions/presentation/screens/admin_transactions_screen.dart';
 import 'package:crypto_trading_app/features/admin/users/presentation/screens/admin_user_list_screen.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/screens/withdrawal_management_screen.dart';
@@ -117,6 +119,13 @@ GoRouter createAppRouter(AuthProvider auth) {
       GoRoute(
         path: AppRoutes.adminSecurityRequests,
         builder: (_, __) => const SecurityRequestsReviewScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminDepositWatcher,
+        builder: (context, _) => ChangeNotifierProvider<DepositWatcherProvider>.value(
+          value: DepositWatcherProvider(),
+          child: const DepositWatcherAdminScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.adminTransactions,

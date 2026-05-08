@@ -667,6 +667,26 @@ class _MainScreenState extends State<MainScreen> {
                                     context.push(AppRoutes.adminSystemConfig);
                                   },
                                 ),
+                              if (auth.isAdmin)
+                                ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 2),
+                                  leading: Icon(
+                                    Icons.visibility_outlined,
+                                    size: 22,
+                                    color: cs.primary,
+                                  ),
+                                  title: Text(l10n.drawerDepositWatcher),
+                                  subtitle: Text(
+                                    l10n.drawerDepositWatcherSubtitle,
+                                    style: subtitleStyle,
+                                  ),
+                                  mouseCursor: SystemMouseCursors.click,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    context.push(AppRoutes.adminDepositWatcher);
+                                  },
+                                ),
                             ],
                           ],
                         ),

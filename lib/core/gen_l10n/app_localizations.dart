@@ -8832,6 +8832,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Legacy token fallback'**
   String get treasuryE2eLegacyTokenSection;
+
+  /// No description provided for @depositWatcherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Watcher Cursors'**
+  String get depositWatcherTitle;
+
+  /// No description provided for @depositWatcherNoCursorsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Cursors Found'**
+  String get depositWatcherNoCursorsFound;
+
+  /// No description provided for @depositWatcherNoCursorsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursors are created when deposits are processed.\nCurrently, no users have wallets on monitored chains,\nso no deposit scanning cursors have been initialized.'**
+  String get depositWatcherNoCursorsDesc;
+
+  /// No description provided for @depositWatcherHowItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works:'**
+  String get depositWatcherHowItWorks;
+
+  /// No description provided for @depositWatcherStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. User creates a wallet on a blockchain'**
+  String get depositWatcherStep1;
+
+  /// No description provided for @depositWatcherStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. User deposits crypto to that wallet'**
+  String get depositWatcherStep2;
+
+  /// No description provided for @depositWatcherStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Deposit watcher scans and finds the deposit'**
+  String get depositWatcherStep3;
+
+  /// No description provided for @depositWatcherStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Cursor is saved after successful processing'**
+  String get depositWatcherStep4;
+
+  /// No description provided for @depositWatcherCursorsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 cursor} other{{count} cursors}}'**
+  String depositWatcherCursorsCount(int count);
+
+  /// No description provided for @depositWatcherResetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All Cursors'**
+  String get depositWatcherResetAll;
+
+  /// No description provided for @depositWatcherResetAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all deposit watcher cursors? This will rescan everything from 7 days ago.'**
+  String get depositWatcherResetAllConfirm;
+
+  /// No description provided for @depositWatcherResetAllSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All cursors reset successfully'**
+  String get depositWatcherResetAllSuccess;
+
+  /// No description provided for @depositWatcherResetAllFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reset cursors'**
+  String get depositWatcherResetAllFailed;
+
+  /// No description provided for @depositWatcherResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor for {chain} has been reset'**
+  String depositWatcherResetSuccess(String chain);
+
+  /// No description provided for @drawerDepositWatcher.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Watcher'**
+  String get drawerDepositWatcher;
+
+  /// No description provided for @drawerDepositWatcherSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset cursors for blockchain deposit scanning'**
+  String get drawerDepositWatcherSubtitle;
 }
 
 class _AppLocalizationsDelegate

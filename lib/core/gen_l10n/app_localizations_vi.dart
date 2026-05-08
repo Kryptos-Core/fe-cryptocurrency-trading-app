@@ -4830,4 +4830,67 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get treasuryE2eLegacyTokenSection => 'Fallback token kiểu cũ';
+
+  @override
+  String get depositWatcherTitle => 'Theo Dõi Nạp Tiền';
+
+  @override
+  String get depositWatcherNoCursorsFound => 'Không Tìm Thấy Cursors';
+
+  @override
+  String get depositWatcherNoCursorsDesc =>
+      'Cursors được tạo khi có nạp tiền được xử lý.\nHiện tại chưa có user tạo ví trên các chain được giám sát,\nnên chưa có cursor nào được khởi tạo.';
+
+  @override
+  String get depositWatcherHowItWorks => 'Cách hoạt động:';
+
+  @override
+  String get depositWatcherStep1 => '1. User tạo ví trên blockchain';
+
+  @override
+  String get depositWatcherStep2 => '2. User nạp tiền vào ví đó';
+
+  @override
+  String get depositWatcherStep3 => '3. Hệ thống theo dõi tìm thấy deposit';
+
+  @override
+  String get depositWatcherStep4 =>
+      '4. Cursor được lưu sau khi xử lý thành công';
+
+  @override
+  String depositWatcherCursorsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cursors',
+      one: '1 cursor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get depositWatcherResetAll => 'Đặt Lại Tất Cả Cursors';
+
+  @override
+  String get depositWatcherResetAllConfirm =>
+      'Đặt lại tất cả deposit watcher cursors? Hệ thống sẽ quét lại từ 7 ngày trước.';
+
+  @override
+  String get depositWatcherResetAllSuccess =>
+      'Đặt lại tất cả cursors thành công';
+
+  @override
+  String get depositWatcherResetAllFailed => 'Đặt lại cursors thất bại';
+
+  @override
+  String depositWatcherResetSuccess(String chain) {
+    return 'Cursor cho $chain đã được đặt lại';
+  }
+
+  @override
+  String get drawerDepositWatcher => 'Theo Dõi Nạp Tiền';
+
+  @override
+  String get drawerDepositWatcherSubtitle =>
+      'Đặt lại cursors cho quét deposit blockchain';
 }

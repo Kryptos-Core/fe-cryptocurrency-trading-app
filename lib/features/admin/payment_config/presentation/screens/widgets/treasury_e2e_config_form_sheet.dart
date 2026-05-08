@@ -37,6 +37,7 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
   String? _selectedRiskUserId;
   bool _allowSkip = true;
   bool _healthFailOnCritical = false;
+  bool _showAdvanced = false;
 
   @override
   void initState() {
@@ -96,6 +97,8 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
   Widget build(BuildContext context) {
     final provider = context.watch<TreasuryE2EConfigProvider>();
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
     final options = provider.formOptions;
     final linkedWallets = (options?['linkedWallets'] as List?)
             ?.whereType<Map>()
@@ -108,279 +111,308 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.existing == null
-                      ? l10n.treasuryE2eCreateTitle
-                      : l10n.treasuryE2eEditTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: _environment,
-                  items: const [
-                    DropdownMenuItem(value: 'development', child: Text('development')),
-                    DropdownMenuItem(value: 'staging', child: Text('staging')),
-                    DropdownMenuItem(value: 'test', child: Text('test')),
-                    DropdownMenuItem(value: 'production', child: Text('production')),
-                  ],
-                  onChanged: (value) => setState(() => _environment = value ?? 'development'),
-                  decoration: InputDecoration(labelText: l10n.treasuryE2eEnvironmentLabel),
-                ),
-                const SizedBox(height: 12),
-                _text(_displayName, l10n.treasuryE2eDisplayNameLabel),
-                const SizedBox(height: 12),
-                _text(_apiBaseUrl, l10n.treasuryE2eApiBaseUrlLabel),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _chain,
-                  items: const [
-                    'BSC_CHAPEL',
-                    'ETH_SEPOLIA',
-                    'SOLANA_DEVNET',
-                    'TRON_NILE',
-                    'TRON_SHASTA',
-                    'BASE_SEPOLIA',
-                    'ARBITRUM_SEPOLIA',
-                    'OPTIMISM_SEPOLIA',
-                    'POLYGON_AMOY',
-                    'AVALANCHE_FUJI',
-                  ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                  onChanged: (value) async {
-                    setState(() {
-                      _chain = value ?? 'BSC_CHAPEL';
-                      _linkedWalletId = null;
-                    });
-                    await _reloadOptions();
-                  },
-                  decoration: InputDecoration(labelText: l10n.treasuryE2eChainLabel),
-                ),
-                const SizedBox(height: 12),
-                _text(_traderSearch, l10n.treasuryE2eTraderSearchLabel, required: false),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _reloadOptions,
-                  icon: const Icon(Icons.search),
-                  label: Text(l10n.treasuryE2eLoadTraderAction),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: _traderUserId,
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(l10n.treasuryE2eTraderEmpty),
+    return Container(
+      constraints: BoxConstraints(maxHeight: screenHeight * 0.85),
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.existing == null
+                          ? l10n.treasuryE2eCreateTitle
+                          : l10n.treasuryE2eEditTitle,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    ...traders.map(
-                      (user) => DropdownMenuItem<String?>(
-                        value: user['user_id']?.toString(),
-                        child: Text(
-                          '${user['email']} (${user['first_name'] ?? ''} ${user['last_name'] ?? ''})',
-                          overflow: TextOverflow.ellipsis,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Divider(height: 1),
+              const SizedBox(height: 8),
+              // Form
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Basic info row
+                        Row(
+                          children: [
+                            Expanded(child: DropdownButtonFormField<String>(
+                              initialValue: _environment,
+                              items: const [
+                                DropdownMenuItem(value: 'development', child: Text('development')),
+                                DropdownMenuItem(value: 'staging', child: Text('staging')),
+                                DropdownMenuItem(value: 'test', child: Text('test')),
+                                DropdownMenuItem(value: 'production', child: Text('production')),
+                              ],
+                              onChanged: (value) => setState(() => _environment = value ?? 'development'),
+                              decoration: InputDecoration(labelText: l10n.treasuryE2eEnvironmentLabel, isDense: true),
+                            )),
+                            const SizedBox(width: 12),
+                            Expanded(child: DropdownButtonFormField<String>(
+                              initialValue: _chain,
+                              items: const [
+                                'BSC_CHAPEL', 'ETH_SEPOLIA', 'SOLANA_DEVNET', 'TRON_NILE',
+                                'TRON_SHASTA', 'BASE_SEPOLIA', 'ARBITRUM_SEPOLIA',
+                              ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 12)))).toList(),
+                              onChanged: (value) async {
+                                setState(() {
+                                  _chain = value ?? 'BSC_CHAPEL';
+                                  _linkedWalletId = null;
+                                });
+                                await _reloadOptions();
+                              },
+                              decoration: InputDecoration(labelText: l10n.treasuryE2eChainLabel, isDense: true),
+                            )),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) async {
-                    setState(() {
-                      _traderUserId = value;
-                      _linkedWalletId = null;
-                    });
-                    await _reloadOptions();
-                  },
-                  decoration: InputDecoration(labelText: l10n.treasuryE2eTraderSelectLabel),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: linkedWallets.any((e) => e['link_id'] == _linkedWalletId)
-                      ? _linkedWalletId
-                      : null,
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(l10n.treasuryE2eLinkedWalletEmpty),
-                    ),
-                    ...linkedWallets.map(
-                      (wallet) {
-                        final user = wallet['user'] as Map<String, dynamic>?;
-                        final label = wallet['label']?.toString();
-                        final address = wallet['address']?.toString() ?? '-';
-                        final email = user?['email']?.toString() ?? '-';
-                        return DropdownMenuItem<String?>(
-                          value: wallet['link_id']?.toString(),
-                          child: Text(
-                            '${label?.isNotEmpty == true ? label : address} • $email • $address',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                  onChanged: (value) => setState(() => _linkedWalletId = value),
-                  decoration: InputDecoration(labelText: l10n.treasuryE2eLinkedWalletLabel),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l10n.treasuryE2eLinkedWalletHelper,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: _text(_withdrawAuto, l10n.treasuryE2eWithdrawAutoLabel)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _text(_withdrawManual, l10n.treasuryE2eWithdrawManualLabel)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: _text(_depositTxHash, l10n.treasuryE2eDepositTxHashLabel, required: false)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _text(_depositAmount, l10n.treasuryE2eDepositAmountLabel, required: false)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.treasuryE2eAllowSkipLabel),
-                  value: _allowSkip,
-                  onChanged: (value) => setState(() => _allowSkip = value),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.treasuryE2eFailOnCriticalLabel),
-                  value: _healthFailOnCritical,
-                  onChanged: (value) => setState(() => _healthFailOnCritical = value),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: _text(_staleManual, l10n.treasuryE2eStaleManualLabel)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _text(_staleConfirming, l10n.treasuryE2eStaleConfirmingLabel)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: _text(_failed24h, l10n.treasuryE2eFailed24hLabel)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _text(_reconcileLimit, l10n.treasuryE2eReconcileLimitLabel)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _text(_reconciliationThreshold, l10n.treasuryE2eReconciliationThresholdLabel),
-                const SizedBox(height: 12),
-                if (widget.existing?.traderBearerTokenMasked != null)
-                  Text(l10n.treasuryE2eCurrentTraderToken(widget.existing!.traderBearerTokenMasked!)),
-                Text(l10n.treasuryE2eIdentityPreferredHint),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: _resolveRiskActorInitialValue(traders, options),
-                  items: [
-                    DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eRiskActorEmpty)),
-                    ...(((options?['riskActors'] as List?) ?? const [])
-                        .whereType<Map>()
-                        .map((e) => Map<String, dynamic>.from(e))
-                        .map((user) => DropdownMenuItem<String?>(
-                              value: user['user_id']?.toString(),
-                              child: Text('${user['email']} (${user['role'] ?? '-'})', overflow: TextOverflow.ellipsis),
-                            ))),
-                  ],
-                  onChanged: (value) => setState(() => _selectedRiskUserId = value),
-                  decoration: InputDecoration(labelText: l10n.treasuryE2eRiskActorLabel),
-                ),
-                const SizedBox(height: 12),
-                ExpansionTile(
-                  title: Text(l10n.treasuryE2eLegacyTokenSection),
-                  children: [
-                    _text(_traderToken, l10n.treasuryE2eTraderTokenLabel, obscure: true, required: false),
-                    const SizedBox(height: 12),
-                    if (widget.existing?.riskBearerTokenMasked != null)
-                      Text(l10n.treasuryE2eCurrentRiskToken(widget.existing!.riskBearerTokenMasked!)),
-                    _text(_riskToken, l10n.treasuryE2eRiskTokenLabel, obscure: true, required: false),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: provider.isSubmitting ? null : _validateDraft,
-                      icon: const Icon(Icons.fact_check_outlined),
-                      label: Text(l10n.treasuryE2eValidateAction),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: provider.isSubmitting ? null : _testConnection,
-                      icon: const Icon(Icons.network_check),
-                      label: Text(l10n.treasuryE2eTestConnectionAction),
-                    ),
-                  ],
-                ),
-                if (provider.lastValidation != null) ...[
-                  const SizedBox(height: 8),
-                  Text(l10n.treasuryE2eValidationPassed, style: const TextStyle(color: Colors.green)),
-                  ...(((provider.lastValidation!['warnings'] as List?) ?? const [])
-                      .map((w) => Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('• $w', style: const TextStyle(color: Colors.orange)),
-                          ))),
-                ],
-                if (provider.lastConnectionTest != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    provider.lastConnectionTest!['ok'] == true
-                        ? l10n.treasuryE2eTestConnectionPassed
-                        : l10n.treasuryE2eTestConnectionFailed,
-                    style: TextStyle(
-                      color: provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...(((provider.lastConnectionTest!['steps'] as List?) ?? const [])
-                      .whereType<Map>()
-                      .map((step) => Card(
-                            child: ListTile(
-                              leading: Icon(
-                                step['ok'] == true ? Icons.check_circle : Icons.error_outline,
-                                color: step['ok'] == true ? Colors.green : Colors.red,
-                              ),
-                              title: Text(step['step']?.toString() ?? '-'),
-                              subtitle: Text(step['detail']?.toString() ?? '-'),
+                        const SizedBox(height: 10),
+                        _textCompactCompact(_displayName, l10n.treasuryE2eDisplayNameLabel),
+                        const SizedBox(height: 10),
+                        _textCompactCompact(_apiBaseUrl, l10n.treasuryE2eApiBaseUrlLabel),
+                        const SizedBox(height: 10),
+                        // Trader selection
+                        Row(
+                          children: [
+                            Expanded(child: _textCompactCompact(_traderSearch, l10n.treasuryE2eTraderSearchLabel, required: false)),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: _reloadOptions,
+                              icon: const Icon(Icons.search),
+                              tooltip: l10n.treasuryE2eLoadTraderAction,
                             ),
-                          ))),
-                ],
-                const SizedBox(height: 20),
-                if (provider.error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(provider.error!, style: const TextStyle(color: Colors.red)),
-                  ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: provider.isSubmitting ? null : _submit,
-                    child: Text(provider.isSubmitting ? l10n.treasuryE2eSaving : l10n.save),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String?>(
+                          initialValue: _traderUserId,
+                          items: [
+                            DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eTraderEmpty, style: const TextStyle(fontSize: 12))),
+                            ...traders.map((user) => DropdownMenuItem<String?>(
+                              value: user['user_id']?.toString(),
+                              child: Text(
+                                '${user['email']} (${user['first_name'] ?? ''})',
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            )),
+                          ],
+                          onChanged: (value) async {
+                            setState(() {
+                              _traderUserId = value;
+                              _linkedWalletId = null;
+                            });
+                            await _reloadOptions();
+                          },
+                          decoration: InputDecoration(labelText: l10n.treasuryE2eTraderSelectLabel, isDense: true),
+                        ),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<String?>(
+                          initialValue: linkedWallets.any((e) => e['link_id'] == _linkedWalletId) ? _linkedWalletId : null,
+                          items: [
+                            DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eLinkedWalletEmpty, style: const TextStyle(fontSize: 12))),
+                            ...linkedWallets.map((wallet) {
+                              final label = wallet['label']?.toString();
+                              final address = wallet['address']?.toString() ?? '-';
+                              return DropdownMenuItem<String?>(
+                                value: wallet['link_id']?.toString(),
+                                child: Text(
+                                  '${label?.isNotEmpty == true ? label : address.substring(0, 8)}...',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) => setState(() => _linkedWalletId = value),
+                          decoration: InputDecoration(labelText: l10n.treasuryE2eLinkedWalletLabel, isDense: true),
+                        ),
+                        const SizedBox(height: 10),
+                        // Amounts row
+                        Row(
+                          children: [
+                            Expanded(child: _textCompactCompact(_withdrawAuto, l10n.treasuryE2eWithdrawAutoLabel)),
+                            const SizedBox(width: 12),
+                            Expanded(child: _textCompactCompact(_withdrawManual, l10n.treasuryE2eWithdrawManualLabel)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // Switches row
+                        Row(
+                          children: [
+                            Expanded(child: SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              title: Text(l10n.treasuryE2eAllowSkipLabel, style: const TextStyle(fontSize: 12)),
+                              value: _allowSkip,
+                              onChanged: (value) => setState(() => _allowSkip = value),
+                            )),
+                            Expanded(child: SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              title: Text(l10n.treasuryE2eFailOnCriticalLabel, style: const TextStyle(fontSize: 12)),
+                              value: _healthFailOnCritical,
+                              onChanged: (value) => setState(() => _healthFailOnCritical = value),
+                            )),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Advanced toggle
+                        InkWell(
+                          onTap: () => setState(() => _showAdvanced = !_showAdvanced),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                Icon(_showAdvanced ? Icons.expand_less : Icons.expand_more, size: 20),
+                                const SizedBox(width: 4),
+                                Text(l10n.treasuryE2eLegacyTokenSection, style: theme.textTheme.labelMedium),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_showAdvanced) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(child: _textCompactCompact(_staleManual, l10n.treasuryE2eStaleManualLabel)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _textCompactCompact(_staleConfirming, l10n.treasuryE2eStaleConfirmingLabel)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(child: _textCompactCompact(_failed24h, l10n.treasuryE2eFailed24hLabel)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _textCompactCompact(_reconcileLimit, l10n.treasuryE2eReconcileLimitLabel)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          _textCompactCompact(_reconciliationThreshold, l10n.treasuryE2eReconciliationThresholdLabel),
+                          const SizedBox(height: 8),
+                          if (widget.existing?.traderBearerTokenMasked != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(l10n.treasuryE2eCurrentTraderToken(widget.existing!.traderBearerTokenMasked!), style: theme.textTheme.bodySmall),
+                            ),
+                          Text(l10n.treasuryE2eIdentityPreferredHint, style: theme.textTheme.bodySmall),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String?>(
+                            initialValue: _resolveRiskActorInitialValue(traders, options),
+                            items: [
+                              DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eRiskActorEmpty, style: const TextStyle(fontSize: 12))),
+                              ...(((options?['riskActors'] as List?) ?? const [])
+                                  .whereType<Map>()
+                                  .map((e) => Map<String, dynamic>.from(e))
+                                  .map((user) => DropdownMenuItem<String?>(
+                                        value: user['user_id']?.toString(),
+                                        child: Text('${user['email']} (${user['role'] ?? '-'})', overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+                                      ))),
+                            ],
+                            onChanged: (value) => setState(() => _selectedRiskUserId = value),
+                            decoration: InputDecoration(labelText: l10n.treasuryE2eRiskActorLabel, isDense: true),
+                          ),
+                          const SizedBox(height: 8),
+                          _textCompactCompact(_traderToken, l10n.treasuryE2eTraderTokenLabel, obscure: true, required: false),
+                          const SizedBox(height: 8),
+                          if (widget.existing?.riskBearerTokenMasked != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(l10n.treasuryE2eCurrentRiskToken(widget.existing!.riskBearerTokenMasked!), style: theme.textTheme.bodySmall),
+                            ),
+                          _textCompactCompact(_riskToken, l10n.treasuryE2eRiskTokenLabel, obscure: true, required: false),
+                        ],
+                        // Validation results
+                        if (provider.lastValidation != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                            child: Text(l10n.treasuryE2eValidationPassed, style: const TextStyle(color: Colors.green, fontSize: 12)),
+                          ),
+                        ],
+                        if (provider.lastConnectionTest != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: (provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              provider.lastConnectionTest!['ok'] == true
+                                  ? l10n.treasuryE2eTestConnectionPassed
+                                  : l10n.treasuryE2eTestConnectionFailed,
+                              style: TextStyle(
+                                color: provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (provider.error != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                            child: Text(provider.error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        // Action buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: provider.isSubmitting ? null : _validateDraft,
+                                icon: const Icon(Icons.fact_check_outlined, size: 18),
+                                label: Text(l10n.treasuryE2eValidateAction, style: const TextStyle(fontSize: 12)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: provider.isSubmitting ? null : _testConnection,
+                                icon: const Icon(Icons.network_check, size: 18),
+                                label: Text(l10n.treasuryE2eTestConnectionAction, style: const TextStyle(fontSize: 12)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: provider.isSubmitting ? null : _submit,
+                  child: Text(provider.isSubmitting ? l10n.treasuryE2eSaving : l10n.save),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -411,18 +443,21 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
         );
   }
 
-  Widget _text(TextEditingController controller, String label, {bool obscure = false, bool required = true}) {
+  Widget _textCompactCompact(TextEditingController controller, String label, {bool obscure = false, bool required = true}) {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
+      style: const TextStyle(fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
       validator: (value) {
         if (!required) return null;
         if (value == null || value.trim().isEmpty) {
-          return 'Required';
+          return '*';
         }
         return null;
       },

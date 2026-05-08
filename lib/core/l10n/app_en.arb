@@ -2186,5 +2186,35 @@
   "treasuryE2eIdentityPreferredHint": "Preferred: select test identities so the backend mints short-lived tokens automatically.",
   "treasuryE2eRiskActorLabel": "Risk reviewer identity",
   "treasuryE2eRiskActorEmpty": "No risk identity selected",
-  "treasuryE2eLegacyTokenSection": "Legacy token fallback"
+  "treasuryE2eLegacyTokenSection": "Legacy token fallback",
+  "depositWatcherTitle": "Deposit Watcher Cursors",
+  "depositWatcherNoCursorsFound": "No Cursors Found",
+  "depositWatcherNoCursorsDesc": "Cursors are created when deposits are processed.\nCurrently, no users have wallets on monitored chains,\nso no deposit scanning cursors have been initialized.",
+  "depositWatcherHowItWorks": "How it works:",
+  "depositWatcherStep1": "1. User creates a wallet on a blockchain",
+  "depositWatcherStep2": "2. User deposits crypto to that wallet",
+  "depositWatcherStep3": "3. Deposit watcher scans and finds the deposit",
+  "depositWatcherStep4": "4. Cursor is saved after successful processing",
+  "depositWatcherCursorsCount": "{count, plural, =1{1 cursor} other{{count} cursors}}",
+  "@depositWatcherCursorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "depositWatcherResetAll": "Reset All Cursors",
+  "depositWatcherResetAllConfirm": "Reset all deposit watcher cursors? This will rescan everything from 7 days ago.",
+  "depositWatcherResetAllSuccess": "All cursors reset successfully",
+  "depositWatcherResetAllFailed": "Failed to reset cursors",
+  "depositWatcherResetSuccess": "Cursor for {chain} has been reset",
+  "@depositWatcherResetSuccess": {
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
+  "drawerDepositWatcher": "Deposit Watcher",
+  "drawerDepositWatcherSubtitle": "Reset cursors for blockchain deposit scanning"
 }

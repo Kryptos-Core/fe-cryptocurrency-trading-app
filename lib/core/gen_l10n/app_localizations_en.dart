@@ -4838,4 +4838,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get treasuryE2eLegacyTokenSection => 'Legacy token fallback';
+
+  @override
+  String get depositWatcherTitle => 'Deposit Watcher Cursors';
+
+  @override
+  String get depositWatcherNoCursorsFound => 'No Cursors Found';
+
+  @override
+  String get depositWatcherNoCursorsDesc =>
+      'Cursors are created when deposits are processed.\nCurrently, no users have wallets on monitored chains,\nso no deposit scanning cursors have been initialized.';
+
+  @override
+  String get depositWatcherHowItWorks => 'How it works:';
+
+  @override
+  String get depositWatcherStep1 => '1. User creates a wallet on a blockchain';
+
+  @override
+  String get depositWatcherStep2 => '2. User deposits crypto to that wallet';
+
+  @override
+  String get depositWatcherStep3 =>
+      '3. Deposit watcher scans and finds the deposit';
+
+  @override
+  String get depositWatcherStep4 =>
+      '4. Cursor is saved after successful processing';
+
+  @override
+  String depositWatcherCursorsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cursors',
+      one: '1 cursor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get depositWatcherResetAll => 'Reset All Cursors';
+
+  @override
+  String get depositWatcherResetAllConfirm =>
+      'Reset all deposit watcher cursors? This will rescan everything from 7 days ago.';
+
+  @override
+  String get depositWatcherResetAllSuccess => 'All cursors reset successfully';
+
+  @override
+  String get depositWatcherResetAllFailed => 'Failed to reset cursors';
+
+  @override
+  String depositWatcherResetSuccess(String chain) {
+    return 'Cursor for $chain has been reset';
+  }
+
+  @override
+  String get drawerDepositWatcher => 'Deposit Watcher';
+
+  @override
+  String get drawerDepositWatcherSubtitle =>
+      'Reset cursors for blockchain deposit scanning';
 }

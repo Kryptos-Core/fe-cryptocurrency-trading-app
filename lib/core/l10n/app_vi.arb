@@ -1995,5 +1995,21 @@
   "treasuryE2eIdentityPreferredHint": "Khuyến nghị: chọn test identities để backend tự mint short-lived token.",
   "treasuryE2eRiskActorLabel": "Định danh reviewer rủi ro",
   "treasuryE2eRiskActorEmpty": "Chưa chọn định danh risk",
-  "treasuryE2eLegacyTokenSection": "Fallback token kiểu cũ"
+  "treasuryE2eLegacyTokenSection": "Fallback token kiểu cũ",
+  "depositWatcherTitle": "Theo Dõi Nạp Tiền",
+  "depositWatcherNoCursorsFound": "Không Tìm Thấy Cursors",
+  "depositWatcherNoCursorsDesc": "Cursors được tạo khi có nạp tiền được xử lý.\nHiện tại chưa có user tạo ví trên các chain được giám sát,\nnên chưa có cursor nào được khởi tạo.",
+  "depositWatcherHowItWorks": "Cách hoạt động:",
+  "depositWatcherStep1": "1. User tạo ví trên blockchain",
+  "depositWatcherStep2": "2. User nạp tiền vào ví đó",
+  "depositWatcherStep3": "3. Hệ thống theo dõi tìm thấy deposit",
+  "depositWatcherStep4": "4. Cursor được lưu sau khi xử lý thành công",
+  "depositWatcherCursorsCount": "{count, plural, =1{1 cursor} other{{count} cursors}}",
+  "depositWatcherResetAll": "Đặt Lại Tất Cả Cursors",
+  "depositWatcherResetAllConfirm": "Đặt lại tất cả deposit watcher cursors? Hệ thống sẽ quét lại từ 7 ngày trước.",
+  "depositWatcherResetAllSuccess": "Đặt lại tất cả cursors thành công",
+  "depositWatcherResetAllFailed": "Đặt lại cursors thất bại",
+  "depositWatcherResetSuccess": "Cursor cho {chain} đã được đặt lại",
+  "drawerDepositWatcher": "Theo Dõi Nạp Tiền",
+  "drawerDepositWatcherSubtitle": "Đặt lại cursors cho quét deposit blockchain"
 }

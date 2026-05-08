@@ -32,6 +32,7 @@ abstract final class AppRoutes {
   static const String adminFiatWithdrawals = '/admin/fiat-withdrawals';
   static const String adminBroadcast = '/admin/broadcast';
   static const String adminSecurityRequests = '/admin/security-requests';
+  static const String adminDepositWatcher = '/admin/deposit-watcher';
 
   /// Bottom navigation indices — must stay aligned with `_buildScreens` in MainScreen.
   static const int tabDashboard = 0;
