@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_dtos.dart';
@@ -246,34 +247,10 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     required String title,
     required String message,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 28, color: Colors.blueGrey.shade400),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            message,
-            style: TextStyle(color: Colors.grey.shade700),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      message: message,
+      icon: icon,
+      title: title,
     );
   }
 
@@ -287,9 +264,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +274,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   width: 220,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -307,7 +283,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   width: double.infinity,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -316,7 +292,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                   width: double.infinity,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -335,6 +311,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
   }) {
     final hasValue = value.isNotEmpty;
     final display = hasValue ? value : l10n.onchainValueNotAvailable;
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Column(
@@ -345,7 +323,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             style: TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: scheme.onSurfaceVariant,
               letterSpacing: 0.15,
             ),
           ),
@@ -360,7 +338,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     height: 1.3,
-                    color: hasValue ? Colors.black87 : Colors.grey.shade600,
+                    color: hasValue ? scheme.onSurface : scheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -375,7 +353,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () => _copyValue(value),
-                  icon: Icon(Icons.copy, size: 18, color: Colors.grey.shade700),
+                  icon: Icon(Icons.copy, size: 18, color: scheme.primary),
                 ),
             ],
           ),
@@ -389,6 +367,8 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     required String label,
     required String value,
   }) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
@@ -401,14 +381,14 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: scheme.onSurfaceVariant,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 12, height: 1.25),
+              style: TextStyle(fontSize: 12, height: 1.25, color: scheme.onSurface),
             ),
           ),
         ],
@@ -436,14 +416,15 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
         '${picker.displayLabelForNetwork(tx.chain)} · $hashPreview · $createdShort';
 
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
-      color: Colors.white,
+      color: scheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.grey.shade300),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
@@ -458,10 +439,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
               Expanded(
                 child: Text(
                   '${_typeLabel(tx.type)} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)} ${tx.chain.nativeSymbol}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     height: 1.2,
+                    color: scheme.onSurface,
                   ),
                 ),
               ),
@@ -492,7 +474,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
               style: TextStyle(
                 fontSize: 11,
                 height: 1.25,
-                color: Colors.grey.shade700,
+                color: scheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -508,7 +490,7 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
                 ),
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.grey.shade800,
+                  color: scheme.onSurface,
                   height: 1.3,
                 ),
               ),
@@ -516,9 +498,9 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
             ] else if (tx.creditedAmount != null) ...[
               Text(
                 '→ ${FormatUtils.formatDecimalAmountDisplay(tx.creditedAmount!)} USDT',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.5,
-                  color: Color(0xFF0F8A49),
+                  color: scheme.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),

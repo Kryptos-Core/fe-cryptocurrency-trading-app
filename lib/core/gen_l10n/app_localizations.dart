@@ -2380,6 +2380,12 @@ abstract class AppLocalizations {
   /// **'Please select destination linked wallet'**
   String get selectDestinationWallet;
 
+  /// No description provided for @selectNetworkFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a network first'**
+  String get selectNetworkFirst;
+
   /// No description provided for @withdrawalRequestSubmitted.
   ///
   /// In en, this message translates to:
@@ -5708,7 +5714,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalDetailChain.
   ///
   /// In en, this message translates to:
-  /// **'Chain'**
+  /// **'Network'**
   String get withdrawalDetailChain;
 
   /// No description provided for @withdrawalDetailStatus.
@@ -5806,6 +5812,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Approve'**
   String get withdrawalApproveButton;
+
+  /// No description provided for @withdrawalApproveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Withdrawal Approval'**
+  String get withdrawalApproveConfirmTitle;
+
+  /// No description provided for @withdrawalApproveConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to approve this withdrawal? The funds will be sent immediately and cannot be reversed.'**
+  String get withdrawalApproveConfirmContent;
+
+  /// No description provided for @withdrawalApproveConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Approve'**
+  String get withdrawalApproveConfirmAction;
+
+  /// No description provided for @withdrawalApproveAllConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Batch Approval'**
+  String get withdrawalApproveAllConfirmTitle;
+
+  /// No description provided for @withdrawalApproveAllConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You are about to approve all pending withdrawals. Each withdrawal will trigger a blockchain transaction. This action cannot be undone.'**
+  String get withdrawalApproveAllConfirmContent;
+
+  /// No description provided for @withdrawalApproveAllConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve All'**
+  String get withdrawalApproveAllConfirmAction;
+
+  /// No description provided for @withdrawalDetailUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get withdrawalDetailUser;
+
+  /// No description provided for @withdrawalDetailToAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get withdrawalDetailToAddress;
 
   /// No description provided for @withdrawalRejectButton.
   ///
@@ -8928,6 +8982,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset cursors for blockchain deposit scanning'**
   String get drawerDepositWatcherSubtitle;
+
+  /// No description provided for @notificationSoundSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Settings'**
+  String get notificationSoundSettings;
+
+  /// No description provided for @notificationSoundPerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound per notification type'**
+  String get notificationSoundPerType;
+
+  /// No description provided for @notificationSoundSystemDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get notificationSoundSystemDefault;
+
+  /// No description provided for @notificationSoundWithdrawalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Request'**
+  String get notificationSoundWithdrawalRequest;
+
+  /// No description provided for @notificationSoundWithdrawalApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Approved'**
+  String get notificationSoundWithdrawalApproved;
+
+  /// No description provided for @notificationSoundWithdrawalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Rejected'**
+  String get notificationSoundWithdrawalRejected;
+
+  /// No description provided for @notificationSoundAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get notificationSoundAlert;
+
+  /// No description provided for @notificationSoundPromo.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo'**
+  String get notificationSoundPromo;
+
+  /// No description provided for @notificationsTypeWithdrawalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Request'**
+  String get notificationsTypeWithdrawalRequest;
+
+  /// No description provided for @notificationsTypeWithdrawalApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Approved'**
+  String get notificationsTypeWithdrawalApproved;
+
+  /// No description provided for @notificationsTypeWithdrawalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Rejected'**
+  String get notificationsTypeWithdrawalRejected;
 }
 
 class _AppLocalizationsDelegate

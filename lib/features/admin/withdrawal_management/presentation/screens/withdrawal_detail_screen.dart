@@ -71,40 +71,21 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                     children: [
                       Expanded(
                         child: FilledButton.icon(
-                          onPressed: p.isSubmitting
+                          onPressed: (p.isSubmitting || p.isLoading || w.txId.isEmpty)
                               ? null
-                              : () async {
-                                  final ok = await p.approve(w.txId);
-                                  if (!context.mounted) return;
-                                  if (ok) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.withdrawalApprovedSnack)),
-                                    );
-                                  } else if (p.error != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(p.error!)),
-                                    );
-                                  }
-                                },
+                              : () => _showApproveDialog(context, p, w, l10n),
                           icon: const Icon(Icons.check_circle_outline),
                           label: Text(l10n.withdrawalApproveButton),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Colors.green,
-                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: p.isSubmitting
+                          onPressed: (p.isSubmitting || p.isLoading || w.txId.isEmpty)
                               ? null
                               : () => _showRejectDialog(context, p, w),
                           icon: const Icon(Icons.cancel_outlined),
                           label: Text(l10n.withdrawalRejectButton),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                          ),
                         ),
                       ),
                     ],
@@ -114,6 +95,63 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showApproveDialog(
+    BuildContext context,
+    WithdrawalManagementProvider p,
+    AdminWithdrawalModel w,
+    AppLocalizations l10n,
+  ) {
+    final amount = double.tryParse(w.amount)?.toStringAsFixed(2) ?? w.amount;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 48),
+        title: Text(l10n.withdrawalApproveConfirmTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.withdrawalApproveConfirmContent),
+            const SizedBox(height: 12),
+            _ConfirmRow(label: l10n.withdrawalDetailUser, value: w.userDisplayName),
+            _ConfirmRow(label: l10n.withdrawalDetailChain, value: w.chain),
+            _ConfirmRow(label: l10n.withdrawalDetailToAddress, value: w.toAddress),
+            _ConfirmRow(label: l10n.withdrawalDetailAmount, value: '$amount ${w.chain.split('_').first}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              // Block all UI interactions during submission
+              p.startSubmission();
+              final ok = await p.approve(w.txId);
+              if (!context.mounted) return;
+              if (ok) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.withdrawalApprovedSnack)),
+                );
+              } else if (p.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(p.error!)),
+                );
+              }
+            },
+            child: Text(l10n.withdrawalApproveConfirmAction),
+          ),
+        ],
       ),
     );
   }
@@ -158,7 +196,6 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                 );
               }
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: Text(l10n.withdrawalRejectButton),
           ),
         ],
@@ -298,25 +335,40 @@ class _StatusTimeline extends StatelessWidget {
 
   const _StatusTimeline({required this.withdrawal, required this.l10n});
 
+  (Color, Color) _statusColors(String s) {
+    switch (s) {
+      case 'COMPLETED':
+        return (const Color(0xFFEAF8F1), const Color(0xFF0F8A49));
+      case 'CONFIRMING':
+        return (const Color(0xFFEAF2FD), const Color(0xFF0A5DC2));
+      case 'PENDING':
+        return (const Color(0xFFFFF6E8), const Color(0xFFB56900));
+      case 'FAILED':
+        return (const Color(0xFFFDECEF), const Color(0xFFB3261E));
+      default:
+        return (const Color(0xFFF1F5F9), const Color(0xFF64748B));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // REQUESTED → APPROVED/REJECTED → SENT → COMPLETED
+    final scheme = Theme.of(context).colorScheme;
     final steps = [l10n.withdrawalStatusRequested, l10n.withdrawalStatusApproved, l10n.withdrawalStatusSent, l10n.withdrawalStatusCompleted];
     int current = 0;
     bool rejected = false;
     switch (withdrawal.status) {
       case 'PENDING':
-        current = 0; // at REQUESTED
+        current = 0;
         break;
       case 'CONFIRMING':
-        current = 2; // at SENT
+        current = 2;
         break;
       case 'COMPLETED':
         current = 3;
         break;
       case 'FAILED':
         rejected = true;
-        current = 1; // rejected at approval step
+        current = 1;
         break;
       default:
         current = 0;
@@ -336,30 +388,78 @@ class _StatusTimeline extends StatelessWidget {
             ...List.generate(steps.length, (i) {
               final done = i < current || (i == current && !rejected) || rejected;
               final isRejectedStep = rejected && i == 1;
-              return Row(
-                children: [
-                  Icon(
-                    done
-                        ? (isRejectedStep ? Icons.cancel : Icons.check_circle)
-                        : Icons.radio_button_unchecked,
-                    size: 20,
-                    color: done
-                        ? (isRejectedStep ? Colors.red : Colors.green)
-                        : Colors.grey,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isRejectedStep ? l10n.withdrawalStatusRejected : steps[i],
-                    style: TextStyle(
-                      color: isRejectedStep ? Colors.red : (done ? null : Colors.grey),
-                      fontWeight: i == current ? FontWeight.w600 : null,
+              final (bgColor, fgColor) = isRejectedStep
+                  ? (const Color(0xFFFDECEF), const Color(0xFFB3261E))
+                  : done
+                      ? _statusColors(withdrawal.status)
+                      : (scheme.surfaceContainerHighest, scheme.outline);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        done
+                            ? (isRejectedStep ? Icons.close : Icons.check)
+                            : Icons.circle_outlined,
+                        size: 14,
+                        color: fgColor,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        isRejectedStep ? l10n.withdrawalStatusRejected : steps[i],
+                        style: TextStyle(
+                          color: done ? scheme.onSurface : scheme.onSurfaceVariant,
+                          fontWeight: i == current ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
             }),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ConfirmRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ConfirmRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text('$label:', style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+        ],
       ),
     );
   }

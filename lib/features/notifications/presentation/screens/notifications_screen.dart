@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import 'package:crypto_trading_app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:crypto_trading_app/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/services/notification_sound_service.dart';
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 
 /// Notification history screen.
 /// Lists all user notifications; unread items have a tinted background.
@@ -40,6 +43,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Text(l10n.notificationsMarkAllRead),
               );
             },
+          ),
+          IconButton(
+            tooltip: l10n.notificationSoundSettings,
+            icon: Icon(
+              NotificationSoundService.instance.globallyEnabled
+                  ? Icons.volume_up
+                  : Icons.volume_off,
+            ),
+            onPressed: () => _showSoundSettingsSheet(context),
           ),
         ],
       ),
@@ -89,6 +101,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (!notif.isRead) {
       prov.markRead(notif.notificationId);
     }
+
+    // Navigate to withdrawal management screen if withdrawal notification
+    if (notif.type == NotificationType.withdrawalRequest ||
+        notif.type == NotificationType.withdrawalApproved ||
+        notif.type == NotificationType.withdrawalRejected) {
+      context.push(AppRoutes.adminWithdrawals);
+      return;
+    }
+
     _showDetailSheet(context, notif);
   }
 
@@ -102,6 +123,71 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       builder: (_) => _NotificationDetailSheet(notification: notif),
     );
   }
+
+  void _showSoundSettingsSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final soundService = NotificationSoundService.instance;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.volume_up),
+                  const SizedBox(width: 12),
+                  Text(l10n.notificationSoundSettings, style: Theme.of(ctx).textTheme.titleMedium),
+                  const Spacer(),
+                  Switch(
+                    value: soundService.globallyEnabled,
+                    onChanged: (v) {
+                      soundService.setGloballyEnabled(v);
+                      setSheetState(() {});
+                    },
+                  ),
+                ],
+              ),
+              const Divider(),
+              Text(l10n.notificationSoundPerType, style: Theme.of(ctx).textTheme.titleSmall),
+              const SizedBox(height: 12),
+              ...NotificationSoundType.values.map((st) {
+                final setting = soundService.settings[st]!;
+                return SwitchListTile(
+                  title: Text(_soundTypeLabel(st, l10n)),
+                  subtitle: Text(_soundTypeAsset(st)),
+                  value: setting.enabled,
+                  dense: true,
+                  onChanged: soundService.globallyEnabled
+                      ? (v) {
+                          soundService.setEnabled(st, v);
+                          setSheetState(() {});
+                        }
+                      : null,
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _soundTypeLabel(NotificationSoundType st, AppLocalizations l10n) {
+    return switch (st) {
+      NotificationSoundType.systemDefault => l10n.notificationSoundSystemDefault,
+      NotificationSoundType.withdrawalRequest => l10n.notificationSoundWithdrawalRequest,
+      NotificationSoundType.withdrawalApproved => l10n.notificationSoundWithdrawalApproved,
+      NotificationSoundType.withdrawalRejected => l10n.notificationSoundWithdrawalRejected,
+      NotificationSoundType.alert => l10n.notificationSoundAlert,
+      NotificationSoundType.promo => l10n.notificationSoundPromo,
+    };
+  }
+
+  String _soundTypeAsset(NotificationSoundType st) => st.assetPath.split('/').last;
 }
 
 // ── Notification Tile ──────────────────────────────────────────────────────
@@ -120,7 +206,7 @@ class _NotificationTile extends StatelessWidget {
 
     final bgColor = notification.isRead
         ? Colors.transparent
-      : colorScheme.primaryContainer.withValues(alpha: 0.15);
+        : colorScheme.primaryContainer.withValues(alpha: 0.15);
 
     final leading = _typeIcon(notification.type, colorScheme);
     final timeStr = _formatTime(notification.notificationCreatedAt, l10n);
@@ -174,6 +260,12 @@ class _NotificationTile extends StatelessWidget {
         return (Icons.warning_amber_outlined, Colors.orange);
       case NotificationType.promo:
         return (Icons.local_offer_outlined, Colors.green);
+      case NotificationType.withdrawalRequest:
+        return (Icons.output_outlined, Colors.blue);
+      case NotificationType.withdrawalApproved:
+        return (Icons.check_circle_outline, Colors.green);
+      case NotificationType.withdrawalRejected:
+        return (Icons.cancel_outlined, Colors.red);
       case NotificationType.system:
         return (Icons.info_outline, cs.primary);
     }
@@ -233,7 +325,8 @@ class _NotificationDetailSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(notification.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(notification.title,
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(notification.body, style: theme.textTheme.bodyMedium),
             if (notification.data != null && notification.data!.isNotEmpty) ...[
@@ -247,7 +340,8 @@ class _NotificationDetailSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     children: [
-                      Text('${e.key}: ', style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+                      Text('${e.key}: ',
+                          style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
                       Expanded(child: Text(e.value.toString(), style: theme.textTheme.bodySmall)),
                     ],
                   ),
@@ -264,6 +358,12 @@ class _NotificationDetailSheet extends StatelessWidget {
     final (label, color) = switch (type) {
       NotificationType.alert => (l10n.notificationsTypeAlert, Colors.orange),
       NotificationType.promo => (l10n.notificationsTypePromo, Colors.green),
+      NotificationType.withdrawalRequest =>
+        (l10n.notificationsTypeWithdrawalRequest, Colors.blue),
+      NotificationType.withdrawalApproved =>
+        (l10n.notificationsTypeWithdrawalApproved, Colors.green),
+      NotificationType.withdrawalRejected =>
+        (l10n.notificationsTypeWithdrawalRejected, Colors.red),
       NotificationType.system => (l10n.notificationsTypeSystem, theme.colorScheme.primary),
     };
     return Container(

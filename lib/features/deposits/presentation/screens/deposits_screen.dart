@@ -8,6 +8,7 @@ import 'package:crypto_trading_app/core/utils/checkout_tab_preopen.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
 import 'package:crypto_trading_app/features/deposits/presentation/providers/deposits_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/exchange_rate_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
@@ -523,21 +524,9 @@ class _DepositsScreenState extends State<DepositsScreen> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (provider.deposits.isEmpty)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Text(
-                  l10n.payosNoTransactions,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
+              AppEmptyState(
+                message: l10n.payosNoTransactions,
+                icon: Icons.account_balance_wallet_outlined,
               )
             else
               ...provider.deposits.map((deposit) {

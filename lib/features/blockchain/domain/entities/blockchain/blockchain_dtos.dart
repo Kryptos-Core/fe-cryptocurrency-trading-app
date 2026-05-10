@@ -86,18 +86,24 @@ class RequestWithdrawalRequest {
   final BlockchainNetwork chain;
   final String linkedWalletId;
   final String amount;
+  final String? currency;
 
   const RequestWithdrawalRequest({
     required this.chain,
     required this.linkedWalletId,
     required this.amount,
+    this.currency,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'chain': chain.apiValue,
       'linkedWalletId': linkedWalletId,
       'amount': amount,
     };
+    if (currency != null) {
+      json['currency'] = currency;
+    }
+    return json;
   }
 }

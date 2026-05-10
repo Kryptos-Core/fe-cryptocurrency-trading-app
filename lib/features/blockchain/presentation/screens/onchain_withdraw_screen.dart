@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/onchain_tx_status_ui.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/linked_wallet_status.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/onchain_transaction.dart';
@@ -126,34 +127,10 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     required String title,
     required String message,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 28, color: Colors.blueGrey.shade400),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            message,
-            style: TextStyle(color: Colors.grey.shade700),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      message: message,
+      icon: icon,
+      title: title,
     );
   }
 
@@ -167,9 +144,8 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +154,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   width: 220,
                   height: 14,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -187,7 +163,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   width: 160,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -210,6 +186,25 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
 
       if (!mounted) return;
       context.read<BlockchainProvider>().fetchLinkedWallets();
+
+      final networks = chainPicker.onchainDepositWithdrawNetworks;
+      final treasuryWallets = treasuryProvider.wallets;
+      final withdrawalWalletChains = treasuryWallets
+          .where((w) =>
+              w.isActive &&
+              (w.purpose == 'WITHDRAWAL' || w.purpose == 'BOTH'))
+          .map((w) => w.chain)
+          .toSet()
+          .toList();
+      final withdrawalNetworks = networks
+          .where((network) => withdrawalWalletChains.contains(network.apiValue))
+          .toList();
+
+      if (withdrawalNetworks.isNotEmpty) {
+        setState(() {
+          _selectedNetwork = withdrawalNetworks.first;
+        });
+      }
     });
   }
 
@@ -231,7 +226,14 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
     }
 
     final selectedNetwork = _selectedNetwork;
-    if (selectedNetwork == null) return;
+    if (selectedNetwork == null) {
+      showAppSnackBar(
+        context,
+        message: AppLocalizations.of(context).selectNetworkFirst,
+        type: SnackBarType.warning,
+      );
+      return;
+    }
 
     final provider = context.read<BlockchainProvider>();
     final ok = await provider.requestWithdrawal(
@@ -435,7 +437,7 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                       labelText: l10n.amount,
                       border: const OutlineInputBorder(),
                     ),
-                    currencySymbol: effectiveNetwork.nativeSymbol,
+                    currencySymbol: effectiveNetwork.withdrawSymbol,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -541,56 +543,69 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   _buildRecentSkeleton()
                 else ...[
                   ...filteredTransactions.take(10).map(
-                        (tx) => Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '${_typeLabel(tx.type)} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
+                        (tx) {
+                          final scheme = Theme.of(context).colorScheme;
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: scheme.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: scheme.outlineVariant),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '${_typeLabel(tx.type)} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: scheme.onSurface,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _txStatusBg(tx.status),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      onchainTxStatusUiLabel(l10n, tx.status),
-                                      style: TextStyle(
-                                        color: _txStatusFg(tx.status),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _txStatusBg(tx.status),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        onchainTxStatusUiLabel(l10n, tx.status),
+                                        style: TextStyle(
+                                          color: _txStatusFg(tx.status),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                  '${context.read<OnchainChainPickerProvider>().displayLabelForNetwork(tx.chain)} · ${_formatAddress(tx.txHash ?? tx.txId)}'),
-                              const SizedBox(height: 4),
-                              Text(l10n
-                                  .txToAddress(_formatAddress(tx.toAddress))),
-                            ],
-                          ),
-                        ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                    '${context.read<OnchainChainPickerProvider>().displayLabelForNetwork(tx.chain)} · ${_formatAddress(tx.txHash ?? tx.txId)}',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      color: scheme.onSurfaceVariant,
+                                    )),
+                                const SizedBox(height: 4),
+                                Text(l10n
+                                    .txToAddress(_formatAddress(tx.toAddress)),
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      color: scheme.onSurfaceVariant,
+                                    )),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                   if (filteredTransactions.isEmpty)
                     Padding(

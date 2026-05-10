@@ -1,3 +1,14 @@
+---
+description: "Code review standards for quality, security, and maintainability. Defines review triggers, checklists, severity levels, approval criteria, and when to delegate to specialized agents (code-reviewer, security-reviewer, etc.) before merging or committing code."
+globs:
+  - "**/*.dart"
+  - "**/*.yaml"
+  - "**/*.yml"
+  - "**/*.json"
+  - "**/pubspec.yaml"
+alwaysApply: false
+---
+
 # Code Review Standards
 
 ## Purpose

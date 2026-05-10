@@ -15,6 +15,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
   AdminWithdrawalModel? _selectedDetail;
   bool _isLoading = false;
   bool _isSubmitting = false;
+  bool _isConfirmDialogOpen = false;
   String? _error;
 
   String? _filterStatus;
@@ -31,6 +32,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
   AdminWithdrawalModel? get selectedDetail => _selectedDetail;
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
+  bool get isConfirmDialogOpen => _isConfirmDialogOpen;
   String? get error => _error;
   int get total => _total;
   int get page => _page;
@@ -112,8 +114,15 @@ class WithdrawalManagementProvider extends ChangeNotifier {
     }
   }
 
+  void startSubmission() {
+    _isSubmitting = true;
+    _isConfirmDialogOpen = true;
+    notifyListeners();
+  }
+
   Future<bool> approve(String txId) async {
     _isSubmitting = true;
+    _isConfirmDialogOpen = true;
     _error = null;
     notifyListeners();
 
@@ -128,12 +137,14 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       return false;
     } finally {
       _isSubmitting = false;
+      _isConfirmDialogOpen = false;
       notifyListeners();
     }
   }
 
   Future<bool> reject(String txId, {String? reason}) async {
     _isSubmitting = true;
+    _isConfirmDialogOpen = true;
     _error = null;
     notifyListeners();
 
@@ -148,12 +159,35 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       return false;
     } finally {
       _isSubmitting = false;
+      _isConfirmDialogOpen = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> processPending({int limit = 20}) async {
+    _isSubmitting = true;
+    _isConfirmDialogOpen = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.processPending(limit: limit);
+      await loadWithdrawals();
+      await loadStats();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isSubmitting = false;
+      _isConfirmDialogOpen = false;
       notifyListeners();
     }
   }
 
   Future<Map<String, dynamic>> batchProcessPending({int limit = 20}) async {
     _isSubmitting = true;
+    _isConfirmDialogOpen = true;
     _error = null;
     notifyListeners();
 
@@ -175,6 +209,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       return {};
     } finally {
       _isSubmitting = false;
+      _isConfirmDialogOpen = false;
       notifyListeners();
     }
   }

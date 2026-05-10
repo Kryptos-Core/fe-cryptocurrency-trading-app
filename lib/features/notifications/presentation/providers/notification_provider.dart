@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/services/notification_sound_service.dart';
 import 'package:crypto_trading_app/core/services/websocket_service.dart';
 import 'package:crypto_trading_app/features/notifications/application/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/features/notifications/domain/entities/notification_entity.dart';
@@ -31,7 +32,9 @@ class NotificationProvider extends ChangeNotifier {
 
   NotificationProvider({
     required NotificationRepository repository,
-  }) : _repository = repository;
+  }) : _repository = repository {
+    NotificationSoundService.instance.initialize();
+  }
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
@@ -101,6 +104,9 @@ class NotificationProvider extends ChangeNotifier {
       _notifications = [notif, ..._notifications];
       _unreadCount += 1;
       notifyListeners();
+
+      // Play sound for this notification type
+      NotificationSoundService.instance.playForNotificationType(notif.type.value);
     });
 
     _paymentConfigSubscription = notifSocket.messageStream
@@ -188,6 +194,9 @@ class NotificationProvider extends ChangeNotifier {
     _notifications = [notif, ..._notifications];
     _unreadCount += 1;
     notifyListeners();
+
+    // Play sound for this notification type
+    NotificationSoundService.instance.playForNotificationType(notif.type.value);
   }
 
   void _applyMarkRead(String notificationId) {

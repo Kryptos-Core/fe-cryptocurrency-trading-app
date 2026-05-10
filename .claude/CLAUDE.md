@@ -1,15 +1,27 @@
 # Claude Code — Flutter frontend
 
-**Workspace:** mở **root repo Flutter** (folder có `pubspec.yaml`) — chuẩn team FE; không cần mở monorepo cha.
+**Workspace:** `fe-cryptocurrency-trading-app/` (Flutter / Dart). **Chuan team FE.**
 
-Ngữ cảnh session: `.claude/`. **Vibe Code / ECC:** [VIBE_CODE.md](../VIBE_CODE.md) · [AGENTS.md](../AGENTS.md) · [ECC-COMMANDS.md](../ECC-COMMANDS.md).
+Thu muc `.claude/` la nguon chuan cua FE. Khi mo workspace la root monorepo, FE tu dong duoc nhan dien nhu subdirectory.
 
-## Kiến trúc & code
+## Nguon chi
 
-- [ARCHITECTURE.md](../ARCHITECTURE.md), [README.md](../README.md)
-- Rules Cursor: `.cursor/rules/` (ưu tiên `dart-*`, `common-*`, `web-*`); FSD/atomic: [ARCHITECTURE.md](../ARCHITECTURE.md), skill **dart-flutter-patterns**
+| File | Ghi chu |
+|------|---------|
+| `ARCHITECTURE.md` | 4 lop, feature modules, router |
+| `VIBE_CODE.md`, `CONTRIBUTING-RULES.md` | Quy uoc team |
+| `docs/security-zones.md` | Vung an toan du lieu |
+| `README.md` | Setup, chay local |
 
-## Chạy & kiểm tra
+---
+
+## Kien truc & code
+
+- **4-layer Clean Architecture** + **FSD** (Feature-Scaled Design): xem `ARCHITECTURE.md`.
+- **Rules**: `.cursor/rules/` (uu tien `dart-*.md`, `web-*.md`, `common-*`)
+- **Skills**: `.cursor/skills/dart-flutter-patterns`, `.cursor/skills/flutter-dart-code-review`
+
+## Chay & kiem tra
 
 ```bash
 flutter pub get
@@ -20,23 +32,28 @@ flutter test
 flutter run
 ```
 
-Test tree: `test/features/...` + `test/core/`, `test/support/`. Layer/routing: [ARCHITECTURE.md](../ARCHITECTURE.md).
+Test tree: `test/features/...` + `test/core/`, `test/support/`. Layer/routing: `ARCHITECTURE.md`.
 
 ## Backend API
 
-Client gọi API **repo backend riêng** của team BE (Git clone độc lập). Contract HTTP/WebSocket: skill **api-design**, README/OpenAPI repo BE, và code client trong `lib/`.
+Client goi API **repo backend rieng** cua team BE (Git clone doc lap). Contract HTTP/WebSocket: skill **api-design**, README/OpenAPI repo BE, va code client trong `lib/`.
 
-## An toàn
+## An toan
 
-- Không commit `.env` thật, khóa private, seed production.
-- Không log secret / token / full JWT trong app.
+- Khong commit `.env` that, khoa private, seed production.
+- Khong log secret / token / full JWT trong app.
 
-## ECC — CCG / lệnh multi-agent
+## Chuan AI — Rules & Skills
 
-Interactive only:
+| Muc | Duong dan | Ghi chu |
+|-----|-----------|---------|
+| Rules | `.cursor/rules/` | dart-fsd-architecture, dart-crypto-app-security, dart-*, web-*, common-* |
+| Skills | `.cursor/skills/` | dart-flutter-patterns, flutter-dart-code-review, frontend-patterns, frontend-design |
+
+ECC commands (neu can):
 
 ```bash
 npx ccg-workflow
 ```
 
-Chi tiết: [ECC-COMMANDS.md](../ECC-COMMANDS.md).
+Chi tiet: `ECC-COMMANDS.md`.

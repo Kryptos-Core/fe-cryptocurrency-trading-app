@@ -222,6 +222,15 @@ extension BlockchainNetworkX on BlockchainNetwork {
     }
   }
 
+  /// Symbol for withdrawal (USDT for Tron networks, native for others).
+  /// Tron withdrawals should default to USDT based on user requirement.
+  String get withdrawSymbol {
+    if (isTronFamily) {
+      return 'USDT';
+    }
+    return nativeSymbol;
+  }
+
   bool get isSandbox {
     switch (this) {
       case BlockchainNetwork.tronNile:

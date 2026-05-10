@@ -1272,6 +1272,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get selectDestinationWallet => 'Vui lòng chọn ví đích đã liên kết';
 
   @override
+  String get selectNetworkFirst => 'Vui lòng chọn mạng lưới trước';
+
+  @override
   String get withdrawalRequestSubmitted => 'Yêu cầu rút tiền đã được gửi';
 
   @override
@@ -3108,10 +3111,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get withdrawalDetailInfoTitle => 'Thông tin rút tiền';
 
   @override
-  String get withdrawalDetailAmount => 'Số lượng';
+  String get withdrawalDetailAmount => 'Số tiền';
 
   @override
-  String get withdrawalDetailChain => 'Chain';
+  String get withdrawalDetailChain => 'Mạng';
 
   @override
   String get withdrawalDetailStatus => 'Trạng thái';
@@ -3160,6 +3163,32 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get withdrawalApproveButton => 'Phê duyệt';
+
+  @override
+  String get withdrawalApproveConfirmTitle => 'Xác nhận phê duyệt';
+
+  @override
+  String get withdrawalApproveConfirmContent =>
+      'Bạn có chắc muốn phê duyệt yêu cầu rút tiền này? Tiền sẽ được gửi ngay lập tức và không thể hoàn tác.';
+
+  @override
+  String get withdrawalApproveConfirmAction => 'Có, phê duyệt';
+
+  @override
+  String get withdrawalApproveAllConfirmTitle => 'Xác nhận phê duyệt hàng loạt';
+
+  @override
+  String get withdrawalApproveAllConfirmContent =>
+      'Bạn sắp phê duyệt tất cả yêu cầu rút tiền đang chờ. Mỗi yêu cầu sẽ tạo một giao dịch blockchain. Hành động này không thể hoàn tác.';
+
+  @override
+  String get withdrawalApproveAllConfirmAction => 'Phê duyệt tất cả';
+
+  @override
+  String get withdrawalDetailUser => 'Người dùng';
+
+  @override
+  String get withdrawalDetailToAddress => 'Địa chỉ nhận';
 
   @override
   String get withdrawalRejectButton => 'Từ chối';
@@ -4892,5 +4921,38 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get drawerDepositWatcherSubtitle =>
-      'Đặt lại cursors cho quét deposit blockchain';
+      'Đặt lại cursors cho quét nạp tiền blockchain';
+
+  @override
+  String get notificationSoundSettings => 'Cài Đặt Âm Thanh';
+
+  @override
+  String get notificationSoundPerType => 'Âm thanh theo loại thông báo';
+
+  @override
+  String get notificationSoundSystemDefault => 'Mặc định hệ thống';
+
+  @override
+  String get notificationSoundWithdrawalRequest => 'Yêu cầu rút tiền';
+
+  @override
+  String get notificationSoundWithdrawalApproved => 'Phê duyệt rút tiền';
+
+  @override
+  String get notificationSoundWithdrawalRejected => 'Từ chối rút tiền';
+
+  @override
+  String get notificationSoundAlert => 'Cảnh báo';
+
+  @override
+  String get notificationSoundPromo => 'Khuyến mãi';
+
+  @override
+  String get notificationsTypeWithdrawalRequest => 'Yêu cầu rút tiền';
+
+  @override
+  String get notificationsTypeWithdrawalApproved => 'Phê duyệt rút tiền';
+
+  @override
+  String get notificationsTypeWithdrawalRejected => 'Từ chối rút tiền';
 }

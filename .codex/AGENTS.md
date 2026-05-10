@@ -1,6 +1,6 @@
-# ECC for Codex CLI
+# ECC for Codex CLI — Flutter Frontend
 
-This supplements the root `AGENTS.md` with Codex-specific guidance.
+**Stack:** Flutter / Dart — `fe-cryptocurrency-trading-app/`
 
 ## Model Recommendations
 
@@ -11,47 +11,55 @@ This supplements the root `AGENTS.md` with Codex-specific guidance.
 | Debugging, refactoring | GPT 5.4 |
 | Security review | GPT 5.4 |
 
-## Skills Discovery
+## Stack Reminder
 
-Skills are auto-loaded from `.agents/skills/`. Each skill contains:
-- `SKILL.md` — Detailed instructions and workflow
-- `agents/openai.yaml` — Codex interface metadata
-
-Skills trong repo này **đã lọc theo Flutter/Dart**: đã bỏ các gói chéo stack (NestJS, backend-only DB migration, React/Next, Playwright, Bun runtime, v.v.). Skill Flutter chính nằm ở **Cursor**: `.cursor/skills/dart-flutter-patterns/`.
-
-Danh sách Codex hiện có: mỗi thư mục con của `.agents/skills/` (mỗi skill có `SKILL.md` và thường kèm `agents/openai.yaml`).
-
-## MCP Servers
-
-Treat the project-local `.codex/config.toml` as the default Codex baseline for ECC. The current ECC baseline enables GitHub, Context7, Exa, Memory, Playwright, and Sequential Thinking; add heavier extras in `~/.codex/config.toml` only when a task actually needs them.
-
-ECC's canonical Codex section name is `[mcp_servers.context7]`. The launcher package remains `@upstash/context7-mcp`; only the TOML section name is normalized for consistency with `codex mcp list` and the reference config.
-
-### Automatic config.toml merging
-
-The sync script (`scripts/sync-ecc-to-codex.sh`) uses a Node-based TOML parser to safely merge ECC MCP servers into `~/.codex/config.toml`:
-
-- **Add-only by default** — missing ECC servers are appended; existing servers are never modified or removed.
-- **7 managed servers** — Supabase, Playwright, Context7, Exa, GitHub, Memory, Sequential Thinking.
-- **Canonical naming** — ECC manages Context7 as `[mcp_servers.context7]`; legacy `[mcp_servers.context7-mcp]` entries are treated as aliases during updates.
-- **Package-manager aware** — uses the project's configured package manager (npm/pnpm/yarn/bun) instead of hardcoding `pnpm`.
-- **Drift warnings** — if an existing server's config differs from the ECC recommendation, the script logs a warning.
-- **`--update-mcp`** — explicitly replaces all ECC-managed servers with the latest recommended config (safely removes subtables like `[mcp_servers.supabase.env]`).
-- **User config is always preserved** — custom servers, args, env vars, and credentials outside ECC-managed sections are never touched.
+Repo nay la **Flutter frontend**. Khong tao NestJS, Express, database migration, hay Playwright test trong repo nay. Neu can thay doi API contract, phoi hop voi team BE qua tai lieu/OpenAPI.
 
 ## Multi-Agent Support
 
-Codex now supports multi-agent workflows behind the experimental `features.multi_agent` flag.
+Codex supports multi-agent workflows with `features.multi_agent = true` in `config.toml`.
 
-- Enable it in `.codex/config.toml` with `[features] multi_agent = true`
-- Define project-local roles under `[agents.<name>]`
+- Define roles under `[agents.<name>]` in `config.toml`
 - Point each role at a TOML layer under `.codex/agents/`
 - Use `/agent` inside Codex CLI to inspect and steer child agents
 
-Sample role configs in this repo:
+Sample roles:
 - `.codex/agents/explorer.toml` — read-only evidence gathering
 - `.codex/agents/reviewer.toml` — correctness/security review
 - `.codex/agents/docs-researcher.toml` — API and release-note verification
+
+## Quality Gates (Flutter)
+
+Truoc khi coi mot feature hoan thanh, **bat buoc** chay:
+
+```bash
+flutter pub get
+dart format --set-exit-if-changed .
+flutter analyze --fatal-infos
+dart run import_lint
+flutter test --coverage
+```
+
+Neu Codex vua tao / sua code, ket thuc session bang cach tu chay (hoac nhac user chay) cac lenh tren.
+
+### Checklist tu kiem tra (Codex)
+
+Truoc khi bao "done":
+- [ ] `flutter analyze --fatal-infos` sach; `dart run import_lint` sach
+- [ ] `flutter test` pass 100%
+- [ ] Khong co `print()` hoac `debugPrint()` ngoai debug build guard
+- [ ] Khong co hardcode URL, token, private key
+- [ ] Domain layer khong import Flutter/Dio
+- [ ] Widget moi co widget test co ban
+
+## Security Without Hooks
+
+Codex lacks hooks, security enforcement is instruction-based:
+1. Always validate inputs at system boundaries
+2. Never hardcode secrets — use environment variables
+3. Run `flutter analyze --fatal-infos`, `dart run import_lint`, and `flutter test` before committing
+4. Review `git diff` before every push
+5. Use `sandbox_mode = "workspace-write"` in config
 
 ## Key Differences from Claude Code
 
@@ -64,40 +72,3 @@ Sample role configs in this repo:
 | Agents | Subagent Task tool | Multi-agent via `/agent` and `[agents.<name>]` roles |
 | Security | Hook-based enforcement | Instruction + sandbox |
 | MCP | Full support | Supported via `config.toml` and `codex mcp add` |
-
-## Security Without Hooks
-
-Since Codex lacks hooks, security enforcement is instruction-based:
-1. Always validate inputs at system boundaries
-2. Never hardcode secrets — use environment variables
-3. Run `flutter analyze --fatal-infos`, `dart run import_lint`, and `flutter test` before committing
-4. Review `git diff` before every push
-5. Use `sandbox_mode = "workspace-write"` in config
-
-## Quality Gates (Flutter)
-
-Trước khi coi một feature hoàn thành, **bắt buộc** chạy:
-
-```bash
-flutter pub get
-dart format --set-exit-if-changed .
-flutter analyze --fatal-infos
-dart run import_lint
-flutter test --coverage
-```
-
-Nếu Codex vừa tạo / sửa code, kết thúc session bằng cách tự chạy (hoặc nhắc user chạy) các lệnh trên.
-
-### Checklist tự kiểm tra (Codex)
-
-Trước khi báo "done":
-- [ ] `flutter analyze --fatal-infos` sạch; `dart run import_lint` sạch
-- [ ] `flutter test` pass 100%
-- [ ] Không có `print()` hoặc `debugPrint()` ngoài debug build guard
-- [ ] Không có hardcode URL, token, private key
-- [ ] Domain layer không import Flutter/Dio
-- [ ] Widget mới có widget test cơ bản
-
-## Stack Reminder (Flutter/Dart only)
-
-Repo này là **Flutter frontend**. Không tạo NestJS, Express, database migration, hay Playwright test trong repo này. Nếu cần thay đổi API contract, phối hợp với team BE qua tài liệu/OpenAPI.

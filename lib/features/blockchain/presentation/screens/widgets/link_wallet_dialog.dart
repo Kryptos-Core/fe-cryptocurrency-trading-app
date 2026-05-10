@@ -354,8 +354,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     return Consumer<OnchainChainPickerProvider>(
       builder: (context, picker, _) {
         final sandboxMode = _isSandboxMode(picker);
-        final tronNetworks = _tronNetworksForPicker(picker);
-        final hasTronSupport = tronNetworks.isNotEmpty;
 
         if (_selectedChain.isTronFamily) {
           if (sandboxMode) {

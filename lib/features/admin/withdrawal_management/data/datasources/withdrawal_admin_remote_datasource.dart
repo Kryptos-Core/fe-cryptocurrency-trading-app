@@ -113,10 +113,12 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
         ApiConstants.blockchainAdminWithdrawalDetail(txId),
       );
       final raw = response.data;
-      if (raw is Map<String, dynamic>) {
-        return AdminWithdrawalModel.fromJson(raw);
-      }
-      throw const FormatException('Invalid response');
+      if (raw is! Map<String, dynamic>) throw const FormatException('Invalid response');
+      // Backend trả flat object; nếu wrap trong { data: {...} } thì unwrap
+      final inner = raw.containsKey('data') && raw['data'] is Map<String, dynamic>
+          ? raw['data'] as Map<String, dynamic>
+          : raw;
+      return AdminWithdrawalModel.fromJson(inner);
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message']?.toString() ?? 'Failed to load withdrawal detail',

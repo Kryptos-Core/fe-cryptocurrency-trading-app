@@ -273,7 +273,11 @@ class _MainScreenState extends State<MainScreen> {
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
           tooltip: l10n.menuTooltip,
         ),
-        title: Text(titles[_currentIndex]),
+        title: Text(
+        _currentIndex == 2 && !isAuthenticated
+            ? l10n.login
+            : titles[_currentIndex],
+      ),
         actions: [
           if (_currentIndex == 1)
             IconButton(

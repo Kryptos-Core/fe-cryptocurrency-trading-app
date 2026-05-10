@@ -1273,6 +1273,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please select destination linked wallet';
 
   @override
+  String get selectNetworkFirst => 'Please select a network first';
+
+  @override
   String get withdrawalRequestSubmitted => 'Withdrawal request submitted';
 
   @override
@@ -3113,7 +3116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalDetailAmount => 'Amount';
 
   @override
-  String get withdrawalDetailChain => 'Chain';
+  String get withdrawalDetailChain => 'Network';
 
   @override
   String get withdrawalDetailStatus => 'Status';
@@ -3162,6 +3165,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawalApproveButton => 'Approve';
+
+  @override
+  String get withdrawalApproveConfirmTitle => 'Confirm Withdrawal Approval';
+
+  @override
+  String get withdrawalApproveConfirmContent =>
+      'Are you sure you want to approve this withdrawal? The funds will be sent immediately and cannot be reversed.';
+
+  @override
+  String get withdrawalApproveConfirmAction => 'Yes, Approve';
+
+  @override
+  String get withdrawalApproveAllConfirmTitle => 'Confirm Batch Approval';
+
+  @override
+  String get withdrawalApproveAllConfirmContent =>
+      'You are about to approve all pending withdrawals. Each withdrawal will trigger a blockchain transaction. This action cannot be undone.';
+
+  @override
+  String get withdrawalApproveAllConfirmAction => 'Approve All';
+
+  @override
+  String get withdrawalDetailUser => 'User';
+
+  @override
+  String get withdrawalDetailToAddress => 'Destination';
 
   @override
   String get withdrawalRejectButton => 'Reject';
@@ -4901,4 +4930,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get drawerDepositWatcherSubtitle =>
       'Reset cursors for blockchain deposit scanning';
+
+  @override
+  String get notificationSoundSettings => 'Sound Settings';
+
+  @override
+  String get notificationSoundPerType => 'Sound per notification type';
+
+  @override
+  String get notificationSoundSystemDefault => 'System Default';
+
+  @override
+  String get notificationSoundWithdrawalRequest => 'Withdrawal Request';
+
+  @override
+  String get notificationSoundWithdrawalApproved => 'Withdrawal Approved';
+
+  @override
+  String get notificationSoundWithdrawalRejected => 'Withdrawal Rejected';
+
+  @override
+  String get notificationSoundAlert => 'Alert';
+
+  @override
+  String get notificationSoundPromo => 'Promo';
+
+  @override
+  String get notificationsTypeWithdrawalRequest => 'Withdrawal Request';
+
+  @override
+  String get notificationsTypeWithdrawalApproved => 'Withdrawal Approved';
+
+  @override
+  String get notificationsTypeWithdrawalRejected => 'Withdrawal Rejected';
 }
