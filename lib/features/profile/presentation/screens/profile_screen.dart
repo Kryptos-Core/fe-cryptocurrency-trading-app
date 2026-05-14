@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
@@ -598,177 +598,261 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _mergeProfileWithAuth(_currentUser!, authUser);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            // User Avatar (tap to change)
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: _pickAndUploadAvatar,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primaryContainer,
-                  backgroundImage:
-                      user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                          ? (user.avatarUrl!.startsWith('http')
-                              ? NetworkImage(user.avatarUrl!)
-                              : null)
-                          : null,
-                  child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                      ? Text(
-                          _getInitials(user),
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                          ),
-                        )
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+          return _buildBody(context, l10n, user, isWide);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+    bool isWide,
+  ) {
+    if (isWide) {
+      return _buildWideLayout(context, l10n, user);
+    }
+    return _buildCompactLayout(context, l10n, user);
+  }
+
+  Widget _buildCompactLayout(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          _buildAvatar(context, l10n, user),
+          const SizedBox(height: 24),
+          _buildWelcomeSection(context, l10n, user),
+          const SizedBox(height: 24),
+          _buildStatusBadge(context, l10n, user),
+          const SizedBox(height: 24),
+          _buildSecuritySection(context, l10n, user),
+          const SizedBox(height: 16),
+          _buildNavigationSection(context, l10n),
+          const SizedBox(height: 24),
+          _buildLogoutButton(context, l10n),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left column: Avatar + Welcome
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                _buildAvatar(context, l10n, user),
+                const SizedBox(height: 16),
+                _buildWelcomeSection(context, l10n, user),
+                const SizedBox(height: 16),
+                _buildStatusBadge(context, l10n, user),
+              ],
+            ),
+          ),
+          const SizedBox(width: 48),
+          // Right column: Security + Navigation
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                _buildSecuritySection(context, l10n, user),
+                const SizedBox(height: 16),
+                _buildNavigationSection(context, l10n),
+                const SizedBox(height: 24),
+                _buildLogoutButton(context, l10n),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return Column(
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: _pickAndUploadAvatar,
+            child: CircleAvatar(
+              radius: 60,
+              backgroundColor:
+                  Theme.of(context).colorScheme.primaryContainer,
+              backgroundImage:
+                  user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                      ? (user.avatarUrl!.startsWith('http')
+                          ? NetworkImage(user.avatarUrl!)
+                          : null)
                       : null,
-                ),
-              ),
+              child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+                  ? Text(
+                      _getInitials(user),
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimaryContainer,
+                      ),
+                    )
+                  : null,
             ),
-            UserEmailVerifiedMark(verified: user.emailVerified),
-            const SizedBox(height: 8),
-            Text(
-              l10n.profileTapToChangeAvatar,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
+          ),
+        ),
+        UserEmailVerifiedMark(verified: user.emailVerified),
+        const SizedBox(height: 8),
+        Text(
+          l10n.profileTapToChangeAvatar,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: Colors.grey),
+        ),
+      ],
+    );
+  }
 
-            // Welcome Message
-            Text(
-              l10n.welcomeBack,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user.fullName,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user.email,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: _editProfileBasic,
-              icon: const Icon(Icons.edit, size: 18),
-              label: Text(l10n.profileEditName),
-            ),
-            const SizedBox(height: 32),
+  Widget _buildWelcomeSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return Column(
+      children: [
+        Text(
+          l10n.welcomeBack,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          user.fullName,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          user.email,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: _editProfileBasic,
+          icon: const Icon(Icons.edit, size: 18),
+          label: Text(l10n.profileEditName),
+        ),
+      ],
+    );
+  }
 
-            // Status Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: user.isActive ? Colors.green[50] : Colors.red[50],
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: user.isActive ? Colors.green[300]! : Colors.red[300]!,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    user.isActive ? Icons.check_circle : Icons.cancel,
-                    size: 16,
-                    color: user.isActive ? Colors.green[700] : Colors.red[700],
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    user.isActive ? l10n.active : l10n.inactive,
-                    style: TextStyle(
-                      color:
-                          user.isActive ? Colors.green[700] : Colors.red[700],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildStatusBadge(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: user.isActive ? Colors.green[50] : Colors.red[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: user.isActive ? Colors.green[300]! : Colors.red[300]!,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            user.isActive ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: user.isActive ? Colors.green[700] : Colors.red[700],
+          ),
+          const SizedBox(width: 8),
+          Text(
+            user.isActive ? l10n.active : l10n.inactive,
+            style: TextStyle(
+              color: user.isActive ? Colors.green[700] : Colors.red[700],
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 32),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Account Info
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: Text(l10n.memberSince),
-              subtitle: Text(
-                '${user.createdAt.day}/${user.createdAt.month}/${user.createdAt.year}',
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.update),
-              title: Text(l10n.lastUpdated),
-              subtitle: Text(
-                '${user.updatedAt.day}/${user.updatedAt.month}/${user.updatedAt.year}',
-              ),
-            ),
-            const Divider(),
-            // Security (requires approval)
-            Text(
+  Widget _buildSecuritySection(
+    BuildContext context,
+    AppLocalizations l10n,
+    User user,
+  ) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
               l10n.profileSecurityRequiresApproval,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 8),
-            if (user.twoFaEnabled) ...[
-              ListTile(
-                leading: const Icon(Icons.email_outlined),
-                title: Text(l10n.profileChangeEmail),
-                subtitle: Text(l10n.profileOtpAdminReviewRequired),
-                trailing: const Icon(Icons.chevron_right),
-                mouseCursor: SystemMouseCursors.click,
-                onTap: _requestEmailChange,
-              ),
-              ListTile(
-                leading: const Icon(Icons.lock_outline),
-                title: Text(l10n.profileChangePassword),
-                subtitle: Text(l10n.profileChangePasswordDirect),
-                trailing: const Icon(Icons.chevron_right),
-                mouseCursor: SystemMouseCursors.click,
-                onTap: _requestPasswordChange,
-              ),
-            ] else
-              ListTile(
-                leading: const Icon(Icons.shield_outlined),
-                title: Text(l10n.profileEnable2faFirstTitle),
-                subtitle: Text(l10n.profileEnable2faFirstDesc),
-                trailing: const Icon(Icons.chevron_right),
-                mouseCursor: SystemMouseCursors.click,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
-              ),
-            const Divider(),
+          ),
+          if (user.twoFaEnabled) ...[
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: Text(l10n.settings),
-              subtitle: Text(l10n.appSettingsPreferences),
+              leading: const Icon(Icons.email_outlined),
+              title: Text(l10n.profileChangeEmail),
+              subtitle: Text(l10n.profileOtpAdminReviewRequired),
+              trailing: const Icon(Icons.chevron_right),
+              mouseCursor: SystemMouseCursors.click,
+              onTap: _requestEmailChange,
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: Text(l10n.profileChangePassword),
+              subtitle: Text(l10n.profileChangePasswordDirect),
+              trailing: const Icon(Icons.chevron_right),
+              mouseCursor: SystemMouseCursors.click,
+              onTap: _requestPasswordChange,
+            ),
+          ] else
+            ListTile(
+              leading: const Icon(Icons.shield_outlined),
+              title: Text(l10n.profileEnable2faFirstTitle),
+              subtitle: Text(l10n.profileEnable2faFirstDesc),
               trailing: const Icon(Icons.chevron_right),
               mouseCursor: SystemMouseCursors.click,
               onTap: () {
@@ -780,34 +864,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: Text(l10n.aboutTitle),
-              subtitle: Text(l10n.aboutAppTileSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              mouseCursor: SystemMouseCursors.click,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AboutScreen(),
-                  ),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: Icon(Icons.logout,
-                  color: Theme.of(context).colorScheme.error),
-              title: Text(l10n.logout,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.w600)),
-              mouseCursor: SystemMouseCursors.click,
-              onTap: _handleLogout,
-            ),
-          ],
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationSection(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: Text(l10n.settings),
+            subtitle: Text(l10n.appSettingsPreferences),
+            trailing: const Icon(Icons.chevron_right),
+            mouseCursor: SystemMouseCursors.click,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(l10n.aboutTitle),
+            subtitle: Text(l10n.aboutAppTileSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            mouseCursor: SystemMouseCursors.click,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AboutScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context, AppLocalizations l10n) {
+    return SizedBox(
+      width: double.infinity,
+      child: ListTile(
+        leading: Icon(Icons.logout,
+            color: Theme.of(context).colorScheme.error),
+        title: Text(l10n.logout,
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w600)),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: _handleLogout,
       ),
     );
   }

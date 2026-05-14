@@ -13,6 +13,7 @@ import 'package:crypto_trading_app/core/utils/order_api_error_localization.dart'
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/trading_pair_bookmark_store.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/features/markets/domain/repositories/markets_repository.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
@@ -218,26 +219,86 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () =>
-            context.read<OrdersProvider>().fetchMyOrders(refresh: true),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(_kSectionPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildPlaceOrderSection(context),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+          return _buildBody(context, l10n, isWide);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, AppLocalizations l10n, bool isWide) {
+    if (isWide) {
+      return _buildWideLayout(context, l10n);
+    }
+    return _buildCompactLayout(context, l10n);
+  }
+
+  Widget _buildCompactLayout(BuildContext context, AppLocalizations l10n) {
+    return RefreshIndicator(
+      onRefresh: () =>
+          context.read<OrdersProvider>().fetchMyOrders(refresh: true),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(_kSectionPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildPlaceOrderSection(context),
+            const SizedBox(height: _kSectionSpacing),
+            _buildOrderBookSection(context),
+            if (_selectedMarket != null) ...[
               const SizedBox(height: _kSectionSpacing),
-              _buildOrderBookSection(context),
-              if (_selectedMarket != null) ...[
-                const SizedBox(height: _kSectionSpacing),
-                _buildRecentTradesSection(context),
-              ],
-              const SizedBox(height: _kSectionSpacing),
-              _buildMyOrdersSection(context),
+              _buildRecentTradesSection(context),
             ],
-          ),
+            const SizedBox(height: _kSectionSpacing),
+            _buildMyOrdersSection(context),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context, AppLocalizations l10n) {
+    return RefreshIndicator(
+      onRefresh: () =>
+          context.read<OrdersProvider>().fetchMyOrders(refresh: true),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(_kSectionPadding),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left column: Place Order + My Orders
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildPlaceOrderSection(context),
+                  const SizedBox(height: _kSectionSpacing),
+                  _buildMyOrdersSection(context),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Right column: Order Book + Recent Trades
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildOrderBookSection(context),
+                  if (_selectedMarket != null) ...[
+                    const SizedBox(height: _kSectionSpacing),
+                    _buildRecentTradesSection(context),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

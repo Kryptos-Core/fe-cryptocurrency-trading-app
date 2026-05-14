@@ -78,7 +78,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get error => 'Lỗi';
 
   @override
+  String get unknownError => 'Đã xảy ra lỗi không xác định';
+
+  @override
   String get cancel => 'Hủy';
+
+  @override
+  String get confirm => 'Xác nhận';
 
   @override
   String get save => 'Lưu';
@@ -3108,7 +3114,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get depositStatusCancelled => 'Đã hủy';
 
   @override
-  String get withdrawalDetailInfoTitle => 'Thông tin rút tiền';
+  String get withdrawalDetailInfoTitle => 'Chi tiết giao dịch';
 
   @override
   String get withdrawalDetailAmount => 'Số tiền';
@@ -3133,6 +3139,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get withdrawalDetailUpdatedAt => 'Cập nhật lúc';
+
+  @override
+  String get withdrawalDetailConfirmations => 'Số xác nhận';
 
   @override
   String get withdrawalDetailUserId => 'ID người dùng';
@@ -3370,6 +3379,21 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get withdrawalSearchHint =>
       'Tìm theo ID người dùng hoặc địa chỉ ví...';
+
+  @override
+  String get withdrawalApproveLabel => 'Chấp nhận';
+
+  @override
+  String get withdrawalRejectLabel => 'Từ chối';
+
+  @override
+  String get withdrawalRejectConfirmTitle => 'Xác nhận từ chối';
+
+  @override
+  String get withdrawalRejectConfirmAction => 'Từ chối';
+
+  @override
+  String get withdrawalRejectReasonLabel => 'Lý do từ chối';
 
   @override
   String get withdrawalNoRequests => 'Không có yêu cầu rút tiền';
@@ -4955,4 +4979,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get notificationsTypeWithdrawalRejected => 'Từ chối rút tiền';
+
+  @override
+  String notifWithdrawalRequest(String amount, String symbol, String chain) {
+    return 'Người dùng yêu cầu rút $amount $symbol trên $chain';
+  }
+
+  @override
+  String notifWithdrawalApproved(String amount, String symbol, String chain) {
+    return 'Yêu cầu rút $amount $symbol trên $chain của bạn đã được phê duyệt và đang được xử lý.';
+  }
+
+  @override
+  String notifWithdrawalRejected(
+      String amount, String symbol, String chain, String reason) {
+    String _temp0 = intl.Intl.selectLogic(
+      reason,
+      {
+        'undefined': '',
+        'other': ' Lý do: $reason',
+      },
+    );
+    return 'Yêu cầu rút $amount $symbol trên $chain của bạn đã bị từ chối.$_temp0';
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
@@ -190,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(l10n.homeAppTitle),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Remove back button when used in MainScreen
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -199,144 +200,243 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // User Avatar
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Text(
-                  _getInitials(_currentUser!),
-                  style: TextStyle(
-                    fontSize: 32,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+          return _buildBody(context, l10n, isWide);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, AppLocalizations l10n, bool isWide) {
+    if (isWide) {
+      return _buildWideLayout(context, l10n);
+    }
+    return _buildCompactLayout(context, l10n);
+  }
+
+  Widget _buildCompactLayout(BuildContext context, AppLocalizations l10n) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // User Avatar
+            CircleAvatar(
+              radius: 48,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                _getInitials(_currentUser!),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.homeWelcomeBack,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _currentUser!.fullName,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Welcome Message
-              Text(
-                l10n.homeWelcomeBack,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _currentUser!.fullName,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _currentUser!.email,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
-              const SizedBox(height: 32),
-
-              // Status Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: _currentUser!.isActive
-                      ? Colors.green[50]
-                      : Colors.red[50],
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _currentUser!.isActive
-                        ? Colors.green[300]!
-                        : Colors.red[300]!,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _currentUser!.email,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _currentUser!.isActive
-                          ? Icons.check_circle
-                          : Icons.cancel,
-                      size: 16,
-                      color: _currentUser!.isActive
-                          ? Colors.green[700]
-                          : Colors.red[700],
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _currentUser!.isActive ? l10n.active : l10n.inactive,
+            ),
+            const SizedBox(height: 16),
+            _buildStatusBadge(context, l10n),
+            const SizedBox(height: 24),
+            _buildInfoCard(context, l10n),
+            const SizedBox(height: 16),
+            _buildAccountInfo(context, l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context, AppLocalizations l10n) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left column: Avatar + Info
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Text(
+                      _getInitials(_currentUser!),
                       style: TextStyle(
-                        color: _currentUser!.isActive
-                            ? Colors.green[700]
-                            : Colors.red[700],
+                        fontSize: 36,
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Info Card
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.currency_bitcoin,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        l10n.homeCryptoPlatform,
-                        style: const TextStyle(
-                          fontSize: 20,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    l10n.homeWelcomeBack,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _currentUser!.fullName,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.homeAuthReady,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _currentUser!.email,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildStatusBadge(context, l10n),
+                ],
               ),
-              const SizedBox(height: 24),
+            ),
+            const SizedBox(width: 48),
+            // Right column: Cards
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  _buildInfoCard(context, l10n),
+                  const SizedBox(height: 16),
+                  _buildAccountInfo(context, l10n),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              // Account Info
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Member since'),
-                subtitle: Text(
-                  '${_currentUser!.createdAt.day}/${_currentUser!.createdAt.month}/${_currentUser!.createdAt.year}',
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.update),
-                title: Text(l10n.homeLastUpdated),
-                subtitle: Text(
-                  '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
-                ),
-              ),
-            ],
+  Widget _buildStatusBadge(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: _currentUser!.isActive
+            ? Colors.green[50]
+            : Colors.red[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _currentUser!.isActive
+              ? Colors.green[300]!
+              : Colors.red[300]!,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _currentUser!.isActive
+                ? Icons.check_circle
+                : Icons.cancel,
+            size: 16,
+            color: _currentUser!.isActive
+                ? Colors.green[700]
+                : Colors.red[700],
           ),
+          const SizedBox(width: 8),
+          Text(
+            _currentUser!.isActive ? l10n.active : l10n.inactive,
+            style: TextStyle(
+              color: _currentUser!.isActive
+                  ? Colors.green[700]
+                  : Colors.red[700],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Icon(
+              Icons.currency_bitcoin,
+              size: 48,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.homeCryptoPlatform,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.homeAuthReady,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountInfo(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Member since'),
+              subtitle: Text(
+                '${_currentUser!.createdAt.day}/${_currentUser!.createdAt.month}/${_currentUser!.createdAt.year}',
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.update),
+              title: Text(l10n.homeLastUpdated),
+              subtitle: Text(
+                '${_currentUser!.updatedAt.day}/${_currentUser!.updatedAt.month}/${_currentUser!.updatedAt.year}',
+              ),
+            ),
+          ],
         ),
       ),
     );

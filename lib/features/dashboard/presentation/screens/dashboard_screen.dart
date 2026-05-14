@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
@@ -34,43 +35,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () => context.read<DashboardProvider>().refresh(force: true),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPortfolioCard(l10n),
-              const SizedBox(height: 16),
-              _buildSectionHeader(
-                title: l10n.dashboardTopMarkets,
-                seeAllLabel: l10n.dashboardSeeAll,
-                onSeeAll: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MarketsListScreen(showAppBar: true),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildTopMarkets(l10n),
-              const SizedBox(height: 24),
-              _buildSectionHeader(
-                title: l10n.dashboardMyWallets,
-                seeAllLabel: l10n.dashboardSeeAll,
-                onSeeAll: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const WalletsOverviewScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildWalletsSummary(l10n),
-              const SizedBox(height: 24),
-            ],
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+            if (isWide) {
+              return _buildWideLayout(context, l10n);
+            }
+            return _buildCompactLayout(context, l10n);
+          },
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompactLayout(BuildContext context, AppLocalizations l10n) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildPortfolioCard(l10n),
+          const SizedBox(height: 16),
+          _buildSectionHeader(
+            title: l10n.dashboardTopMarkets,
+            seeAllLabel: l10n.dashboardSeeAll,
+            onSeeAll: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MarketsListScreen(showAppBar: true),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildTopMarkets(l10n),
+          const SizedBox(height: 24),
+          _buildSectionHeader(
+            title: l10n.dashboardMyWallets,
+            seeAllLabel: l10n.dashboardSeeAll,
+            onSeeAll: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const WalletsOverviewScreen(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildWalletsSummary(l10n),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context, AppLocalizations l10n) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left column
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPortfolioCard(l10n),
+                const SizedBox(height: 24),
+                _buildSectionHeader(
+                  title: l10n.dashboardMyWallets,
+                  seeAllLabel: l10n.dashboardSeeAll,
+                  onSeeAll: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WalletsOverviewScreen(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildWalletsSummary(l10n),
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          // Right column
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader(
+                  title: l10n.dashboardTopMarkets,
+                  seeAllLabel: l10n.dashboardSeeAll,
+                  onSeeAll: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MarketsListScreen(showAppBar: true),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildTopMarkets(l10n),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -105,7 +105,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
     AdminWithdrawalModel w,
     AppLocalizations l10n,
   ) {
-    final amount = double.tryParse(w.amount)?.toStringAsFixed(2) ?? w.amount;
+    final formattedAmount = '${FormatUtils.formatDecimalAmountDisplay(w.amount)} ${w.assetSymbol}';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -120,7 +120,7 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
             _ConfirmRow(label: l10n.withdrawalDetailUser, value: w.userDisplayName),
             _ConfirmRow(label: l10n.withdrawalDetailChain, value: w.chain),
             _ConfirmRow(label: l10n.withdrawalDetailToAddress, value: w.toAddress),
-            _ConfirmRow(label: l10n.withdrawalDetailAmount, value: '$amount ${w.chain.split('_').first}'),
+            _ConfirmRow(label: l10n.withdrawalDetailAmount, value: formattedAmount),
           ],
         ),
         actions: [

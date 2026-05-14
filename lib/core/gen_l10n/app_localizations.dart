@@ -236,11 +236,23 @@ abstract class AppLocalizations {
   /// **'Error'**
   String get error;
 
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get unknownError;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
 
   /// No description provided for @save.
   ///
@@ -5702,7 +5714,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawalDetailInfoTitle.
   ///
   /// In en, this message translates to:
-  /// **'Withdrawal Information'**
+  /// **'Transaction Details'**
   String get withdrawalDetailInfoTitle;
 
   /// No description provided for @withdrawalDetailAmount.
@@ -5752,6 +5764,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Updated at'**
   String get withdrawalDetailUpdatedAt;
+
+  /// No description provided for @withdrawalDetailConfirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get withdrawalDetailConfirmations;
 
   /// No description provided for @withdrawalDetailUserId.
   ///
@@ -6190,6 +6208,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by user ID or wallet address...'**
   String get withdrawalSearchHint;
+
+  /// No description provided for @withdrawalApproveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get withdrawalApproveLabel;
+
+  /// No description provided for @withdrawalRejectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get withdrawalRejectLabel;
+
+  /// No description provided for @withdrawalRejectConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Rejection'**
+  String get withdrawalRejectConfirmTitle;
+
+  /// No description provided for @withdrawalRejectConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get withdrawalRejectConfirmAction;
+
+  /// No description provided for @withdrawalRejectReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejection reason'**
+  String get withdrawalRejectReasonLabel;
 
   /// No description provided for @withdrawalNoRequests.
   ///
@@ -9048,6 +9096,25 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Withdrawal Rejected'**
   String get notificationsTypeWithdrawalRejected;
+
+  /// No description provided for @notifWithdrawalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'User requested withdrawal of {amount} {symbol} on {chain}'**
+  String notifWithdrawalRequest(String amount, String symbol, String chain);
+
+  /// No description provided for @notifWithdrawalApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your withdrawal of {amount} {symbol} on {chain} has been approved and is being processed.'**
+  String notifWithdrawalApproved(String amount, String symbol, String chain);
+
+  /// No description provided for @notifWithdrawalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your withdrawal of {amount} {symbol} on {chain} has been rejected.{reason, select, undefined{} other{ Reason: {reason}}}'**
+  String notifWithdrawalRejected(
+      String amount, String symbol, String chain, String reason);
 }
 
 class _AppLocalizationsDelegate

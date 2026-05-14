@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/core/localization/locale_provider.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart'
     show AuthenticationException, NetworkException, ServerException;
@@ -259,251 +260,298 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(l10n.settings),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Consumer<AuthProvider>(
-          builder: (context, auth, _) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+          return _buildBody(context, l10n, isWide);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, AppLocalizations l10n, bool isWide) {
+    if (isWide) {
+      return _buildWideLayout(context, l10n);
+    }
+    return _buildCompactLayout(context, l10n);
+  }
+
+  Widget _buildCompactLayout(BuildContext context, AppLocalizations l10n) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildThemeSection(context, l10n),
+          const SizedBox(height: 16),
+          _buildLanguageSection(context, l10n),
+          const SizedBox(height: 16),
+          _buildSecuritySection(context, l10n),
+          const SizedBox(height: 16),
+          _buildExchangeSyncSection(context, l10n),
+          const SizedBox(height: 16),
+          _buildAboutSection(context, l10n),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context, AppLocalizations l10n) {
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Row 1: Theme + Language
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildThemeSection(context, l10n)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildLanguageSection(context, l10n)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Row 2: Security + Exchange Sync
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildSecuritySection(context, l10n)),
+                  if (auth.canSyncExchange) ...[
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildExchangeSyncSection(context, l10n)),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              // About section
+              _buildAboutSection(context, l10n),
+              const SizedBox(height: 32),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeSection(BuildContext context, AppLocalizations l10n) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsTheme,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              SegmentedButton<ThemeMode>(
+                segments: [
+                  ButtonSegment(
+                    value: ThemeMode.light,
+                    icon: const Icon(Icons.light_mode_outlined),
+                    label: Text(l10n.settingsThemeLight),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.system,
+                    icon: const Icon(Icons.auto_mode_outlined),
+                    label: Text(l10n.settingsThemeSystem),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.dark,
+                    icon: const Icon(Icons.dark_mode_outlined),
+                    label: Text(l10n.settingsThemeDark),
+                  ),
+                ],
+                selected: {themeProvider.themeMode},
+                onSelectionChanged: (s) => themeProvider.setThemeMode(s.first),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.settingsSeedColor,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: ThemeProvider.presetSeeds.map((preset) {
+                  final isSelected =
+                      themeProvider.seedColor.toARGB32() == preset.seed.toARGB32();
+                  return Tooltip(
+                    message: preset.name,
+                    child: InkWell(
+                      mouseCursor: SystemMouseCursors.click,
+                      onTap: () => themeProvider.setSeedColor(preset.seed),
+                      borderRadius: BorderRadius.circular(24),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: preset.seed,
+                          shape: BoxShape.circle,
+                          border: isSelected
+                              ? Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface,
+                                  width: 3,
+                                )
+                              : null,
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: preset.seed
+                                        .withValues(alpha: 0.5),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                  )
+                                ]
+                              : null,
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 20,
+                              )
+                            : null,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageSection(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context).settingsLanguageTitle,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Consumer<LocaleProvider>(
+              builder: (context, localeProvider, _) => Wrap(
+                spacing: 12,
+                children: [
+                  ChoiceChip(
+                    label: Text(AppLocalizations.of(context).english),
+                    selected: localeProvider.locale.languageCode == 'en',
+                    onSelected: (_) =>
+                        localeProvider.setLocale(const Locale('en')),
+                  ),
+                  ChoiceChip(
+                    label: Text(AppLocalizations.of(context).vietnamese),
+                    selected: localeProvider.locale.languageCode == 'vi',
+                    onSelected: (_) =>
+                        localeProvider.setLocale(const Locale('vi')),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecuritySection(BuildContext context, AppLocalizations l10n) {
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context).settingsSecurityTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                AppLocalizations.of(context).settings2faDescription,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: auth.currentUser?.twoFaEnabled ?? false,
+                title: Text(AppLocalizations.of(context).settings2faLabel),
+                subtitle: Text(
+                  (auth.currentUser?.twoFaEnabled ?? false)
+                      ? AppLocalizations.of(context).settings2faEnabled
+                      : AppLocalizations.of(context).settings2faDisabled,
+                ),
+                onChanged: _isUpdating2fa ? null : _toggle2fa,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExchangeSyncSection(BuildContext context, AppLocalizations l10n) {
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        if (!auth.canSyncExchange) return const SizedBox.shrink();
+        return Card(
+          key: _exchangeSyncSectionKey,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Theme section ───────────────────────────────────────
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) => Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.sync,
+                      size: 28,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.settingsTheme,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            l10n.manualResyncBinance,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
-                          const SizedBox(height: 12),
-                          // Light / System / Dark toggle
-                          SegmentedButton<ThemeMode>(
-                            segments: [
-                              ButtonSegment(
-                                value: ThemeMode.light,
-                                icon: const Icon(Icons.light_mode_outlined),
-                                label: Text(l10n.settingsThemeLight),
-                              ),
-                              ButtonSegment(
-                                value: ThemeMode.system,
-                                icon: const Icon(Icons.auto_mode_outlined),
-                                label: Text(l10n.settingsThemeSystem),
-                              ),
-                              ButtonSegment(
-                                value: ThemeMode.dark,
-                                icon: const Icon(Icons.dark_mode_outlined),
-                                label: Text(l10n.settingsThemeDark),
-                              ),
-                            ],
-                            selected: {themeProvider.themeMode},
-                            onSelectionChanged: (s) =>
-                                themeProvider.setThemeMode(s.first),
-                          ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 4),
                           Text(
-                            l10n.settingsSeedColor,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                          ),
-                          const SizedBox(height: 10),
-                          // Seed color swatch grid
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: ThemeProvider.presetSeeds.map((preset) {
-                              final isSelected =
-                                  themeProvider.seedColor.toARGB32() == preset.seed.toARGB32();
-                              return Tooltip(
-                                message: preset.name,
-                                child: InkWell(
-                                  mouseCursor: SystemMouseCursors.click,
-                                  onTap: () =>
-                                      themeProvider.setSeedColor(preset.seed),
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: preset.seed,
-                                      shape: BoxShape.circle,
-                                      border: isSelected
-                                          ? Border.all(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface,
-                                              width: 3,
-                                            )
-                                          : null,
-                                      boxShadow: isSelected
-                                          ? [
-                                              BoxShadow(
-                                                color: preset.seed
-                                                    .withValues(alpha: 0.5),
-                                                blurRadius: 6,
-                                                spreadRadius: 1,
-                                              )
-                                            ]
-                                          : null,
-                                    ),
-                                    child: isSelected
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 20,
-                                          )
-                                        : null,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // ── Language section ─────────────────────────────────────
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context).settingsLanguageTitle,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-                        Consumer<LocaleProvider>(
-                          builder: (context, localeProvider, _) => Wrap(
-                            spacing: 12,
-                            children: [
-                              ChoiceChip(
-                                label: Text(AppLocalizations.of(context).english),
-                                selected: localeProvider.locale.languageCode == 'en',
-                                onSelected: (_) =>
-                                    localeProvider.setLocale(const Locale('en')),
-                              ),
-                              ChoiceChip(
-                                label: Text(AppLocalizations.of(context).vietnamese),
-                                selected: localeProvider.locale.languageCode == 'vi',
-                                onSelected: (_) =>
-                                    localeProvider.setLocale(const Locale('vi')),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context).settingsSecurityTitle,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          AppLocalizations.of(context).settings2faDescription,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          value: auth.currentUser?.twoFaEnabled ?? false,
-                          title: Text(AppLocalizations.of(context).settings2faLabel),
-                          subtitle: Text(
-                            (auth.currentUser?.twoFaEnabled ?? false)
-                                ? AppLocalizations.of(context).settings2faEnabled
-                                : AppLocalizations.of(context).settings2faDisabled,
-                          ),
-                          onChanged: _isUpdating2fa ? null : _toggle2fa,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (auth.canSyncExchange)
-                  Card(
-                    key: _exchangeSyncSectionKey,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.sync,
-                                size: 28,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.manualResyncBinance,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.manualResyncBinanceDescription,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(l10n.exchangeSyncForceRefresh),
-                            value: _forceRefreshExchange,
-                            onChanged: _isSyncing
-                                ? null
-                                : (v) =>
-                                    setState(() => _forceRefreshExchange = v),
-                          ),
-                          Text(
-                            _lastManualSyncAt == null
-                                ? '${l10n.lastManualSync}: ${l10n.neverSyncedYet}'
-                                : '${l10n.lastManualSync}: ${_formatDateTime(context, _lastManualSyncAt!)}',
+                            l10n.manualResyncBinanceDescription,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -513,54 +561,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       .onSurfaceVariant,
                                 ),
                           ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: _isSyncing ? null : _syncBinance,
-                              icon: _isSyncing
-                                  ? SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      ),
-                                    )
-                                  : const Icon(Icons.sync),
-                              label: Text(_isSyncing
-                                  ? l10n.syncing
-                                  : l10n.manualResyncBinance),
-                            ),
-                          ),
                         ],
                       ),
                     ),
-                  ),
-                const SizedBox(height: 16),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(AppLocalizations.of(context).aboutAppTileTitle),
-                    subtitle: Text(AppLocalizations.of(context).aboutAppTileSubtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    mouseCursor: SystemMouseCursors.click,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AboutScreen(),
-                        ),
-                      );
-                    },
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.exchangeSyncForceRefresh),
+                  value: _forceRefreshExchange,
+                  onChanged: _isSyncing
+                      ? null
+                      : (v) => setState(() => _forceRefreshExchange = v),
+                ),
+                Text(
+                  _lastManualSyncAt == null
+                      ? '${l10n.lastManualSync}: ${l10n.neverSyncedYet}'
+                      : '${l10n.lastManualSync}: ${_formatDateTime(context, _lastManualSyncAt!)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _isSyncing ? null : _syncBinance,
+                    icon: _isSyncing
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimary,
+                            ),
+                          )
+                        : const Icon(Icons.sync),
+                    label: Text(_isSyncing
+                        ? l10n.syncing
+                        : l10n.manualResyncBinance),
                   ),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAboutSection(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.info_outline),
+        title: Text(AppLocalizations.of(context).aboutAppTileTitle),
+        subtitle: Text(AppLocalizations.of(context).aboutAppTileSubtitle),
+        trailing: const Icon(Icons.chevron_right),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AboutScreen(),
+            ),
+          );
+        },
       ),
     );
   }

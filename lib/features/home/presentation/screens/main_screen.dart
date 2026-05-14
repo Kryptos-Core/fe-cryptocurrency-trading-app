@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
-import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' show sl;
 import 'package:crypto_trading_app/features/notifications/application/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
@@ -333,11 +332,9 @@ class _MainScreenState extends State<MainScreen> {
             ),
         ],
       ),
-      body: AppCenteredContent(
-        child: IndexedStack(
-          index: _currentIndex,
-          children: screens,
-        ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: screens,
       ),
       bottomNavigationBar: SizedBox(
         height: 72,

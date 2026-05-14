@@ -133,7 +133,10 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       await loadStats();
       return true;
     } catch (e) {
-      _error = e.toString();
+      final errorString = e.toString();
+      _error = _friendlyErrorMessage(errorString);
+      _withdrawals = _withdrawals.where((w) => w.txId != txId).toList();
+      await loadStats();
       return false;
     } finally {
       _isSubmitting = false;
@@ -155,7 +158,15 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       await loadStats();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = _friendlyErrorMessage(e.toString());
+      await loadWithdrawals(
+        status: _filterStatus,
+        chain: _filterChain,
+        search: _filterSearch,
+        dateFrom: _filterDateFrom,
+        dateTo: _filterDateTo,
+        page: _page,
+      );
       return false;
     } finally {
       _isSubmitting = false;
@@ -176,7 +187,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       await loadStats();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = _friendlyErrorMessage(e.toString());
       return false;
     } finally {
       _isSubmitting = false;
@@ -205,7 +216,7 @@ class WithdrawalManagementProvider extends ChangeNotifier {
       await loadStats();
       return result;
     } catch (e) {
-      _error = e.toString();
+      _error = _friendlyErrorMessage(e.toString());
       return {};
     } finally {
       _isSubmitting = false;
@@ -222,5 +233,31 @@ class WithdrawalManagementProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Map raw API error strings to user-friendly messages.
+  String _friendlyErrorMessage(String raw) {
+    final lower = raw.toLowerCase();
+    if (lower.contains('already_processing') ||
+        lower.contains('dang duoc xu ly') ||
+        lower.contains('conflict')) {
+      return 'Yeu cau nay dang duoc xu ly boi thao tac khac. Vui long doi va thu lai.';
+    }
+    if (lower.contains('not_found') || lower.contains('khong tim thay')) {
+      return 'Khong tim thay giao dich nay. Co the no da duoc xu ly truoc do.';
+    }
+    if (lower.contains('invalid_status') || lower.contains('trang thai')) {
+      return 'Giao dich khong con o trang thai chap nhan. Vui long tai lai danh sach.';
+    }
+    if (lower.contains('blockchain') || lower.contains('giao dich blockchain')) {
+      return 'Giao dich blockchain that bai. Vui long thu lai hoac lien he ho tro.';
+    }
+    if (lower.contains('hot_wallet') || lower.contains('vi rut tien')) {
+      return 'He thong dang gap van de voi vi rut tien. Vui long thu lai sau.';
+    }
+    if (lower.contains('insufficient') || lower.contains('khong du')) {
+      return 'So du khong du de thuc hien giao dich.';
+    }
+    return raw;
   }
 }

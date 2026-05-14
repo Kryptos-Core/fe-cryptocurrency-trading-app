@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
@@ -545,64 +546,73 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                   ...filteredTransactions.take(10).map(
                         (tx) {
                           final scheme = Theme.of(context).colorScheme;
-                          return Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
+                          final formattedAmount = FormatUtils.formatDecimalAmountDisplay(tx.amount);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Material(
                               color: scheme.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: scheme.outlineVariant),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${_typeLabel(tx.type)} · ${FormatUtils.formatDecimalAmountDisplay(tx.amount)}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: scheme.onSurface,
-                                        ),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(10),
+                                onTap: () => _WithdrawalDetailSheet.show(context, tx),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: scheme.outlineVariant),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '${_typeLabel(tx.type)} · $formattedAmount',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: scheme.onSurface,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _txStatusBg(tx.status),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              onchainTxStatusUiLabel(l10n, tx.status),
+                                              style: TextStyle(
+                                                color: _txStatusFg(tx.status),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _txStatusBg(tx.status),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        onchainTxStatusUiLabel(l10n, tx.status),
-                                        style: TextStyle(
-                                          color: _txStatusFg(tx.status),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                      const SizedBox(height: 6),
+                                      Text(
+                                          '${context.read<OnchainChainPickerProvider>().displayLabelForNetwork(tx.chain)} · ${_formatAddress(tx.txHash ?? tx.txId)}',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: scheme.onSurfaceVariant,
+                                          )),
+                                      const SizedBox(height: 4),
+                                      Text(l10n
+                                          .txToAddress(_formatAddress(tx.toAddress)),
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: scheme.onSurfaceVariant,
+                                          )),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                    '${context.read<OnchainChainPickerProvider>().displayLabelForNetwork(tx.chain)} · ${_formatAddress(tx.txHash ?? tx.txId)}',
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      color: scheme.onSurfaceVariant,
-                                    )),
-                                const SizedBox(height: 4),
-                                Text(l10n
-                                    .txToAddress(_formatAddress(tx.toAddress)),
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      color: scheme.onSurfaceVariant,
-                                    )),
-                              ],
+                              ),
                             ),
                           );
                         },
@@ -628,6 +638,288 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+// ── _WithdrawalDetailSheet ───────────────────────────────────────────────────
+
+class _WithdrawalDetailSheet extends StatelessWidget {
+  final OnchainTransaction tx;
+
+  const _WithdrawalDetailSheet({required this.tx});
+
+  static void show(BuildContext context, OnchainTransaction tx) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _WithdrawalDetailSheet(tx: tx),
+    );
+  }
+
+  (Color, String) _statusInfo(AppLocalizations l10n, String s) {
+    switch (s) {
+      case 'COMPLETED':
+        return (Colors.green, l10n.onchainTxStatusCompleted);
+      case 'CONFIRMING':
+        return (Colors.blue, l10n.onchainTxStatusConfirming);
+      case 'PENDING':
+        return (Colors.orange, l10n.onchainTxStatusPending);
+      case 'FAILED':
+        return (Colors.red, l10n.onchainTxStatusFailed);
+      default:
+        return (Colors.grey, s);
+    }
+  }
+
+  String _typeLabel(AppLocalizations l10n, OnchainTxType type) {
+    switch (type) {
+      case OnchainTxType.withdrawal:
+        return l10n.txTypeWithdrawals;
+      case OnchainTxType.deposit:
+        return l10n.txTypeDeposits;
+      case OnchainTxType.transfer:
+        return l10n.txTypeTransfers;
+      case OnchainTxType.fund:
+        return l10n.txTypeFund;
+      case OnchainTxType.sweep:
+        return l10n.txTypeSweep;
+      case OnchainTxType.unknown:
+        return l10n.txTypeUnknown;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final chainPicker = context.read<OnchainChainPickerProvider>();
+
+    final (statusColor, statusLabel) = _statusInfo(l10n, tx.status.apiValue);
+    final networkLabel = chainPicker.displayLabelForNetwork(tx.chain);
+    final formattedAmount = FormatUtils.formatDecimalAmountDisplay(tx.amount);
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.65,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (_, scrollCtrl) => Column(
+        children: [
+          // Drag handle
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.red.withValues(alpha: 0.12),
+                  child: const Icon(Icons.call_made, color: Colors.red, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.withdrawalDetailTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                      ),
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          statusLabel,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // Content
+          Expanded(
+            child: ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.all(16),
+              children: [
+                // Type + Amount card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _typeLabel(l10n, tx.type),
+                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '-$formattedAmount',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            networkLabel,
+                            style: TextStyle(
+                              color: cs.onPrimaryContainer,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Detail rows card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.withdrawalDetailInfoTitle,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        _DetailRow(
+                          label: l10n.withdrawalDetailStatus,
+                          value: statusLabel,
+                          valueColor: statusColor,
+                        ),
+                        _DetailRow(
+                          label: l10n.withdrawalDetailChain,
+                          value: networkLabel,
+                        ),
+                        _DetailRow(
+                          label: l10n.withdrawalDetailToAddress,
+                          value: tx.toAddress,
+                          isAddress: true,
+                        ),
+                        if (tx.txHash != null && tx.txHash!.isNotEmpty)
+                          _DetailRow(
+                            label: l10n.withdrawalDetailTxHash,
+                            value: tx.txHash!,
+                            isAddress: true,
+                          ),
+                        _DetailRow(
+                          label: l10n.withdrawalDetailCreatedAt,
+                          value: DateFormat('dd/MM/yyyy HH:mm').format(tx.createdAt.toLocal()),
+                        ),
+                        if (tx.confirmedAt != null)
+                          _DetailRow(
+                            label: l10n.withdrawalDetailUpdatedAt,
+                            value: DateFormat('dd/MM/yyyy HH:mm').format(tx.confirmedAt!.toLocal()),
+                          ),
+                        if (tx.confirmations > 0)
+                          _DetailRow(
+                            label: l10n.withdrawalDetailConfirmations,
+                            value: tx.confirmations.toString(),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final bool isAddress;
+
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+    this.isAddress = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+          ),
+          Expanded(
+            child: SelectableText(
+              value,
+              style: TextStyle(
+                fontFamily: isAddress ? 'monospace' : null,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: valueColor ?? cs.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

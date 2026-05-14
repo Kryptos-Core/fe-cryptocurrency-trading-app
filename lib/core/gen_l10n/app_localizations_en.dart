@@ -78,7 +78,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error => 'Error';
 
   @override
+  String get unknownError => 'Unknown error';
+
+  @override
   String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
 
   @override
   String get save => 'Save';
@@ -3110,7 +3116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get depositStatusCancelled => 'Cancelled';
 
   @override
-  String get withdrawalDetailInfoTitle => 'Withdrawal Information';
+  String get withdrawalDetailInfoTitle => 'Transaction Details';
 
   @override
   String get withdrawalDetailAmount => 'Amount';
@@ -3135,6 +3141,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawalDetailUpdatedAt => 'Updated at';
+
+  @override
+  String get withdrawalDetailConfirmations => 'Confirmations';
 
   @override
   String get withdrawalDetailUserId => 'User ID';
@@ -3371,6 +3380,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawalSearchHint => 'Search by user ID or wallet address...';
+
+  @override
+  String get withdrawalApproveLabel => 'Approve';
+
+  @override
+  String get withdrawalRejectLabel => 'Reject';
+
+  @override
+  String get withdrawalRejectConfirmTitle => 'Confirm Rejection';
+
+  @override
+  String get withdrawalRejectConfirmAction => 'Reject';
+
+  @override
+  String get withdrawalRejectReasonLabel => 'Rejection reason';
 
   @override
   String get withdrawalNoRequests => 'No withdrawal requests';
@@ -4963,4 +4987,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsTypeWithdrawalRejected => 'Withdrawal Rejected';
+
+  @override
+  String notifWithdrawalRequest(String amount, String symbol, String chain) {
+    return 'User requested withdrawal of $amount $symbol on $chain';
+  }
+
+  @override
+  String notifWithdrawalApproved(String amount, String symbol, String chain) {
+    return 'Your withdrawal of $amount $symbol on $chain has been approved and is being processed.';
+  }
+
+  @override
+  String notifWithdrawalRejected(
+      String amount, String symbol, String chain, String reason) {
+    String _temp0 = intl.Intl.selectLogic(
+      reason,
+      {
+        'undefined': '',
+        'other': ' Reason: $reason',
+      },
+    );
+    return 'Your withdrawal of $amount $symbol on $chain has been rejected.$_temp0';
+  }
 }

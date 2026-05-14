@@ -43,6 +43,16 @@ class AdminWithdrawalModel {
     return userEmail ?? userId;
   }
 
+  /// Symbol cho UI: TRON chains luôn dùng USDT (TRC-20)
+  String get assetSymbol {
+    if (chain == 'TRON_NILE' || chain == 'TRON_SHASTA' || chain == 'TRON_MAINNET') {
+      return 'USDT';
+    }
+    // Các chain khác có thể là native coin
+    final parts = chain.split('_');
+    return parts.isNotEmpty ? parts.last : chain;
+  }
+
   factory AdminWithdrawalModel.fromJson(Map<String, dynamic> json) {
     return AdminWithdrawalModel(
       txId: json['txId']?.toString() ?? '',

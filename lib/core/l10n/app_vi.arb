@@ -23,7 +23,9 @@
   "refresh": "Làm mới",
   "loading": "Đang tải...",
   "error": "Lỗi",
+  "unknownError": "Đã xảy ra lỗi không xác định",
   "cancel": "Hủy",
+  "confirm": "Xác nhận",
   "save": "Lưu",
   "submit": "Gửi",
   "back": "Quay lại",
@@ -1142,6 +1144,8 @@
   "withdrawalDetailTxHash": "Hash giao dịch",
   "withdrawalDetailCreatedAt": "Tạo lúc",
   "withdrawalDetailUpdatedAt": "Cập nhật lúc",
+  "withdrawalDetailInfoTitle": "Chi tiết giao dịch",
+  "withdrawalDetailConfirmations": "Số xác nhận",
   "withdrawalDetailUserId": "ID người dùng",
   "withdrawalDetailViewUser": "Xem người dùng",
   "withdrawalStatusCompleted": "Hoàn thành",
@@ -1271,6 +1275,11 @@
   },
   "adminFilterAll": "Tất cả",
   "withdrawalSearchHint": "Tìm theo ID người dùng hoặc địa chỉ ví...",
+  "withdrawalApproveLabel": "Chấp nhận",
+  "withdrawalRejectLabel": "Từ chối",
+  "withdrawalRejectConfirmTitle": "Xác nhận từ chối",
+  "withdrawalRejectConfirmAction": "Từ chối",
+  "withdrawalRejectReasonLabel": "Lý do từ chối",
   "withdrawalNoRequests": "Không có yêu cầu rút tiền",
   "drawerTransactionMonitoring": "Giám sát giao dịch",
   "adminTabOrders": "Lệnh",
@@ -2036,5 +2045,30 @@
   "notificationsTypePromo": "Khuyến mãi",
   "notificationsTypeWithdrawalRequest": "Yêu cầu rút tiền",
   "notificationsTypeWithdrawalApproved": "Phê duyệt rút tiền",
-  "notificationsTypeWithdrawalRejected": "Từ chối rút tiền"
+  "notificationsTypeWithdrawalRejected": "Từ chối rút tiền",
+  "notifWithdrawalRequest": "Người dùng yêu cầu rút {amount} {symbol} trên {chain}",
+  "@notifWithdrawalRequest": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" }
+    }
+  },
+  "notifWithdrawalApproved": "Yêu cầu rút {amount} {symbol} trên {chain} của bạn đã được phê duyệt và đang được xử lý.",
+  "@notifWithdrawalApproved": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" }
+    }
+  },
+  "notifWithdrawalRejected": "Yêu cầu rút {amount} {symbol} trên {chain} của bạn đã bị từ chối.{reason, select, undefined{} other{ Lý do: {reason}}}",
+  "@notifWithdrawalRejected": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" },
+      "reason": { "type": "String" }
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:crypto_trading_app/features/notifications/domain/entities/notifi
 import 'package:crypto_trading_app/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/services/notification_sound_service.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 
 /// Notification history screen.
@@ -154,21 +155,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const Divider(),
               Text(l10n.notificationSoundPerType, style: Theme.of(ctx).textTheme.titleSmall),
               const SizedBox(height: 12),
-              ...NotificationSoundType.values.map((st) {
-                final setting = soundService.settings[st]!;
-                return SwitchListTile(
-                  title: Text(_soundTypeLabel(st, l10n)),
-                  subtitle: Text(_soundTypeAsset(st)),
-                  value: setting.enabled,
-                  dense: true,
-                  onChanged: soundService.globallyEnabled
-                      ? (v) {
-                          soundService.setEnabled(st, v);
-                          setSheetState(() {});
-                        }
-                      : null,
-                );
-              }),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: NotificationSoundType.values.map((st) {
+                    final setting = soundService.settings[st]!;
+                    return SwitchListTile(
+                      title: Text(_soundTypeLabel(st, l10n)),
+                      subtitle: Text(_soundTypeAsset(st)),
+                      value: setting.enabled,
+                      dense: true,
+                      onChanged: soundService.globallyEnabled
+                          ? (v) {
+                              soundService.setEnabled(st, v);
+                              setSheetState(() {});
+                            }
+                          : null,
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
           ),
         ),
@@ -191,6 +197,40 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 }
 
 // ── Notification Tile ──────────────────────────────────────────────────────
+
+String _buildLocalizedBody(NotificationEntity notif, AppLocalizations l10n) {
+  final data = notif.data;
+  if (data == null) return notif.body;
+
+  final i18nKey = data['i18nKey'] as String?;
+  if (i18nKey == null) return notif.body;
+
+  final rawAmount = data['amount'] as String?;
+  final symbol = (data['assetSymbol'] as String?) ?? (data['asset'] as String?) ?? '';
+  final chain = (data['chain'] as String?) ?? '';
+
+  final formattedAmount = rawAmount != null && rawAmount.isNotEmpty
+      ? FormatUtils.formatDecimalAmountDisplay(rawAmount)
+      : '';
+
+  switch (i18nKey) {
+    case 'notifWithdrawalRequest':
+      return l10n.notifWithdrawalRequest(formattedAmount, symbol, chain);
+    case 'notifWithdrawalApproved':
+      return l10n.notifWithdrawalApproved(formattedAmount, symbol, chain);
+    case 'notifWithdrawalRejected': {
+      final reason = data['reason'] as String?;
+      return l10n.notifWithdrawalRejected(
+        formattedAmount,
+        symbol,
+        chain,
+        reason ?? 'undefined',
+      );
+    }
+    default:
+      return notif.body;
+  }
+}
 
 class _NotificationTile extends StatelessWidget {
   final NotificationEntity notification;
@@ -226,7 +266,7 @@ class _NotificationTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        notification.body,
+        _buildLocalizedBody(notification, l10n),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.bodySmall,
@@ -328,7 +368,7 @@ class _NotificationDetailSheet extends StatelessWidget {
             Text(notification.title,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(notification.body, style: theme.textTheme.bodyMedium),
+            Text(_buildLocalizedBody(notification, l10n), style: theme.textTheme.bodyMedium),
             if (notification.data != null && notification.data!.isNotEmpty) ...[
               const SizedBox(height: 16),
               const Divider(),

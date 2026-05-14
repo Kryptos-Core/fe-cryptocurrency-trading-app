@@ -176,7 +176,7 @@ class _StatsBanner extends StatelessWidget {
                 ...stats.pendingTotalByChain.entries.map((e) => Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: Text(
-                        '${e.key}: ${e.value}',
+                        '${e.key}: ${FormatUtils.formatDecimalAmountDisplay(e.value)}',
                         style: TextStyle(
                           fontSize: 11,
                           color: scheme.onTertiaryContainer,
@@ -452,7 +452,7 @@ class _WithdrawalTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              '${FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)} ${withdrawal.chain}',
+                              '${FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)} ${withdrawal.assetSymbol}',
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: scheme.onSurface,
@@ -675,7 +675,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)} ${withdrawal.chain}',
+                        '${FormatUtils.formatDecimalAmountDisplay(withdrawal.amount)} ${withdrawal.assetSymbol}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                       ),
                       const SizedBox(height: 4),
@@ -695,6 +695,52 @@ class _WithdrawalDetailSheet extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
+          // Actions
+          if (withdrawal.status == 'PENDING')
+            _ActionButtons(
+              withdrawal: withdrawal,
+              l10n: l10n,
+              onActionResult: ({required bool success, String? errorMessage}) {
+                final messenger = ScaffoldMessenger.of(context);
+                final errorScheme = Theme.of(context).colorScheme;
+                messenger.clearSnackBars();
+                if (success) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(l10n.withdrawalApprovedSnack)),
+                        ],
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                  final navigator = Navigator.of(context);
+                  Future.delayed(const Duration(milliseconds: 400), () {
+                    if (context.mounted) navigator.pop();
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(errorMessage ?? l10n.unknownError)),
+                        ],
+                      ),
+                      backgroundColor: errorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                }
+              },
+            ),
           // Body
           Expanded(
             child: ListView(
@@ -821,6 +867,408 @@ class _InfoRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ActionButtons extends StatefulWidget {
+  final AdminWithdrawalModel withdrawal;
+  final AppLocalizations l10n;
+  final void Function({required bool success, String? errorMessage}) onActionResult;
+
+  const _ActionButtons({
+    required this.withdrawal,
+    required this.l10n,
+    required this.onActionResult,
+  });
+
+  @override
+  State<_ActionButtons> createState() => _ActionButtonsState();
+}
+
+enum _ActionState { idle, loading, success }
+
+class _ActionButtonsState extends State<_ActionButtons> {
+  _ActionState _approveState = _ActionState.idle;
+  _ActionState _rejectState = _ActionState.idle;
+  String? _lastError;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isBusy = _approveState == _ActionState.loading || _rejectState == _ActionState.loading;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        border: Border(top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4))),
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: isBusy ? null : () => _showRejectDialog(context),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: scheme.error,
+                  side: BorderSide(color: scheme.error.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: _buildButtonChild(
+                  _rejectState,
+                  widget.l10n.withdrawalRejectLabel,
+                  scheme.error,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: FilledButton(
+                onPressed: isBusy ? null : () => _showApproveDialog(context),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: _buildButtonChild(
+                  _approveState,
+                  widget.l10n.withdrawalApproveLabel,
+                  scheme.onPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButtonChild(_ActionState state, String label, Color baseColor) {
+    switch (state) {
+      case _ActionState.loading:
+        return SizedBox(
+          height: 18,
+          width: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: baseColor,
+          ),
+        );
+      case _ActionState.success:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check, size: 18, color: baseColor),
+            const SizedBox(width: 6),
+            Text(label),
+          ],
+        );
+      default:
+        return Text(label);
+    }
+  }
+
+  void _showApproveDialog(BuildContext context) {
+    final l10n = widget.l10n;
+    showDialog(
+      context: context,
+      barrierDismissible: _approveState != _ActionState.loading,
+      builder: (ctx) => _ApproveRejectDialog(
+        key: ValueKey('approve-${widget.withdrawal.txId}'),
+        title: l10n.withdrawalApproveConfirmTitle,
+        content: l10n.withdrawalApproveConfirmContent,
+        isApprove: true,
+        actionState: _approveState,
+        lastError: _lastError,
+        l10n: l10n,
+        onConfirm: () => _handleApprove(ctx),
+        onCancel: () => Navigator.pop(ctx),
+      ),
+    );
+  }
+
+  void _showRejectDialog(BuildContext context) {
+    final l10n = widget.l10n;
+    showDialog(
+      context: context,
+      barrierDismissible: _rejectState != _ActionState.loading,
+      builder: (ctx) => _RejectDialogContent(
+        key: ValueKey('reject-${widget.withdrawal.txId}'),
+        l10n: l10n,
+        actionState: _rejectState,
+        lastError: _lastError,
+        onConfirm: (reason) => _handleReject(ctx, reason),
+        onCancel: () => Navigator.pop(ctx),
+      ),
+    );
+  }
+
+  Future<void> _handleApprove(BuildContext dialogContext) async {
+    final l10n = widget.l10n;
+    setState(() {
+      _approveState = _ActionState.loading;
+      _lastError = null;
+    });
+    // Force dialog rebuild to show loading
+    Navigator.pop(dialogContext);
+
+    final p = context.read<WithdrawalManagementProvider>();
+    final ok = await p.approve(widget.withdrawal.txId);
+
+    if (!mounted) return;
+
+    final onResult = widget.onActionResult;
+    if (ok) {
+      setState(() => _approveState = _ActionState.success);
+      onResult(success: true);
+    } else {
+      final errMsg = p.error ?? l10n.unknownError;
+      setState(() {
+        _approveState = _ActionState.idle;
+        _lastError = errMsg;
+      });
+      onResult(success: false, errorMessage: errMsg);
+    }
+  }
+
+  Future<void> _handleReject(BuildContext dialogContext, String? reason) async {
+    final l10n = widget.l10n;
+    setState(() {
+      _rejectState = _ActionState.loading;
+      _lastError = null;
+    });
+    Navigator.pop(dialogContext);
+
+    final p = context.read<WithdrawalManagementProvider>();
+    final success = await p.reject(widget.withdrawal.txId, reason: reason);
+
+    if (!mounted) return;
+
+    final onResult = widget.onActionResult;
+    if (success) {
+      setState(() => _rejectState = _ActionState.success);
+      onResult(success: true);
+    } else {
+      final errMsg = p.error ?? l10n.unknownError;
+      setState(() {
+        _rejectState = _ActionState.idle;
+        _lastError = errMsg;
+      });
+      onResult(success: false, errorMessage: errMsg);
+    }
+  }
+}
+
+class _ApproveRejectDialog extends StatelessWidget {
+  final String title;
+  final String content;
+  final bool isApprove;
+  final _ActionState actionState;
+  final String? lastError;
+  final AppLocalizations l10n;
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const _ApproveRejectDialog({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.isApprove,
+    required this.actionState,
+    required this.lastError,
+    required this.l10n,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isLoading = actionState == _ActionState.loading;
+    final hasError = lastError != null;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          if (isLoading)
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: isApprove ? scheme.primary : scheme.error,
+              ),
+            )
+          else if (hasError)
+            Icon(Icons.error_outline, color: scheme.error)
+          else
+            Icon(
+              isApprove ? Icons.check_circle_outline : Icons.cancel_outlined,
+              color: isApprove ? Colors.green : scheme.error,
+            ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(title)),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(content),
+          if (hasError) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: scheme.errorContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: scheme.error, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      lastError!,
+                      style: TextStyle(color: scheme.onErrorContainer, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        if (!isLoading)
+          TextButton(
+            onPressed: onCancel,
+            child: Text(l10n.cancel),
+          ),
+        FilledButton(
+          onPressed: isLoading ? null : onConfirm,
+          style: isApprove
+              ? null
+              : FilledButton.styleFrom(backgroundColor: scheme.error),
+          child: Text(l10n.confirm),
+        ),
+      ],
+    );
+  }
+}
+
+class _RejectDialogContent extends StatefulWidget {
+  final AppLocalizations l10n;
+  final _ActionState actionState;
+  final String? lastError;
+  final void Function(String? reason) onConfirm;
+  final VoidCallback onCancel;
+
+  const _RejectDialogContent({
+    super.key,
+    required this.l10n,
+    required this.actionState,
+    required this.lastError,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  State<_RejectDialogContent> createState() => _RejectDialogContentState();
+}
+
+class _RejectDialogContentState extends State<_RejectDialogContent> {
+  late final TextEditingController _reasonCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _reasonCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isLoading = widget.actionState == _ActionState.loading;
+    final hasError = widget.lastError != null;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          if (isLoading)
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: scheme.error),
+            )
+          else if (hasError)
+            Icon(Icons.error_outline, color: scheme.error)
+          else
+            Icon(Icons.cancel_outlined, color: scheme.error),
+          const SizedBox(width: 10),
+          Expanded(child: Text(widget.l10n.withdrawalRejectConfirmTitle)),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isLoading) ...[
+            const SizedBox(height: 8),
+            Text('Đang xử lý...', style: TextStyle(color: scheme.onSurfaceVariant)),
+          ] else ...[
+            TextField(
+              controller: _reasonCtrl,
+              decoration: InputDecoration(
+                labelText: widget.l10n.withdrawalRejectReasonLabel,
+                hintText: widget.l10n.withdrawalRejectReasonHint,
+              ),
+              maxLines: 3,
+              enabled: !isLoading,
+            ),
+            if (hasError) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: scheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: scheme.error, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.lastError!,
+                        style: TextStyle(color: scheme.onErrorContainer, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+      actions: [
+        if (!isLoading)
+          TextButton(
+            onPressed: widget.onCancel,
+            child: Text(widget.l10n.cancel),
+          ),
+        FilledButton(
+          onPressed: isLoading ? null : () => widget.onConfirm(_reasonCtrl.text.isNotEmpty ? _reasonCtrl.text : null),
+          style: FilledButton.styleFrom(backgroundColor: scheme.error),
+          child: Text(widget.l10n.withdrawalRejectConfirmAction),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/constants/platform_cash_currency.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/features/dashboard/presentation/providers/dashboard_provider.dart';
@@ -51,94 +52,126 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
           ),
         ],
       ),
-      body: Consumer2<WalletsProvider, DashboardProvider>(
-        builder: (context, provider, dashboard, child) {
-          if (provider.isLoading && provider.wallets.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
+          return _buildBody(context, l10n, isWide);
+        },
+      ),
+    );
+  }
 
-          if (provider.error != null && provider.wallets.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    provider.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => provider.fetchWallets(refresh: true),
-                    child: Text(l10n.retry),
-                  ),
-                ],
+  Widget _buildBody(BuildContext context, AppLocalizations l10n, bool isWide) {
+    return Consumer2<WalletsProvider, DashboardProvider>(
+      builder: (context, provider, dashboard, child) {
+        if (provider.isLoading && provider.wallets.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.error != null && provider.wallets.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  provider.error!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => provider.fetchWallets(refresh: true),
+                  child: Text(l10n.retry),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (provider.wallets.isEmpty) {
+          return Center(child: Text(l10n.noWalletsFound));
+        }
+
+        // Phân nhóm: Ví Tiền (USDT) vs Tài sản Coin
+        final cashWallets = provider.wallets
+            .where((w) =>
+                w.currency.symbol.toUpperCase() ==
+                kDefaultPlatformCashCurrencySymbol)
+            .toList();
+        final coinWallets = provider.wallets
+            .where((w) =>
+                w.currency.symbol.toUpperCase() !=
+                kDefaultPlatformCashCurrencySymbol)
+            .toList();
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            await dashboard.refresh(force: true);
+            await provider.fetchWallets(refresh: true);
+          },
+          child: CustomScrollView(
+            slivers: [
+              // Tổng danh mục
+              SliverToBoxAdapter(
+                child: _PortfolioHeader(
+                  totalValue: dashboard.portfolioTotal,
+                  l10n: l10n,
+                  isWide: isWide,
+                ),
               ),
-            );
-          }
 
-          if (provider.wallets.isEmpty) {
-            return Center(child: Text(l10n.noWalletsFound));
-          }
-
-          // Phân nhóm: Ví Tiền (USDT) vs Tài sản Coin
-          final cashWallets = provider.wallets
-              .where((w) =>
-                  w.currency.symbol.toUpperCase() ==
-                  kDefaultPlatformCashCurrencySymbol)
-              .toList();
-          final coinWallets = provider.wallets
-              .where((w) =>
-                  w.currency.symbol.toUpperCase() !=
-                  kDefaultPlatformCashCurrencySymbol)
-              .toList();
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await dashboard.refresh(force: true);
-              await provider.fetchWallets(refresh: true);
-            },
-            child: CustomScrollView(
-              slivers: [
-                // Tổng danh mục
-                SliverToBoxAdapter(
-                  child: _PortfolioHeader(
-                    totalValue: dashboard.portfolioTotal,
-                    l10n: l10n,
+              // Nút nạp tiền
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWide ? 24 : 16,
+                    vertical: 8,
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const DepositsScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.account_balance_wallet),
+                    label: Text(l10n.payosTopupVnd),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
+              ),
 
-                // Nút nạp tiền
+              // ── Section: Ví Tiền ──
+              if (cashWallets.isNotEmpty) ...[
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const DepositsScreen()),
-                        );
-                      },
-                      icon: const Icon(Icons.account_balance_wallet),
-                      label: Text(l10n.payosTopupVnd),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: _WalletSectionHeader(
+                    title: l10n.cashWalletSectionTitle,
+                    subtitle: l10n.cashWalletSectionSubtitle,
+                    icon: Icons.account_balance_wallet_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                if (isWide)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisExtent: 120,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 8,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _buildWalletItem(
+                            context, cashWallets[index],
+                            isCash: true),
+                        childCount: cashWallets.length,
                       ),
                     ),
-                  ),
-                ),
-
-                // ── Section: Ví Tiền ──
-                if (cashWallets.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: _WalletSectionHeader(
-                      title: l10n.cashWalletSectionTitle,
-                      subtitle: l10n.cashWalletSectionSubtitle,
-                      icon: Icons.account_balance_wallet_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+                  )
+                else
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => _buildWalletItem(
@@ -147,18 +180,37 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                       childCount: cashWallets.length,
                     ),
                   ),
-                ],
+              ],
 
-                // ── Section: Tài sản Coin ──
-                if (coinWallets.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: _WalletSectionHeader(
-                      title: l10n.coinAssetsSectionTitle,
-                      subtitle: l10n.coinAssetsSectionSubtitle,
-                      icon: Icons.currency_bitcoin,
-                      color: Colors.orange.shade700,
-                    ),
+              // ── Section: Tài sản Coin ──
+              if (coinWallets.isNotEmpty) ...[
+                SliverToBoxAdapter(
+                  child: _WalletSectionHeader(
+                    title: l10n.coinAssetsSectionTitle,
+                    subtitle: l10n.coinAssetsSectionSubtitle,
+                    icon: Icons.currency_bitcoin,
+                    color: Colors.orange.shade700,
                   ),
+                ),
+                if (isWide)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisExtent: 120,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 8,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _buildWalletItem(
+                            context, coinWallets[index],
+                            isCash: false),
+                        childCount: coinWallets.length,
+                      ),
+                    ),
+                  )
+                else
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => _buildWalletItem(
@@ -167,15 +219,14 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
                       childCount: coinWallets.length,
                     ),
                   ),
-                ],
-
-                // Padding cuối
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
               ],
-            ),
-          );
-        },
-      ),
+
+              // Padding cuối
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -200,15 +251,23 @@ class _WalletsOverviewScreenState extends State<WalletsOverviewScreen> {
 class _PortfolioHeader extends StatelessWidget {
   final double totalValue;
   final AppLocalizations l10n;
+  final bool isWide;
 
-  const _PortfolioHeader({required this.totalValue, required this.l10n});
+  const _PortfolioHeader({
+    required this.totalValue,
+    required this.l10n,
+    required this.isWide,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 32 : 24,
+        vertical: isWide ? 28 : 20,
+      ),
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withAlpha(20),
         border: Border(
@@ -222,13 +281,16 @@ class _PortfolioHeader extends StatelessWidget {
         children: [
           Text(
             l10n.totalPortfolioValue,
-            style: const TextStyle(fontSize: 13, color: Colors.grey),
+            style: TextStyle(
+              fontSize: isWide ? 15 : 13,
+              color: Colors.grey,
+            ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: isWide ? 8 : 6),
           Text(
             '${FormatUtils.formatQuoteAmount(totalValue)} USDT',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: isWide ? 36 : 30,
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.primary,
             ),

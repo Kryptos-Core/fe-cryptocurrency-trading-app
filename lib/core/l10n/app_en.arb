@@ -23,7 +23,9 @@
   "refresh": "Refresh",
   "loading": "Loading...",
   "error": "Error",
+  "unknownError": "Unknown error",
   "cancel": "Cancel",
+  "confirm": "Confirm",
   "save": "Save",
   "submit": "Submit",
   "back": "Back",
@@ -1334,6 +1336,8 @@
   "withdrawalDetailTxHash": "Transaction Hash",
   "withdrawalDetailCreatedAt": "Created at",
   "withdrawalDetailUpdatedAt": "Updated at",
+  "withdrawalDetailInfoTitle": "Transaction Details",
+  "withdrawalDetailConfirmations": "Confirmations",
   "withdrawalDetailUserId": "User ID",
   "withdrawalDetailViewUser": "View user",
   "withdrawalStatusCompleted": "Completed",
@@ -1463,6 +1467,11 @@
   },
   "adminFilterAll": "All",
   "withdrawalSearchHint": "Search by user ID or wallet address...",
+  "withdrawalApproveLabel": "Approve",
+  "withdrawalRejectLabel": "Reject",
+  "withdrawalRejectConfirmTitle": "Confirm Rejection",
+  "withdrawalRejectConfirmAction": "Reject",
+  "withdrawalRejectReasonLabel": "Rejection reason",
   "withdrawalNoRequests": "No withdrawal requests",
   "drawerTransactionMonitoring": "Transaction Monitoring",
   "adminTabOrders": "Orders",
@@ -2241,5 +2250,30 @@
   "notificationsTypePromo": "Promo",
   "notificationsTypeWithdrawalRequest": "Withdrawal Request",
   "notificationsTypeWithdrawalApproved": "Withdrawal Approved",
-  "notificationsTypeWithdrawalRejected": "Withdrawal Rejected"
+  "notificationsTypeWithdrawalRejected": "Withdrawal Rejected",
+  "notifWithdrawalRequest": "User requested withdrawal of {amount} {symbol} on {chain}",
+  "@notifWithdrawalRequest": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" }
+    }
+  },
+  "notifWithdrawalApproved": "Your withdrawal of {amount} {symbol} on {chain} has been approved and is being processed.",
+  "@notifWithdrawalApproved": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" }
+    }
+  },
+  "notifWithdrawalRejected": "Your withdrawal of {amount} {symbol} on {chain} has been rejected.{reason, select, undefined{} other{ Reason: {reason}}}",
+  "@notifWithdrawalRejected": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" },
+      "chain": { "type": "String" },
+      "reason": { "type": "String" }
+    }
+  }
 }

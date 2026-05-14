@@ -162,11 +162,28 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
       }
       return {};
     } on DioException catch (e) {
+      // NestJS wraps error in { statusCode, message, error } or { message }
+      final data = e.response?.data;
+      String msg = 'Khong the chap nhan yeu cau rut tien';
+      if (data is Map<String, dynamic>) {
+        // Try nested { error: { message: ... } } first
+        final nestedMsg = data['error']?['message']?.toString();
+        if (nestedMsg != null && nestedMsg.isNotEmpty) {
+          msg = nestedMsg;
+        } else {
+          // Try flat { message: ... }
+          final flatMsg = data['message']?.toString();
+          if (flatMsg != null && flatMsg.isNotEmpty) {
+            msg = flatMsg;
+          }
+        }
+      }
       throw ServerException(
-        message: e.response?.data?['message']?.toString() ?? 'Failed to approve',
+        message: msg,
+        statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(message: 'Khong the chap nhan yeu cau rut tien: ${e.toString()}');
     }
   }
 
@@ -183,11 +200,25 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
       }
       return {};
     } on DioException catch (e) {
+      final data = e.response?.data;
+      String msg = 'Khong the tu choi yeu cau rut tien';
+      if (data is Map<String, dynamic>) {
+        final nestedMsg = data['error']?['message']?.toString();
+        if (nestedMsg != null && nestedMsg.isNotEmpty) {
+          msg = nestedMsg;
+        } else {
+          final flatMsg = data['message']?.toString();
+          if (flatMsg != null && flatMsg.isNotEmpty) {
+            msg = flatMsg;
+          }
+        }
+      }
       throw ServerException(
-        message: e.response?.data?['message']?.toString() ?? 'Failed to reject',
+        message: msg,
+        statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(message: 'Khong the tu choi yeu cau rut tien: ${e.toString()}');
     }
   }
 
