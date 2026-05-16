@@ -128,14 +128,29 @@ class WithdrawalManagementProvider extends ChangeNotifier {
 
     try {
       await _dataSource.approve(txId);
-      _withdrawals = _withdrawals.where((w) => w.txId != txId).toList();
-      _selectedDetail = null;
+      await loadWithdrawals(
+        status: _filterStatus,
+        chain: _filterChain,
+        search: _filterSearch,
+        dateFrom: _filterDateFrom,
+        dateTo: _filterDateTo,
+        page: _page,
+        limit: _limit,
+      );
       await loadStats();
       return true;
     } catch (e) {
       final errorString = e.toString();
       _error = _friendlyErrorMessage(errorString);
-      _withdrawals = _withdrawals.where((w) => w.txId != txId).toList();
+      await loadWithdrawals(
+        status: _filterStatus,
+        chain: _filterChain,
+        search: _filterSearch,
+        dateFrom: _filterDateFrom,
+        dateTo: _filterDateTo,
+        page: _page,
+        limit: _limit,
+      );
       await loadStats();
       return false;
     } finally {
@@ -153,8 +168,15 @@ class WithdrawalManagementProvider extends ChangeNotifier {
 
     try {
       await _dataSource.reject(txId, reason: reason);
-      _withdrawals = _withdrawals.where((w) => w.txId != txId).toList();
-      _selectedDetail = null;
+      await loadWithdrawals(
+        status: _filterStatus,
+        chain: _filterChain,
+        search: _filterSearch,
+        dateFrom: _filterDateFrom,
+        dateTo: _filterDateTo,
+        page: _page,
+        limit: _limit,
+      );
       await loadStats();
       return true;
     } catch (e) {
@@ -166,7 +188,9 @@ class WithdrawalManagementProvider extends ChangeNotifier {
         dateFrom: _filterDateFrom,
         dateTo: _filterDateTo,
         page: _page,
+        limit: _limit,
       );
+      await loadStats();
       return false;
     } finally {
       _isSubmitting = false;
@@ -221,6 +245,40 @@ class WithdrawalManagementProvider extends ChangeNotifier {
     } finally {
       _isSubmitting = false;
       _isConfirmDialogOpen = false;
+      notifyListeners();
+    }
+  }
+
+  /// Reconciliation action cho CONFIRMING stuck / FAILED withdrawals.
+  /// Actions: 'settle' | 'force_complete' | 'force_fail' | 'force_refund'
+  Future<({bool success, String? error})> reconcile(
+    String txId,
+    String action, {
+    String? reason,
+  }) async {
+    _isSubmitting = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _dataSource.reconcile(txId, action, reason: reason);
+      await loadWithdrawals(
+        status: _filterStatus,
+        chain: _filterChain,
+        search: _filterSearch,
+        dateFrom: _filterDateFrom,
+        dateTo: _filterDateTo,
+        page: _page,
+        limit: _limit,
+      );
+      await loadStats();
+      return (success: true, error: null);
+    } catch (e) {
+      final errMsg = _friendlyErrorMessage(e.toString());
+      _error = errMsg;
+      return (success: false, error: errMsg);
+    } finally {
+      _isSubmitting = false;
       notifyListeners();
     }
   }

@@ -127,6 +127,8 @@ class ApiConstants {
       '/blockchain/admin/withdrawals/stats';
   static String blockchainAdminWithdrawalDetail(String txId) =>
       '/blockchain/admin/withdrawals/$txId';
+  static String blockchainAdminWithdrawalReconcile(String txId) =>
+      '/blockchain/admin/withdrawals/$txId/reconcile';
   static String blockchainWithdrawManualApprove(String txId) =>
       '/blockchain/withdraw/manual/$txId/approve';
   static String blockchainWithdrawManualReject(String txId) =>

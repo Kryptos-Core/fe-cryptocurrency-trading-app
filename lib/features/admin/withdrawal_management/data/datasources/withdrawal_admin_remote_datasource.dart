@@ -27,6 +27,7 @@ abstract class WithdrawalAdminRemoteDataSource {
   Future<Map<String, dynamic>> approve(String txId);
   Future<Map<String, dynamic>> reject(String txId, {String? reason});
   Future<Map<String, dynamic>> processPending({int limit = 20});
+  Future<Map<String, dynamic>> reconcile(String txId, String action, {String? reason});
 }
 
 class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSource {
@@ -156,32 +157,9 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
         ApiConstants.blockchainWithdrawManualApprove(txId),
         data: {},
       );
-      final raw = response.data;
-      if (raw is Map<String, dynamic>) {
-        return raw['data'] ?? raw;
-      }
-      return {};
+      return _parseResponse(response.data, 'approve');
     } on DioException catch (e) {
-      // NestJS wraps error in { statusCode, message, error } or { message }
-      final data = e.response?.data;
-      String msg = 'Khong the chap nhan yeu cau rut tien';
-      if (data is Map<String, dynamic>) {
-        // Try nested { error: { message: ... } } first
-        final nestedMsg = data['error']?['message']?.toString();
-        if (nestedMsg != null && nestedMsg.isNotEmpty) {
-          msg = nestedMsg;
-        } else {
-          // Try flat { message: ... }
-          final flatMsg = data['message']?.toString();
-          if (flatMsg != null && flatMsg.isNotEmpty) {
-            msg = flatMsg;
-          }
-        }
-      }
-      throw ServerException(
-        message: msg,
-        statusCode: e.response?.statusCode,
-      );
+      throw _wrapDioException(e, 'Khong the chap nhan yeu cau rut tien');
     } catch (e) {
       throw ServerException(message: 'Khong the chap nhan yeu cau rut tien: ${e.toString()}');
     }
@@ -194,29 +172,9 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
         ApiConstants.blockchainWithdrawManualReject(txId),
         data: reason != null ? {'reason': reason} : {},
       );
-      final raw = response.data;
-      if (raw is Map<String, dynamic>) {
-        return raw['data'] ?? raw;
-      }
-      return {};
+      return _parseResponse(response.data, 'reject');
     } on DioException catch (e) {
-      final data = e.response?.data;
-      String msg = 'Khong the tu choi yeu cau rut tien';
-      if (data is Map<String, dynamic>) {
-        final nestedMsg = data['error']?['message']?.toString();
-        if (nestedMsg != null && nestedMsg.isNotEmpty) {
-          msg = nestedMsg;
-        } else {
-          final flatMsg = data['message']?.toString();
-          if (flatMsg != null && flatMsg.isNotEmpty) {
-            msg = flatMsg;
-          }
-        }
-      }
-      throw ServerException(
-        message: msg,
-        statusCode: e.response?.statusCode,
-      );
+      throw _wrapDioException(e, 'Khong the tu choi yeu cau rut tien');
     } catch (e) {
       throw ServerException(message: 'Khong the tu choi yeu cau rut tien: ${e.toString()}');
     }
@@ -229,17 +187,79 @@ class WithdrawalAdminRemoteDataSourceImpl implements WithdrawalAdminRemoteDataSo
         ApiConstants.blockchainWithdrawProcessPending,
         queryParameters: {'limit': limit},
       );
-      final raw = response.data;
-      if (raw is Map<String, dynamic>) {
-        return raw['data'] ?? raw;
-      }
-      return {};
+      return _parseResponse(response.data, 'processPending');
     } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data?['message']?.toString() ?? 'Failed to process pending',
-      );
+      throw _wrapDioException(e, 'Failed to process pending');
     } catch (e) {
-      throw ServerException(message: e.toString());
+      throw ServerException(message: 'Failed to process pending: ${e.toString()}');
     }
+  }
+
+  @override
+  Future<Map<String, dynamic>> reconcile(String txId, String action, {String? reason}) async {
+    try {
+      final response = await dioClient.dio.post(
+        ApiConstants.blockchainAdminWithdrawalReconcile(txId),
+        data: {
+          'action': action,
+          if (reason != null && reason.isNotEmpty) 'reason': reason,
+        },
+      );
+      return _parseResponse(response.data, 'reconcile');
+    } on DioException catch (e) {
+      throw _wrapDioException(e, 'Khong the thuc hien hanh dong nay');
+    } catch (e) {
+      throw ServerException(message: 'Khong the thuc hien hanh dong nay: ${e.toString()}');
+    }
+  }
+
+  // ── Shared helpers ───────────────────────────────────────────────────────────────
+
+  /// Parse response body, throwing on application-level errors (even with HTTP 200).
+  Map<String, dynamic> _parseResponse(dynamic raw, String operation) {
+    if (raw is! Map<String, dynamic>) {
+      throw ServerException(message: '$operation: Invalid response format from server');
+    }
+    // NestJS may wrap errors in { statusCode, message, error } or { error: { message } }
+    final statusCode = raw['statusCode'] as int?;
+    final errorField = raw['error'];
+    final messageField = raw['message'];
+
+    // Application error (even with HTTP 200 — NestJS throws via exception filter)
+    if (errorField != null || statusCode != null || messageField != null) {
+      String msg = '$operation failed';
+      if (errorField is Map<String, dynamic>) {
+        msg = errorField['message']?.toString() ?? msg;
+      }
+      if (messageField != null && messageField is String && messageField.isNotEmpty) {
+        msg = messageField;
+      }
+      throw ServerException(message: msg, statusCode: statusCode);
+    }
+
+    return raw['data'] as Map<String, dynamic>? ?? raw;
+  }
+
+  /// Wrap DioException into user-friendly ServerException.
+  ServerException _wrapDioException(DioException e, String fallback) {
+    final data = e.response?.data;
+    String msg = fallback;
+    if (data is Map<String, dynamic>) {
+      final nestedMsg = data['error']?['message']?.toString();
+      if (nestedMsg != null && nestedMsg.isNotEmpty) {
+        msg = nestedMsg;
+      } else {
+        final flatMsg = data['message']?.toString();
+        if (flatMsg != null && flatMsg.isNotEmpty) {
+          msg = flatMsg;
+        } else {
+          final errorMsg = data['error']?.toString();
+          if (errorMsg != null && errorMsg.isNotEmpty && errorMsg != 'Error') {
+            msg = errorMsg;
+          }
+        }
+      }
+    }
+    return ServerException(message: msg, statusCode: e.response?.statusCode);
   }
 }

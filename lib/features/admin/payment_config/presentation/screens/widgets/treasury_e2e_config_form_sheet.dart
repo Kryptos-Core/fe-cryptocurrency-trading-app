@@ -5,9 +5,14 @@ import 'package:crypto_trading_app/features/admin/payment_config/data/models/tre
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/treasury_e2e_config_provider.dart';
 
 class TreasuryE2EConfigFormSheet extends StatefulWidget {
-  const TreasuryE2EConfigFormSheet({super.key, this.existing});
+  const TreasuryE2EConfigFormSheet({
+    super.key,
+    this.existing,
+    this.onSaved,
+  });
 
   final TreasuryE2EConfigModel? existing;
+  final VoidCallback? onSaved;
 
   @override
   State<TreasuryE2EConfigFormSheet> createState() => _TreasuryE2EConfigFormSheetState();
@@ -99,6 +104,8 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth >= 600;
     final options = provider.formOptions;
     final linkedWallets = (options?['linkedWallets'] as List?)
             ?.whereType<Map>()
@@ -111,311 +118,388 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    return Container(
-      constraints: BoxConstraints(maxHeight: screenHeight * 0.85),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 12,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDialogMode = isWideScreen;
+        final effectiveMaxHeight = isDialogMode
+            ? constraints.maxHeight
+            : screenHeight * 0.85;
+
+        return Container(
+          constraints: BoxConstraints(maxHeight: effectiveMaxHeight),
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: isDialogMode ? 24 : 16,
+                right: isDialogMode ? 24 : 16,
+                top: 12,
+                bottom: isDialogMode ? 24 : MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Header
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.existing == null
+                              ? l10n.treasuryE2eCreateTitle
+                              : l10n.treasuryE2eEditTitle,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: isDialogMode ? 22 : 18,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
+                  // Form
                   Expanded(
-                    child: Text(
-                      widget.existing == null
-                          ? l10n.treasuryE2eCreateTitle
-                          : l10n.treasuryE2eEditTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Basic info row - responsive layout
+                            if (isDialogMode) ...[
+                              // Wide screen: 2 columns
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(child: _buildEnvironmentDropdown(l10n)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _buildChainDropdown(l10n)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _textField(_displayName, l10n.treasuryE2eDisplayNameLabel),
+                              const SizedBox(height: 12),
+                              _textField(_apiBaseUrl, l10n.treasuryE2eApiBaseUrlLabel),
+                              const SizedBox(height: 12),
+                              _buildTraderSearchRow(l10n, isDialogMode),
+                              const SizedBox(height: 12),
+                              _buildLinkedWalletDropdown(l10n, linkedWallets),
+                              const SizedBox(height: 12),
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(child: _textField(_withdrawAuto, l10n.treasuryE2eWithdrawAutoLabel)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _textField(_withdrawManual, l10n.treasuryE2eWithdrawManualLabel)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildSwitchRow(l10n),
+                              const SizedBox(height: 12),
+                              _buildAdvancedSection(l10n, traders, options, isDialogMode),
+                            ] else ...[
+                              // Narrow screen: stacked layout (original)
+                              Row(
+                                children: [
+                                  Expanded(child: _buildEnvironmentDropdown(l10n)),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: _buildChainDropdown(l10n)),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              _textFieldCompact(_displayName, l10n.treasuryE2eDisplayNameLabel),
+                              const SizedBox(height: 10),
+                              _textFieldCompact(_apiBaseUrl, l10n.treasuryE2eApiBaseUrlLabel),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(child: _textFieldCompact(_traderSearch, l10n.treasuryE2eTraderSearchLabel, required: false)),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: _reloadOptions,
+                                    icon: const Icon(Icons.search),
+                                    tooltip: l10n.treasuryE2eLoadTraderAction,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              DropdownButtonFormField<String?>(
+                                initialValue: _traderUserId,
+                                items: [
+                                  DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eTraderEmpty, style: const TextStyle(fontSize: 12))),
+                                  ...traders.map((user) => DropdownMenuItem<String?>(
+                                    value: user['user_id']?.toString(),
+                                    child: Text(
+                                      '${user['email']} (${user['first_name'] ?? ''})',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  )),
+                                ],
+                                onChanged: (value) async {
+                                  setState(() {
+                                    _traderUserId = value;
+                                    _linkedWalletId = null;
+                                  });
+                                  await _reloadOptions();
+                                },
+                                decoration: InputDecoration(labelText: l10n.treasuryE2eTraderSelectLabel, isDense: true),
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String?>(
+                                initialValue: linkedWallets.any((e) => e['link_id'] == _linkedWalletId) ? _linkedWalletId : null,
+                                items: [
+                                  DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eLinkedWalletEmpty, style: const TextStyle(fontSize: 12))),
+                                  ...linkedWallets.map((wallet) {
+                                    final label = wallet['label']?.toString();
+                                    final address = wallet['address']?.toString() ?? '-';
+                                    return DropdownMenuItem<String?>(
+                                      value: wallet['link_id']?.toString(),
+                                      child: Text(
+                                        '${label?.isNotEmpty == true ? label : address.substring(0, 8)}...',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) => setState(() => _linkedWalletId = value),
+                                decoration: InputDecoration(labelText: l10n.treasuryE2eLinkedWalletLabel, isDense: true),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(child: _textFieldCompact(_withdrawAuto, l10n.treasuryE2eWithdrawAutoLabel)),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: _textFieldCompact(_withdrawManual, l10n.treasuryE2eWithdrawManualLabel)),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(child: SwitchListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    dense: true,
+                                    title: Text(l10n.treasuryE2eAllowSkipLabel, style: const TextStyle(fontSize: 12)),
+                                    value: _allowSkip,
+                                    onChanged: (value) => setState(() => _allowSkip = value),
+                                  )),
+                                  Expanded(child: SwitchListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    dense: true,
+                                    title: Text(l10n.treasuryE2eFailOnCriticalLabel, style: const TextStyle(fontSize: 12)),
+                                    value: _healthFailOnCritical,
+                                    onChanged: (value) => setState(() => _healthFailOnCritical = value),
+                                  )),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              _buildAdvancedToggle(l10n, theme),
+                              if (_showAdvanced) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(child: _textFieldCompact(_staleManual, l10n.treasuryE2eStaleManualLabel)),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: _textFieldCompact(_staleConfirming, l10n.treasuryE2eStaleConfirmingLabel)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(child: _textFieldCompact(_failed24h, l10n.treasuryE2eFailed24hLabel)),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: _textFieldCompact(_reconcileLimit, l10n.treasuryE2eReconcileLimitLabel)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                _textFieldCompact(_reconciliationThreshold, l10n.treasuryE2eReconciliationThresholdLabel),
+                                const SizedBox(height: 8),
+                                if (widget.existing?.traderBearerTokenMasked != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Text(l10n.treasuryE2eCurrentTraderToken(widget.existing!.traderBearerTokenMasked!), style: theme.textTheme.bodySmall),
+                                  ),
+                                Text(l10n.treasuryE2eIdentityPreferredHint, style: theme.textTheme.bodySmall),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String?>(
+                                  initialValue: _resolveRiskActorInitialValue(traders, options),
+                                  items: [
+                                    DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eRiskActorEmpty, style: const TextStyle(fontSize: 12))),
+                                    ...(((options?['riskActors'] as List?) ?? const [])
+                                        .whereType<Map>()
+                                        .map((e) => Map<String, dynamic>.from(e))
+                                        .map((user) => DropdownMenuItem<String?>(
+                                              value: user['user_id']?.toString(),
+                                              child: Text('${user['email']} (${user['role'] ?? '-'})', overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+                                            ))),
+                                  ],
+                                  onChanged: (value) => setState(() => _selectedRiskUserId = value),
+                                  decoration: InputDecoration(labelText: l10n.treasuryE2eRiskActorLabel, isDense: true),
+                                ),
+                                const SizedBox(height: 8),
+                                _textFieldCompact(_traderToken, l10n.treasuryE2eTraderTokenLabel, obscure: true, required: false),
+                                const SizedBox(height: 8),
+                                if (widget.existing?.riskBearerTokenMasked != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Text(l10n.treasuryE2eCurrentRiskToken(widget.existing!.riskBearerTokenMasked!), style: theme.textTheme.bodySmall),
+                                  ),
+                                _textFieldCompact(_riskToken, l10n.treasuryE2eRiskTokenLabel, obscure: true, required: false),
+                              ],
+                            ],
+                            // Status feedback
+                            if (provider.lastValidation != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(l10n.treasuryE2eValidationPassed, style: const TextStyle(color: Colors.green, fontSize: 13)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            if (provider.lastConnectionTest != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: (provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      provider.lastConnectionTest!['ok'] == true ? Icons.check_circle : Icons.error,
+                                      color: provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      provider.lastConnectionTest!['ok'] == true
+                                          ? l10n.treasuryE2eTestConnectionPassed
+                                          : l10n.treasuryE2eTestConnectionFailed,
+                                      style: TextStyle(
+                                        color: provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            if (provider.error != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.error, color: Colors.red, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(provider.error!, style: const TextStyle(color: Colors.red, fontSize: 13))),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 20),
+                            // Action buttons
+                            if (isDialogMode) ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: provider.isSubmitting ? null : _validateDraft,
+                                      icon: const Icon(Icons.fact_check_outlined, size: 18),
+                                      label: Text(l10n.treasuryE2eValidateAction),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: provider.isSubmitting ? null : _testConnection,
+                                      icon: const Icon(Icons.network_check, size: 18),
+                                      label: Text(l10n.treasuryE2eTestConnectionAction),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    flex: 2,
+                                    child: FilledButton(
+                                      onPressed: provider.isSubmitting ? null : _submit,
+                                      child: provider.isSubmitting
+                                          ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                          : Text(provider.isSubmitting ? l10n.treasuryE2eSaving : l10n.save),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: provider.isSubmitting ? null : _validateDraft,
+                                      icon: const Icon(Icons.fact_check_outlined, size: 18),
+                                      label: Text(l10n.treasuryE2eValidateAction, style: const TextStyle(fontSize: 12)),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: provider.isSubmitting ? null : _testConnection,
+                                      icon: const Icon(Icons.network_check, size: 18),
+                                      label: Text(l10n.treasuryE2eTestConnectionAction, style: const TextStyle(fontSize: 12)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                    visualDensity: VisualDensity.compact,
-                  ),
+                  if (!isDialogMode) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: provider.isSubmitting ? null : _submit,
+                        child: Text(provider.isSubmitting ? l10n.treasuryE2eSaving : l10n.save),
+                      ),
+                    ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 8),
-              const Divider(height: 1),
-              const SizedBox(height: 8),
-              // Form
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Basic info row
-                        Row(
-                          children: [
-                            Expanded(child: DropdownButtonFormField<String>(
-                              initialValue: _environment,
-                              items: const [
-                                DropdownMenuItem(value: 'development', child: Text('development')),
-                                DropdownMenuItem(value: 'staging', child: Text('staging')),
-                                DropdownMenuItem(value: 'test', child: Text('test')),
-                                DropdownMenuItem(value: 'production', child: Text('production')),
-                              ],
-                              onChanged: (value) => setState(() => _environment = value ?? 'development'),
-                              decoration: InputDecoration(labelText: l10n.treasuryE2eEnvironmentLabel, isDense: true),
-                            )),
-                            const SizedBox(width: 12),
-                            Expanded(child: DropdownButtonFormField<String>(
-                              initialValue: _chain,
-                              items: const [
-                                'BSC_CHAPEL', 'ETH_SEPOLIA', 'SOLANA_DEVNET', 'TRON_NILE',
-                                'TRON_SHASTA', 'BASE_SEPOLIA', 'ARBITRUM_SEPOLIA',
-                              ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 12)))).toList(),
-                              onChanged: (value) async {
-                                setState(() {
-                                  _chain = value ?? 'BSC_CHAPEL';
-                                  _linkedWalletId = null;
-                                });
-                                await _reloadOptions();
-                              },
-                              decoration: InputDecoration(labelText: l10n.treasuryE2eChainLabel, isDense: true),
-                            )),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        _textCompactCompact(_displayName, l10n.treasuryE2eDisplayNameLabel),
-                        const SizedBox(height: 10),
-                        _textCompactCompact(_apiBaseUrl, l10n.treasuryE2eApiBaseUrlLabel),
-                        const SizedBox(height: 10),
-                        // Trader selection
-                        Row(
-                          children: [
-                            Expanded(child: _textCompactCompact(_traderSearch, l10n.treasuryE2eTraderSearchLabel, required: false)),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              onPressed: _reloadOptions,
-                              icon: const Icon(Icons.search),
-                              tooltip: l10n.treasuryE2eLoadTraderAction,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String?>(
-                          initialValue: _traderUserId,
-                          items: [
-                            DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eTraderEmpty, style: const TextStyle(fontSize: 12))),
-                            ...traders.map((user) => DropdownMenuItem<String?>(
-                              value: user['user_id']?.toString(),
-                              child: Text(
-                                '${user['email']} (${user['first_name'] ?? ''})',
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            )),
-                          ],
-                          onChanged: (value) async {
-                            setState(() {
-                              _traderUserId = value;
-                              _linkedWalletId = null;
-                            });
-                            await _reloadOptions();
-                          },
-                          decoration: InputDecoration(labelText: l10n.treasuryE2eTraderSelectLabel, isDense: true),
-                        ),
-                        const SizedBox(height: 10),
-                        DropdownButtonFormField<String?>(
-                          initialValue: linkedWallets.any((e) => e['link_id'] == _linkedWalletId) ? _linkedWalletId : null,
-                          items: [
-                            DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eLinkedWalletEmpty, style: const TextStyle(fontSize: 12))),
-                            ...linkedWallets.map((wallet) {
-                              final label = wallet['label']?.toString();
-                              final address = wallet['address']?.toString() ?? '-';
-                              return DropdownMenuItem<String?>(
-                                value: wallet['link_id']?.toString(),
-                                child: Text(
-                                  '${label?.isNotEmpty == true ? label : address.substring(0, 8)}...',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) => setState(() => _linkedWalletId = value),
-                          decoration: InputDecoration(labelText: l10n.treasuryE2eLinkedWalletLabel, isDense: true),
-                        ),
-                        const SizedBox(height: 10),
-                        // Amounts row
-                        Row(
-                          children: [
-                            Expanded(child: _textCompactCompact(_withdrawAuto, l10n.treasuryE2eWithdrawAutoLabel)),
-                            const SizedBox(width: 12),
-                            Expanded(child: _textCompactCompact(_withdrawManual, l10n.treasuryE2eWithdrawManualLabel)),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        // Switches row
-                        Row(
-                          children: [
-                            Expanded(child: SwitchListTile(
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                              title: Text(l10n.treasuryE2eAllowSkipLabel, style: const TextStyle(fontSize: 12)),
-                              value: _allowSkip,
-                              onChanged: (value) => setState(() => _allowSkip = value),
-                            )),
-                            Expanded(child: SwitchListTile(
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                              title: Text(l10n.treasuryE2eFailOnCriticalLabel, style: const TextStyle(fontSize: 12)),
-                              value: _healthFailOnCritical,
-                              onChanged: (value) => setState(() => _healthFailOnCritical = value),
-                            )),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        // Advanced toggle
-                        InkWell(
-                          onTap: () => setState(() => _showAdvanced = !_showAdvanced),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              children: [
-                                Icon(_showAdvanced ? Icons.expand_less : Icons.expand_more, size: 20),
-                                const SizedBox(width: 4),
-                                Text(l10n.treasuryE2eLegacyTokenSection, style: theme.textTheme.labelMedium),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (_showAdvanced) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(child: _textCompactCompact(_staleManual, l10n.treasuryE2eStaleManualLabel)),
-                              const SizedBox(width: 8),
-                              Expanded(child: _textCompactCompact(_staleConfirming, l10n.treasuryE2eStaleConfirmingLabel)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(child: _textCompactCompact(_failed24h, l10n.treasuryE2eFailed24hLabel)),
-                              const SizedBox(width: 8),
-                              Expanded(child: _textCompactCompact(_reconcileLimit, l10n.treasuryE2eReconcileLimitLabel)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          _textCompactCompact(_reconciliationThreshold, l10n.treasuryE2eReconciliationThresholdLabel),
-                          const SizedBox(height: 8),
-                          if (widget.existing?.traderBearerTokenMasked != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(l10n.treasuryE2eCurrentTraderToken(widget.existing!.traderBearerTokenMasked!), style: theme.textTheme.bodySmall),
-                            ),
-                          Text(l10n.treasuryE2eIdentityPreferredHint, style: theme.textTheme.bodySmall),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String?>(
-                            initialValue: _resolveRiskActorInitialValue(traders, options),
-                            items: [
-                              DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eRiskActorEmpty, style: const TextStyle(fontSize: 12))),
-                              ...(((options?['riskActors'] as List?) ?? const [])
-                                  .whereType<Map>()
-                                  .map((e) => Map<String, dynamic>.from(e))
-                                  .map((user) => DropdownMenuItem<String?>(
-                                        value: user['user_id']?.toString(),
-                                        child: Text('${user['email']} (${user['role'] ?? '-'})', overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
-                                      ))),
-                            ],
-                            onChanged: (value) => setState(() => _selectedRiskUserId = value),
-                            decoration: InputDecoration(labelText: l10n.treasuryE2eRiskActorLabel, isDense: true),
-                          ),
-                          const SizedBox(height: 8),
-                          _textCompactCompact(_traderToken, l10n.treasuryE2eTraderTokenLabel, obscure: true, required: false),
-                          const SizedBox(height: 8),
-                          if (widget.existing?.riskBearerTokenMasked != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(l10n.treasuryE2eCurrentRiskToken(widget.existing!.riskBearerTokenMasked!), style: theme.textTheme.bodySmall),
-                            ),
-                          _textCompactCompact(_riskToken, l10n.treasuryE2eRiskTokenLabel, obscure: true, required: false),
-                        ],
-                        // Validation results
-                        if (provider.lastValidation != null) ...[
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                            child: Text(l10n.treasuryE2eValidationPassed, style: const TextStyle(color: Colors.green, fontSize: 12)),
-                          ),
-                        ],
-                        if (provider.lastConnectionTest != null) ...[
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: (provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              provider.lastConnectionTest!['ok'] == true
-                                  ? l10n.treasuryE2eTestConnectionPassed
-                                  : l10n.treasuryE2eTestConnectionFailed,
-                              style: TextStyle(
-                                color: provider.lastConnectionTest!['ok'] == true ? Colors.green : Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                        if (provider.error != null) ...[
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                            child: Text(provider.error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        // Action buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: provider.isSubmitting ? null : _validateDraft,
-                                icon: const Icon(Icons.fact_check_outlined, size: 18),
-                                label: Text(l10n.treasuryE2eValidateAction, style: const TextStyle(fontSize: 12)),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: provider.isSubmitting ? null : _testConnection,
-                                icon: const Icon(Icons.network_check, size: 18),
-                                label: Text(l10n.treasuryE2eTestConnectionAction, style: const TextStyle(fontSize: 12)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: provider.isSubmitting ? null : _submit,
-                  child: Text(provider.isSubmitting ? l10n.treasuryE2eSaving : l10n.save),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -443,7 +527,28 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
         );
   }
 
-  Widget _textCompactCompact(TextEditingController controller, String label, {bool obscure = false, bool required = true}) {
+  Widget _textField(TextEditingController controller, String label, {bool obscure = false, bool required = true}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      ),
+      validator: (value) {
+        if (!required) return null;
+        if (value == null || value.trim().isEmpty) {
+          return '*';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _textFieldCompact(TextEditingController controller, String label, {bool obscure = false, bool required = true}) {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
@@ -461,6 +566,194 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildEnvironmentDropdown(AppLocalizations l10n) {
+    return DropdownButtonFormField<String>(
+      initialValue: _environment,
+      items: const [
+        DropdownMenuItem(value: 'development', child: Text('development')),
+        DropdownMenuItem(value: 'staging', child: Text('staging')),
+        DropdownMenuItem(value: 'test', child: Text('test')),
+        DropdownMenuItem(value: 'production', child: Text('production')),
+      ],
+      onChanged: (value) => setState(() => _environment = value ?? 'development'),
+      decoration: InputDecoration(labelText: l10n.treasuryE2eEnvironmentLabel, isDense: true),
+    );
+  }
+
+  Widget _buildChainDropdown(AppLocalizations l10n) {
+    return DropdownButtonFormField<String>(
+      initialValue: _chain,
+      items: const [
+        'BSC_CHAPEL', 'ETH_SEPOLIA', 'SOLANA_DEVNET', 'TRON_NILE',
+        'TRON_SHASTA', 'BASE_SEPOLIA', 'ARBITRUM_SEPOLIA',
+      ].map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 14)))).toList(),
+      onChanged: (value) async {
+        setState(() {
+          _chain = value ?? 'BSC_CHAPEL';
+          _linkedWalletId = null;
+        });
+        await _reloadOptions();
+      },
+      decoration: InputDecoration(labelText: l10n.treasuryE2eChainLabel, isDense: true),
+    );
+  }
+
+  Widget _buildTraderSearchRow(AppLocalizations l10n, bool isWide) {
+    return Row(
+      children: [
+        Expanded(child: _textField(_traderSearch, l10n.treasuryE2eTraderSearchLabel, required: false)),
+        const SizedBox(width: 12),
+        IconButton(
+          onPressed: _reloadOptions,
+          icon: const Icon(Icons.search),
+          tooltip: l10n.treasuryE2eLoadTraderAction,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLinkedWalletDropdown(AppLocalizations l10n, List<Map<String, dynamic>> linkedWallets) {
+    return DropdownButtonFormField<String?>(
+      initialValue: linkedWallets.any((e) => e['link_id'] == _linkedWalletId) ? _linkedWalletId : null,
+      items: [
+        DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eLinkedWalletEmpty)),
+        ...linkedWallets.map((wallet) {
+          final label = wallet['label']?.toString();
+          final address = wallet['address']?.toString() ?? '-';
+          return DropdownMenuItem<String?>(
+            value: wallet['link_id']?.toString(),
+            child: Text(
+              '${label?.isNotEmpty == true ? label : address.substring(0, 8)}...',
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        }),
+      ],
+      onChanged: (value) => setState(() => _linkedWalletId = value),
+      decoration: InputDecoration(labelText: l10n.treasuryE2eLinkedWalletLabel, isDense: true),
+    );
+  }
+
+  Widget _buildSwitchRow(AppLocalizations l10n) {
+    return Row(
+      children: [
+        Expanded(
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text(l10n.treasuryE2eAllowSkipLabel, style: const TextStyle(fontSize: 14)),
+            value: _allowSkip,
+            onChanged: (value) => setState(() => _allowSkip = value),
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text(l10n.treasuryE2eFailOnCriticalLabel, style: const TextStyle(fontSize: 14)),
+            value: _healthFailOnCritical,
+            onChanged: (value) => setState(() => _healthFailOnCritical = value),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdvancedToggle(AppLocalizations l10n, ThemeData theme) {
+    return InkWell(
+      onTap: () => setState(() => _showAdvanced = !_showAdvanced),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(_showAdvanced ? Icons.expand_less : Icons.expand_more, size: 20),
+            const SizedBox(width: 8),
+            Text(l10n.treasuryE2eLegacyTokenSection, style: theme.textTheme.titleSmall),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdvancedSection(
+    AppLocalizations l10n,
+    List<Map<String, dynamic>> traders,
+    Map<String, dynamic>? options,
+    bool isWide,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAdvancedToggle(l10n, Theme.of(context)),
+        if (_showAdvanced) ...[
+          const SizedBox(height: 12),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _textField(_staleManual, l10n.treasuryE2eStaleManualLabel)),
+                const SizedBox(width: 16),
+                Expanded(child: _textField(_staleConfirming, l10n.treasuryE2eStaleConfirmingLabel)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _textField(_failed24h, l10n.treasuryE2eFailed24hLabel)),
+                const SizedBox(width: 16),
+                Expanded(child: _textField(_reconcileLimit, l10n.treasuryE2eReconcileLimitLabel)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _textField(_reconciliationThreshold, l10n.treasuryE2eReconciliationThresholdLabel),
+          const SizedBox(height: 12),
+          if (widget.existing?.traderBearerTokenMasked != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                l10n.treasuryE2eCurrentTraderToken(widget.existing!.traderBearerTokenMasked!),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          Text(l10n.treasuryE2eIdentityPreferredHint, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String?>(
+            initialValue: _resolveRiskActorInitialValue(traders, options),
+            items: [
+              DropdownMenuItem<String?>(value: null, child: Text(l10n.treasuryE2eRiskActorEmpty)),
+              ...(((options?['riskActors'] as List?) ?? const [])
+                  .whereType<Map>()
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .map((user) => DropdownMenuItem<String?>(
+                        value: user['user_id']?.toString(),
+                        child: Text('${user['email']} (${user['role'] ?? '-'})', overflow: TextOverflow.ellipsis),
+                      ))),
+            ],
+            onChanged: (value) => setState(() => _selectedRiskUserId = value),
+            decoration: InputDecoration(labelText: l10n.treasuryE2eRiskActorLabel, isDense: true),
+          ),
+          const SizedBox(height: 12),
+          _textField(_traderToken, l10n.treasuryE2eTraderTokenLabel, obscure: true, required: false),
+          const SizedBox(height: 12),
+          if (widget.existing?.riskBearerTokenMasked != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                l10n.treasuryE2eCurrentRiskToken(widget.existing!.riskBearerTokenMasked!),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          _textField(_riskToken, l10n.treasuryE2eRiskTokenLabel, obscure: true, required: false),
+        ],
+      ],
     );
   }
 
@@ -504,6 +797,9 @@ class _TreasuryE2EConfigFormSheetState extends State<TreasuryE2EConfigFormSheet>
         ? await provider.createConfig(_payload())
         : await provider.updateConfig(widget.existing!.configId, _payload());
     if (!mounted) return;
-    if (success) Navigator.pop(context, true);
+    if (success) {
+      widget.onSaved?.call();
+      if (mounted) Navigator.pop(context, true);
+    }
   }
 }

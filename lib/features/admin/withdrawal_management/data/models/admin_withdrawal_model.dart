@@ -16,6 +16,7 @@ class AdminWithdrawalModel {
   final String? userFirstName;
   final String? userLastName;
   final String? userWalletBalance;
+  final String? failureReason;
 
   AdminWithdrawalModel({
     required this.txId,
@@ -34,6 +35,7 @@ class AdminWithdrawalModel {
     this.userFirstName,
     this.userLastName,
     this.userWalletBalance,
+    this.failureReason,
   });
 
   String get userDisplayName {
@@ -71,6 +73,7 @@ class AdminWithdrawalModel {
       userFirstName: json['userFirstName']?.toString(),
       userLastName: json['userLastName']?.toString(),
       userWalletBalance: json['userWalletBalance']?.toString(),
+      failureReason: json['failureReason']?.toString(),
     );
   }
 }

@@ -3396,6 +3396,52 @@ class AppLocalizationsVi extends AppLocalizations {
   String get withdrawalRejectReasonLabel => 'Lý do từ chối';
 
   @override
+  String get withdrawalReconcileSuccessSnack => 'Thao tác hoàn tất';
+
+  @override
+  String get withdrawalReconcileSettleLabel => 'Kiểm tra & Xử lý';
+
+  @override
+  String get withdrawalReconcileSettleTitle => 'Xử lý withdrawal?';
+
+  @override
+  String get withdrawalReconcileSettleContent =>
+      'Kiểm tra lại trạng thái blockchain và xử lý tương ứng. Hệ thống sẽ cập nhật withdrawal dựa trên trạng thái on-chain hiện tại.';
+
+  @override
+  String get withdrawalForceCompleteLabel => 'Xác nhận hoàn tất';
+
+  @override
+  String get withdrawalForceCompleteTitle => 'Xác nhận hoàn tất withdrawal?';
+
+  @override
+  String get withdrawalForceCompleteContent =>
+      'Đánh dấu withdrawal là HOÀN TẤT mà không kiểm tra blockchain. Chỉ dùng khi bạn đã trực tiếp xác nhận giao dịch trên blockchain.';
+
+  @override
+  String get withdrawalForceFailLabel => 'Bắt buộc thất bại';
+
+  @override
+  String get withdrawalForceFailTitle => 'Bắt buộc thất bại withdrawal?';
+
+  @override
+  String get withdrawalForceFailContent =>
+      'Đánh dấu thất bại và hoàn tiền đóng băng cho người dùng. Dùng khi giao dịch blockchain không thể hoàn thành.';
+
+  @override
+  String get withdrawalForceFailConfirmAction => 'Xác nhận thất bại';
+
+  @override
+  String get withdrawalForceRefundLabel => 'Hoàn tiền';
+
+  @override
+  String get withdrawalForceRefundTitle => 'Hoàn tiền cho người dùng?';
+
+  @override
+  String get withdrawalForceRefundContent =>
+      'Hoàn số tiền đóng băng cho người dùng mà không thay đổi trạng thái giao dịch. Dùng khi người dùng đã bị trừ tiền nhưng giao dịch chưa được ghi nhận đúng.';
+
+  @override
   String get withdrawalNoRequests => 'Không có yêu cầu rút tiền';
 
   @override

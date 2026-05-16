@@ -3397,6 +3397,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawalRejectReasonLabel => 'Rejection reason';
 
   @override
+  String get withdrawalReconcileSuccessSnack => 'Action completed successfully';
+
+  @override
+  String get withdrawalReconcileSettleLabel => 'Settle';
+
+  @override
+  String get withdrawalReconcileSettleTitle => 'Settle Withdrawal?';
+
+  @override
+  String get withdrawalReconcileSettleContent =>
+      'Re-check the blockchain status and settle accordingly. This will update the withdrawal based on the current on-chain state.';
+
+  @override
+  String get withdrawalForceCompleteLabel => 'Force Complete';
+
+  @override
+  String get withdrawalForceCompleteTitle => 'Force Complete Withdrawal?';
+
+  @override
+  String get withdrawalForceCompleteContent =>
+      'Mark this withdrawal as COMPLETED without checking blockchain. Use when you have personally confirmed the on-chain transaction is confirmed.';
+
+  @override
+  String get withdrawalForceFailLabel => 'Force Fail';
+
+  @override
+  String get withdrawalForceFailTitle => 'Force Fail Withdrawal?';
+
+  @override
+  String get withdrawalForceFailContent =>
+      'Mark as FAILED and refund frozen balance to the user. Use when the blockchain transaction cannot be completed.';
+
+  @override
+  String get withdrawalForceFailConfirmAction => 'Force Fail';
+
+  @override
+  String get withdrawalForceRefundLabel => 'Refund Balance';
+
+  @override
+  String get withdrawalForceRefundTitle => 'Refund User Balance?';
+
+  @override
+  String get withdrawalForceRefundContent =>
+      'Refund the frozen balance to the user without changing the transaction status. Use when the user was debited but the transaction was never properly recorded.';
+
+  @override
   String get withdrawalNoRequests => 'No withdrawal requests';
 
   @override

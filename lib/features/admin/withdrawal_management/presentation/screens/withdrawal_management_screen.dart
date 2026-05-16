@@ -741,6 +741,97 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                 }
               },
             ),
+          if (withdrawal.status == 'CONFIRMING')
+            _ReconcileButtons(
+              withdrawal: withdrawal,
+              l10n: l10n,
+              onActionResult: ({required bool success, String? errorMessage}) {
+                final messenger = ScaffoldMessenger.of(context);
+                final errorScheme = Theme.of(context).colorScheme;
+                messenger.clearSnackBars();
+                if (success) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(l10n.withdrawalReconcileSuccessSnack)),
+                        ],
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                  final navigator = Navigator.of(context);
+                  Future.delayed(const Duration(milliseconds: 400), () {
+                    if (context.mounted) navigator.pop();
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(errorMessage ?? l10n.unknownError)),
+                        ],
+                      ),
+                      backgroundColor: errorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                }
+              },
+            ),
+          if (withdrawal.status == 'FAILED')
+            _ReconcileButtons(
+              withdrawal: withdrawal,
+              l10n: l10n,
+              isFailed: true,
+              onActionResult: ({required bool success, String? errorMessage}) {
+                final messenger = ScaffoldMessenger.of(context);
+                final errorScheme = Theme.of(context).colorScheme;
+                messenger.clearSnackBars();
+                if (success) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(l10n.withdrawalReconcileSuccessSnack)),
+                        ],
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                  final navigator = Navigator.of(context);
+                  Future.delayed(const Duration(milliseconds: 400), () {
+                    if (context.mounted) navigator.pop();
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(errorMessage ?? l10n.unknownError)),
+                        ],
+                      ),
+                      backgroundColor: errorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                }
+              },
+            ),
           // Body
           Expanded(
             child: ListView(
@@ -1270,5 +1361,311 @@ class _RejectDialogContentState extends State<_RejectDialogContent> {
         ),
       ],
     );
+  }
+}
+
+// ── Reconciliation Actions for CONFIRMING / FAILED ─────────────────────────────────────
+
+class _ReconcileButtons extends StatefulWidget {
+  final AdminWithdrawalModel withdrawal;
+  final AppLocalizations l10n;
+  final bool isFailed;
+  final void Function({required bool success, String? errorMessage}) onActionResult;
+
+  const _ReconcileButtons({
+    required this.withdrawal,
+    required this.l10n,
+    this.isFailed = false,
+    required this.onActionResult,
+  });
+
+  @override
+  State<_ReconcileButtons> createState() => _ReconcileButtonsState();
+}
+
+enum _ReconcileActionState { idle, loading, success, error }
+
+class _ReconcileButtonsState extends State<_ReconcileButtons> {
+  _ReconcileActionState _state = _ReconcileActionState.idle;
+  String? _lastError;
+  String? _pendingAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isBusy = _state == _ReconcileActionState.loading;
+
+    if (widget.isFailed) {
+      // FAILED: chi co action refund
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          border: Border(top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4))),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: scheme.errorContainer.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: scheme.error, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Giao dich that bai. Neu user da bi tru tien nhung blockchain tx khong thanh cong, hay su dung hanh dong Hoan tien.',
+                        style: TextStyle(fontSize: 12, color: scheme.error),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 44,
+                child: FilledButton.icon(
+                  onPressed: isBusy ? null : () => _showReconcileDialog(context, 'force_refund'),
+                  icon: _state == _ReconcileActionState.loading && _pendingAction == 'force_refund'
+                      ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: scheme.onPrimary))
+                      : const Icon(Icons.replay),
+                  label: Text(widget.l10n.withdrawalForceRefundLabel),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // CONFIRMING: settle / force_complete / force_fail
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        border: Border(top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4))),
+      ),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Giao dich dang bi stuck o trang thai cho xac nhan blockchain. Hay kiem tra txHash tren blockchain va chon hanh dong phu hop.',
+                      style: TextStyle(fontSize: 12, color: Colors.orange.shade800),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      onPressed: isBusy ? null : () => _showReconcileDialog(context, 'settle'),
+                      icon: _state == _ReconcileActionState.loading && _pendingAction == 'settle'
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.sync, size: 18),
+                      label: Text(widget.l10n.withdrawalReconcileSettleLabel, style: const TextStyle(fontSize: 13)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SizedBox(
+                    height: 44,
+                    child: FilledButton.icon(
+                      onPressed: isBusy ? null : () => _showReconcileDialog(context, 'force_complete'),
+                      icon: _state == _ReconcileActionState.loading && _pendingAction == 'force_complete'
+                          ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: scheme.onPrimary))
+                          : const Icon(Icons.check_circle_outline, size: 18),
+                      label: Text(widget.l10n.withdrawalForceCompleteLabel, style: const TextStyle(fontSize: 13)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 44,
+              child: OutlinedButton.icon(
+                onPressed: isBusy ? null : () => _showReconcileDialog(context, 'force_fail'),
+                icon: _state == _ReconcileActionState.loading && _pendingAction == 'force_fail'
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.cancel_outlined, size: 18),
+                style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
+                label: Text(widget.l10n.withdrawalForceFailLabel, style: const TextStyle(fontSize: 13)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReconcileDialog(BuildContext context, String action) {
+    final l10n = widget.l10n;
+    String title;
+    String content;
+    String confirmLabel;
+
+    switch (action) {
+      case 'settle':
+        title = l10n.withdrawalReconcileSettleTitle;
+        content = l10n.withdrawalReconcileSettleContent;
+        confirmLabel = l10n.confirm;
+        break;
+      case 'force_complete':
+        title = l10n.withdrawalForceCompleteTitle;
+        content = l10n.withdrawalForceCompleteContent;
+        confirmLabel = l10n.confirm;
+        break;
+      case 'force_fail':
+        title = l10n.withdrawalForceFailTitle;
+        content = l10n.withdrawalForceFailContent;
+        confirmLabel = l10n.withdrawalForceFailConfirmAction;
+        break;
+      case 'force_refund':
+        title = l10n.withdrawalForceRefundTitle;
+        content = l10n.withdrawalForceRefundContent;
+        confirmLabel = l10n.confirm;
+        break;
+      default:
+        return;
+    }
+
+    final reasonCtrl = TextEditingController();
+    final isForceAction = action == 'force_fail' || action == 'force_refund';
+
+    showDialog(
+      context: context,
+      barrierDismissible: _state != _ReconcileActionState.loading,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final isLoading = _state == _ReconcileActionState.loading && _pendingAction == action;
+          return AlertDialog(
+            title: Row(
+              children: [
+                if (isLoading)
+                  const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  Icon(
+                    action == 'force_fail' ? Icons.cancel_outlined
+                        : action == 'force_refund' ? Icons.replay
+                        : Icons.sync,
+                    color: action == 'force_fail' ? Theme.of(context).colorScheme.error : null,
+                  ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(title)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(content),
+                if (isForceAction) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: reasonCtrl,
+                    decoration: InputDecoration(
+                      labelText: l10n.withdrawalRejectReasonLabel,
+                      hintText: l10n.withdrawalRejectReasonHint,
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLines: 2,
+                    enabled: !isLoading,
+                  ),
+                ],
+                if (_lastError != null && _pendingAction == action) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Theme.of(context).colorScheme.error, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(_lastError!, style: const TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              if (!isLoading)
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.cancel),
+                ),
+              FilledButton(
+                onPressed: isLoading ? null : () => _handleReconcile(ctx, action, reasonCtrl.text.trim()),
+                style: action == 'force_fail' || action == 'force_refund'
+                    ? FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error)
+                    : null,
+                child: Text(confirmLabel),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleReconcile(BuildContext dialogContext, String action, String reason) async {
+    Navigator.pop(dialogContext);
+
+    setState(() {
+      _state = _ReconcileActionState.loading;
+      _lastError = null;
+      _pendingAction = action;
+    });
+
+    final p = context.read<WithdrawalManagementProvider>();
+    final result = await p.reconcile(
+      widget.withdrawal.txId,
+      action,
+      reason: reason.isNotEmpty ? reason : null,
+    );
+
+    if (!mounted) return;
+
+    if (result.success) {
+      setState(() => _state = _ReconcileActionState.success);
+      widget.onActionResult(success: true);
+    } else {
+      setState(() {
+        _state = _ReconcileActionState.error;
+        _lastError = result.error;
+      });
+      widget.onActionResult(success: false, errorMessage: result.error);
+    }
   }
 }

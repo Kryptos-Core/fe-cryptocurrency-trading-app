@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/data/models/admin_withdrawal_model.dart';
+import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/widgets/withdrawal_reconcile_buttons.dart';
 
 class WithdrawalDetailScreen extends StatefulWidget {
   final String txId;
@@ -89,6 +90,46 @@ class _WithdrawalDetailScreenState extends State<WithdrawalDetailScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ],
+                if (w.status == 'CONFIRMING' || w.status == 'FAILED') ...[
+                  const SizedBox(height: 24),
+                  WithdrawalReconcileButtons(
+                    withdrawal: w,
+                    l10n: l10n,
+                    isFailed: w.status == 'FAILED',
+                    onActionResult: ({required bool success, String? errorMessage}) {
+                      if (success) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(l10n.withdrawalReconcileSuccessSnack)),
+                              ],
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(errorMessage ?? l10n.unknownError)),
+                              ],
+                            ),
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ],
               ],

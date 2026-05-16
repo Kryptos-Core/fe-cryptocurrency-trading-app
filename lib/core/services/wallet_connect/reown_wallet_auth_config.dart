@@ -27,9 +27,9 @@ class ReownWalletAuthConfig {
   }
 
   static String? get projectId {
-    final a = dotenv.env['WALLETCONNECT_PROJECT_ID']?.trim();
+    final a = dotenv.env['REOWN_PROJECT_ID']?.trim();
     if (a != null && a.isNotEmpty) return a;
-    final b = dotenv.env['REOWN_PROJECT_ID']?.trim();
+    final b = dotenv.env['WALLETCONNECT_PROJECT_ID']?.trim();
     if (b != null && b.isNotEmpty) return b;
     return null;
   }

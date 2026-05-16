@@ -6239,6 +6239,90 @@ abstract class AppLocalizations {
   /// **'Rejection reason'**
   String get withdrawalRejectReasonLabel;
 
+  /// No description provided for @withdrawalReconcileSuccessSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Action completed successfully'**
+  String get withdrawalReconcileSuccessSnack;
+
+  /// No description provided for @withdrawalReconcileSettleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle'**
+  String get withdrawalReconcileSettleLabel;
+
+  /// No description provided for @withdrawalReconcileSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle Withdrawal?'**
+  String get withdrawalReconcileSettleTitle;
+
+  /// No description provided for @withdrawalReconcileSettleContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check the blockchain status and settle accordingly. This will update the withdrawal based on the current on-chain state.'**
+  String get withdrawalReconcileSettleContent;
+
+  /// No description provided for @withdrawalForceCompleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Complete'**
+  String get withdrawalForceCompleteLabel;
+
+  /// No description provided for @withdrawalForceCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Complete Withdrawal?'**
+  String get withdrawalForceCompleteTitle;
+
+  /// No description provided for @withdrawalForceCompleteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark this withdrawal as COMPLETED without checking blockchain. Use when you have personally confirmed the on-chain transaction is confirmed.'**
+  String get withdrawalForceCompleteContent;
+
+  /// No description provided for @withdrawalForceFailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Fail'**
+  String get withdrawalForceFailLabel;
+
+  /// No description provided for @withdrawalForceFailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Fail Withdrawal?'**
+  String get withdrawalForceFailTitle;
+
+  /// No description provided for @withdrawalForceFailContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as FAILED and refund frozen balance to the user. Use when the blockchain transaction cannot be completed.'**
+  String get withdrawalForceFailContent;
+
+  /// No description provided for @withdrawalForceFailConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Fail'**
+  String get withdrawalForceFailConfirmAction;
+
+  /// No description provided for @withdrawalForceRefundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund Balance'**
+  String get withdrawalForceRefundLabel;
+
+  /// No description provided for @withdrawalForceRefundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund User Balance?'**
+  String get withdrawalForceRefundTitle;
+
+  /// No description provided for @withdrawalForceRefundContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund the frozen balance to the user without changing the transaction status. Use when the user was debited but the transaction was never properly recorded.'**
+  String get withdrawalForceRefundContent;
+
   /// No description provided for @withdrawalNoRequests.
   ///
   /// In en, this message translates to:

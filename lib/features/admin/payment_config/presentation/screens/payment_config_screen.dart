@@ -373,30 +373,92 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
   }
 
   void _showTreasuryE2ECreateSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: context.read<TreasuryE2EConfigProvider>(),
-        child: const TreasuryE2EConfigFormSheet(),
-      ),
-    );
+    _showTreasuryE2EFormSheet(context);
+  }
+
+  Future<void> _showTreasuryE2EFormSheet(BuildContext context) async {
+    final provider = context.read<TreasuryE2EConfigProvider>();
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth >= 600;
+
+    if (isWideScreen) {
+      await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => Dialog(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 560,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
+            child: ChangeNotifierProvider.value(
+              value: provider,
+              child: TreasuryE2EConfigFormSheet(
+                existing: null,
+                onSaved: () => Navigator.pop(context, true),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (_) => ChangeNotifierProvider.value(
+          value: provider,
+          child: TreasuryE2EConfigFormSheet(
+            existing: null,
+            onSaved: () => Navigator.pop(context, true),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _showTreasuryE2EEditSheet(BuildContext context, dynamic config) async {
     final provider = context.read<TreasuryE2EConfigProvider>();
     final detail = await provider.fetchDetail(config.configId);
     if (!context.mounted || detail == null) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: context.read<TreasuryE2EConfigProvider>(),
-        child: TreasuryE2EConfigFormSheet(existing: detail),
-      ),
-    );
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth >= 600;
+
+    if (isWideScreen) {
+      await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => Dialog(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 560,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
+            child: ChangeNotifierProvider.value(
+              value: provider,
+              child: TreasuryE2EConfigFormSheet(
+                existing: detail,
+                onSaved: () => Navigator.pop(context, true),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (_) => ChangeNotifierProvider.value(
+          value: provider,
+          child: TreasuryE2EConfigFormSheet(
+            existing: detail,
+            onSaved: () => Navigator.pop(context, true),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _confirmTreasuryE2EActivate(BuildContext context, dynamic config) async {

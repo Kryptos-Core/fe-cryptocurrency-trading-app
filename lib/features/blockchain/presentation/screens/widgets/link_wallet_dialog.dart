@@ -524,9 +524,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             final chainGroupKey = _blockchainGroupKey(picker, chain);
             final isSelected = _blockchainGroupKey(picker, selectedBlockchain) ==
                 chainGroupKey;
-            return ChoiceChip(
-              label: Text(_blockchainFamilyLabel(picker, chain)),
-              selected: isSelected,
+            return _WalletConnectChoiceChip(
+              label: _blockchainFamilyLabel(picker, chain),
+              isSelected: isSelected,
+              icon: chain.isTronFamily ? Icons.extension : Icons.qr_code,
               onSelected: (_) {
                 final nextNetworks = allChains
                     .where((network) =>
@@ -542,11 +543,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                   _selectedTronNetwork = nextChain.isTronFamily ? nextChain : null;
                 });
               },
-              avatar: Icon(
-                chain.isTronFamily ? Icons.extension : Icons.qr_code,
-                size: 16,
-              ),
-              tooltip: l10n.wcTooltipWalletConnect,
             );
           }).toList(),
         ),
@@ -564,9 +560,10 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             runSpacing: 8,
             children: selectedNetworks.map((network) {
               final isSelected = selectedNetwork == network;
-              return ChoiceChip(
-                label: Text(_networkOptionLabel(picker, network)),
-                selected: isSelected,
+              return _WalletConnectChoiceChip(
+                label: _networkOptionLabel(picker, network),
+                isSelected: isSelected,
+                icon: Icons.qr_code,
                 onSelected: (_) {
                   setState(() {
                     if (_selectedChain != network) {
@@ -576,8 +573,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
                     _selectedTronNetwork = network.isTronFamily ? network : null;
                   });
                 },
-                avatar: const Icon(Icons.qr_code, size: 16),
-                tooltip: l10n.wcTooltipWalletConnect,
               );
             }).toList(),
           ),
@@ -932,6 +927,82 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Custom ChoiceChip that shows all items in the same color (no graying out unselected items).
+/// This provides better UX by avoiding the default Material behavior of graying out unselected chips.
+class _WalletConnectChoiceChip extends StatelessWidget {
+  const _WalletConnectChoiceChip({
+    required this.label,
+    required this.isSelected,
+    required this.icon,
+    required this.onSelected,
+  });
+
+  final String label;
+  final bool isSelected;
+  final IconData icon;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onSelected(true),
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? theme.colorScheme.primary.withValues(alpha:0.15)
+                : (isDark
+                    ? Colors.white.withValues(alpha:0.05)
+                    : Colors.black.withValues(alpha:0.05)),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? theme.colorScheme.primary.withValues(alpha:0.5)
+                  : (isDark
+                      ? Colors.white.withValues(alpha:0.1)
+                      : Colors.black.withValues(alpha:0.1)),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : (isDark
+                        ? Colors.white.withValues(alpha:0.7)
+                        : Colors.black.withValues(alpha:0.6)),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : (isDark
+                          ? Colors.white.withValues(alpha:0.85)
+                          : Colors.black.withValues(alpha:0.75)),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

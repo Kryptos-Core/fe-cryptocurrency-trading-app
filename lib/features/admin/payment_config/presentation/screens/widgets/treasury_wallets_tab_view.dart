@@ -37,7 +37,7 @@ class _TreasuryFundDialog extends StatelessWidget {
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      backgroundColor: scheme.surface,
+      backgroundColor: scheme.surfaceContainerHighest,
       surfaceTintColor: scheme.surfaceTint,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: ConstrainedBox(
@@ -749,7 +749,7 @@ Future<_TreasurySweepDialogResult?> _showSweepDialog(
     builder: (ctx) {
       return Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        backgroundColor: scheme.surface,
+        backgroundColor: scheme.surfaceContainerHighest,
         surfaceTintColor: scheme.surfaceTint,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: ConstrainedBox(
