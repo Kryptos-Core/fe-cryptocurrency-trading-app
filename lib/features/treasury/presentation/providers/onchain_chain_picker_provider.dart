@@ -68,6 +68,9 @@ class OnchainChainPickerProvider extends ChangeNotifier {
   /// No env-based fallback — use for operator UI that must mirror the server contract.
   List<String> get treasuryOpsChainsFromApi => _options?.treasuryOps ?? const [];
 
+  /// `pickers.treasury_e2e` — chains for E2E config form (no env fallback).
+  List<String> get treasuryE2eChainsFromApi => _options?.treasuryE2e ?? const [];
+
   List<String> get treasuryMainWalletChains =>
       _orFallback(_options?.treasuryMainWallet ?? const [], treasuryMainWalletChainsForCurrentEnv);
 

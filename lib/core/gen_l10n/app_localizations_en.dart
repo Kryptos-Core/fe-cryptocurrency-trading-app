@@ -4939,6 +4939,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treasuryE2eLegacyTokenSection => 'Legacy token fallback';
 
   @override
+  String get treasuryE2eGuideTitle => 'Treasury E2E Configuration Guide';
+
+  @override
+  String get treasuryE2eGuideWhatIs =>
+      'Treasury E2E is a configuration used to run automated end-to-end tests on the Treasury system. It connects a test trader account, linked wallet, and chain so the system can automatically verify deposit/withdrawal flows.';
+
+  @override
+  String get treasuryE2eGuideStep1Title => 'Step 1: Select Environment & Chain';
+
+  @override
+  String get treasuryE2eGuideStep1Desc =>
+      'Development: local testing; Staging: staging server; Test: integration test; Production: real system (use with caution). Chain must match the linked wallet.';
+
+  @override
+  String get treasuryE2eGuideStep2Title => 'Step 2: Test Trader Account';
+
+  @override
+  String get treasuryE2eGuideStep2Desc =>
+      'Search and select a test trader account. The system will use this account to execute E2E transactions.';
+
+  @override
+  String get treasuryE2eGuideStep3Title => 'Step 3: Withdrawal Configuration';
+
+  @override
+  String get treasuryE2eGuideStep3Desc =>
+      'Set auto and manual amounts for the system to test. Auto amount for small automated transactions; manual amount for transactions requiring approval.';
+
+  @override
+  String get treasuryE2eGuideNote =>
+      'Bearer tokens are encrypted and not displayed. Only admins can view/update them.';
+
+  @override
+  String get treasuryE2eSectionBasic => 'Basic Information';
+
+  @override
+  String get treasuryE2eSectionTrader => 'Test Trader Account';
+
+  @override
+  String get treasuryE2eSectionWithdrawal => 'Withdrawal Configuration';
+
+  @override
+  String get treasuryE2eSectionOptions => 'Options';
+
+  @override
+  String get treasuryE2eChainTooltip =>
+      'Select the blockchain network for E2E testing. Must match the verified linked wallet.';
+
+  @override
+  String get treasuryE2eEnvironmentTooltip =>
+      'E2E environment: development (local), staging, test (integration), production (use with caution).';
+
+  @override
+  String get treasuryE2eApiBaseUrlTooltip =>
+      'Base URL of the E2E service to test. Usually http://localhost:3000 for local development.';
+
+  @override
+  String get treasuryE2eLinkedWalletTooltip =>
+      'Verified wallet on the selected chain. Used by the system to execute and verify transactions.';
+
+  @override
+  String get treasuryE2eNoChainList =>
+      'Failed to load chain list from API. Please check server connection and retry.';
+
+  @override
   String get depositWatcherTitle => 'Deposit Watcher Cursors';
 
   @override

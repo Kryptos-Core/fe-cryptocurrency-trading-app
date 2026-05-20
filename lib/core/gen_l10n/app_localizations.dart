@@ -9019,6 +9019,114 @@ abstract class AppLocalizations {
   /// **'Legacy token fallback'**
   String get treasuryE2eLegacyTokenSection;
 
+  /// No description provided for @treasuryE2eGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury E2E Configuration Guide'**
+  String get treasuryE2eGuideTitle;
+
+  /// No description provided for @treasuryE2eGuideWhatIs.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury E2E is a configuration used to run automated end-to-end tests on the Treasury system. It connects a test trader account, linked wallet, and chain so the system can automatically verify deposit/withdrawal flows.'**
+  String get treasuryE2eGuideWhatIs;
+
+  /// No description provided for @treasuryE2eGuideStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Select Environment & Chain'**
+  String get treasuryE2eGuideStep1Title;
+
+  /// No description provided for @treasuryE2eGuideStep1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Development: local testing; Staging: staging server; Test: integration test; Production: real system (use with caution). Chain must match the linked wallet.'**
+  String get treasuryE2eGuideStep1Desc;
+
+  /// No description provided for @treasuryE2eGuideStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Test Trader Account'**
+  String get treasuryE2eGuideStep2Title;
+
+  /// No description provided for @treasuryE2eGuideStep2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Search and select a test trader account. The system will use this account to execute E2E transactions.'**
+  String get treasuryE2eGuideStep2Desc;
+
+  /// No description provided for @treasuryE2eGuideStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Withdrawal Configuration'**
+  String get treasuryE2eGuideStep3Title;
+
+  /// No description provided for @treasuryE2eGuideStep3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Set auto and manual amounts for the system to test. Auto amount for small automated transactions; manual amount for transactions requiring approval.'**
+  String get treasuryE2eGuideStep3Desc;
+
+  /// No description provided for @treasuryE2eGuideNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearer tokens are encrypted and not displayed. Only admins can view/update them.'**
+  String get treasuryE2eGuideNote;
+
+  /// No description provided for @treasuryE2eSectionBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Information'**
+  String get treasuryE2eSectionBasic;
+
+  /// No description provided for @treasuryE2eSectionTrader.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Trader Account'**
+  String get treasuryE2eSectionTrader;
+
+  /// No description provided for @treasuryE2eSectionWithdrawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal Configuration'**
+  String get treasuryE2eSectionWithdrawal;
+
+  /// No description provided for @treasuryE2eSectionOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get treasuryE2eSectionOptions;
+
+  /// No description provided for @treasuryE2eChainTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the blockchain network for E2E testing. Must match the verified linked wallet.'**
+  String get treasuryE2eChainTooltip;
+
+  /// No description provided for @treasuryE2eEnvironmentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'E2E environment: development (local), staging, test (integration), production (use with caution).'**
+  String get treasuryE2eEnvironmentTooltip;
+
+  /// No description provided for @treasuryE2eApiBaseUrlTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL of the E2E service to test. Usually http://localhost:3000 for local development.'**
+  String get treasuryE2eApiBaseUrlTooltip;
+
+  /// No description provided for @treasuryE2eLinkedWalletTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified wallet on the selected chain. Used by the system to execute and verify transactions.'**
+  String get treasuryE2eLinkedWalletTooltip;
+
+  /// No description provided for @treasuryE2eNoChainList.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load chain list from API. Please check server connection and retry.'**
+  String get treasuryE2eNoChainList;
+
   /// No description provided for @depositWatcherTitle.
   ///
   /// In en, this message translates to:

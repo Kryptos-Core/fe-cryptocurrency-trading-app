@@ -20,6 +20,7 @@ class ChainPickerOptionsModel {
   List<String> get withdrawalAdminFilter => pickers['withdrawal_admin_filter'] ?? const [];
   List<String> get managedWallets => pickers['managed_wallets'] ?? const [];
   List<String> get onchainDepositWithdraw => pickers['onchain_deposit_withdraw'] ?? const [];
+  List<String> get treasuryE2e => pickers['treasury_e2e'] ?? const [];
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'operatorMode': operatorMode,

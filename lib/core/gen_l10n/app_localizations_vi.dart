@@ -4931,6 +4931,70 @@ class AppLocalizationsVi extends AppLocalizations {
   String get treasuryE2eLegacyTokenSection => 'Fallback token kiểu cũ';
 
   @override
+  String get treasuryE2eGuideTitle => 'Hướng dẫn cấu hình Treasury E2E';
+
+  @override
+  String get treasuryE2eGuideWhatIs =>
+      'Treasury E2E là cấu hình dùng để chạy end-to-end test tự động trên hệ thống Treasury. Cấu hình này kết nối tài khoản trader test, ví liên kết, và chain để hệ thống tự động kiểm tra các luồng nạp/rút tiền.';
+
+  @override
+  String get treasuryE2eGuideStep1Title => 'Bước 1: Chọn môi trường & Chain';
+
+  @override
+  String get treasuryE2eGuideStep1Desc =>
+      'Development: test local; Staging: staging server; Test: integration test; Production: kiểm thử thật (thận trọng). Chain phải khớp với ví liên kết.';
+
+  @override
+  String get treasuryE2eGuideStep2Title => 'Bước 2: Tài khoản Trader test';
+
+  @override
+  String get treasuryE2eGuideStep2Desc =>
+      'Tìm kiếm và chọn trader test account. Hệ thống sẽ dùng account này để thực hiện các giao dịch E2E.';
+
+  @override
+  String get treasuryE2eGuideStep3Title => 'Bước 3: Cấu hình Withdrawal';
+
+  @override
+  String get treasuryE2eGuideStep3Desc =>
+      'Đặt số tiền auto và manual để hệ thống test. Amount auto cho giao dịch nhỏ tự động; amount manual cho giao dịch cần phê duyệt.';
+
+  @override
+  String get treasuryE2eGuideNote =>
+      'Token bearer được mã hoá và không hiển thị. Chỉ admin mới có quyền xem/cập nhật.';
+
+  @override
+  String get treasuryE2eSectionBasic => 'Thông tin cơ bản';
+
+  @override
+  String get treasuryE2eSectionTrader => 'Tài khoản Trader test';
+
+  @override
+  String get treasuryE2eSectionWithdrawal => 'Cấu hình Withdrawal';
+
+  @override
+  String get treasuryE2eSectionOptions => 'Tuỳ chọn';
+
+  @override
+  String get treasuryE2eChainTooltip =>
+      'Chọn blockchain network mà E2E test sẽ chạy. Phải khớp với ví liên kết đã xác minh.';
+
+  @override
+  String get treasuryE2eEnvironmentTooltip =>
+      'Môi trường chạy E2E: development (local), staging, test (integration), production (thận trọng).';
+
+  @override
+  String get treasuryE2eApiBaseUrlTooltip =>
+      'Base URL của E2E service cần test. Thường là http://localhost:3000 cho local development.';
+
+  @override
+  String get treasuryE2eLinkedWalletTooltip =>
+      'Ví đã xác minh trên chain đã chọn. Dùng để hệ thống thực hiện và kiểm tra giao dịch.';
+
+  @override
+  String get treasuryE2eNoChainList =>
+      'Không tải được danh sách chain từ API. Vui lòng kiểm tra kết nối server và thử lại.';
+
+  @override
   String get depositWatcherTitle => 'Theo Dõi Nạp Tiền';
 
   @override
