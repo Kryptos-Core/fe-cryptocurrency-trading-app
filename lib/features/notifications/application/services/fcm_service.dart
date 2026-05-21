@@ -130,20 +130,76 @@ class FcmService {
     final notification = message.notification;
     if (notification == null) return;
 
+    final notificationType = message.data['type']?.toString();
+
+    // Build Android sound: use RawResourceAndroidNotificationSound pointing to the
+    // raw resource in android/app/src/main/res/raw/<name> (NO extension).
+    final androidDetails = AndroidNotificationDetails(
+      'crypto_notifications',
+      'Crypto Notifications',
+      channelDescription: 'System notifications from the trading platform',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      sound: _resolveAndroidSound(notificationType),
+    );
+
+    // Build iOS sound: must match a file in ios/Runner/Resources/ WITH extension.
+    // Supported formats: .aiff (preferred), .wav, .caf.
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      sound: _resolveIosSound(notificationType),
+    );
+
     _localNotifications.show(
       id: notification.hashCode,
       title: notification.title,
       body: notification.body,
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'crypto_notifications',
-          'Crypto Notifications',
-          channelDescription: 'System notifications from the trading platform',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
+      notificationDetails: NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
       ),
+      payload: message.data.isNotEmpty ? message.data['notification_id'] : null,
     );
+  }
+
+  /// Resolves the Android raw resource name from the notification type.
+  /// Returns null to use the channel default sound.
+  AndroidNotificationSound? _resolveAndroidSound(String? notificationType) {
+    switch (notificationType) {
+      case 'withdrawal_request':
+        return const RawResourceAndroidNotificationSound('withdrawal_request');
+      case 'withdrawal_approved':
+        return const RawResourceAndroidNotificationSound('withdrawal_approved');
+      case 'withdrawal_rejected':
+        return const RawResourceAndroidNotificationSound('withdrawal_rejected');
+      case 'alert':
+        return const RawResourceAndroidNotificationSound('alert');
+      case 'promo':
+        return const RawResourceAndroidNotificationSound('promo');
+      default:
+        return null; // use channel default
+    }
+  }
+
+  /// Resolves the iOS sound file name from the notification type.
+  /// Must match a file in ios/Runner/Resources/ WITH extension.
+  String _resolveIosSound(String? notificationType) {
+    switch (notificationType) {
+      case 'withdrawal_request':
+        return 'withdrawal_request.aiff';
+      case 'withdrawal_approved':
+        return 'withdrawal_approved.aiff';
+      case 'withdrawal_rejected':
+        return 'withdrawal_rejected.aiff';
+      case 'alert':
+        return 'alert.aiff';
+      case 'promo':
+        return 'promo.aiff';
+      default:
+        return 'default';
+    }
   }
 }

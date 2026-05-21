@@ -220,6 +220,18 @@ class TreasuryProvider extends ChangeNotifier {
       _wallets = list;
       _walletsFetchKey = key;
       _walletsFetchedAt = DateTime.now();
+    } on ServerException catch (e) {
+      // 403 from GET /treasury/wallets means the current user role (e.g. TRADER)
+      // has no permission to view treasury wallets — this is normal for non-finance
+      // roles and must NOT surface as an error banner in the withdrawal tab.
+      if (e.statusCode == 403) {
+        _wallets = [];
+        _walletsFetchKey = key;
+        _walletsFetchedAt = DateTime.now();
+        _resetDisplayedError();
+      } else {
+        _captureError(e);
+      }
     } catch (e) {
       _captureError(e);
     } finally {

@@ -33,6 +33,8 @@ class NotificationProvider extends ChangeNotifier {
   NotificationProvider({
     required NotificationRepository repository,
   }) : _repository = repository {
+    // initialize() is async and idempotent; fire-and-forget here so it
+    // runs in the background while the provider is being registered.
     NotificationSoundService.instance.initialize();
   }
 

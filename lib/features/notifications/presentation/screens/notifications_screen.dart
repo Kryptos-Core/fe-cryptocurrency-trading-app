@@ -137,44 +137,52 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.volume_up),
-                  const SizedBox(width: 12),
-                  Text(l10n.notificationSoundSettings, style: Theme.of(ctx).textTheme.titleMedium),
-                  const Spacer(),
-                  Switch(
-                    value: soundService.globallyEnabled,
-                    onChanged: (v) {
-                      soundService.setGloballyEnabled(v);
-                      setSheetState(() {});
-                    },
-                  ),
-                ],
-              ),
-              const Divider(),
-              Text(l10n.notificationSoundPerType, style: Theme.of(ctx).textTheme.titleSmall),
-              const SizedBox(height: 12),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: NotificationSoundType.values.map((st) {
-                    final setting = soundService.settings[st]!;
-                    return SwitchListTile(
-                      title: Text(_soundTypeLabel(st, l10n)),
-                      subtitle: Text(_soundTypeAsset(st)),
-                      value: setting.enabled,
-                      dense: true,
-                      onChanged: soundService.globallyEnabled
-                          ? (v) {
-                              soundService.setEnabled(st, v);
-                              setSheetState(() {});
-                            }
-                          : null,
-                    );
-                  }).toList(),
+            Row(
+              children: [
+                const Icon(Icons.volume_up),
+                const SizedBox(width: 12),
+                Text(l10n.notificationSoundSettings,
+                    style: Theme.of(ctx).textTheme.titleMedium),
+                const Spacer(),
+                Switch(
+                  value: soundService.globallyEnabled,
+                  onChanged: (v) async {
+                    await soundService.setGloballyEnabled(v);
+                    setSheetState(() {});
+                  },
                 ),
+              ],
+            ),
+            const Divider(),
+            Text(l10n.notificationSoundPerType,
+                style: Theme.of(ctx).textTheme.titleSmall),
+            const SizedBox(height: 12),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: NotificationSoundType.values.map((st) {
+                  final setting = soundService.settings[st]!;
+                  return SwitchListTile(
+                    secondary: IconButton(
+                      icon: const Icon(Icons.play_arrow, size: 20),
+                      tooltip: 'Preview',
+                      onPressed: () =>
+                          soundService.playForSoundType(st),
+                    ),
+                    title: Text(_soundTypeLabel(st, l10n)),
+                    subtitle: Text(_soundTypeAsset(st)),
+                    value: setting.enabled,
+                    dense: true,
+                    onChanged: soundService.globallyEnabled
+                        ? (v) async {
+                            await soundService.setEnabled(st, v);
+                            setSheetState(() {});
+                          }
+                        : null,
+                  );
+                }).toList(),
               ),
+            ),
             ],
           ),
         ),
@@ -193,7 +201,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     };
   }
 
-  String _soundTypeAsset(NotificationSoundType st) => st.assetPath.split('/').last;
+  String _soundTypeAsset(NotificationSoundType st) =>
+      st.assetPath.split('/').last.replaceAll(RegExp(r'\.(mp3|wav|aiff)$'), '');
 }
 
 // ── Notification Tile ──────────────────────────────────────────────────────

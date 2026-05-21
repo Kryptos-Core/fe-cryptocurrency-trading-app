@@ -114,10 +114,19 @@ class DioClient {
             await tokenService!.clearTokens();
           }
         }
-        // Handle 403 Forbidden - insufficient role/permission
+        // Handle 403 Forbidden - insufficient role/permission.
+        // Skip global notification for endpoints that legitimately return 403
+        // for non-finance roles (e.g. TRADER calling GET /treasury/wallets is
+        // normal — the UI handles it as an empty state, not a permission error).
         if (error.response?.statusCode == 403) {
-          _logger.w('Forbidden - Insufficient permissions for ${error.requestOptions.path}');
-          DioClient.onForbidden?.call();
+          final path = error.requestOptions.path;
+          final treasuryWallets403 =
+              path.endsWith('/treasury/wallets') ||
+              RegExp(r'^treasury/wallets(\?|$)').hasMatch(path);
+          if (!treasuryWallets403) {
+            _logger.w('Forbidden - Insufficient permissions for $path');
+            DioClient.onForbidden?.call();
+          }
         }
         return handler.next(error);
       },
