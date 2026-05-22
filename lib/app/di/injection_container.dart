@@ -62,6 +62,11 @@ import 'package:crypto_trading_app/features/admin/shared/presentation/providers/
 import 'package:crypto_trading_app/features/settings/data/repositories/system_config_repository.dart'
     as settings_data;
 import 'package:crypto_trading_app/features/settings/domain/repositories/system_config_repository.dart';
+import 'package:crypto_trading_app/core/services/secure_storage_service.dart';
+import 'package:crypto_trading_app/features/binance_trading/data/datasources/binance_trading_remote_datasource.dart';
+import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_credentials_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -345,6 +350,32 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<NotificationProvider>(
     () => NotificationProvider(
       repository: sl<NotificationRepository>(),
+    ),
+  );
+
+  // ===== Binance Non-Custodial Trading =====
+  sl.registerLazySingleton<SecureStorageService>(
+    () => SecureStorageService(),
+  );
+
+  sl.registerLazySingleton<BinanceTradingRemoteDataSource>(
+    () => BinanceTradingRemoteDataSource(dioClient: sl()),
+  );
+
+  sl.registerLazySingleton<BinanceTradingRepositoryImpl>(
+    () => BinanceTradingRepositoryImpl(remoteDataSource: sl<BinanceTradingRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<BinanceCredentialsProvider>(
+    () => BinanceCredentialsProvider(
+      dioClient: sl<DioClient>(),
+      secureStorage: sl<SecureStorageService>(),
+    ),
+  );
+
+  sl.registerFactory<BinanceTradingProvider>(
+    () => BinanceTradingProvider(
+      repository: sl<BinanceTradingRepositoryImpl>(),
     ),
   );
 }

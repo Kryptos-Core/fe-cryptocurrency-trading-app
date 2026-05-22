@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/features/auth/presentation/screens/login_screen.dart';
@@ -29,6 +30,11 @@ import 'package:crypto_trading_app/features/orders/presentation/screens/orders_s
 import 'package:crypto_trading_app/features/settings/presentation/screens/settings_screen.dart';
 import 'package:crypto_trading_app/features/trading/presentation/screens/market_maker/market_maker_hub_screen.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/treasury_main_wallets_screen.dart';
+import 'package:crypto_trading_app/features/binance_trading/presentation/screens/api_key_list_screen.dart';
+import 'package:crypto_trading_app/features/binance_trading/presentation/screens/spot_trading_screen.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_credentials_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
 
 GoRouter createAppRouter(AuthProvider auth) {
   return GoRouter(
@@ -150,6 +156,32 @@ GoRouter createAppRouter(AuthProvider auth) {
       GoRoute(
         path: AppRoutes.adminFiatWithdrawals,
         builder: (_, __) => const FiatWithdrawalsAdminScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.binanceApiKeys,
+        builder: (context, _) => ChangeNotifierProvider<BinanceCredentialsProvider>.value(
+          value: context.read<BinanceCredentialsProvider>(),
+          child: const ApiKeyListScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.binanceSpotTrading,
+        builder: (context, state) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider<BinanceCredentialsProvider>.value(
+              value: context.read<BinanceCredentialsProvider>(),
+            ),
+            ChangeNotifierProvider<BinanceTradingProvider>(
+              create: (_) => BinanceTradingProvider(
+                repository: di.sl<BinanceTradingRepositoryImpl>(),
+              ),
+            ),
+          ],
+          child: SpotTradingScreen(
+            credentialId: state.pathParameters['credentialId'] ?? '',
+            label: state.uri.queryParameters['label'],
+          ),
+        ),
       ),
     ],
   );

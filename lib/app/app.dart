@@ -13,6 +13,7 @@ import 'package:crypto_trading_app/features/admin/payment_config/data/datasource
 import 'package:crypto_trading_app/features/admin/payment_config/data/datasources/treasury_e2e_config_remote_datasource.dart';
 import 'package:crypto_trading_app/features/treasury/domain/repositories/treasury_repository.dart';
 import 'package:crypto_trading_app/features/admin/withdrawal_management/data/datasources/withdrawal_admin_remote_datasource.dart';
+import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/providers/withdrawal_management_provider.dart';
 import 'package:crypto_trading_app/features/settings/domain/repositories/system_config_repository.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
@@ -37,7 +38,9 @@ import 'package:crypto_trading_app/features/admin/payment_config/presentation/pr
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/wallets/presentation/providers/wallets_provider.dart';
-import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/providers/withdrawal_management_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_credentials_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
+import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
 import 'package:crypto_trading_app/app/router/app_router.dart';
 
 GoRouter? _cachedAppRouter;
@@ -179,6 +182,14 @@ class CryptoTradingApp extends StatelessWidget {
             dataSource: WithdrawalAdminRemoteDataSourceImpl(
               dioClient: di.sl<DioClient>(),
             ),
+          ),
+        ),
+        ChangeNotifierProvider<BinanceCredentialsProvider>.value(
+          value: di.sl<BinanceCredentialsProvider>(),
+        ),
+        ChangeNotifierProvider<BinanceTradingProvider>(
+          create: (_) => BinanceTradingProvider(
+            repository: di.sl<BinanceTradingRepositoryImpl>(),
           ),
         ),
       ],

@@ -34,6 +34,11 @@ abstract final class AppRoutes {
   static const String adminSecurityRequests = '/admin/security-requests';
   static const String adminDepositWatcher = '/admin/deposit-watcher';
 
+  /// Binance non-custodial trading
+  static const String binanceApiKeys = '/binance/api-keys';
+  static const String binanceSpotTrading = '/binance/spot/:credentialId';
+  static const String binanceFuturesTrading = '/binance/futures';
+
   /// Bottom navigation indices — must stay aligned with `_buildScreens` in MainScreen.
   static const int tabDashboard = 0;
   static const int tabMarkets = 1;
