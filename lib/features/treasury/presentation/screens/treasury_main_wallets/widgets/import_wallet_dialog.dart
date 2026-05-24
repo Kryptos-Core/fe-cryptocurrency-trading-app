@@ -265,7 +265,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
         context.watch<TreasuryMainWalletProvider>().isSubmitting;
     final currentChain =
         context.watch<TreasuryMainWalletProvider>().currentChain;
-    final chainLabel = treasuryWalletCreationDisplayLabel(l10n, currentChain);
+    final chainLabel = treasuryChainDisplayLabel(l10n, currentChain);
 
     final otpBusy = _isSendingOtp || isSubmitting;
     final canConfirmOtp =

@@ -833,7 +833,6 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final chainPicker = context.watch<OnchainChainPickerProvider>();
     final enums = context.watch<AdminEnumsProvider>();
     final purposeItems = enums.treasuryWalletPurposes
         .map(
@@ -843,11 +842,14 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
           ),
         )
         .toList();
+
+    // In production (ONCHAIN_OPERATOR_MODE=production), the network is implicit mainnet, but
+    // the chain filter is still needed so users can switch between mainnet chains.
     return Row(
       children: [
         Expanded(
           child: TreasuryChainDropdown(
-            chains: chainPicker.treasuryOpsChains,
+            chains: context.watch<OnchainChainPickerProvider>().treasuryOpsChains,
             value: provider.walletChain,
             allowAllOption: true,
             labelText: l10n.treasuryChainLabel,

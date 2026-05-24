@@ -479,30 +479,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-
-                    // TronLink register
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _isLoading
-                            ? null
-                            : () => context
-                                .read<AuthWalletFlowService>()
-                                .connectTronLink(
-                                  context,
-                                  onSuccess: _onWalletAuthSuccess,
-                                ),
-                        icon: const Icon(Icons.link,
-                            color: Color(0xFFEF0027), size: 20),
-                        label: Text(l10n.registerWithTronLink),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: Color(0xFFEF0027)),
-                          foregroundColor: const Color(0xFFEF0027),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 16),
 
                     // Login Link

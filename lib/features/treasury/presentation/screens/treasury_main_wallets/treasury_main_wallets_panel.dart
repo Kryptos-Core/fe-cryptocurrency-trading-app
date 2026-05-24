@@ -11,6 +11,11 @@ import 'package:crypto_trading_app/features/treasury/presentation/screens/treasu
 import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
+/// Whether the UI should hide chain/network selectors and default to mainnet automatically.
+/// When true (ONCHAIN_OPERATOR_MODE=production), the ecosystem/network dropdowns are
+/// replaced with a static label showing the current ecosystem name.
+bool get _treasuryHidesNetworkSelector => treasuryChainsUseMainnetOnly;
+
 /// Main / hot wallet UI: **Chain** (ecosystem) + **Network** pickers from
 /// GET /treasury/chain-picker-options → `pickers.treasury_main_wallet` only.
 class TreasuryMainWalletsPanel extends StatefulWidget {
@@ -164,64 +169,95 @@ class _TreasuryMainWalletsPanelState extends State<TreasuryMainWalletsPanel> {
       });
     }
 
-    final chainSelectors = Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AppDropdownField<TreasuryChainEcosystem>(
-            value: effectiveEco,
-            labelText: l10n.treasuryChainLabel,
-            menuMaxHeight: menuMax,
-            items: ecosystems
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(treasuryEcosystemLabel(l10n, e)),
-                  ),
-                )
-                .toList(),
-            onChanged: (v) {
-              if (v == null) return;
-              final nets = treasuryOpsNetworksForEcosystem(v, chains);
-              final net = preferredTreasuryOpsNetworkCode(
-                    v,
-                    nets,
-                    apiTronDefaultNetwork: apiTronDefault,
-                  ) ??
-                  nets.first;
-              provider.setChain(net);
-            },
-          ),
-          const SizedBox(height: 12),
-          AppDropdownField<String>(
-            value: effectiveNet,
-            labelText: l10n.treasuryNetworkLabel,
-            menuMaxHeight: menuMax,
-            items: netsForEco
-                .map(
-                  (code) => DropdownMenuItem(
-                    value: code,
-                    child: Text(
-                      treasuryChainDisplayLabel(
-                        l10n,
-                        code,
-                        apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
-                      ),
+    // In production (ONCHAIN_OPERATOR_MODE=production), the network is implicit mainnet.
+    // Only the ecosystem dropdown is shown; the network dropdown is removed.
+    // In sandbox, both ecosystem + network dropdowns are shown.
+    final chainSelectors = _treasuryHidesNetworkSelector
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: AppDropdownField<TreasuryChainEcosystem>(
+              value: effectiveEco,
+              labelText: l10n.treasuryChainLabel,
+              menuMaxHeight: menuMax,
+              items: ecosystems
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(treasuryEcosystemLabel(l10n, e)),
                     ),
-                  ),
-                )
-                .toList(),
-            onChanged: netsForEco.isEmpty
-                ? null
-                : (v) {
+                  )
+                  .toList(),
+              onChanged: (v) {
+                if (v == null) return;
+                final nets = treasuryOpsNetworksForEcosystem(v, chains);
+                final net = preferredTreasuryOpsNetworkCode(
+                      v,
+                      nets,
+                      apiTronDefaultNetwork: apiTronDefault,
+                    ) ??
+                    nets.first;
+                provider.setChain(net);
+              },
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppDropdownField<TreasuryChainEcosystem>(
+                  value: effectiveEco,
+                  labelText: l10n.treasuryChainLabel,
+                  menuMaxHeight: menuMax,
+                  items: ecosystems
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(treasuryEcosystemLabel(l10n, e)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) {
                     if (v == null) return;
-                    provider.setChain(v);
+                    final nets = treasuryOpsNetworksForEcosystem(v, chains);
+                    final net = preferredTreasuryOpsNetworkCode(
+                          v,
+                          nets,
+                          apiTronDefaultNetwork: apiTronDefault,
+                        ) ??
+                        nets.first;
+                    provider.setChain(net);
                   },
-          ),
-        ],
-      ),
-    );
+                ),
+                const SizedBox(height: 12),
+                AppDropdownField<String>(
+                  value: effectiveNet,
+                  labelText: l10n.treasuryNetworkLabel,
+                  menuMaxHeight: menuMax,
+                  items: netsForEco
+                      .map(
+                        (code) => DropdownMenuItem(
+                          value: code,
+                          child: Text(
+                            treasuryChainDisplayLabel(
+                              l10n,
+                              code,
+                              apiLabelResolver: context.read<OnchainChainPickerProvider>().displayLabelForCode,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: netsForEco.isEmpty
+                      ? null
+                      : (v) {
+                          if (v == null) return;
+                          provider.setChain(v);
+                        },
+                ),
+              ],
+            ),
+          );
 
     return showPendingTab
         ? DefaultTabController(

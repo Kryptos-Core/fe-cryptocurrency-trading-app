@@ -2307,5 +2307,20 @@
       "chain": { "type": "String" },
       "reason": { "type": "String" }
     }
-  }
+  },
+  "walletFilterAll": "All",
+  "walletFilterDeposit": "Deposit",
+  "walletFilterWithdraw": "Withdraw",
+  "walletFilterTrade": "Trade",
+  "walletFilterOrder": "Order",
+  "walletFilterTransfer": "Transfer",
+  "walletFilterAdjust": "Adjust",
+  "walletFilterExternal": "On-chain",
+  "walletTxRefId": "Reference",
+  "walletTxDate": "Date",
+  "walletTxType": "Type",
+  "walletTxAmount": "Amount",
+  "walletRecentTransactions": "Recent Transactions",
+  "walletLoadMore": "Load more",
+  "walletNoTransactionsMatch": "No transactions match the selected filter"
 }

@@ -7,6 +7,11 @@ import 'package:crypto_trading_app/features/treasury/presentation/constants/trea
 import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
+/// When ONCHAIN_OPERATOR_MODE=production, ecosystem and network selectors are
+/// hidden — ecosystem defaults to the first available ecosystem and network
+/// defaults to the first mainnet, without user interaction.
+bool get _createWalletHidesNetworkSelector => treasuryChainsUseMainnetOnly;
+
 /// Create-wallet sheet: **Chain** + **Network** options come only from
 /// GET /treasury/chain-picker-options → `pickers.treasury_ops` (see
 /// [OnchainChainPickerProvider.treasuryOpsChainsFromApi]).
@@ -98,23 +103,40 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
             ) ??
             netsForEco.first);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.treasuryCreateWalletDialogTitle,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    // In production (ONCHAIN_OPERATOR_MODE=production), the network is implicit mainnet.
+    // Only the ecosystem dropdown is shown; the network dropdown is removed.
+    // In sandbox, both ecosystem + network dropdowns are shown.
+    final chainWidgets = _createWalletHidesNetworkSelector
+        ? <Widget>[
+            AppDropdownField<TreasuryChainEcosystem>(
+              value: effectiveEco,
+              labelText: l10n.treasuryChainLabel,
+              menuMaxHeight: kTreasurySheetDropdownMenuMaxHeight,
+              items: ecosystems
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(treasuryEcosystemLabel(l10n, e)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() {
+                  _ecosystem = v;
+                  final nets = treasuryOpsNetworksForEcosystem(v, chains);
+                  _network = preferredTreasuryOpsNetworkCode(
+                        v,
+                        nets,
+                        apiTronDefaultNetwork: apiTronDefault,
+                      ) ??
+                      nets.first;
+                });
+              },
             ),
             const SizedBox(height: 12),
+          ]
+        : <Widget>[
             AppDropdownField<TreasuryChainEcosystem>(
               value: effectiveEco,
               labelText: l10n.treasuryChainLabel,
@@ -168,6 +190,26 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
                     },
             ),
             const SizedBox(height: 12),
+          ];
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.treasuryCreateWalletDialogTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            ...chainWidgets,
             AppDropdownField<String>(
               value: _purpose,
               labelText: l10n.treasuryPurposeLabel,

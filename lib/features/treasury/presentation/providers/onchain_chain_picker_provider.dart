@@ -163,7 +163,9 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     if (item == null) {
       final network = BlockchainNetworkX.tryFromApiValue(code);
       if (network == null) return code;
-      return compact ? network.label.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '') : network.label;
+      return compact
+          ? network.label.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '')
+          : network.label;
     }
 
     final blockchainLabel = item.blockchainLabel.trim();
@@ -171,6 +173,10 @@ class OnchainChainPickerProvider extends ChangeNotifier {
 
     if (blockchainLabel.isEmpty) return code;
     if (networkLabel.isEmpty) return blockchainLabel;
+
+    if (treasuryChainsUseMainnetOnly) {
+      return blockchainLabel;
+    }
 
     if (compact) {
       return networkLabel.toLowerCase() == 'mainnet'

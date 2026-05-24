@@ -1,4 +1,9 @@
 /// On-chain networks — API string values must match backend [BlockchainNetwork] enum.
+library;
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+/// On-chain networks — API string values must match backend [BlockchainNetwork] enum.
 enum BlockchainNetwork {
   tronMainnet,
   tronNile,
@@ -50,6 +55,9 @@ String onchainNetworkFilterChipLabel(
   BlockchainNetwork network,
   String sandboxShortL10n,
 ) {
+  if (parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.production) {
+    return network.label;
+  }
   if (!network.isSandbox) {
     return network.label;
   }
@@ -121,7 +129,7 @@ extension BlockchainNetworkX on BlockchainNetwork {
     }
   }
 
-  String get label {
+  String get _rawLabel {
     switch (this) {
       case BlockchainNetwork.tronMainnet:
         return 'Tron (mainnet)';
@@ -178,6 +186,13 @@ extension BlockchainNetworkX on BlockchainNetwork {
       case BlockchainNetwork.tonTestnet:
         return 'TON (testnet)';
     }
+  }
+
+  String get label {
+    if (parseOnChainOperatorMode(dotenv.env) == OnChainOperatorMode.production) {
+      return _rawLabel.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '');
+    }
+    return _rawLabel;
   }
 
   /// Native coin symbol for UI hints.

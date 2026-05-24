@@ -5112,4 +5112,50 @@ class AppLocalizationsVi extends AppLocalizations {
     );
     return 'Yêu cầu rút $amount $symbol trên $chain của bạn đã bị từ chối.$_temp0';
   }
+
+  @override
+  String get walletFilterAll => 'Tất cả';
+
+  @override
+  String get walletFilterDeposit => 'Nạp tiền';
+
+  @override
+  String get walletFilterWithdraw => 'Rút tiền';
+
+  @override
+  String get walletFilterTrade => 'Giao dịch';
+
+  @override
+  String get walletFilterOrder => 'Lệnh';
+
+  @override
+  String get walletFilterTransfer => 'Chuyển khoản';
+
+  @override
+  String get walletFilterAdjust => 'Điều chỉnh';
+
+  @override
+  String get walletFilterExternal => 'Nạp/Rút on-chain';
+
+  @override
+  String get walletTxRefId => 'Mã tham chiếu';
+
+  @override
+  String get walletTxDate => 'Ngày';
+
+  @override
+  String get walletTxType => 'Loại';
+
+  @override
+  String get walletTxAmount => 'Số lượng';
+
+  @override
+  String get walletRecentTransactions => 'Giao dịch gần đây';
+
+  @override
+  String get walletLoadMore => 'Tải thêm';
+
+  @override
+  String get walletNoTransactionsMatch =>
+      'Không có giao dịch phù hợp với bộ lọc';
 }

@@ -9307,6 +9307,96 @@ abstract class AppLocalizations {
   /// **'Your withdrawal of {amount} {symbol} on {chain} has been rejected.{reason, select, undefined{} other{ Reason: {reason}}}'**
   String notifWithdrawalRejected(
       String amount, String symbol, String chain, String reason);
+
+  /// No description provided for @walletFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get walletFilterAll;
+
+  /// No description provided for @walletFilterDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get walletFilterDeposit;
+
+  /// No description provided for @walletFilterWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get walletFilterWithdraw;
+
+  /// No description provided for @walletFilterTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get walletFilterTrade;
+
+  /// No description provided for @walletFilterOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get walletFilterOrder;
+
+  /// No description provided for @walletFilterTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get walletFilterTransfer;
+
+  /// No description provided for @walletFilterAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get walletFilterAdjust;
+
+  /// No description provided for @walletFilterExternal.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain'**
+  String get walletFilterExternal;
+
+  /// No description provided for @walletTxRefId.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get walletTxRefId;
+
+  /// No description provided for @walletTxDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get walletTxDate;
+
+  /// No description provided for @walletTxType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get walletTxType;
+
+  /// No description provided for @walletTxAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get walletTxAmount;
+
+  /// No description provided for @walletRecentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get walletRecentTransactions;
+
+  /// No description provided for @walletLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get walletLoadMore;
+
+  /// No description provided for @walletNoTransactionsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match the selected filter'**
+  String get walletNoTransactionsMatch;
 }
 
 class _AppLocalizationsDelegate

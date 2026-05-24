@@ -5120,4 +5120,50 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Your withdrawal of $amount $symbol on $chain has been rejected.$_temp0';
   }
+
+  @override
+  String get walletFilterAll => 'All';
+
+  @override
+  String get walletFilterDeposit => 'Deposit';
+
+  @override
+  String get walletFilterWithdraw => 'Withdraw';
+
+  @override
+  String get walletFilterTrade => 'Trade';
+
+  @override
+  String get walletFilterOrder => 'Order';
+
+  @override
+  String get walletFilterTransfer => 'Transfer';
+
+  @override
+  String get walletFilterAdjust => 'Adjust';
+
+  @override
+  String get walletFilterExternal => 'On-chain';
+
+  @override
+  String get walletTxRefId => 'Reference';
+
+  @override
+  String get walletTxDate => 'Date';
+
+  @override
+  String get walletTxType => 'Type';
+
+  @override
+  String get walletTxAmount => 'Amount';
+
+  @override
+  String get walletRecentTransactions => 'Recent Transactions';
+
+  @override
+  String get walletLoadMore => 'Load more';
+
+  @override
+  String get walletNoTransactionsMatch =>
+      'No transactions match the selected filter';
 }

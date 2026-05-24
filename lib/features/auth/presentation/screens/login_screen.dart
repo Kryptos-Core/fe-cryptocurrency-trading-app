@@ -498,19 +498,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       onSuccess: _onWalletAuthSuccess,
                     ),
           ),
-          SizedBox(height: lv.g(6)),
-          _WalletLoginButton(
-            label: 'Connect TronLink',
-            icon: Icons.link,
-            color: const Color(0xFFEF0027),
-            disabled: _isLoading,
-            verticalPadding: lv.walletButtonVerticalPadding,
-            onPressed: () =>
-                context.read<AuthWalletFlowService>().connectTronLink(
-                      context,
-                      onSuccess: _onWalletAuthSuccess,
-                    ),
-          ),
           SizedBox(height: lv.g(8)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

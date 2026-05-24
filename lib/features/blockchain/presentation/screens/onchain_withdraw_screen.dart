@@ -20,6 +20,7 @@ import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_network_dropdown_menu_child.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_tx_filter_chip.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 
 class OnchainWithdrawScreen extends StatefulWidget {
   const OnchainWithdrawScreen({super.key});
@@ -369,34 +370,35 @@ class _OnchainWithdrawScreenState extends State<OnchainWithdrawScreen> {
                 Text(l10n.withdrawalDestinationDesc),
                 const SizedBox(height: 16),
                 OnchainSandboxOperatorBanner(l10n: l10n),
-                AppDropdownField<BlockchainNetwork>(
-                  value: effectiveNetwork,
-                  menuMaxHeight: 300,
-                  labelText: l10n.networkLabel,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  items: networks
-                      .map(
-                        (network) => DropdownMenuItem(
-                          value: network,
-                          child: OnchainNetworkDropdownMenuChild(
-                            network: network,
-                            l10n: l10n,
-                            suppressSandboxSuffix:
-                                _suppressSandboxInNetworkDropdown,
+                if (!treasuryChainsUseMainnetOnly)
+                  AppDropdownField<BlockchainNetwork>(
+                    value: effectiveNetwork,
+                    menuMaxHeight: 300,
+                    labelText: l10n.networkLabel,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    items: networks
+                        .map(
+                          (network) => DropdownMenuItem(
+                            value: network,
+                            child: OnchainNetworkDropdownMenuChild(
+                              network: network,
+                              l10n: l10n,
+                              suppressSandboxSuffix:
+                                  _suppressSandboxInNetworkDropdown,
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedNetwork = value;
-                        _selectedWalletId = null;
-                      });
-                    }
-                  },
-                ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedNetwork = value;
+                          _selectedWalletId = null;
+                        });
+                      }
+                    },
+                  ),
                 const SizedBox(height: 12),
                 AppDropdownField<String>(
                   value: _selectedWalletId,

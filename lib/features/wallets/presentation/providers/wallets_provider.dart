@@ -44,6 +44,8 @@ class WalletsProvider extends ChangeNotifier {
   int _currentPage = 1;
   final int _pageSize = 10;
   bool _hasMore = true;
+  String? _currentLedgerRefTypeFilter;
+  String? _currentLedgerDirectionFilter;
 
   // New Wallet API state
   WalletBalance? _walletBalance;
@@ -64,6 +66,8 @@ class WalletsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasMore => _hasMore;
+  String? get currentLedgerRefTypeFilter => _currentLedgerRefTypeFilter;
+  String? get currentLedgerDirectionFilter => _currentLedgerDirectionFilter;
   WalletBalance? get walletBalance => _walletBalance;
   WalletTransactionResponse? get lastTransaction => _lastTransaction;
   List<WalletTransactionResponse> get recentTransactions =>
@@ -239,6 +243,24 @@ class WalletsProvider extends ChangeNotifier {
   /// Clear error
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  /// Set ledger filter and trigger refresh with new filters.
+  /// Pass null to clear the filter.
+  void setLedgerFilter({String? refType, String? direction, bool notify = true}) {
+    if (_currentLedgerRefTypeFilter == refType && _currentLedgerDirectionFilter == direction) {
+      return;
+    }
+    _currentLedgerRefTypeFilter = refType;
+    _currentLedgerDirectionFilter = direction;
+    if (notify) notifyListeners();
+  }
+
+  /// Clear ledger filters.
+  void clearLedgerFilters() {
+    _currentLedgerRefTypeFilter = null;
+    _currentLedgerDirectionFilter = null;
     notifyListeners();
   }
 

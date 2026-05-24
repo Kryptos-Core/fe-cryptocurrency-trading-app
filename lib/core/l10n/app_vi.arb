@@ -2102,5 +2102,20 @@
       "chain": { "type": "String" },
       "reason": { "type": "String" }
     }
-  }
+  },
+  "walletFilterAll": "Tất cả",
+  "walletFilterDeposit": "Nạp tiền",
+  "walletFilterWithdraw": "Rút tiền",
+  "walletFilterTrade": "Giao dịch",
+  "walletFilterOrder": "Lệnh",
+  "walletFilterTransfer": "Chuyển khoản",
+  "walletFilterAdjust": "Điều chỉnh",
+  "walletFilterExternal": "Nạp/Rút on-chain",
+  "walletTxRefId": "Mã tham chiếu",
+  "walletTxDate": "Ngày",
+  "walletTxType": "Loại",
+  "walletTxAmount": "Số lượng",
+  "walletRecentTransactions": "Giao dịch gần đây",
+  "walletLoadMore": "Tải thêm",
+  "walletNoTransactionsMatch": "Không có giao dịch phù hợp với bộ lọc"
 }

@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/features/blockchain/presentation/providers/bl
 import 'package:crypto_trading_app/features/treasury/domain/entities/chain_network_catalog_item_model.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_stub.dart'
     if (dart.library.html) 'package:crypto_trading_app/core/services/wallet_signing/tronlink_web_bridge_web.dart';
 import 'wc_qr_session_card.dart';
@@ -369,9 +370,13 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Network Selector ──
-            if (!_hasPendingSession) _buildNetworkSelector(theme, l10n, picker),
-
+            // ── Blockchain family chips: always shown (BSC, Solana, Tron…) ──
+            if (!_hasPendingSession) OnchainSandboxOperatorBanner(l10n: l10n),
+            if (!_hasPendingSession) const SizedBox(height: 8),
+            if (!_hasPendingSession) _buildBlockchainFamilyChips(theme, l10n, picker),
+            // ── Network chips: only in sandbox; hidden in production (always mainnet) ──
+            if (!_hasPendingSession && !treasuryChainsUseMainnetOnly)
+              _buildNetworkChips(theme, l10n, picker),
             if (!_hasPendingSession) const SizedBox(height: 20),
 
             // ── Error ──
@@ -399,6 +404,8 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
               _buildWcSessionView(theme, l10n),
 
             // ── Connect: WC QR or TronLink extension challenge flow (web only) ──
+            // In production, showNetworkSelector is false but _selectedChain is already
+            // set to the first mainnet in initState, so we still show the connect button.
             if (!_hasPendingSession && !_isLoading)
               (kIsWeb && _selectedChain.isTronFamily)
                   ? _buildTronLinkFlow(theme, l10n)
@@ -441,7 +448,9 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     );
   }
 
-  Widget _buildNetworkSelector(
+  /// Builds the blockchain family chip selector (BSC, Solana, Tron, …).
+  /// Always shown — this is independent of ONCHAIN_OPERATOR_MODE.
+  Widget _buildBlockchainFamilyChips(
     ThemeData theme,
     AppLocalizations l10n,
     OnchainChainPickerProvider picker,
@@ -457,20 +466,14 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     }
 
     if (allChains.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          OnchainSandboxOperatorBanner(l10n: l10n),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              l10n.requestFailed,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          l10n.requestFailed,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.error,
           ),
-        ],
+        ),
       );
     }
 
@@ -488,13 +491,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
       (chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey,
       orElse: () => blockchainOptions.first,
     );
-    final selectedNetworks = allChains
-        .where((chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey)
-        .toList(growable: false);
-    final selectedNetwork = selectedNetworks.firstWhere(
-      (chain) => chain == _selectedChain,
-      orElse: () => selectedNetworks.first,
-    );
 
     if (!allChains.contains(_selectedChain)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -509,7 +505,6 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        OnchainSandboxOperatorBanner(l10n: l10n),
         Text(
           l10n.wcLinkChooseBlockchain,
           style: theme.textTheme.labelLarge!.copyWith(
@@ -546,62 +541,99 @@ class _LinkWalletDialogState extends State<LinkWalletDialog>
             );
           }).toList(),
         ),
-        if (selectedNetworks.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            l10n.wcNetworkLabel,
-            style: theme.textTheme.labelLarge!.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: selectedNetworks.map((network) {
-              final isSelected = selectedNetwork == network;
-              return _WalletConnectChoiceChip(
-                label: _networkOptionLabel(picker, network),
-                isSelected: isSelected,
-                icon: Icons.qr_code,
-                onSelected: (_) {
-                  setState(() {
-                    if (_selectedChain != network) {
-                      _resetTronLinkFlow();
-                    }
-                    _selectedChain = network;
-                    _selectedTronNetwork = network.isTronFamily ? network : null;
-                  });
-                },
-              );
-            }).toList(),
-          ),
-        ],
-        if (!kIsWeb && selectedBlockchain.isTronFamily)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 14,
-                  color: theme.colorScheme.primary.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    l10n.tronLinkNativePlatformHint,
-                    style: theme.textTheme.bodySmall!.copyWith(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
+
+  /// Builds the network chips (mainnet / testnet) below the family chips.
+  /// Only shown in sandbox mode. Hidden in production (always mainnet).
+  Widget _buildNetworkChips(
+    ThemeData theme,
+    AppLocalizations l10n,
+    OnchainChainPickerProvider picker,
+  ) {
+    final wcChains = picker.walletConnectLinkNetworksFromApi;
+    final tronChains = _tronNetworksForPicker(picker);
+    final allChains = <BlockchainNetwork>[];
+    final seenChainCodes = <String>{};
+    for (final chain in [...wcChains, ...tronChains]) {
+      if (seenChainCodes.add(chain.apiValue)) {
+        allChains.add(chain);
+      }
+    }
+    if (allChains.isEmpty) return const SizedBox.shrink();
+
+    final selectedGroupKey = _blockchainGroupKey(picker, _selectedChain);
+    final selectedNetworks = allChains
+        .where((chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey)
+        .toList(growable: false);
+    final selectedNetwork = selectedNetworks.firstWhere(
+      (chain) => chain == _selectedChain,
+      orElse: () => selectedNetworks.first,
+    );
+
+    final selectedBlockchain = allChains.firstWhere(
+      (chain) => _blockchainGroupKey(picker, chain) == selectedGroupKey,
+      orElse: () => allChains.first,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Text(
+          l10n.wcNetworkLabel,
+          style: theme.textTheme.labelLarge!.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: selectedNetworks.map((network) {
+            final isSelected = selectedNetwork == network;
+            return _WalletConnectChoiceChip(
+              label: _networkOptionLabel(picker, network),
+              isSelected: isSelected,
+              icon: Icons.qr_code,
+              onSelected: (_) {
+                setState(() {
+                  if (_selectedChain != network) {
+                    _resetTronLinkFlow();
+                  }
+                  _selectedChain = network;
+                  _selectedTronNetwork = network.isTronFamily ? network : null;
+                });
+              },
+            );
+          }).toList(),
+        ),
+        if (!kIsWeb && selectedBlockchain.isTronFamily) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 14,
+                color: theme.colorScheme.primary.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l10n.tronLinkNativePlatformHint,
+                  style: theme.textTheme.bodySmall!.copyWith(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildWcSessionView(ThemeData theme, AppLocalizations l10n) {
     return Consumer<BlockchainProvider>(
       builder: (ctx, provider, _) {

@@ -22,6 +22,7 @@ import 'package:crypto_trading_app/features/deposits/presentation/widgets/deposi
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_sandbox_operator_banner.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/widgets/onchain_tx_filter_chip.dart';
 import 'package:crypto_trading_app/features/deposits/presentation/screens/deposits_screen.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 
 class OnchainDepositScreen extends StatefulWidget {
   const OnchainDepositScreen({super.key});
@@ -104,7 +105,11 @@ class _OnchainDepositScreenState extends State<OnchainDepositScreen> {
     }
 
     final prov = context.read<BlockchainProvider>();
-    final selectedChain = _txFilterNetwork ?? BlockchainNetwork.tronNile;
+    final networks = context.read<OnchainChainPickerProvider>().onchainDepositWithdrawNetworks;
+    final selectedChain = _txFilterNetwork ??
+        (treasuryChainsUseMainnetOnly && networks.isNotEmpty
+            ? networks.first
+            : BlockchainNetwork.tronNile);
 
     final preview = await prov.previewDeposit(selectedChain, txHash);
     if (!mounted) return;
