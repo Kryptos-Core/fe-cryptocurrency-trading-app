@@ -47,7 +47,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   final CurrenciesRepository _currenciesRepository = sl<CurrenciesRepository>();
 
   final TextEditingController _txSearchController = TextEditingController();
-  WalletTransactionAction? _txFilterType;
+  String? _txFilterRefType; // refType value: DEPOSIT, WITHDRAW, ORDER, TRADE, ADJUST, TRANSFER, ONCHAIN
 
   @override
   void dispose() {
@@ -393,8 +393,18 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     var list = provider.recentTransactions
         .where((tx) => tx.currencyId == _selectedCurrencyId)
         .toList();
-    if (_txFilterType != null) {
-      list = list.where((tx) => tx.action == _txFilterType).toList();
+    // Lọc theo refType
+    if (_txFilterRefType != null && _txFilterRefType != 'ALL') {
+      if (_txFilterRefType == 'ONCHAIN') {
+        list = list.where((tx) {
+          final rt = tx.refType.name.toUpperCase();
+          return rt == 'EXTERNAL_DEPOSIT' ||
+              rt == 'EXTERNAL_WITHDRAWAL' ||
+              rt == 'EXTERNAL_SYNC';
+        }).toList();
+      } else {
+        list = list.where((tx) => tx.refType.name.toUpperCase() == _txFilterRefType).toList();
+      }
     }
     final q = _txSearchController.text.trim().toLowerCase();
     if (q.isEmpty) return list;
@@ -452,29 +462,11 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
             const SizedBox(width: 8),
             Expanded(
               flex: 2,
-              child: AppDropdownField<WalletTransactionAction?>(
-                value: _txFilterType,
-                labelText: l10n.filterByType,
-                hintText: l10n.allTypes,
-                menuMaxHeight: MediaQuery.sizeOf(context).height * 0.4,
-                items: [
-                  DropdownMenuItem<WalletTransactionAction?>(
-                    value: null,
-                    child: Text(l10n.allTypes),
-                  ),
-                  ...WalletTransactionAction.values.map(
-                    (a) => DropdownMenuItem<WalletTransactionAction?>(
-                      value: a,
-                      child: Text(
-                        a.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
+              child: _RefTypeDropdown(
+                value: _txFilterRefType,
+                l10n: l10n,
                 onChanged: (v) {
-                  setState(() => _txFilterType = v);
+                  setState(() => _txFilterRefType = v);
                 },
               ),
             ),
@@ -485,10 +477,10 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
+              // Table header
               Container(
                 color: theme.colorScheme.surfaceContainerHighest,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     Expanded(
@@ -514,6 +506,18 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                       ),
                     ),
                     Expanded(
+                      flex: 1,
+                      child: Text(
+                        l10n.direction,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Expanded(
                       flex: 2,
                       child: Text(
                         l10n.amount,
@@ -522,6 +526,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.right,
                       ),
                     ),
                     Expanded(
@@ -546,7 +551,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, i) {
                     final tx = filtered[i];
-                    final color = _getActionColor(context, tx.action);
+                    final color = _getRefTypeColor(context, tx.refType);
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -575,7 +580,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
-                                    _getRefTypeLabel(context, tx.refType),
+                                    _getRefTypeLabel(tx.refType, l10n),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -587,11 +592,19 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                             ),
                           ),
                           Expanded(
+                            flex: 1,
+                            child: _DirectionBadge(
+                              action: tx.action,
+                              color: color,
+                            ),
+                          ),
+                          Expanded(
                             flex: 2,
                             child: Text(
                               _formatAmountForDisplay(tx.amount),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: color,
@@ -633,54 +646,203 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     );
   }
 
-  Color _getActionColor(BuildContext context, WalletTransactionAction action) {
+  Color _getRefTypeColor(BuildContext context, WalletReferenceType refType) {
     final scheme = Theme.of(context).colorScheme;
-    switch (action) {
-      case WalletTransactionAction.credit:
+    switch (refType) {
+      case WalletReferenceType.deposit:
+        return const Color(0xFF0F8A49);
+      case WalletReferenceType.withdraw:
+        return const Color(0xFFB3261E);
+      case WalletReferenceType.trade:
         return scheme.primary;
-      case WalletTransactionAction.debit:
-        return scheme.error;
-      case WalletTransactionAction.freeze:
-      case WalletTransactionAction.unfreeze:
+      case WalletReferenceType.order:
         return scheme.tertiary;
-      case WalletTransactionAction.transfer:
+      case WalletReferenceType.transfer:
         return scheme.secondary;
+      case WalletReferenceType.adjust:
+        return scheme.outline;
     }
   }
 
   IconData _getRefTypeIcon(WalletReferenceType refType) {
     switch (refType) {
       case WalletReferenceType.deposit:
-        return Icons.add_circle;
+        return Icons.arrow_downward_rounded;
       case WalletReferenceType.withdraw:
-        return Icons.remove_circle;
+        return Icons.arrow_upward_rounded;
       case WalletReferenceType.transfer:
-        return Icons.send;
+        return Icons.people_outline_rounded;
       case WalletReferenceType.order:
-        return Icons.reorder;
+        return Icons.shopping_cart_outlined;
       case WalletReferenceType.trade:
-        return Icons.swap_horiz;
+        return Icons.swap_horiz_rounded;
       case WalletReferenceType.adjust:
-        return Icons.tune;
+        return Icons.tune_rounded;
     }
   }
 
-  String _getRefTypeLabel(BuildContext context, WalletReferenceType refType) {
-    final l10n = AppLocalizations.of(context);
+  String _getRefTypeLabel(WalletReferenceType refType, AppLocalizations l10n) {
     switch (refType) {
       case WalletReferenceType.deposit:
-        return l10n.deposit;
+        return l10n.walletFilterDeposit;
       case WalletReferenceType.withdraw:
-        return l10n.withdraw;
-      case WalletReferenceType.transfer:
-        return l10n.transfer;
-      case WalletReferenceType.order:
-        return 'Order';
+        return l10n.walletFilterWithdraw;
       case WalletReferenceType.trade:
-        return 'Trade';
+        return l10n.walletFilterTrade;
+      case WalletReferenceType.order:
+        return l10n.walletFilterOrder;
+      case WalletReferenceType.transfer:
+        return l10n.walletFilterTransfer;
       case WalletReferenceType.adjust:
-        return 'Adjust';
+        return l10n.walletFilterAdjust;
     }
+  }
+}
+
+// ── Filter Dropdown ──────────────────────────────────────────────────────────
+
+/// Dropdown for filtering transactions by reference type (refType).
+/// Values: ALL | DEPOSIT | WITHDRAW | TRADE | ORDER | TRANSFER | ADJUST | ONCHAIN
+class _RefTypeDropdown extends StatelessWidget {
+  final String? value;
+  final AppLocalizations l10n;
+  final ValueChanged<String?> onChanged;
+
+  const _RefTypeDropdown({
+    required this.value,
+    required this.l10n,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      DropdownMenuItem<String?>(
+        value: null,
+        child: Text(l10n.allTypes),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'DEPOSIT',
+        child: Row(
+          children: [
+            const Icon(Icons.arrow_downward_rounded, size: 16, color: Color(0xFF0F8A49)),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterDeposit, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'WITHDRAW',
+        child: Row(
+          children: [
+            const Icon(Icons.arrow_upward_rounded, size: 16, color: Color(0xFFB3261E)),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterWithdraw, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'TRADE',
+        child: Row(
+          children: [
+            Icon(Icons.swap_horiz_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterTrade, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'ORDER',
+        child: Row(
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 16, color: Theme.of(context).colorScheme.tertiary),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterOrder, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'TRANSFER',
+        child: Row(
+          children: [
+            Icon(Icons.people_outline_rounded, size: 16, color: Theme.of(context).colorScheme.secondary),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterTransfer, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'ADJUST',
+        child: Row(
+          children: [
+            Icon(Icons.tune_rounded, size: 16, color: Theme.of(context).colorScheme.outline),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterAdjust, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+      DropdownMenuItem<String?>(
+        value: 'ONCHAIN',
+        child: Row(
+          children: [
+            Icon(Icons.cloud_sync_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.walletFilterOnchain, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+    ];
+
+    return AppDropdownField<String?>(
+      value: value,
+      items: items,
+      labelText: l10n.filterByType,
+      hintText: l10n.allTypes,
+      menuMaxHeight: MediaQuery.sizeOf(context).height * 0.45,
+      onChanged: onChanged,
+    );
+  }
+}
+
+// ── Direction Badge ──────────────────────────────────────────────────────────
+
+/// Compact badge showing transaction direction (CREDIT → IN / DEBIT → OUT).
+class _DirectionBadge extends StatelessWidget {
+  final WalletTransactionAction action;
+  final Color color;
+
+  const _DirectionBadge({required this.action, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final isCredit = action == WalletTransactionAction.credit;
+    final label = isCredit ? 'IN' : 'OUT';
+    final icon = isCredit ? Icons.arrow_downward : Icons.arrow_upward;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withAlpha(60), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 10, color: color),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

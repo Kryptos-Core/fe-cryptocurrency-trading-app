@@ -396,6 +396,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get amount => 'Số lượng';
 
   @override
+  String get direction => 'Hướng';
+
+  @override
   String get toUserId => 'ID người nhận';
 
   @override
@@ -5133,6 +5136,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get walletFilterAdjust => 'Điều chỉnh';
+
+  @override
+  String get walletFilterOnchain => 'On-chain';
 
   @override
   String get walletFilterExternal => 'Nạp/Rút on-chain';

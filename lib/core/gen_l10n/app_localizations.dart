@@ -860,6 +860,12 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get amount;
 
+  /// No description provided for @direction.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get direction;
+
   /// No description provided for @toUserId.
   ///
   /// In en, this message translates to:
@@ -9349,6 +9355,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Adjust'**
   String get walletFilterAdjust;
+
+  /// No description provided for @walletFilterOnchain.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain'**
+  String get walletFilterOnchain;
 
   /// No description provided for @walletFilterExternal.
   ///

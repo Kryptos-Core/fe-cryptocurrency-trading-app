@@ -78,6 +78,9 @@ class TransactionFilterBar extends StatelessWidget {
 }
 
 /// Builds the standard wallet transaction filter options using i18n labels.
+/// Designed for use in both [TransactionFilterBar] (chip-style) and
+/// [AppDropdownField] (dropdown-style) by returning a list of [TransactionFilterOption].
+/// The "ALL" option is always first; ONCHAIN is always last.
 List<TransactionFilterOption> buildWalletLedgerFilters(AppLocalizations l10n) {
   return [
     TransactionFilterOption(
@@ -115,5 +118,41 @@ List<TransactionFilterOption> buildWalletLedgerFilters(AppLocalizations l10n) {
       label: l10n.walletFilterAdjust,
       icon: Icons.tune_rounded,
     ),
+    TransactionFilterOption(
+      value: 'ONCHAIN',
+      label: l10n.walletFilterOnchain,
+      icon: Icons.cloud_sync_outlined,
+    ),
   ];
+}
+
+/// Returns the subset of filters that apply to ledger entries (non-ONCHAIN).
+/// ONCHAIN maps to the three external refType values server-side.
+List<TransactionFilterOption> buildWalletLedgerFiltersForLedger(AppLocalizations l10n) {
+  return buildWalletLedgerFilters(l10n)
+      .where((f) => f.value != 'ONCHAIN')
+      .toList();
+}
+
+/// Converts a server-side refType string to the UI filter value.
+/// EXTERNAL_DEPOSIT / EXTERNAL_WITHDRAWAL / EXTERNAL_SYNC → 'ONCHAIN'
+String uiFilterValueFromRefType(String refType) {
+  switch (refType.toUpperCase()) {
+    case 'EXTERNAL_DEPOSIT':
+    case 'EXTERNAL_WITHDRAWAL':
+    case 'EXTERNAL_SYNC':
+      return 'ONCHAIN';
+    default:
+      return refType.toUpperCase();
+  }
+}
+
+/// Converts a UI filter value back to the server-side refType values it represents.
+/// Returns null for 'ALL' (no filter), or a set of server values for specific types.
+Set<String>? serverRefTypesFromUiFilter(String? uiValue) {
+  if (uiValue == null || uiValue == 'ALL') return null;
+  if (uiValue == 'ONCHAIN') {
+    return {'EXTERNAL_DEPOSIT', 'EXTERNAL_WITHDRAWAL', 'EXTERNAL_SYNC'};
+  }
+  return {uiValue};
 }

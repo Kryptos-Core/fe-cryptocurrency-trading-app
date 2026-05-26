@@ -397,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amount => 'Amount';
 
   @override
+  String get direction => 'Direction';
+
+  @override
   String get toUserId => 'To User ID';
 
   @override
@@ -5141,6 +5144,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletFilterAdjust => 'Adjust';
+
+  @override
+  String get walletFilterOnchain => 'On-chain';
 
   @override
   String get walletFilterExternal => 'On-chain';
