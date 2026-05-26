@@ -9,7 +9,6 @@ import 'package:crypto_trading_app/features/treasury/domain/entities/treasury_mo
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/blockchain/domain/entities/blockchain/blockchain_network.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/core/widgets/debounced_search_text_field.dart';
@@ -873,7 +872,6 @@ class _TreasuryHistoryFilterBar extends StatelessWidget {
                 labelText: l10n.treasuryChainLabel,
                 hintText: l10n.treasuryFilterAll,
                 menuMaxHeight: menuHeight,
-                displayLabelForChain: treasuryWalletCreationDisplayLabel,
                 onChanged: (value) async {
                   provider.setHistoryFilters(
                     chain: value,

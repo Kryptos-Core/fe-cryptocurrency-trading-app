@@ -7,10 +7,10 @@ import 'package:crypto_trading_app/features/treasury/presentation/constants/trea
 import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
-/// When ONCHAIN_OPERATOR_MODE=production, ecosystem and network selectors are
-/// hidden — ecosystem defaults to the first available ecosystem and network
-/// defaults to the first mainnet, without user interaction.
-bool get _createWalletHidesNetworkSelector => treasuryChainsUseMainnetOnly;
+/// Whether network selectors are hidden. Server-driven via showNetworkSelector from
+/// GET /treasury/chain-picker-options. Falls back to treasuryChainsUseMainnetOnly when API is unavailable.
+bool _getHidesNetworkSelector(OnchainChainPickerProvider chainPicker) =>
+    !chainPicker.showNetworkSelector;
 
 /// Create-wallet sheet: **Chain** + **Network** options come only from
 /// GET /treasury/chain-picker-options → `pickers.treasury_ops` (see
@@ -106,7 +106,8 @@ class _TreasuryCreateWalletSheetState extends State<TreasuryCreateWalletSheet> {
     // In production (ONCHAIN_OPERATOR_MODE=production), the network is implicit mainnet.
     // Only the ecosystem dropdown is shown; the network dropdown is removed.
     // In sandbox, both ecosystem + network dropdowns are shown.
-    final chainWidgets = _createWalletHidesNetworkSelector
+    // showNetworkSelector comes from GET /treasury/chain-picker-options (server-driven).
+    final chainWidgets = _getHidesNetworkSelector(chainPicker)
         ? <Widget>[
             AppDropdownField<TreasuryChainEcosystem>(
               value: effectiveEco,

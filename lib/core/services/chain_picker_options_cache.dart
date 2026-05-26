@@ -10,7 +10,7 @@ class ChainPickerOptionsCache {
 
   final SharedPreferences _prefs;
 
-  static const storageKey = 'chain_picker_options_v1';
+  static const storageKey = 'chain_picker_options_v3';
 
   ChainPickerOptionsModel? readSync() {
     final raw = _prefs.getString(storageKey);

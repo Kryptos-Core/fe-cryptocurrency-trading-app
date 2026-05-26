@@ -7,9 +7,9 @@ import 'package:crypto_trading_app/features/treasury/domain/entities/treasury_mo
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_main_wallet_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/copy_main_wallet_private_key_dialog.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/edit_main_wallet_label_dialog.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 
 /// Hot-wallet card — layout aligned with payment-config [TreasuryWalletsTabView] wallet rows.
 class TreasuryMainWalletCard extends StatelessWidget {
@@ -351,6 +351,7 @@ class _ChainLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = context.watch<OnchainChainPickerProvider>().displayLabelForCode(chain);
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: Container(
@@ -361,7 +362,7 @@ class _ChainLine extends StatelessWidget {
           border: Border.all(color: scheme.outline.withValues(alpha: 0.28)),
         ),
         child: Text(
-          treasuryWalletCreationDisplayLabel(AppLocalizations.of(context), chain),
+          label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: scheme.onTertiaryContainer,
                 fontWeight: FontWeight.w600,

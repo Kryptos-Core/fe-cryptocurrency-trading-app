@@ -311,26 +311,30 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              l10n.treasuryImportWalletDialogChainLabel,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
+            // In production mode mainnet-only, all available chains are mainnets — skip
+            // showing the chain label since it is self-evident to operators.
+            if (!treasuryChainsUseMainnetOnly) ...[
+              const SizedBox(height: 16),
+              Text(
+                l10n.treasuryImportWalletDialogChainLabel,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Chip(
-                avatar: Icon(Icons.hub_outlined, size: 18, color: cs.primary),
-                label: Text(chainLabel),
-                backgroundColor: cs.surfaceContainerHighest,
-                side: BorderSide(color: cs.outlineVariant),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              const SizedBox(height: 6),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Chip(
+                  avatar: Icon(Icons.hub_outlined, size: 18, color: cs.primary),
+                  label: Text(chainLabel),
+                  backgroundColor: cs.surfaceContainerHighest,
+                  side: BorderSide(color: cs.outlineVariant),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+            ],
             Text(
               l10n.treasuryImportWalletOtpStepHint,
               style: theme.textTheme.bodyMedium?.copyWith(

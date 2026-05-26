@@ -107,11 +107,11 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     return onchainDepositWithdrawNetworksForCurrentEnv();
   }
 
-  /// Same chain universe as nạp/rút — EVM + Solana subset for WalletConnect (BE order).
+  /// Same chain universe as nap/rút — EVM + Solana subset for WalletConnect (BE order).
   List<BlockchainNetwork> get walletConnectLinkNetworksFromApi =>
       walletConnectRelayNetworksInApiOrder(onchainDepositWithdrawNetworks);
 
-  /// Tron subset in BE order (extension / TronLink), aligned with nạp/rút list.
+  /// Tron subset in BE order (extension / TronLink), aligned with nap/rút list.
   List<BlockchainNetwork> get tronExtensionLinkNetworksFromApi =>
       tronExtensionNetworksInApiOrder(onchainDepositWithdrawNetworks);
 
@@ -121,6 +121,14 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     if (c != null && c.isNotEmpty) return c;
     return const [];
   }
+
+  /// Map of chain code → blockchain label from BE.
+  /// Single source of truth for all chain dropdown labels.
+  Map<String, String> get chainLabels => _options?.chainLabels ?? const {};
+
+  /// Whether the UI should show the network dropdown (two-dropdown UX).
+  /// Server returns `false` in production — network is implicit mainnet.
+  bool get showNetworkSelector => _options?.showNetworkSelector ?? true;
 
   ChainNetworkCatalogItemModel? catalogItemForCode(String code) {
     final normalized = code.trim().toUpperCase();
@@ -155,36 +163,37 @@ class OnchainChainPickerProvider extends ChangeNotifier {
     return displayLabelForCode(network.apiValue, compact: compact);
   }
 
+  /// Returns the user-facing label for a chain code.
+  ///
+  /// Priority:
+  /// 1. [chainLabels] map from BE — contains pre-computed `blockchainLabel` per chain,
+  ///    already stripped of network suffix in production mode.
+  /// 2. Fallback to [treasuryChainsUseMainnetOnly] mode:
+  ///    - production: return blockchain name only (e.g. "Tron", "Ethereum")
+  ///    - sandbox: return full label (e.g. "Tron (mainnet)", "Ethereum (mainnet)")
   String displayLabelForCode(
     String code, {
     bool compact = false,
   }) {
-    final item = catalogItemForCode(code);
-    if (item == null) {
-      final network = BlockchainNetworkX.tryFromApiValue(code);
-      if (network == null) return code;
-      return compact
-          ? network.label.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '')
-          : network.label;
+    // Primary: use blockchainLabel from BE API.
+    final apiLabel = chainLabels[code];
+    if (apiLabel != null && apiLabel.trim().isNotEmpty) {
+      return apiLabel.trim();
     }
 
-    final blockchainLabel = item.blockchainLabel.trim();
-    final networkLabel = item.networkLabel.trim();
+    // Fallback: resolve from local network enum.
+    final network = BlockchainNetworkX.tryFromApiValue(code);
+    if (network == null) return code;
 
-    if (blockchainLabel.isEmpty) return code;
-    if (networkLabel.isEmpty) return blockchainLabel;
-
+    // production mode: blockchain name only, no network suffix.
     if (treasuryChainsUseMainnetOnly) {
-      return blockchainLabel;
+      return network.label;
     }
 
+    // sandbox mode: show full label (with network).
     if (compact) {
-      return networkLabel.toLowerCase() == 'mainnet'
-          ? blockchainLabel
-          : '$blockchainLabel $networkLabel';
+      return network.label.replaceAll(RegExp(r' \(mainnet\)$', caseSensitive: false), '');
     }
-
-    return '$blockchainLabel ($networkLabel)';
+    return network.label;
   }
 }
-

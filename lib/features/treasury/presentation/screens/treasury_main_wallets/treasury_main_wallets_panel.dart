@@ -11,10 +11,11 @@ import 'package:crypto_trading_app/features/treasury/presentation/screens/treasu
 import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury_dropdown_menu_layout.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
-/// Whether the UI should hide chain/network selectors and default to mainnet automatically.
-/// When true (ONCHAIN_OPERATOR_MODE=production), the ecosystem/network dropdowns are
-/// replaced with a static label showing the current ecosystem name.
-bool get _treasuryHidesNetworkSelector => treasuryChainsUseMainnetOnly;
+/// Whether the network selector is hidden. Server-driven via showNetworkSelector from
+/// GET /treasury/chain-picker-options. Falls back to treasuryChainsUseMainnetOnly when API is
+/// unavailable or when ONCHAIN_OPERATOR_MODE=production (mainnet is implicit).
+bool _getTreasuryHidesNetworkSelector(OnchainChainPickerProvider chainPicker) =>
+    !chainPicker.showNetworkSelector || treasuryChainsUseMainnetOnly;
 
 /// Main / hot wallet UI: **Chain** (ecosystem) + **Network** pickers from
 /// GET /treasury/chain-picker-options → `pickers.treasury_main_wallet` only.
@@ -172,7 +173,8 @@ class _TreasuryMainWalletsPanelState extends State<TreasuryMainWalletsPanel> {
     // In production (ONCHAIN_OPERATOR_MODE=production), the network is implicit mainnet.
     // Only the ecosystem dropdown is shown; the network dropdown is removed.
     // In sandbox, both ecosystem + network dropdowns are shown.
-    final chainSelectors = _treasuryHidesNetworkSelector
+    // showNetworkSelector comes from GET /treasury/chain-picker-options (server-driven).
+    final chainSelectors = _getTreasuryHidesNetworkSelector(chainPicker)
         ? Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: AppDropdownField<TreasuryChainEcosystem>(

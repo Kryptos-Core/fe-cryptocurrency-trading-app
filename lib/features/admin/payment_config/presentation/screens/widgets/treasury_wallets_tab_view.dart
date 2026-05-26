@@ -10,7 +10,6 @@ import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
 import 'package:crypto_trading_app/features/admin/shared/presentation/providers/admin_enums_provider.dart';
-import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/widgets/treasury_chain_dropdown.dart';
 
@@ -854,7 +853,6 @@ class _TreasuryWalletFilterRow extends StatelessWidget {
             allowAllOption: true,
             labelText: l10n.treasuryChainLabel,
             hintText: l10n.treasuryFilterAll,
-            displayLabelForChain: treasuryWalletCreationDisplayLabel,
             onChanged: (value) async {
               provider.setWalletFilters(
                   chain: value, purpose: provider.walletPurpose);
