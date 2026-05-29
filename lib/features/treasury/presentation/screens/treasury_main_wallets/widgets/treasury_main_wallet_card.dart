@@ -10,6 +10,7 @@ import 'package:crypto_trading_app/features/treasury/presentation/providers/trea
 import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/copy_main_wallet_private_key_dialog.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/screens/treasury_main_wallets/widgets/edit_main_wallet_label_dialog.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/onchain_chain_picker_provider.dart';
+import 'package:crypto_trading_app/features/treasury/presentation/constants/treasury_chains.dart';
 
 /// Hot-wallet card — layout aligned with payment-config [TreasuryWalletsTabView] wallet rows.
 class TreasuryMainWalletCard extends StatelessWidget {
@@ -218,9 +219,15 @@ class TreasuryMainWalletCard extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 6),
-            _ChainLine(chain: wallet.chain, scheme: scheme),
-            const SizedBox(height: 10),
+            // In production (ONCHAIN_OPERATOR_MODE=production), all available chains are mainnets —
+            // the chain label is self-evident and redundant; hide it to reduce visual noise.
+            if (!treasuryChainsUseMainnetOnly) ...[
+              const SizedBox(height: 6),
+              _ChainLine(chain: wallet.chain, scheme: scheme),
+              const SizedBox(height: 10),
+            ]
+            else
+              const SizedBox(height: 12),
             Text(
               l10n.treasuryMainWalletPublicAddressLabel,
               style: theme.textTheme.labelMedium?.copyWith(
