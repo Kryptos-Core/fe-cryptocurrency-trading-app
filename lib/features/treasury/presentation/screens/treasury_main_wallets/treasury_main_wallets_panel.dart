@@ -12,10 +12,20 @@ import 'package:crypto_trading_app/features/treasury/presentation/utils/treasury
 import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
 
 /// Whether the network selector is hidden. Server-driven via showNetworkSelector from
-/// GET /treasury/chain-picker-options. Falls back to treasuryChainsUseMainnetOnly when API is
-/// unavailable or when ONCHAIN_OPERATOR_MODE=production (mainnet is implicit).
-bool _getTreasuryHidesNetworkSelector(OnchainChainPickerProvider chainPicker) =>
-    !chainPicker.showNetworkSelector || treasuryChainsUseMainnetOnly;
+/// GET /treasury/chain-picker-options.
+///
+/// Priority:
+/// 1. If API loaded (`_options` != null) → use `showNetworkSelector` from server.
+///    This ensures the server's ONCHAIN_OPERATOR_MODE is always respected,
+///    regardless of the local .env file (which may differ from the deployed BE).
+/// 2. If API not yet loaded or failed → fall back to treasuryChainsUseMainnetOnly
+///    (local .env / ENV), preserving backward-compat for initial load before API resolves.
+bool _getTreasuryHidesNetworkSelector(OnchainChainPickerProvider chainPicker) {
+  if (chainPicker.rawOptions != null) {
+    return !chainPicker.showNetworkSelector;
+  }
+  return treasuryChainsUseMainnetOnly;
+}
 
 /// Main / hot wallet UI: **Chain** (ecosystem) + **Network** pickers from
 /// GET /treasury/chain-picker-options → `pickers.treasury_main_wallet` only.
