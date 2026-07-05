@@ -9409,6 +9409,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No transactions match the selected filter'**
   String get walletNoTransactionsMatch;
+
+  /// No description provided for @testAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Account'**
+  String get testAccount;
+
+  /// No description provided for @testAccountDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Account (Dev)'**
+  String get testAccountDev;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @loggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in...'**
+  String get loggingIn;
+
+  /// No description provided for @selectAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Select account'**
+  String get selectAccount;
+
+  /// No description provided for @youCanEditCredentialsAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'You can edit email or password here for testing'**
+  String get youCanEditCredentialsAbove;
 }
 
 class _AppLocalizationsDelegate

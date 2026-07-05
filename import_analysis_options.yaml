@@ -8,7 +8,8 @@ rules:
     search_file_path_reg_exp: ".*[/\\\\]features[/\\\\][^/\\\\]+[/\\\\]presentation[/\\\\].*\\.dart"
     not_allow_import_reg_exps:
       - "package:crypto_trading_app/features/[^/]+/data/"
-    ignore_import_reg_exps: []
+    ignore_import_reg_exps:
+      - "features/auth/presentation/dev/"
 
   # Domain layer must not import feature data (repository API files may still
   # reference datasources — those paths are ignored until refactored).

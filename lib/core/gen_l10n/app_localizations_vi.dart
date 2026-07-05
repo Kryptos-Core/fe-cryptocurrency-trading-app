@@ -5164,4 +5164,26 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get walletNoTransactionsMatch =>
       'Không có giao dịch phù hợp với bộ lọc';
+
+  @override
+  String get testAccount => 'Tài khoản kiểm thử';
+
+  @override
+  String get testAccountDev => 'Tài khoản kiểm thử (Dev)';
+
+  @override
+  String get showPassword => 'Hiện mật khẩu';
+
+  @override
+  String get hidePassword => 'Ẩn mật khẩu';
+
+  @override
+  String get loggingIn => 'Đang đăng nhập...';
+
+  @override
+  String get selectAccount => 'Chọn tài khoản';
+
+  @override
+  String get youCanEditCredentialsAbove =>
+      'Có thể sửa email hoặc mật khẩu ở đây để test';
 }

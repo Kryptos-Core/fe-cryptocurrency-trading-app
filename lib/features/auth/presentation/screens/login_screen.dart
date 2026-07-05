@@ -1,10 +1,13 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
+import 'package:crypto_trading_app/features/auth/presentation/dev/dev_account_sheet.dart';
+import 'package:crypto_trading_app/features/auth/presentation/dev/dev_test_accounts.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
@@ -287,6 +290,22 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  void _showDevAccounts() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => DevAccountSheet(
+        accounts: devTestAccounts,
+        onLogin: (email, password) {
+          Navigator.of(context).pop();
+          _emailController.text = email;
+          _passwordController.text = password;
+          _handleLogin();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -532,6 +551,23 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(l10n.continueAsGuest),
             ),
           ),
+          if (kDebugMode) ...[
+            SizedBox(height: lv.g(4)),
+            Center(
+              child: TextButton.icon(
+                icon: const Icon(Icons.bug_report, size: 16),
+                label: Text(l10n.testAccount),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.orange,
+                  visualDensity: lv.denseInputs ? VisualDensity.compact : null,
+                  tapTargetSize: lv.denseInputs
+                      ? MaterialTapTargetSize.shrinkWrap
+                      : null,
+                ),
+                onPressed: _isLoading ? null : _showDevAccounts,
+              ),
+            ),
+          ],
         ],
       ),
     );

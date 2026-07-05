@@ -5172,4 +5172,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get walletNoTransactionsMatch =>
       'No transactions match the selected filter';
+
+  @override
+  String get testAccount => 'Test Account';
+
+  @override
+  String get testAccountDev => 'Test Account (Dev)';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get loggingIn => 'Logging in...';
+
+  @override
+  String get selectAccount => 'Select account';
+
+  @override
+  String get youCanEditCredentialsAbove =>
+      'You can edit email or password here for testing';
 }

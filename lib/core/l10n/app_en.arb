@@ -2324,5 +2324,12 @@
   "walletTxAmount": "Amount",
   "walletRecentTransactions": "Recent Transactions",
   "walletLoadMore": "Load more",
-  "walletNoTransactionsMatch": "No transactions match the selected filter"
+  "walletNoTransactionsMatch": "No transactions match the selected filter",
+  "testAccount": "Test Account",
+  "testAccountDev": "Test Account (Dev)",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "loggingIn": "Logging in...",
+  "selectAccount": "Select account",
+  "youCanEditCredentialsAbove": "You can edit email or password here for testing"
 }

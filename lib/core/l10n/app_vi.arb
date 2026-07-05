@@ -2119,5 +2119,12 @@
   "walletTxAmount": "Số lượng",
   "walletRecentTransactions": "Giao dịch gần đây",
   "walletLoadMore": "Tải thêm",
-  "walletNoTransactionsMatch": "Không có giao dịch phù hợp với bộ lọc"
+  "walletNoTransactionsMatch": "Không có giao dịch phù hợp với bộ lọc",
+  "testAccount": "Tài khoản kiểm thử",
+  "testAccountDev": "Tài khoản kiểm thử (Dev)",
+  "showPassword": "Hiện mật khẩu",
+  "hidePassword": "Ẩn mật khẩu",
+  "loggingIn": "Đang đăng nhập...",
+  "selectAccount": "Chọn tài khoản",
+  "youCanEditCredentialsAbove": "Có thể sửa email hoặc mật khẩu ở đây để test"
 }
