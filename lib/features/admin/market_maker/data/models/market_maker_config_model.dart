@@ -1,17 +1,28 @@
 class MarketMakerPairOption {
   final String pairId;
   final String symbol;
+  final String minOrderAmount;
 
   const MarketMakerPairOption({
     required this.pairId,
     required this.symbol,
+    required this.minOrderAmount,
   });
 
   factory MarketMakerPairOption.fromJson(Map<String, dynamic> json) {
     return MarketMakerPairOption(
       pairId: (json['pair_id'] ?? '').toString(),
       symbol: (json['symbol'] ?? '').toString(),
+      minOrderAmount: (json['min_order_amount'] ?? '0').toString(),
     );
+  }
+
+  /// Returns the numeric min order amount for client-side comparison.
+  /// Returns `null` if the string is not a valid number.
+  double? get minOrderAmountValue {
+    final v = double.tryParse(minOrderAmount);
+    if (v == null || !v.isFinite || v < 0) return null;
+    return v;
   }
 }
 

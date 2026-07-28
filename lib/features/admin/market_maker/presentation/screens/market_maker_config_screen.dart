@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/data/models/market_maker_config_model.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/providers/market_maker_provider.dart';
 
 /// Which Market Maker workflow this screen focuses on (separate hub entries).
@@ -71,6 +72,7 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     if (pairId == null) return;
     final provider = context.read<MarketMakerProvider>();
     final config = provider.configByPairId(pairId);
+    final pairOption = _findPair(provider.pairs, pairId);
 
     setState(() {
       _selectedPairId = pairId;
@@ -83,14 +85,56 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
         _isActive = config.isActive;
       } else {
         final d = provider.formDefaults;
+        // Order amount default must satisfy pair's min_order_amount; otherwise
+        // saving & placing orders would always fail with 422 from the backend.
+        final fallback = d?.orderAmount ?? '0.001';
         _spreadBpsCtrl.text = '${d?.spreadBps ?? 10}';
         _spreadAlertBpsCtrl.text = '${d?.spreadAlertThresholdBps ?? 20}';
-        _orderAmountCtrl.text = d?.orderAmount ?? '0.001';
+        _orderAmountCtrl.text = _ensureMeetsMin(fallback, pairOption?.minOrderAmountValue);
         _stopLossPctCtrl.clear();
         _maxPositionBaseCtrl.clear();
         _isActive = true;
       }
     });
+  }
+
+  static MarketMakerPairOption? _findPair(List<MarketMakerPairOption> pairs, String pairId) {
+    for (final p in pairs) {
+      if (p.pairId == pairId) return p;
+    }
+    return null;
+  }
+
+  static String _ensureMeetsMin(String candidate, double? minValue) {
+    if (minValue == null || minValue <= 0) return candidate;
+    final n = double.tryParse(candidate.trim());
+    if (n == null || !n.isFinite || n < minValue) {
+      // Use the min itself (trim trailing zeros) so user sees a usable default.
+      final s = minValue.toString();
+      return s.contains('.') ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '') : s;
+    }
+    return candidate;
+  }
+
+  String? _minOrderAmountValidator(String? raw, double? minValue) {
+    if (minValue == null || minValue <= 0) return null;
+    final n = double.tryParse((raw ?? '').trim());
+    if (n == null || !n.isFinite || n <= 0) {
+      return 'Must be > 0';
+    }
+    if (n < minValue) {
+      return 'Must be ≥ ${_formatMinForDisplay(minValue)} (pair min)';
+    }
+    return null;
+  }
+
+  static String _formatMinForDisplay(double v) {
+    if (v == v.roundToDouble()) return v.toStringAsFixed(0);
+    final s = v.toString();
+    final idx = s.indexOf('.');
+    if (idx < 0) return s;
+    final decimals = (s.length - idx - 1).clamp(0, 6);
+    return v.toStringAsFixed(decimals).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
   }
 
   Future<void> _saveConfig() async {
@@ -317,21 +361,31 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _orderAmountCtrl,
-                      decoration: CurrencyAmountInput.withCurrencySuffix(
-                        context,
-                        InputDecoration(
-                          labelText: l10n.marketMakerFieldOrderAmount,
-                          border: const OutlineInputBorder(),
-                        ),
-                        currencySymbol: baseSym,
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        final n = double.tryParse((v ?? '').trim());
-                        if (n == null || n <= 0) return l10n.marketMakerValidationOrderAmount;
-                        return null;
+                    Builder(
+                      builder: (context) {
+                        final pairOption = _findPair(provider.pairs, _selectedPairId ?? '');
+                        final minValue = pairOption?.minOrderAmountValue;
+                        return TextFormField(
+                          controller: _orderAmountCtrl,
+                          decoration: CurrencyAmountInput.withCurrencySuffix(
+                            context,
+                            InputDecoration(
+                              labelText: minValue != null && minValue > 0
+                                  ? '${l10n.marketMakerFieldOrderAmount} (≥ ${_formatMinForDisplay(minValue)})'
+                                  : l10n.marketMakerFieldOrderAmount,
+                              border: const OutlineInputBorder(),
+                            ),
+                            currencySymbol: baseSym,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          validator: (v) {
+                            final n = double.tryParse((v ?? '').trim());
+                            if (n == null || n <= 0) {
+                              return l10n.marketMakerValidationOrderAmount;
+                            }
+                            return _minOrderAmountValidator(v, minValue);
+                          },
+                        );
                       },
                     ),
                     const SizedBox(height: 12),
@@ -397,17 +451,30 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
                   ],
                   if (!_isConfigMode) ...[
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _orderAmountOverrideCtrl,
-                      decoration: CurrencyAmountInput.withCurrencySuffix(
-                        context,
-                        InputDecoration(
-                          labelText: l10n.marketMakerFieldOrderAmountOverrideOptional,
-                          border: const OutlineInputBorder(),
-                        ),
-                        currencySymbol: baseSym,
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    Builder(
+                      builder: (context) {
+                        final pairOption = _findPair(provider.pairs, _selectedPairId ?? '');
+                        final minValue = pairOption?.minOrderAmountValue;
+                        return TextFormField(
+                          controller: _orderAmountOverrideCtrl,
+                          decoration: CurrencyAmountInput.withCurrencySuffix(
+                            context,
+                            InputDecoration(
+                              labelText: minValue != null && minValue > 0
+                                  ? '${l10n.marketMakerFieldOrderAmountOverrideOptional} (≥ ${_formatMinForDisplay(minValue)})'
+                                  : l10n.marketMakerFieldOrderAmountOverrideOptional,
+                              border: const OutlineInputBorder(),
+                            ),
+                            currencySymbol: baseSym,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          validator: (v) {
+                            final raw = (v ?? '').trim();
+                            if (raw.isEmpty) return null;
+                            return _minOrderAmountValidator(v, minValue);
+                          },
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

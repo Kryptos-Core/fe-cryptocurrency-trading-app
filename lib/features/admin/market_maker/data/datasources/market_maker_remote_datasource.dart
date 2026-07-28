@@ -44,6 +44,13 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     throw const FormatException('Unexpected API response format');
   }
 
+  Map<String, dynamic>? _safeContext(dynamic raw) {
+    if (raw is Map && raw['context'] is Map) {
+      return Map<String, dynamic>.from(raw['context'] as Map);
+    }
+    return null;
+  }
+
   @override
   Future<List<MarketMakerConfigModel>> listConfigs() async {
     try {
@@ -74,6 +81,9 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to save market maker config',
+        statusCode: e.response?.statusCode,
+        code: e.response?.data?['code']?.toString(),
+        context: _safeContext(e.response?.data),
       );
     }
   }
@@ -109,6 +119,9 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to place maker orders',
+        statusCode: e.response?.statusCode,
+        code: e.response?.data?['code']?.toString(),
+        context: _safeContext(e.response?.data),
       );
     }
   }

@@ -1,5 +1,7 @@
 # fe-cryptocurrency-trading-app — Cursor, Claude Code, Codex
 
+> Last reviewed: 2026-07-28 — verified against `.cursor/`, `.agents/`, `.codex/`, `.claude/`.
+
 ## Workspace (quan trọng)
 
 Mở **đúng thư mục gốc repo Flutter này** làm folder workspace (cùng cấp `pubspec.yaml`). Team FE clone repo FE, làm việc độc lập; **đồng nhất Vibe Code** nhờ `.cursor/`, `.agents/`, `.codex/`, `.claude/` trong repo — không cần mở monorepo cha.

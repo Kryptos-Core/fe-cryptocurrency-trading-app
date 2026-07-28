@@ -9,10 +9,14 @@ class ServerException implements Exception {
   /// API error code when the server returns JSON `{ code: ... }` (e.g. INVALID_MFA_CODE).
   final String? code;
 
+  /// Additional structured context from the API response (e.g. `{ min_order_amount: '0.01' }`).
+  final Map<String, dynamic>? context;
+
   ServerException({
     this.message = 'Server Error',
     this.statusCode,
     this.code,
+    this.context,
   });
 
   @override

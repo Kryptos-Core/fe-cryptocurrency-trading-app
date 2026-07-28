@@ -19,7 +19,7 @@ core (network, error, responsive, theme, localization, widgets chung)
 - **`sl` (`get_it`)**: singleton — `DioClient`, repositories, một số `ChangeNotifier`.
 - **`provider`**: `MultiProvider` trong [`lib/app/app.dart`](lib/app/app.dart).
 
-## Cấu trúc `lib/` (snapshot)
+## Cấu trúc `lib/` (snapshot — cập nhật 2026-07-28, verified từ `lib/`)
 
 ```
 lib/
@@ -28,27 +28,33 @@ lib/
 │   ├── app.dart
 │   ├── bootstrap/
 │   ├── di/injection_container.dart      # Composition root GetIt
+│   ├── providers/                       # Provider cross-feature (nếu có)
 │   └── router/
 │       ├── app_routes.dart              # Path constants, guest allowlist, chỉ số tab shell
 │       └── app_router.dart              # GoRouter (ShellRoute `/` + MainScreen; redirect auth)
-├── shared/
-│   └── README.md                        # Placeholder — helpers cross-feature (xem mục dưới)
+├── shared/                              # Trống — reserved cho helpers cross-feature (xem mục dưới)
 ├── core/
 │   ├── constants/
-│   ├── network/
+│   ├── enums/
 │   ├── error/
+│   ├── gen_l10n/                        # codegen — không sửa tay
+│   ├── l10n/                            # *.arb
 │   ├── localization/
-│   ├── theme/
+│   ├── models/
+│   ├── network/
 │   ├── responsive/
-│   ├── widgets/                       # Atom UI dùng chung
-│   ├── gen_l10n/                     # codegen — không sửa tay
-│   └── l10n/                         # *.arb
+│   ├── services/                        # service cơ sở (storage, log, v.v.)
+│   ├── theme/
+│   ├── utils/
+│   ├── wallet_auth/                     # multi-platform wallet connector (desktop/mobile/web)
+│   └── widgets/                         # Atom UI dùng chung
 └── features/
     ├── auth/
     ├── home/
     ├── dashboard/
     ├── markets/
     ├── trading/
+    ├── binance_trading/                 # FE mirror API user-binance-credentials (AES-256-GCM)
     ├── wallets/
     ├── orders/
     ├── deposits/
@@ -59,18 +65,20 @@ lib/
     ├── notifications/
     ├── profile/
     ├── settings/
-    ├── user/                          # Entity user + datasource dùng chéo (admin/profile)
-    └── admin/                       # users, transactions, currencies, markets, wallet_adjust,
-                                    # security_requests, broadcast, payment_config,
-                                    # withdrawal_management, market_maker, fiat_withdrawals, …
+    ├── user/                            # Entity user + datasource dùng chéo (admin/profile)
+    └── admin/                           # users, transactions, currencies, markets, wallet_adjust,
+                                         # security_requests, broadcast, payment_config,
+                                         # withdrawal_management, market_maker, fiat_withdrawals, …
 ```
 
-Mỗi feature có thể có đủ `data/` · `domain/` · `application/` · `presentation/` (feature “mỏng” có thể không có `data/`).
+> `lib/examples/` không tồn tại trong repo hiện tại (chỉ reserved trong comment); `lib/shared/` rỗng, đợi nhu cầu thật mới thêm helper theo nguyên tắc YAGNI.
+
+Mỗi feature có thể có đủ `data/` · `domain/` · `application/` · `presentation/` (feature "mỏng" có thể không có `data/`).
 
 ### `lib/shared/` vs `lib/core/`
 
 - **`core/`** — hạ tầng và UI atom dùng app-wide (network, theme, formatter, widget nhỏ tái dùng).
-- **`shared/`** — dành cho **helpers / model nhẹ gắn domain** khi **nhiều feature** cần cùng một khái niệm nhưng không muốn nhét vào một feature cụ thể. Hiện chưa có code (chỉ README); UI chọn currency / cặp vẫn chủ yếu trong `features/markets/presentation/widgets/`.
+- **`shared/`** — dành cho **helpers / model nhẹ gắn domain** khi **nhiều feature** cần cùng một khái niệm nhưng không muốn nhét vào một feature cụ thể. Hiện thư mục rỗng; UI chọn currency / cặp vẫn chủ yếu trong `features/markets/presentation/widgets/`.
 
 ### Application services chéo feature
 

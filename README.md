@@ -1,5 +1,7 @@
 # Kryptos Core — Flutter App
 
+> Last reviewed: 2026-07-28 — verified against `lib/`, `pubspec.yaml`, `.env.example`, `.env.production`.
+
 Ứng dụng giao dịch tiền mã hóa đa nền tảng (Windows, Chrome/Edge, Android). Kết nối backend qua REST và Socket.IO.
 
 ## Tính năng chính
@@ -36,13 +38,24 @@ flutter pub get
 
 ### 3. Biến môi trường
 
-Tạo file `.env` từ `.env.example`. `BASE_URL` phải có hậu tố `/api/v1`.
+Tạo file `.env` từ `.env.example`. `BASE_URL` phải có hậu tố `/api/v1`. Các biến hiện có:
+
+| Biến | Bắt buộc | Mô tả |
+|------|---------|--------|
+| `BASE_URL` | Có | Backend REST + WS, ví dụ `http://127.0.0.1:3000/api/v1`. |
+| `ENV` | Có | `development` / `production` — fallback cho chain dropdown khi `ONCHAIN_OPERATOR_MODE` trống. |
+| `ONCHAIN_OPERATOR_MODE` | Tùy chọn (khuyến nghị đặt) | `sandbox` (testnet) hoặc `production` (mainnet); phải khớp backend. |
+| `ABOUT_URL` | Có | URL trang About (policy + user guide). |
+| `APP_NAME` | Có | Tên app hiển thị (dùng cho pairing metadata Reown/WalletConnect). |
+| `WALLETCONNECT_PROJECT_ID` | Có (Reown AppKit trên mobile) | Reown/WalletConnect Cloud — **cùng project ID với backend `REOWN_PROJECT_ID`**. |
 
 | Môi trường | BASE_URL |
 |------------|----------|
 | Windows / Chrome / Edge | http://127.0.0.1:3000/api/v1 |
 | Android Emulator | http://10.0.2.2:3000/api/v1 |
+| iOS Simulator | http://localhost:3000/api/v1 |
 | Thiết bị thật (cùng Wi-Fi) | http://<IP-máy-BE>:3000/api/v1 |
+| Production (build) | https://<api-domain>/api/v1 (xem `.env.production`) |
 
 ### 4. Chạy app
 
