@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+
 class BinanceSpotBalance extends Equatable {
   final String asset;
   final String free;
@@ -11,7 +13,9 @@ class BinanceSpotBalance extends Equatable {
     required this.locked,
   });
 
-  String get total => ((double.tryParse(free) ?? 0) + (double.tryParse(locked) ?? 0)).toStringAsFixed(8);
+  String get total => FormatUtils.formatDecimalAmountDisplay(
+        ((double.tryParse(free) ?? 0) + (double.tryParse(locked) ?? 0)).toString(),
+      );
 
   @override
   List<Object?> get props => [asset, free, locked];

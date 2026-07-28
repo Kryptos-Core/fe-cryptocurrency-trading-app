@@ -5501,6 +5501,150 @@ abstract class AppLocalizations {
   /// **'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.'**
   String get marketMakerPlaceOrdersFormHint;
 
+  /// No description provided for @marketMakerHubWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Maker workspace'**
+  String get marketMakerHubWelcomeTitle;
+
+  /// No description provided for @marketMakerHubWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure market-making parameters, place orders around the market price, and monitor positions in real time.'**
+  String get marketMakerHubWelcomeSubtitle;
+
+  /// No description provided for @marketMakerHubBadgeComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get marketMakerHubBadgeComingSoon;
+
+  /// No description provided for @marketMakerHubBadgeReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get marketMakerHubBadgeReady;
+
+  /// No description provided for @marketMakerSectionPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading pair'**
+  String get marketMakerSectionPair;
+
+  /// No description provided for @marketMakerSectionTradingParams.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading parameters'**
+  String get marketMakerSectionTradingParams;
+
+  /// No description provided for @marketMakerSectionOrderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Order amount'**
+  String get marketMakerSectionOrderAmount;
+
+  /// No description provided for @marketMakerSectionRiskControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk controls'**
+  String get marketMakerSectionRiskControls;
+
+  /// No description provided for @marketMakerSectionOrderParams.
+  ///
+  /// In en, this message translates to:
+  /// **'Order parameters'**
+  String get marketMakerSectionOrderParams;
+
+  /// No description provided for @marketMakerDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete configuration'**
+  String get marketMakerDeleteConfirmTitle;
+
+  /// No description provided for @marketMakerDeleteConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the Market Maker configuration for {symbol}? This action cannot be undone.'**
+  String marketMakerDeleteConfirmContent(String symbol);
+
+  /// No description provided for @marketMakerPlaceOrdersInfoBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the saved configuration for the selected pair.'**
+  String get marketMakerPlaceOrdersInfoBanner;
+
+  /// No description provided for @marketMakerTooltipOrderAmountOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'Override the order amount from the saved configuration. Leave empty to use the saved value.'**
+  String get marketMakerTooltipOrderAmountOverride;
+
+  /// No description provided for @marketMakerTooltipRefreshCycleKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Idempotency key to prevent duplicate placements. Leave empty to auto-generate.'**
+  String get marketMakerTooltipRefreshCycleKey;
+
+  /// No description provided for @marketMakerStatActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get marketMakerStatActive;
+
+  /// No description provided for @marketMakerStatInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get marketMakerStatInactive;
+
+  /// No description provided for @marketMakerStatSpread.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread'**
+  String get marketMakerStatSpread;
+
+  /// No description provided for @marketMakerStatBpsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'bps'**
+  String get marketMakerStatBpsUnit;
+
+  /// No description provided for @marketMakerErrorLoadDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load default form values'**
+  String get marketMakerErrorLoadDefaults;
+
+  /// No description provided for @marketMakerErrorLoadConfigs.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load market maker configurations'**
+  String get marketMakerErrorLoadConfigs;
+
+  /// No description provided for @marketMakerErrorSaveConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save market maker configuration'**
+  String get marketMakerErrorSaveConfig;
+
+  /// No description provided for @marketMakerErrorDeleteConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete market maker configuration'**
+  String get marketMakerErrorDeleteConfig;
+
+  /// No description provided for @marketMakerErrorPlaceOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to place maker orders'**
+  String get marketMakerErrorPlaceOrders;
+
+  /// No description provided for @marketMakerErrorLoadActivePairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load active trading pairs'**
+  String get marketMakerErrorLoadActivePairs;
+
   /// No description provided for @adminCurrenciesTitle.
   ///
   /// In en, this message translates to:

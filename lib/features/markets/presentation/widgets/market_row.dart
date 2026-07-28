@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart' as market_entity;
@@ -29,10 +30,10 @@ String _formatChangeAmount(String changeAmount24h, bool isPositive) {
   final sign = isPositive && v > 0 ? '+' : '';
   if (v == 0) return '0.00';
   if (v.abs() < 0.01) {
-    final s = v.toStringAsFixed(6).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    final s = FormatUtils.formatDecimalAmountDisplay(v.toString());
     return '$sign$s';
   }
-  return '$sign${v.toStringAsFixed(2)}';
+  return '$sign${FormatUtils.formatDecimalAmountDisplay(v.toStringAsFixed(2))}';
 }
 
 Widget _favoriteButton(
@@ -102,7 +103,9 @@ class MarketRow extends StatelessWidget {
     final isPositive = ticker?.isPositive ?? false;
     // API: change24h is % (e.g. "0.52" = 0.52%)
     final changePercent = hasTicker
-        ? (double.tryParse(ticker!.change24h) ?? 0.0).toStringAsFixed(2)
+        ? FormatUtils.formatPriceChange(
+            double.tryParse(ticker!.change24h) ?? 0.0,
+          )
         : _noData;
     final lastPrice = hasTicker ? PriceFormatter.formatPriceStr(ticker!.lastPrice) : _noData;
 

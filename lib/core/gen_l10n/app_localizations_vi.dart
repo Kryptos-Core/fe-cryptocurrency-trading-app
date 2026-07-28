@@ -3006,6 +3006,89 @@ class AppLocalizationsVi extends AppLocalizations {
       'Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.';
 
   @override
+  String get marketMakerHubWelcomeTitle => 'Khu vực Market Maker';
+
+  @override
+  String get marketMakerHubWelcomeSubtitle =>
+      'Cấu hình tham số market-making, đặt lệnh quanh giá thị trường và theo dõi vị thế theo thời gian thực.';
+
+  @override
+  String get marketMakerHubBadgeComingSoon => 'Sắp ra mắt';
+
+  @override
+  String get marketMakerHubBadgeReady => 'Sẵn sàng';
+
+  @override
+  String get marketMakerSectionPair => 'Cặp giao dịch';
+
+  @override
+  String get marketMakerSectionTradingParams => 'Thông số giao dịch';
+
+  @override
+  String get marketMakerSectionOrderAmount => 'Khối lượng lệnh';
+
+  @override
+  String get marketMakerSectionRiskControls => 'Kiểm soát rủi ro';
+
+  @override
+  String get marketMakerSectionOrderParams => 'Thông số đặt lệnh';
+
+  @override
+  String get marketMakerDeleteConfirmTitle => 'Xóa cấu hình';
+
+  @override
+  String marketMakerDeleteConfirmContent(String symbol) {
+    return 'Xóa cấu hình Market Maker cho $symbol? Hành động này không thể hoàn tác.';
+  }
+
+  @override
+  String get marketMakerPlaceOrdersInfoBanner =>
+      'Dùng cấu hình đã lưu cho cặp đã chọn.';
+
+  @override
+  String get marketMakerTooltipOrderAmountOverride =>
+      'Ghi đè khối lượng lệnh từ cấu hình đã lưu. Để trống để dùng giá trị đã lưu.';
+
+  @override
+  String get marketMakerTooltipRefreshCycleKey =>
+      'Khóa idempotency để ngăn đặt trùng lệnh. Để trống để tạo tự động.';
+
+  @override
+  String get marketMakerStatActive => 'Đang hoạt động';
+
+  @override
+  String get marketMakerStatInactive => 'Bị tắt';
+
+  @override
+  String get marketMakerStatSpread => 'Spread';
+
+  @override
+  String get marketMakerStatBpsUnit => 'bps';
+
+  @override
+  String get marketMakerErrorLoadDefaults =>
+      'Không tải được giá trị mặc định của biểu mẫu';
+
+  @override
+  String get marketMakerErrorLoadConfigs =>
+      'Không tải được cấu hình Market Maker';
+
+  @override
+  String get marketMakerErrorSaveConfig =>
+      'Không lưu được cấu hình Market Maker';
+
+  @override
+  String get marketMakerErrorDeleteConfig =>
+      'Không xóa được cấu hình Market Maker';
+
+  @override
+  String get marketMakerErrorPlaceOrders => 'Không đặt được lệnh maker';
+
+  @override
+  String get marketMakerErrorLoadActivePairs =>
+      'Không tải được cặp giao dịch đang hoạt động';
+
+  @override
   String get adminCurrenciesTitle => 'Quản lý - Tiền tệ';
 
   @override

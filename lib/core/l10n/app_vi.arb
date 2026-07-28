@@ -1093,6 +1093,37 @@
     }
   },
   "marketMakerPlaceOrdersFormHint": "Dùng cấu hình đã lưu cho cặp đã chọn. Có thể ghi đè khối lượng hoặc khóa idempotency.",
+  "marketMakerHubWelcomeTitle": "Khu vực Market Maker",
+  "marketMakerHubWelcomeSubtitle": "Cấu hình tham số market-making, đặt lệnh quanh giá thị trường và theo dõi vị thế theo thời gian thực.",
+  "marketMakerHubBadgeComingSoon": "Sắp ra mắt",
+  "marketMakerHubBadgeReady": "Sẵn sàng",
+  "marketMakerSectionPair": "Cặp giao dịch",
+  "marketMakerSectionTradingParams": "Thông số giao dịch",
+  "marketMakerSectionOrderAmount": "Khối lượng lệnh",
+  "marketMakerSectionRiskControls": "Kiểm soát rủi ro",
+  "marketMakerSectionOrderParams": "Thông số đặt lệnh",
+  "marketMakerDeleteConfirmTitle": "Xóa cấu hình",
+  "marketMakerDeleteConfirmContent": "Xóa cấu hình Market Maker cho {symbol}? Hành động này không thể hoàn tác.",
+  "@marketMakerDeleteConfirmContent": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "marketMakerPlaceOrdersInfoBanner": "Dùng cấu hình đã lưu cho cặp đã chọn.",
+  "marketMakerTooltipOrderAmountOverride": "Ghi đè khối lượng lệnh từ cấu hình đã lưu. Để trống để dùng giá trị đã lưu.",
+  "marketMakerTooltipRefreshCycleKey": "Khóa idempotency để ngăn đặt trùng lệnh. Để trống để tạo tự động.",
+  "marketMakerStatActive": "Đang hoạt động",
+  "marketMakerStatInactive": "Bị tắt",
+  "marketMakerStatSpread": "Spread",
+  "marketMakerStatBpsUnit": "bps",
+  "marketMakerErrorLoadDefaults": "Không tải được giá trị mặc định của biểu mẫu",
+  "marketMakerErrorLoadConfigs": "Không tải được cấu hình Market Maker",
+  "marketMakerErrorSaveConfig": "Không lưu được cấu hình Market Maker",
+  "marketMakerErrorDeleteConfig": "Không xóa được cấu hình Market Maker",
+  "marketMakerErrorPlaceOrders": "Không đặt được lệnh maker",
+  "marketMakerErrorLoadActivePairs": "Không tải được cặp giao dịch đang hoạt động",
   "adminCurrenciesTitle": "Quản lý - Tiền tệ",
   "adminCurrenciesCreateTitle": "Tạo coin mới",
   "adminCurrenciesDeleteTitle": "Xoá coin",

@@ -12,7 +12,8 @@ import 'package:crypto_trading_app/features/markets/domain/entities/currency.dar
 import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/currency_bookmark_store.dart';
 import 'package:crypto_trading_app/features/blockchain/presentation/screens/blockchain_hub_screen.dart';
-import 'package:crypto_trading_app/core/widgets/app_dropdown_field.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
+import 'package:crypto_trading_app/features/wallets/presentation/widgets/transaction_filter_bar.dart';
 import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_picker_sheet.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/features/deposits/presentation/screens/deposits_screen.dart';
@@ -291,7 +292,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                         label: Text(l10n.payosTopupVnd),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () async {
@@ -434,43 +435,45 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        Text(
-          l10n.recentTransactions,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              flex: 3,
-              child: TextField(
-                controller: _txSearchController,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: l10n.searchTransactions,
-                  prefixIcon: const Icon(Icons.search),
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-              ),
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 20,
+              color: theme.colorScheme.primary,
             ),
             const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: _RefTypeDropdown(
-                value: _txFilterRefType,
-                l10n: l10n,
-                onChanged: (v) {
-                  setState(() => _txFilterRefType = v);
-                },
+            Text(
+              l10n.recentTransactions,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _txSearchController,
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            hintText: l10n.searchTransactions,
+            prefixIcon: const Icon(Icons.search),
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TransactionFilterBar(
+          filters: buildWalletLedgerFilters(l10n),
+          selectedValue: _txFilterRefType ?? 'ALL',
+          onChanged: (v) {
+            setState(
+              () => _txFilterRefType = (v == null || v == 'ALL') ? null : v,
+            );
+          },
         ),
         const SizedBox(height: 16),
         Card(
@@ -479,7 +482,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
             children: [
               // Table header
               Container(
-                color: theme.colorScheme.surfaceContainerHighest,
+                color: theme.colorScheme.surfaceContainerLow,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
@@ -519,24 +522,39 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text(
-                        l10n.amount,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: Text(
+                          l10n.amount,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.right,
                         ),
-                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 12,
+                      child: Center(
+                        child: Container(
+                          width: 1,
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                       ),
                     ),
                     Expanded(
-                      flex: 2,
-                      child: Text(
-                        l10n.reference,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      flex: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(
+                          l10n.reference,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -600,24 +618,39 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Text(
-                              _formatAmountForDisplay(tx.amount),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.right,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: color,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                _formatAmountForDisplay(tx.amount),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.right,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: color,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 12,
+                            child: Center(
+                              child: Container(
+                                width: 1,
+                                color: theme.colorScheme.outlineVariant,
                               ),
                             ),
                           ),
                           Expanded(
-                            flex: 2,
-                            child: Text(
-                              '#${tx.refId}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall,
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 6),
+                              child: Text(
+                                '#${tx.refId}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall,
+                              ),
                             ),
                           ),
                         ],
@@ -627,17 +660,16 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: Text(
-                      hasAny
-                          ? l10n.noTransactionsMatch
-                          : l10n.noTransactionsFound,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: hasAny
+                      ? AppEmptyStateInline(
+                          message: l10n.noTransactionsMatch,
+                          icon: Icons.filter_list_off,
+                        )
+                      : AppEmptyStateInline(
+                          message: l10n.noTransactionsFound,
+                          icon: Icons.receipt_long_outlined,
+                        ),
                 ),
             ],
           ),
@@ -700,109 +732,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 }
 
 // ── Filter Dropdown ──────────────────────────────────────────────────────────
-
-/// Dropdown for filtering transactions by reference type (refType).
-/// Values: ALL | DEPOSIT | WITHDRAW | TRADE | ORDER | TRANSFER | ADJUST | ONCHAIN
-class _RefTypeDropdown extends StatelessWidget {
-  final String? value;
-  final AppLocalizations l10n;
-  final ValueChanged<String?> onChanged;
-
-  const _RefTypeDropdown({
-    required this.value,
-    required this.l10n,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      DropdownMenuItem<String?>(
-        value: null,
-        child: Text(l10n.allTypes),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'DEPOSIT',
-        child: Row(
-          children: [
-            const Icon(Icons.arrow_downward_rounded, size: 16, color: Color(0xFF0F8A49)),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterDeposit, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'WITHDRAW',
-        child: Row(
-          children: [
-            const Icon(Icons.arrow_upward_rounded, size: 16, color: Color(0xFFB3261E)),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterWithdraw, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'TRADE',
-        child: Row(
-          children: [
-            Icon(Icons.swap_horiz_rounded, size: 16, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterTrade, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'ORDER',
-        child: Row(
-          children: [
-            Icon(Icons.shopping_cart_outlined, size: 16, color: Theme.of(context).colorScheme.tertiary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterOrder, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'TRANSFER',
-        child: Row(
-          children: [
-            Icon(Icons.people_outline_rounded, size: 16, color: Theme.of(context).colorScheme.secondary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterTransfer, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'ADJUST',
-        child: Row(
-          children: [
-            Icon(Icons.tune_rounded, size: 16, color: Theme.of(context).colorScheme.outline),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterAdjust, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-      DropdownMenuItem<String?>(
-        value: 'ONCHAIN',
-        child: Row(
-          children: [
-            Icon(Icons.cloud_sync_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.walletFilterOnchain, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-      ),
-    ];
-
-    return AppDropdownField<String?>(
-      value: value,
-      items: items,
-      labelText: l10n.filterByType,
-      hintText: l10n.allTypes,
-      menuMaxHeight: MediaQuery.sizeOf(context).height * 0.45,
-      onChanged: onChanged,
-    );
-  }
-}
 
 // ── Direction Badge ──────────────────────────────────────────────────────────
 

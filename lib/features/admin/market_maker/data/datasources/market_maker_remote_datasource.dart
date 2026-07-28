@@ -32,6 +32,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to load MM defaults',
+        errorCode: ServerErrorCode.loadMarketMakerDefaults,
       );
     }
   }
@@ -63,6 +64,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to load market maker configs',
+        errorCode: ServerErrorCode.loadMarketMakerConfigs,
       );
     }
   }
@@ -84,6 +86,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
         statusCode: e.response?.statusCode,
         code: e.response?.data?['code']?.toString(),
         context: _safeContext(e.response?.data),
+        errorCode: ServerErrorCode.saveMarketMakerConfig,
       );
     }
   }
@@ -95,6 +98,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to delete market maker config',
+        errorCode: ServerErrorCode.deleteMarketMakerConfig,
       );
     }
   }
@@ -122,6 +126,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
         statusCode: e.response?.statusCode,
         code: e.response?.data?['code']?.toString(),
         context: _safeContext(e.response?.data),
+        errorCode: ServerErrorCode.placeMakerOrders,
       );
     }
   }
@@ -138,6 +143,7 @@ class MarketMakerRemoteDataSourceImpl implements MarketMakerRemoteDataSource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data?['message'] ?? 'Failed to load active pairs',
+        errorCode: ServerErrorCode.loadActivePairs,
       );
     }
   }

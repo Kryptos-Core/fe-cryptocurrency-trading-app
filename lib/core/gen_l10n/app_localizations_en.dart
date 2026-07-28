@@ -3008,6 +3008,89 @@ class AppLocalizationsEn extends AppLocalizations {
       'Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.';
 
   @override
+  String get marketMakerHubWelcomeTitle => 'Market Maker workspace';
+
+  @override
+  String get marketMakerHubWelcomeSubtitle =>
+      'Configure market-making parameters, place orders around the market price, and monitor positions in real time.';
+
+  @override
+  String get marketMakerHubBadgeComingSoon => 'Coming soon';
+
+  @override
+  String get marketMakerHubBadgeReady => 'Ready';
+
+  @override
+  String get marketMakerSectionPair => 'Trading pair';
+
+  @override
+  String get marketMakerSectionTradingParams => 'Trading parameters';
+
+  @override
+  String get marketMakerSectionOrderAmount => 'Order amount';
+
+  @override
+  String get marketMakerSectionRiskControls => 'Risk controls';
+
+  @override
+  String get marketMakerSectionOrderParams => 'Order parameters';
+
+  @override
+  String get marketMakerDeleteConfirmTitle => 'Delete configuration';
+
+  @override
+  String marketMakerDeleteConfirmContent(String symbol) {
+    return 'Delete the Market Maker configuration for $symbol? This action cannot be undone.';
+  }
+
+  @override
+  String get marketMakerPlaceOrdersInfoBanner =>
+      'Uses the saved configuration for the selected pair.';
+
+  @override
+  String get marketMakerTooltipOrderAmountOverride =>
+      'Override the order amount from the saved configuration. Leave empty to use the saved value.';
+
+  @override
+  String get marketMakerTooltipRefreshCycleKey =>
+      'Idempotency key to prevent duplicate placements. Leave empty to auto-generate.';
+
+  @override
+  String get marketMakerStatActive => 'Active';
+
+  @override
+  String get marketMakerStatInactive => 'Inactive';
+
+  @override
+  String get marketMakerStatSpread => 'Spread';
+
+  @override
+  String get marketMakerStatBpsUnit => 'bps';
+
+  @override
+  String get marketMakerErrorLoadDefaults =>
+      'Failed to load default form values';
+
+  @override
+  String get marketMakerErrorLoadConfigs =>
+      'Failed to load market maker configurations';
+
+  @override
+  String get marketMakerErrorSaveConfig =>
+      'Failed to save market maker configuration';
+
+  @override
+  String get marketMakerErrorDeleteConfig =>
+      'Failed to delete market maker configuration';
+
+  @override
+  String get marketMakerErrorPlaceOrders => 'Failed to place maker orders';
+
+  @override
+  String get marketMakerErrorLoadActivePairs =>
+      'Failed to load active trading pairs';
+
+  @override
   String get adminCurrenciesTitle => 'Admin - Currencies';
 
   @override

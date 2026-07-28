@@ -7,7 +7,9 @@ import 'package:crypto_trading_app/core/services/indicator_service.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/chart_websocket_policy.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/features/trading/presentation/providers/chart_provider.dart';
 import 'package:crypto_trading_app/features/trading/presentation/widgets/lightweight_charts_widget.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
@@ -295,7 +297,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
           Text(
-            lastValue.toStringAsFixed(2),
+            PriceFormatter.formatPrice(lastValue),
             style: TextStyle(
               color: label == l10n.chartRsi
                   ? (lastValue > 70
@@ -343,7 +345,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
               Text(l10n.chartMacd,
                   style: const TextStyle(fontWeight: FontWeight.w500)),
               Text(
-                lastMACD.macd.toStringAsFixed(4),
+                PriceFormatter.formatPrice(lastMACD.macd),
                 style: const TextStyle(
                     color: Colors.blue, fontWeight: FontWeight.w600),
               ),
@@ -361,7 +363,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
                 ),
               ),
               Text(
-                lastMACD.signal.toStringAsFixed(4),
+                PriceFormatter.formatPrice(lastMACD.signal),
                 style: const TextStyle(
                     color: Colors.orange,
                     fontSize: 12,
@@ -381,7 +383,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
                 ),
               ),
               Text(
-                lastMACD.histogram.toStringAsFixed(4),
+                PriceFormatter.formatPrice(lastMACD.histogram),
                 style: TextStyle(
                   color: histogramColor,
                   fontSize: 12,
@@ -467,7 +469,7 @@ class _AdvancedTradingScreenState extends State<AdvancedTradingScreen> {
         children: [
           Text(label, style: TextStyle(color: Colors.grey[600])),
           Text(
-            value.toStringAsFixed(8),
+            FormatUtils.formatDecimalAmountDisplay(value.toString()),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ],

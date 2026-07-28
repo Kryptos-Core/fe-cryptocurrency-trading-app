@@ -2,12 +2,27 @@
 /// Following Single Responsibility Principle (SRP)
 library;
 
+/// Marker codes for [ServerException] so the UI layer can map them to
+/// localized messages instead of relying on the raw English fallback.
+enum ServerErrorCode {
+  unknown,
+  loadMarketMakerDefaults,
+  loadMarketMakerConfigs,
+  saveMarketMakerConfig,
+  deleteMarketMakerConfig,
+  placeMakerOrders,
+  loadActivePairs,
+}
+
 class ServerException implements Exception {
   final String message;
   final int? statusCode;
 
   /// API error code when the server returns JSON `{ code: ... }` (e.g. INVALID_MFA_CODE).
   final String? code;
+
+  /// Optional structured classification used by the UI to localize the message.
+  final ServerErrorCode errorCode;
 
   /// Additional structured context from the API response (e.g. `{ min_order_amount: '0.01' }`).
   final Map<String, dynamic>? context;
@@ -16,6 +31,7 @@ class ServerException implements Exception {
     this.message = 'Server Error',
     this.statusCode,
     this.code,
+    this.errorCode = ServerErrorCode.unknown,
     this.context,
   });
 

@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
+
 import 'package:crypto_trading_app/features/admin/market_maker/data/models/market_maker_config_model.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/providers/market_maker_provider.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/screens/market_maker_screen_mode.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/utils/market_maker_error_localizer.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/market_maker_action_bar.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/market_maker_section.dart';
+import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/pair_selector_card.dart';
 
-/// Which Market Maker workflow this screen focuses on (separate hub entries).
-enum MarketMakerScreenMode {
-  /// Spread, limits, save / delete only.
-  configuration,
-
-  /// Pair selection + optional overrides + place two-sided maker orders.
-  placeOrders,
-}
-
+/// Configuration screen for Market Maker workflows.
+///
+/// - [MarketMakerScreenMode.configuration]: spread / limits / save-delete.
+/// - [MarketMakerScreenMode.placeOrders]: override + place two-sided orders.
 class MarketMakerConfigScreen extends StatefulWidget {
   const MarketMakerConfigScreen({
     super.key,
@@ -85,8 +90,6 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
         _isActive = config.isActive;
       } else {
         final d = provider.formDefaults;
-        // Order amount default must satisfy pair's min_order_amount; otherwise
-        // saving & placing orders would always fail with 422 from the backend.
         final fallback = d?.orderAmount ?? '0.001';
         _spreadBpsCtrl.text = '${d?.spreadBps ?? 10}';
         _spreadAlertBpsCtrl.text = '${d?.spreadAlertThresholdBps ?? 20}';
@@ -109,32 +112,25 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     if (minValue == null || minValue <= 0) return candidate;
     final n = double.tryParse(candidate.trim());
     if (n == null || !n.isFinite || n < minValue) {
-      // Use the min itself (trim trailing zeros) so user sees a usable default.
-      final s = minValue.toString();
-      return s.contains('.') ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '') : s;
+      return FormatUtils.formatCryptoBalance(minValue, 8);
     }
     return candidate;
   }
 
-  String? _minOrderAmountValidator(String? raw, double? minValue) {
+  String? _minOrderAmountValidator(String? raw, double? minValue, AppLocalizations l10n) {
     if (minValue == null || minValue <= 0) return null;
     final n = double.tryParse((raw ?? '').trim());
     if (n == null || !n.isFinite || n <= 0) {
-      return 'Must be > 0';
+      return l10n.marketMakerValidationOrderAmount;
     }
     if (n < minValue) {
-      return 'Must be ≥ ${_formatMinForDisplay(minValue)} (pair min)';
+      return 'Must be ≥ ${_formatMinForDisplay(minValue)}';
     }
     return null;
   }
 
   static String _formatMinForDisplay(double v) {
-    if (v == v.roundToDouble()) return v.toStringAsFixed(0);
-    final s = v.toString();
-    final idx = s.indexOf('.');
-    if (idx < 0) return s;
-    final decimals = (s.length - idx - 1).clamp(0, 6);
-    return v.toStringAsFixed(decimals).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
+    return FormatUtils.formatCryptoBalance(v, 8);
   }
 
   Future<void> _saveConfig() async {
@@ -159,13 +155,13 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     final ok = await provider.upsertConfig(_selectedPairId!, payload);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          ok ? l10n.marketMakerSnackSavedConfig : (provider.error ?? l10n.marketMakerSnackSaveFailed),
-        ),
-        backgroundColor: ok ? Colors.green : Colors.red,
-      ),
+    final message = ok
+        ? l10n.marketMakerSnackSavedConfig
+        : localizeMarketMakerError(l10n, provider.errorCode, serverMessage: provider.error);
+    showAppSnackBar(
+      context,
+      message: message,
+      type: ok ? SnackBarType.success : SnackBarType.error,
     );
   }
 
@@ -176,13 +172,13 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     final ok = await provider.deleteConfig(_selectedPairId!);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          ok ? l10n.marketMakerSnackDeletedConfig : (provider.error ?? l10n.marketMakerSnackDeleteFailed),
-        ),
-        backgroundColor: ok ? Colors.green : Colors.red,
-      ),
+    final message = ok
+        ? l10n.marketMakerSnackDeletedConfig
+        : localizeMarketMakerError(l10n, provider.errorCode, serverMessage: provider.error);
+    showAppSnackBar(
+      context,
+      message: message,
+      type: ok ? SnackBarType.success : SnackBarType.error,
     );
     if (ok) {
       _onPairChanged(_selectedPairId);
@@ -206,11 +202,14 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
 
     if (!mounted) return;
     if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(provider.error ?? l10n.marketMakerSnackPlaceOrdersFailed),
-          backgroundColor: Colors.red,
+      showAppSnackBar(
+        context,
+        message: localizeMarketMakerError(
+          l10n,
+          provider.errorCode,
+          serverMessage: provider.error,
         ),
+        type: SnackBarType.error,
       );
       return;
     }
@@ -223,19 +222,16 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     final replay = result['idempotentReplay'] == true;
 
     final action = replay ? l10n.marketMakerOrdersResultReplayed : l10n.marketMakerOrdersResultRefreshed;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.marketMakerOrdersPlacedSummary(
-            action,
-            cancelledCount,
-            count,
-            buyPrice,
-            sellPrice,
-          ),
-        ),
-        backgroundColor: Colors.green,
+    showAppSnackBar(
+      context,
+      message: l10n.marketMakerOrdersPlacedSummary(
+        action,
+        cancelledCount,
+        count,
+        buyPrice,
+        sellPrice,
       ),
+      type: SnackBarType.success,
     );
   }
 
@@ -248,6 +244,16 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
     }
   }
 
+  String _baseSymbol(List<MarketMakerPairOption> pairs) {
+    if (_selectedPairId == null) return '';
+    for (final p in pairs) {
+      if (p.pairId == _selectedPairId) {
+        return CurrencyAmountInput.baseSymbolFromPairDisplay(p.symbol);
+      }
+    }
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -256,10 +262,18 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
       appBar: AppBar(
         title: Text(_appBarTitle(l10n)),
         actions: [
-          IconButton(
-            onPressed: () => context.read<MarketMakerProvider>().loadAll(),
-            icon: const Icon(Icons.refresh),
-            tooltip: l10n.refresh,
+          Consumer<MarketMakerProvider>(
+            builder: (_, p, __) => IconButton(
+              onPressed: p.isLoading ? null : () => p.loadAll(),
+              icon: p.isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+              tooltip: l10n.refresh,
+            ),
           ),
         ],
       ),
@@ -273,30 +287,44 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(provider.error!, textAlign: TextAlign.center),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      localizeMarketMakerError(
+                        l10n,
+                        provider.errorCode,
+                        serverMessage: provider.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: () => provider.loadAll(),
+                      child: Text(l10n.retry),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           if (provider.pairs.isEmpty) {
-            return Center(child: Text(l10n.marketMakerNoActivePairs));
+            return AppEmptyState(
+              message: l10n.marketMakerNoActivePairs,
+              icon: Icons.currency_exchange,
+            );
           }
 
           final selectedConfig = _selectedPairId == null
               ? null
               : provider.configByPairId(_selectedPairId!);
 
-          String pairBaseSymbol() {
-            if (_selectedPairId == null) return '';
-            for (final p in provider.pairs) {
-              if (p.pairId == _selectedPairId) {
-                return CurrencyAmountInput.baseSymbolFromPairDisplay(p.symbol);
-              }
-            }
-            return '';
-          }
-
-          final baseSym = pairBaseSymbol();
+          final baseSym = _baseSymbol(provider.pairs);
+          final pairOption = _selectedPairId == null
+              ? null
+              : _findPair(provider.pairs, _selectedPairId!);
+          final minValue = pairOption?.minOrderAmountValue;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -305,193 +333,90 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    key: ValueKey<String?>(_selectedPairId),
-                    initialValue: _selectedPairId,
-                    decoration: InputDecoration(
-                      labelText: l10n.marketMakerFieldPair,
-                      border: const OutlineInputBorder(),
-                    ),
-                    items: provider.pairs
-                        .map(
-                          (pair) => DropdownMenuItem<String>(
-                            value: pair.pairId,
-                            child: Text(pair.symbol),
-                          ),
-                        )
-                        .toList(),
+                  MarketMakerPairSelectorCard(
+                    pairs: provider.pairs,
+                    selectedPairId: _selectedPairId,
                     onChanged: _onPairChanged,
                   ),
-                  if (!_isConfigMode) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.marketMakerPlaceOrdersFormHint,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
+                  if (_isConfigMode && selectedConfig != null) ...[
+                    const SizedBox(height: 12),
+                    _ConfigStatsBanner(
+                      config: selectedConfig,
+                      baseSymbol: baseSym,
                     ),
                   ],
                   if (_isConfigMode) ...[
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _spreadBpsCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldSpreadBps,
-                        border: const OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        final n = int.tryParse((v ?? '').trim());
-                        if (n == null || n <= 0) return l10n.marketMakerValidationSpreadBps;
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _spreadAlertBpsCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldSpreadAlertBps,
-                        border: const OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        final n = int.tryParse((v ?? '').trim());
-                        if (n == null || n < 0) return l10n.marketMakerValidationAlertThreshold;
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Builder(
-                      builder: (context) {
-                        final pairOption = _findPair(provider.pairs, _selectedPairId ?? '');
-                        final minValue = pairOption?.minOrderAmountValue;
-                        return TextFormField(
-                          controller: _orderAmountCtrl,
-                          decoration: CurrencyAmountInput.withCurrencySuffix(
-                            context,
-                            InputDecoration(
-                              labelText: minValue != null && minValue > 0
-                                  ? '${l10n.marketMakerFieldOrderAmount} (≥ ${_formatMinForDisplay(minValue)})'
-                                  : l10n.marketMakerFieldOrderAmount,
-                              border: const OutlineInputBorder(),
-                            ),
-                            currencySymbol: baseSym,
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) {
-                            final n = double.tryParse((v ?? '').trim());
-                            if (n == null || n <= 0) {
-                              return l10n.marketMakerValidationOrderAmount;
-                            }
-                            return _minOrderAmountValidator(v, minValue);
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _stopLossPctCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldStopLossOptional,
-                        border: const OutlineInputBorder(),
-                        suffixText: '%',
-                        suffixStyle: CurrencyAmountInput.suffixStyle(context),
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _maxPositionBaseCtrl,
-                      decoration: CurrencyAmountInput.withCurrencySuffix(
-                        context,
-                        InputDecoration(
-                          labelText: l10n.marketMakerFieldMaxPositionBaseOptional,
-                          border: const OutlineInputBorder(),
-                        ),
-                        currencySymbol: baseSym,
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 12),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l10n.marketMakerFieldActiveConfig),
-                      value: _isActive,
-                      onChanged: (v) => setState(() => _isActive = v),
-                    ),
-                    if (selectedConfig != null)
+                    _buildTradingParamsSection(context, l10n, baseSym),
+                    const SizedBox(height: 16),
+                    _buildOrderAmountSection(context, l10n, baseSym, minValue),
+                    const SizedBox(height: 16),
+                    _buildRiskControlsSection(context, l10n, baseSym),
+                    if (selectedConfig != null) ...[
+                      const SizedBox(height: 16),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           l10n.marketMakerLastUpdated(
                             DateFormat('dd/MM/yyyy HH:mm').format(selectedConfig.updatedAt.toLocal()),
                           ),
-                          style: const TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: provider.isSubmitting ? null : _saveConfig,
-                            icon: const Icon(Icons.save),
-                            label: Text(l10n.marketMakerButtonSaveConfig),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: provider.isSubmitting ? null : _deleteConfig,
-                            icon: const Icon(Icons.delete_outline),
-                            label: Text(l10n.marketMakerButtonDelete),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (!_isConfigMode) ...[
+                    ],
                     const SizedBox(height: 16),
-                    Builder(
-                      builder: (context) {
-                        final pairOption = _findPair(provider.pairs, _selectedPairId ?? '');
-                        final minValue = pairOption?.minOrderAmountValue;
-                        return TextFormField(
-                          controller: _orderAmountOverrideCtrl,
-                          decoration: CurrencyAmountInput.withCurrencySuffix(
-                            context,
-                            InputDecoration(
-                              labelText: minValue != null && minValue > 0
-                                  ? '${l10n.marketMakerFieldOrderAmountOverrideOptional} (≥ ${_formatMinForDisplay(minValue)})'
-                                  : l10n.marketMakerFieldOrderAmountOverrideOptional,
-                              border: const OutlineInputBorder(),
-                            ),
-                            currencySymbol: baseSym,
+                    MarketMakerActionBar(
+                      isSubmitting: provider.isSubmitting,
+                      primaryLabel: l10n.marketMakerButtonSaveConfig,
+                      primaryIcon: Icons.save,
+                      onPrimary: _saveConfig,
+                      secondaryLabel: l10n.marketMakerButtonDelete,
+                      secondaryIcon: Icons.delete_outline,
+                      onSecondary: selectedConfig == null ? null : _deleteConfig,
+                      confirmSecondaryTitle: l10n.marketMakerDeleteConfirmTitle,
+                      confirmSecondaryMessage: pairOption == null
+                          ? null
+                          : l10n.marketMakerDeleteConfirmContent(pairOption.symbol),
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 16),
+                    _buildPlaceOrdersSection(context, l10n, baseSym, minValue),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) {
-                            final raw = (v ?? '').trim();
-                            if (raw.isEmpty) return null;
-                            return _minOrderAmountValidator(v, minValue);
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _refreshCycleKeyCtrl,
-                      decoration: InputDecoration(
-                        labelText: l10n.marketMakerFieldRefreshCycleKeyOptional,
-                        border: const OutlineInputBorder(),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.marketMakerPlaceOrdersInfoBanner,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: provider.isSubmitting ? null : _placeMakerOrders,
-                        icon: const Icon(Icons.trending_up),
-                        label: Text(l10n.marketMakerButtonPlaceTwoSidedOrders),
-                      ),
+                    const SizedBox(height: 16),
+                    MarketMakerActionBar(
+                      isSubmitting: provider.isSubmitting,
+                      primaryLabel: l10n.marketMakerButtonPlaceTwoSidedOrders,
+                      primaryIcon: Icons.trending_up,
+                      onPrimary: _placeMakerOrders,
                     ),
                   ],
                 ],
@@ -499,6 +424,257 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTradingParamsSection(BuildContext context, AppLocalizations l10n, String baseSym) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MarketMakerSectionHeader(title: l10n.marketMakerSectionTradingParams),
+        MarketMakerCard(
+          child: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _spreadBpsCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.marketMakerFieldSpreadBps,
+                    border: const OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final n = int.tryParse((v ?? '').trim());
+                    if (n == null || n <= 0) return l10n.marketMakerValidationSpreadBps;
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  controller: _spreadAlertBpsCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.marketMakerFieldSpreadAlertBps,
+                    border: const OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final n = int.tryParse((v ?? '').trim());
+                    if (n == null || n < 0) return l10n.marketMakerValidationAlertThreshold;
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrderAmountSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    String baseSym,
+    double? minValue,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MarketMakerSectionHeader(title: l10n.marketMakerSectionOrderAmount),
+        MarketMakerCard(
+          child: TextFormField(
+            controller: _orderAmountCtrl,
+            decoration: CurrencyAmountInput.withCurrencySuffix(
+              context,
+              InputDecoration(
+                labelText: minValue != null && minValue > 0
+                    ? '${l10n.marketMakerFieldOrderAmount} (≥ ${_formatMinForDisplay(minValue)})'
+                    : l10n.marketMakerFieldOrderAmount,
+                border: const OutlineInputBorder(),
+              ),
+              currencySymbol: baseSym,
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            validator: (v) {
+              final n = double.tryParse((v ?? '').trim());
+              if (n == null || n <= 0) {
+                return l10n.marketMakerValidationOrderAmount;
+              }
+              return _minOrderAmountValidator(v, minValue, l10n);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRiskControlsSection(BuildContext context, AppLocalizations l10n, String baseSym) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MarketMakerSectionHeader(title: l10n.marketMakerSectionRiskControls),
+        MarketMakerCard(
+          child: Column(
+            children: [
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.marketMakerFieldActiveConfig),
+                value: _isActive,
+                onChanged: (v) => setState(() => _isActive = v),
+              ),
+              Divider(height: 1, color: scheme.outlineVariant.withValues(alpha: 0.4)),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _stopLossPctCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.marketMakerFieldStopLossOptional,
+                  border: const OutlineInputBorder(),
+                  suffixText: '%',
+                  suffixStyle: CurrencyAmountInput.suffixStyle(context),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _maxPositionBaseCtrl,
+                decoration: CurrencyAmountInput.withCurrencySuffix(
+                  context,
+                  InputDecoration(
+                    labelText: l10n.marketMakerFieldMaxPositionBaseOptional,
+                    border: const OutlineInputBorder(),
+                  ),
+                  currencySymbol: baseSym,
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlaceOrdersSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    String baseSym,
+    double? minValue,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MarketMakerSectionHeader(title: l10n.marketMakerSectionOrderParams),
+        MarketMakerCard(
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _orderAmountOverrideCtrl,
+                decoration: CurrencyAmountInput.withCurrencySuffix(
+                  context,
+                  InputDecoration(
+                    labelText: minValue != null && minValue > 0
+                        ? '${l10n.marketMakerFieldOrderAmountOverrideOptional} (≥ ${_formatMinForDisplay(minValue)})'
+                        : l10n.marketMakerFieldOrderAmountOverrideOptional,
+                    border: const OutlineInputBorder(),
+                    suffixIcon: Tooltip(
+                      message: l10n.marketMakerTooltipOrderAmountOverride,
+                      child: const Icon(Icons.info_outline, size: 20),
+                    ),
+                  ),
+                  currencySymbol: baseSym,
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  final raw = (v ?? '').trim();
+                  if (raw.isEmpty) return null;
+                  return _minOrderAmountValidator(v, minValue, l10n);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _refreshCycleKeyCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.marketMakerFieldRefreshCycleKeyOptional,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: Tooltip(
+                    message: l10n.marketMakerTooltipRefreshCycleKey,
+                    child: const Icon(Icons.info_outline, size: 20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Compact banner shown above the form when an existing config is loaded,
+/// matching the `_StatsBanner` pattern used by withdrawal management.
+class _ConfigStatsBanner extends StatelessWidget {
+  const _ConfigStatsBanner({required this.config, required this.baseSymbol});
+
+  final MarketMakerConfigModel config;
+  final String baseSymbol;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final isActive = config.isActive;
+    final statusColor = isActive ? scheme.primary : scheme.outline;
+    final statusLabel = isActive ? l10n.marketMakerStatActive : l10n.marketMakerStatInactive;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: scheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isActive ? Icons.check_circle_outline : Icons.pause_circle_outline,
+            size: 18,
+            color: scheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            statusLabel,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: scheme.onTertiaryContainer,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(width: 1, height: 16, color: scheme.onTertiaryContainer.withValues(alpha: 0.3)),
+          const SizedBox(width: 12),
+          Text(
+            '${l10n.marketMakerStatSpread}: ${config.spreadBps} ${l10n.marketMakerStatBpsUnit}',
+            style: TextStyle(fontSize: 12, color: scheme.onTertiaryContainer),
+          ),
+          if (baseSymbol.isNotEmpty) ...[
+            const SizedBox(width: 12),
+            Container(width: 1, height: 16, color: scheme.onTertiaryContainer.withValues(alpha: 0.3)),
+            const SizedBox(width: 12),
+            Text(
+              '${FormatUtils.formatDecimalAmountDisplay(config.orderAmount)} $baseSymbol',
+              style: TextStyle(
+                fontSize: 12,
+                color: scheme.onTertiaryContainer,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+          const Spacer(),
+          Icon(Icons.circle, size: 8, color: statusColor),
+        ],
       ),
     );
   }

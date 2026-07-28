@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/data/datasources/market_maker_remote_datasource.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/data/models/market_maker_config_model.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/data/models/market_maker_form_defaults_model.dart';
@@ -15,6 +16,7 @@ class MarketMakerProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _error;
+  ServerErrorCode _errorCode = ServerErrorCode.unknown;
 
   List<MarketMakerConfigModel> get configs => _configs;
   List<MarketMakerPairOption> get pairs => _pairs;
@@ -22,6 +24,7 @@ class MarketMakerProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isSubmitting => _isSubmitting;
   String? get error => _error;
+  ServerErrorCode get errorCode => _errorCode;
 
   MarketMakerConfigModel? configByPairId(String pairId) {
     for (final item in _configs) {
@@ -30,9 +33,19 @@ class MarketMakerProvider extends ChangeNotifier {
     return null;
   }
 
+  void _captureError(Object e) {
+    _error = e.toString();
+    if (e is ServerException) {
+      _errorCode = e.errorCode;
+    } else {
+      _errorCode = ServerErrorCode.unknown;
+    }
+  }
+
   Future<void> loadAll() async {
     _isLoading = true;
     _error = null;
+    _errorCode = ServerErrorCode.unknown;
     notifyListeners();
 
     try {
@@ -48,7 +61,7 @@ class MarketMakerProvider extends ChangeNotifier {
         _formDefaults = null;
       }
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       _formDefaults = null;
     } finally {
       _isLoading = false;
@@ -62,6 +75,7 @@ class MarketMakerProvider extends ChangeNotifier {
   ) async {
     _isSubmitting = true;
     _error = null;
+    _errorCode = ServerErrorCode.unknown;
     notifyListeners();
 
     try {
@@ -74,7 +88,7 @@ class MarketMakerProvider extends ChangeNotifier {
       }
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSubmitting = false;
@@ -85,6 +99,7 @@ class MarketMakerProvider extends ChangeNotifier {
   Future<bool> deleteConfig(String pairId) async {
     _isSubmitting = true;
     _error = null;
+    _errorCode = ServerErrorCode.unknown;
     notifyListeners();
 
     try {
@@ -92,7 +107,7 @@ class MarketMakerProvider extends ChangeNotifier {
       _configs = _configs.where((item) => item.pairId != pairId).toList();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSubmitting = false;
@@ -107,6 +122,7 @@ class MarketMakerProvider extends ChangeNotifier {
   }) async {
     _isSubmitting = true;
     _error = null;
+    _errorCode = ServerErrorCode.unknown;
     notifyListeners();
 
     try {
@@ -116,7 +132,7 @@ class MarketMakerProvider extends ChangeNotifier {
         refreshCycleKey: refreshCycleKey,
       );
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return null;
     } finally {
       _isSubmitting = false;

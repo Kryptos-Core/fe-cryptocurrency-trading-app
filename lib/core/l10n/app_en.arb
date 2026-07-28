@@ -1285,6 +1285,37 @@
     }
   },
   "marketMakerPlaceOrdersFormHint": "Uses the saved configuration for the selected pair. Override amount or idempotency key if needed.",
+  "marketMakerHubWelcomeTitle": "Market Maker workspace",
+  "marketMakerHubWelcomeSubtitle": "Configure market-making parameters, place orders around the market price, and monitor positions in real time.",
+  "marketMakerHubBadgeComingSoon": "Coming soon",
+  "marketMakerHubBadgeReady": "Ready",
+  "marketMakerSectionPair": "Trading pair",
+  "marketMakerSectionTradingParams": "Trading parameters",
+  "marketMakerSectionOrderAmount": "Order amount",
+  "marketMakerSectionRiskControls": "Risk controls",
+  "marketMakerSectionOrderParams": "Order parameters",
+  "marketMakerDeleteConfirmTitle": "Delete configuration",
+  "marketMakerDeleteConfirmContent": "Delete the Market Maker configuration for {symbol}? This action cannot be undone.",
+  "@marketMakerDeleteConfirmContent": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "marketMakerPlaceOrdersInfoBanner": "Uses the saved configuration for the selected pair.",
+  "marketMakerTooltipOrderAmountOverride": "Override the order amount from the saved configuration. Leave empty to use the saved value.",
+  "marketMakerTooltipRefreshCycleKey": "Idempotency key to prevent duplicate placements. Leave empty to auto-generate.",
+  "marketMakerStatActive": "Active",
+  "marketMakerStatInactive": "Inactive",
+  "marketMakerStatSpread": "Spread",
+  "marketMakerStatBpsUnit": "bps",
+  "marketMakerErrorLoadDefaults": "Failed to load default form values",
+  "marketMakerErrorLoadConfigs": "Failed to load market maker configurations",
+  "marketMakerErrorSaveConfig": "Failed to save market maker configuration",
+  "marketMakerErrorDeleteConfig": "Failed to delete market maker configuration",
+  "marketMakerErrorPlaceOrders": "Failed to place maker orders",
+  "marketMakerErrorLoadActivePairs": "Failed to load active trading pairs",
   "adminCurrenciesTitle": "Admin - Currencies",
   "adminCurrenciesCreateTitle": "Create new coin",
   "adminCurrenciesDeleteTitle": "Delete coin",

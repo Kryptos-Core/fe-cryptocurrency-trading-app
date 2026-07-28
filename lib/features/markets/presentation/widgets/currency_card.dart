@@ -1,5 +1,7 @@
 import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 
 /// Currency Card Widget
@@ -174,32 +176,18 @@ class CurrencyCard extends StatelessWidget {
   }
 
   String _formatPrice(String? raw, AppLocalizations l10n) {
-    final value = _parseDouble(raw);
-    if (value == null) return l10n.na;
-    if (value >= 1000) return value.toStringAsFixed(2);
-    if (value >= 1) return value.toStringAsFixed(4);
-    return value.toStringAsFixed(6);
+    if (raw == null || raw.isEmpty) return l10n.na;
+    return PriceFormatter.formatPriceStr(raw);
   }
 
   String _formatVolume(String? raw, AppLocalizations l10n) {
-    final value = _parseDouble(raw);
-    if (value == null) return l10n.na;
-    if (value >= 1000000000) {
-      return '${(value / 1000000000).toStringAsFixed(2)}B';
-    }
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(2)}M';
-    }
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(2)}K';
-    }
-    return value.toStringAsFixed(2);
+    if (raw == null || raw.isEmpty) return l10n.na;
+    return PriceFormatter.formatVolumeStr(raw);
   }
 
   String _formatChange(double? value, AppLocalizations l10n) {
     if (value == null) return l10n.na;
-    final prefix = value > 0 ? '+' : '';
-    return '$prefix${value.toStringAsFixed(2)}%';
+    return FormatUtils.formatPriceChange(value);
   }
 
   Color _changeColor(double? value) {

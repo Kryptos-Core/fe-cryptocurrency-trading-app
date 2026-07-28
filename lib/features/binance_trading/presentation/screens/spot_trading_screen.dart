@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import '../../application/providers/binance_trading_provider.dart';
 import '../../domain/entities/binance_trading_entities.dart';
 
@@ -183,7 +185,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
                   children: [
                     Text(b.asset, style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                      '${double.tryParse(b.free)?.toStringAsFixed(4) ?? "0"} free',
+                      '${FormatUtils.formatDecimalAmountDisplay(b.free)} free',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -336,7 +338,9 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
                   final balance = _getRelevantBalance(trading.balances, _orderSide);
                   if (balance == 0) return;
                   final amount = (balance * pct / 100);
-                  _amountController.text = amount.toStringAsFixed(6);
+                  _amountController.text = FormatUtils.formatDecimalAmountDisplay(
+                    amount.toString(),
+                  );
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -383,7 +387,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
         children: [
           Text('Total', style: Theme.of(context).textTheme.labelLarge),
           Text(
-            '${total.toStringAsFixed(4)} USDT',
+            '${FormatUtils.formatQuoteAmount(total)} USDT',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -585,7 +589,7 @@ class _OrderTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  double.tryParse(order.price)?.toStringAsFixed(4) ?? order.price,
+                  PriceFormatter.formatPriceStr(order.price),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 ),
                 const SizedBox(height: 2),

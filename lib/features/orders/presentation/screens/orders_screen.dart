@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
@@ -9,6 +8,8 @@ import 'package:crypto_trading_app/features/orders/domain/entities/order_book_le
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
+import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/core/utils/order_api_error_localization.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
@@ -21,66 +22,29 @@ import 'package:crypto_trading_app/features/markets/presentation/widgets/trading
 
 // --- Format số hiển thị (best practice: dấu phân cách hàng nghìn, bỏ số 0 thừa) ---
 
-/// Giá: dấu phẩy nghìn, 2–6 chữ số thập phân theo magnitude, bỏ 0 thừa.
+/// Giá: dấu phân cách hàng nghìn, 1–8 chữ số thập phân theo magnitude, bỏ 0 thừa.
 String _formatPriceDisplay(String raw) {
-  final v = double.tryParse(raw.replaceAll(',', '').trim());
-  if (v == null) return raw;
-  if (v == 0) return '0';
-  int decimals;
-  if (v >= 10000) {
-    decimals = 2;
-  } else if (v >= 1) {
-    decimals = 2;
-  } else if (v >= 0.01) {
-    decimals = 4;
-  } else {
-    decimals = 6;
-  }
-  final pattern = '#,##0.${'#' * decimals}';
-  var s = NumberFormat(pattern).format(v);
-  if (s.contains('.')) {
-    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  }
-  return s;
+  return PriceFormatter.formatPriceStr(raw);
 }
 
-/// Volume: K/M khi lớn, dấu phẩy nghìn, tối đa 2 số lẻ.
+/// Volume: K/M/B khi lớn, dấu phân cách hàng nghìn, bỏ 0 thừa.
 String _formatVolumeDisplay(String raw) {
-  final v = double.tryParse(raw.replaceAll(',', '').trim());
-  if (v == null) return raw;
-  if (v == 0) return '0';
-  if (v >= 1e6) return '${NumberFormat('#,##0.##').format(v / 1e6)}M';
-  if (v >= 1e3) return '${NumberFormat('#,##0.##').format(v / 1e3)}K';
-  return NumberFormat('#,##0.##').format(v);
+  return PriceFormatter.formatVolumeStr(raw);
 }
 
-/// Số dư / số lượng: dấu phẩy nghìn, tối đa 8 chữ số thập phân, bỏ 0 thừa.
+/// Số dư / số lượng: dấu phân cách hàng nghìn, tối đa 8 chữ số thập phân, bỏ 0 thừa.
 String _formatAmountDisplay(String raw) {
-  final v = double.tryParse(raw.replaceAll(',', '').trim());
-  if (v == null) return raw;
-  if (v == 0) return '0';
-  var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.')) {
-    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  }
-  return s;
+  return FormatUtils.formatDecimalAmountDisplay(raw);
 }
 
 /// Khối lượng tối thiểu: bỏ số 0 thừa, dễ đọc.
 String _formatMinAmountDisplay(String raw) {
-  final v = double.tryParse(raw.replaceAll(',', '').trim());
-  if (v == null) return raw;
-  if (v == 0) return '0';
-  var s = NumberFormat('#,##0.########').format(v);
-  if (s.contains('.')) {
-    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  }
-  return s;
+  return FormatUtils.formatDecimalAmountDisplay(raw);
 }
 
-/// Tổng tiền (quote): 2 số thập phân, dấu phẩy nghìn.
+/// Tổng tiền (quote): 2 số thập phân, dấu phân cách hàng nghìn.
 String _formatTotalDisplay(double value) {
-  return NumberFormat('#,##0.00').format(value);
+  return FormatUtils.formatQuoteAmount(value);
 }
 
 double? _parseDecimalInput(String raw) {

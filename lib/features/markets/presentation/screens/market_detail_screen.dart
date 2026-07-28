@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_windows/webview_windows.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
 import 'package:crypto_trading_app/core/utils/ohlcv_to_chart.dart';
 import 'package:crypto_trading_app/core/utils/tradingview_pro_chart_html.dart';
@@ -42,30 +43,20 @@ double? _lastPriceFromTicker(MarketsProvider marketsProvider) {
   return double.tryParse(t.lastPrice);
 }
 
-/// Format price for display: sensible decimals, trim trailing zeros.
 /// Format min order amount / small decimal: trim trailing zeros, max 8 decimals.
 String _formatDetailAmount(String amountStr) {
-  final v = double.tryParse(amountStr);
-  if (v == null) return amountStr;
-  if (v == 0) return '0';
-  final s = v.toStringAsFixed(8);
-  if (s.contains('.')) {
-    return s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-  }
-  return s;
+  return FormatUtils.formatDecimalAmountDisplay(amountStr);
 }
 
 /// Format fee rate for display. API: maker_fee_rate/taker_fee_rate are decimal rate (e.g. "0.00100000" = 0.1%).
-/// Display as percentage: (parseFloat(rate) * 100).toFixed(2) + '%' → "0.10%".
+/// Display as percentage: rate * 100, signed, two decimals — strip trailing zeros.
 String _formatDetailFee(String feeStr) {
   final v = double.tryParse(feeStr);
   if (v == null) return feeStr;
   final percent = v * 100;
   if (percent == 0) return '0%';
-  if (percent.abs() >= 100) return '${percent.toStringAsFixed(1)}%';
-  if (percent.abs() >= 1) return '${percent.toStringAsFixed(2)}%';
-  if (percent.abs() >= 0.01) return '${percent.toStringAsFixed(2)}%';
-  return '${percent.toStringAsFixed(2)}%';
+  final sign = percent > 0 ? '+' : '-';
+  return '$sign${FormatUtils.formatDecimalAmountDisplay(percent.abs().toString())}%';
 }
 
 // ============================================================================

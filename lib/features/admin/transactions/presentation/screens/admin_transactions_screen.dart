@@ -1448,7 +1448,7 @@ class _OrderDetailSheet extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text('${fillPct.toStringAsFixed(1)}%',
+                          Text('${FormatUtils.formatDecimalAmountDisplay(fillPct.toStringAsFixed(1))}%',
                               style: const TextStyle(fontWeight: FontWeight.w500)),
                         ],
                       ),
