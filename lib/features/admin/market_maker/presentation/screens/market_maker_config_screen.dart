@@ -84,9 +84,12 @@ class _MarketMakerConfigScreenState extends State<MarketMakerConfigScreen> {
       if (config != null) {
         _spreadBpsCtrl.text = config.spreadBps.toString();
         _spreadAlertBpsCtrl.text = config.spreadAlertThresholdBps.toString();
-        _orderAmountCtrl.text = config.orderAmount;
-        _stopLossPctCtrl.text = config.stopLossPct ?? '';
-        _maxPositionBaseCtrl.text = config.maxPositionBase ?? '';
+        _orderAmountCtrl.text =
+            FormatUtils.normalizeDecimalInput(config.orderAmount);
+        _stopLossPctCtrl.text =
+            FormatUtils.normalizeDecimalInput(config.stopLossPct ?? '');
+        _maxPositionBaseCtrl.text =
+            FormatUtils.normalizeDecimalInput(config.maxPositionBase ?? '');
         _isActive = config.isActive;
       } else {
         final d = provider.formDefaults;

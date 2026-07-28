@@ -51,6 +51,25 @@ class FormatUtils {
         .replaceAll(RegExp(r'\.$'), '');
   }
 
+  /// Normalise a decimal string from the API for use in `TextEditingController`
+  /// inputs (order amount, max position, stop loss, etc.).
+  ///
+  /// Strips trailing zeros and trailing dots so `"0.050000000000000000"` becomes
+  /// `"0.05"`. Preserves sign and all meaningful digits; does NOT add thousands
+  /// separators (so the result remains parseable when sent back to the API).
+  /// Returns the original string unchanged on parse failure or empty input.
+  static String normalizeDecimalInput(String amountStr) {
+    final s = amountStr.replaceAll(',', '').trim();
+    if (s.isEmpty) return amountStr;
+    final negative = s.startsWith('-');
+    final unsigned = negative ? s.substring(1) : s;
+    if (!unsigned.contains('.')) return amountStr;
+    final trimmed =
+        unsigned.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    if (trimmed.isEmpty) return amountStr; // pure zeros — keep original to preserve "0"
+    return negative ? '-$trimmed' : trimmed;
+  }
+
   /// Format portfolio total with compact notation for large values.
   /// < 10K: "$1,234.56" — ≥ 10K: "$12.3K"
   static String formatPortfolioTotal(double value) {

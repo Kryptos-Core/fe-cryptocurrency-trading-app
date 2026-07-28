@@ -105,6 +105,8 @@ class AppEmptyStateInline extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 28, color: scheme.outline),
           const SizedBox(height: 10),

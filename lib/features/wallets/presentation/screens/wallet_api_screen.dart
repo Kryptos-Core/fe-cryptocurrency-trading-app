@@ -368,20 +368,24 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     }
 
     if (provider.walletBalance != null) {
-      return RefreshIndicator(
-        onRefresh: () async {
-          _fetchBalance();
+      return LayoutBuilder(
+        builder: (context, viewportConstraints) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              _fetchBalance();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: _buildRecentTransactionsSection(
+                context,
+                provider,
+                l10n,
+                viewportConstraints.maxHeight - 32,
+              ),
+            ),
+          );
         },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildRecentTransactionsSection(context, provider, l10n),
-            ],
-          ),
-        ),
       );
     }
 
@@ -424,7 +428,11 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
   }
 
   Widget _buildRecentTransactionsSection(
-      BuildContext context, WalletsProvider provider, AppLocalizations l10n) {
+    BuildContext context,
+    WalletsProvider provider,
+    AppLocalizations l10n,
+    double availableHeight,
+  ) {
     final theme = Theme.of(context);
     final filtered = _getFilteredTransactions(provider);
     final showRows = filtered.isNotEmpty;
@@ -433,6 +441,7 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 24),
         Row(
@@ -476,80 +485,26 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
           },
         ),
         const SizedBox(height: 16),
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              // Table header
-              Container(
-                color: theme.colorScheme.surfaceContainerLow,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        l10n.date,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        l10n.type,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        l10n.direction,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 6),
+        SizedBox(
+          height: availableHeight > 0 ? availableHeight : null,
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                // Table header
+                Container(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
                         child: Text(
-                          l10n.amount,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 12,
-                      child: Center(
-                        child: Container(
-                          width: 1,
-                          color: theme.colorScheme.outlineVariant,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(
-                          l10n.reference,
+                          l10n.date,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelLarge?.copyWith(
@@ -557,121 +512,189 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              if (showRows)
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final tx = filtered[i];
-                    final color = _getRefTypeColor(context, tx.refType);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          l10n.type,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              _formatTxDate(tx.timestamp),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall,
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          l10n.direction,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(
+                            l10n.amount,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 12,
+                        child: Center(
+                          child: Container(
+                            width: 1,
+                            color: theme.colorScheme.outlineVariant,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text(
+                            l10n.reference,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  _getRefTypeIcon(tx.refType),
-                                  size: 18,
-                                  color: color,
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    _getRefTypeLabel(tx.refType, l10n),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: showRows
+                      ? ListView.separated(
+                          padding: EdgeInsets.zero,
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, i) {
+                            final tx = filtered[i];
+                            final color =
+                                _getRefTypeColor(context, tx.refType);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      _formatTxDate(tx.timestamp),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.bodySmall,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: _DirectionBadge(
-                              action: tx.action,
-                              color: color,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Text(
-                                _formatAmountForDisplay(tx.amount),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.right,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: color,
-                                ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          _getRefTypeIcon(tx.refType),
+                                          size: 18,
+                                          color: color,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            _getRefTypeLabel(
+                                                tx.refType, l10n),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: _DirectionBadge(
+                                      action: tx.action,
+                                      color: color,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 6),
+                                      child: Text(
+                                        _formatAmountForDisplay(tx.amount),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.right,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: color,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 12,
+                                    child: Center(
+                                      child: Container(
+                                        width: 1,
+                                        color:
+                                            theme.colorScheme.outlineVariant,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 6),
+                                      child: Text(
+                                        '#${tx.refId}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 12,
-                            child: Center(
-                              child: Container(
-                                width: 1,
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Text(
-                                '#${tx.refId}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: hasAny
-                      ? AppEmptyStateInline(
-                          message: l10n.noTransactionsMatch,
-                          icon: Icons.filter_list_off,
+                            );
+                          },
                         )
-                      : AppEmptyStateInline(
-                          message: l10n.noTransactionsFound,
-                          icon: Icons.receipt_long_outlined,
+                      : Center(
+                          child: hasAny
+                              ? AppEmptyStateInline(
+                                  message: l10n.noTransactionsMatch,
+                                  icon: Icons.filter_list_off,
+                                )
+                              : AppEmptyStateInline(
+                                  message: l10n.noTransactionsFound,
+                                  icon: Icons.receipt_long_outlined,
+                                ),
                         ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -730,8 +753,6 @@ class _WalletApiScreenState extends State<WalletApiScreen> {
     }
   }
 }
-
-// ── Filter Dropdown ──────────────────────────────────────────────────────────
 
 // ── Direction Badge ──────────────────────────────────────────────────────────
 
