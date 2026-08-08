@@ -3,6 +3,7 @@ enum ConfigCategory {
   finance,
   ops,
   core,
+  authSecurity,
 }
 
 class SystemConfig {
@@ -40,6 +41,7 @@ class SystemConfig {
     if (cat == 'tech') return ConfigCategory.tech;
     if (cat == 'finance') return ConfigCategory.finance;
     if (cat == 'ops') return ConfigCategory.ops;
+    if (cat == 'auth_security') return ConfigCategory.authSecurity;
     return ConfigCategory.core;
   }
 }

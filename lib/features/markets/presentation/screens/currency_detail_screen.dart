@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
+
 import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
-import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_detail_row.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_metric_card.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_status_badge.dart';
 
 /// Currency Detail Screen
-/// Displays detailed information about a currency
+///
+/// Shows a sticky header (symbol + name + status) followed by three themed
+/// sections (market overview, configuration, status). All colors derive from
+/// the active [ColorScheme].
 class CurrencyDetailScreen extends StatefulWidget {
   final String currencyId;
   final Currency? initialCurrency;
@@ -28,6 +37,7 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
     super.initState();
     if (widget.initialCurrency == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         context.read<CurrenciesProvider>().getCurrencyById(widget.currencyId);
       });
     }
@@ -38,260 +48,391 @@ class _CurrencyDetailScreenState extends State<CurrencyDetailScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.currenciesDetailTitle),
-      ),
       body: Consumer<CurrenciesProvider>(
-        builder: (context, provider, child) {
+        builder: (context, provider, _) {
           if (provider.isLoading &&
               provider.selectedCurrency == null &&
               widget.initialCurrency == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const _DetailLoadingScaffold();
           }
 
           if (provider.error != null &&
               provider.selectedCurrency == null &&
               widget.initialCurrency == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    provider.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      provider.getCurrencyById(widget.currencyId);
-                    },
-                    child: Text(l10n.retry),
-                  ),
-                ],
+            return Scaffold(
+              appBar: AppBar(),
+              body: AppEmptyState(
+                icon: Icons.error_outline,
+                title: l10n.currenciesNotFound,
+                message: provider.error!,
+                action: () =>
+                    provider.getCurrencyById(widget.currencyId),
+                actionLabel: l10n.currenciesRetryAction,
               ),
             );
           }
 
-          final currency = provider.selectedCurrency ?? widget.initialCurrency;
+          final currency =
+              provider.selectedCurrency ?? widget.initialCurrency;
           if (currency == null) {
-            return Center(child: Text(l10n.currenciesNotFound));
+            return Scaffold(
+              appBar: AppBar(),
+              body: AppEmptyState(
+                icon: Icons.help_outline,
+                message: l10n.currenciesNotFound,
+              ),
+            );
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: Center(
-                          child: Text(
-                            currency.symbol.substring(0, 1),
-                            style: const TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        currency.symbol,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        currency.name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  l10n.currenciesMarketOverviewTitle,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(
-                        l10n.lastPrice,
-                        _formatPrice(currency.lastPrice, l10n),
-                        Icons.price_change,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildMetricCard(
-                        l10n.change24h,
-                        _formatChange(currency.priceChangePercent24h, l10n),
-                        Icons.trending_up,
-                        valueColor:
-                            _changeColor(currency.priceChangePercent24h),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildMetricCard(
-                  l10n.volume24h,
-                  _formatVolume(currency.volume24h, l10n),
-                  Icons.bar_chart,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  l10n.currenciesConfigurationTitle,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildDetailCard(
-                  l10n.currenciesSymbolLabel,
-                  currency.symbol,
-                  Icons.tag,
-                ),
-                _buildDetailCard(
-                  l10n.currenciesNameLabel,
-                  currency.name,
-                  Icons.info,
-                ),
-                _buildDetailCard(
-                  l10n.currenciesPrecisionScaleLabel,
-                  '${currency.precisionScale}',
-                  Icons.precision_manufacturing,
-                ),
-                _buildDetailCard(
-                  l10n.currenciesMinWithdrawLabel,
-                  '${FormatUtils.formatDecimalAmountForScale(currency.minWithdraw, currency.precisionScale)} ${currency.symbol}',
-                  Icons.arrow_downward,
-                ),
-                _buildDetailCard(
-                  l10n.status,
-                  currency.isActive ? l10n.active : l10n.inactive,
-                  currency.isActive ? Icons.check_circle : Icons.cancel,
-                  color: currency.isActive ? Colors.green : Colors.red,
-                ),
-                _buildDetailCard(
-                  l10n.currenciesTradable,
-                  currency.isTradable ? l10n.currenciesYes : l10n.currenciesNo,
-                  currency.isTradable ? Icons.check_circle : Icons.cancel,
-                  color: currency.isTradable ? Colors.blue : Colors.grey,
-                ),
-              ],
-            ),
+          return _DetailContent(
+            currency: currency,
+            showBackButton: widget.initialCurrency == null,
+            onBack: () => Navigator.of(context).maybePop(),
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildMetricCard(
-    String label,
-    String value,
-    IconData icon, {
-    Color? valueColor,
-  }) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+class _DetailLoadingScaffold extends StatelessWidget {
+  const _DetailLoadingScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _DetailContent extends StatelessWidget {
+  const _DetailContent({
+    required this.currency,
+    required this.showBackButton,
+    required this.onBack,
+  });
+
+  final Currency currency;
+  final bool showBackButton;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+
+    final changeValue = _parseDouble(currency.priceChangePercent24h);
+    final changeColor = _changeColor(changeValue, scheme);
+    final changeText = _formatChange(changeValue, l10n);
+    final lastPrice = _formatPrice(currency.lastPrice, l10n);
+    final volumeText = _formatVolume(currency.volume24h, l10n);
+
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar.medium(
+          pinned: true,
+          leading: showBackButton
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: l10n.currenciesDetailBackToMarkets,
+                  onPressed: onBack,
+                )
+              : null,
+          title: Text(currency.symbol),
+          backgroundColor: scheme.surface,
+          surfaceTintColor: scheme.surfaceTint,
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: scheme.outlineVariant),
+            ),
+            child: Column(
               children: [
-                Icon(icon, size: 16, color: Colors.grey.shade700),
-                const SizedBox(width: 6),
+                _Avatar(symbol: currency.symbol, scheme: scheme),
+                const SizedBox(height: 12),
                 Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w600,
+                  currency.symbol,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  currency.name,
+                  style: textTheme.titleSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    currency.badgeFor(CurrencyStatusKind.active),
+                    currency.badgeFor(CurrencyStatusKind.tradable),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  lastPrice,
+                  style: textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _ChangePill(text: changeText, color: changeColor),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: valueColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailCard(String label, String value, IconData icon,
-      {Color? color}) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Icon(icon, color: color),
-        title: Text(label),
-        subtitle: Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: color,
           ),
         ),
+        SliverToBoxAdapter(
+          child: _SectionHeader(
+            title: l10n.currenciesMarketOverviewTitle,
+            icon: Icons.show_chart,
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          sliver: SliverGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.7,
+            children: [
+              CurrencyMetricCard(
+                label: l10n.lastPrice,
+                value: lastPrice,
+                icon: Icons.price_change,
+              ),
+              CurrencyMetricCard(
+                label: l10n.change24h,
+                value: changeText,
+                icon: Icons.trending_up,
+                valueColor: changeColor,
+              ),
+              CurrencyMetricCard(
+                label: l10n.volume24h,
+                value: volumeText,
+                icon: Icons.bar_chart,
+              ),
+            ],
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _SectionHeader(
+            title: l10n.currenciesConfigurationTitle,
+            icon: Icons.tune,
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate.fixed([
+              CurrencyDetailRow(
+                label: l10n.currenciesSymbolLabel,
+                value: currency.symbol,
+                icon: Icons.tag,
+              ),
+              CurrencyDetailRow(
+                label: l10n.currenciesNameLabel,
+                value: currency.name,
+                icon: Icons.info_outline,
+              ),
+              CurrencyDetailRow(
+                label: l10n.currenciesPrecisionScaleLabel,
+                value: '${currency.precisionScale}',
+                icon: Icons.precision_manufacturing,
+              ),
+              CurrencyDetailRow(
+                label: l10n.currenciesMinWithdrawLabel,
+                value:
+                    '${FormatUtils.formatDecimalAmountForScale(currency.minWithdraw, currency.precisionScale)} ${currency.symbol}',
+                icon: Icons.arrow_downward,
+              ),
+            ]),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _SectionHeader(
+            title: l10n.currenciesDetailStatusTitle,
+            icon: Icons.toggle_on,
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate.fixed([
+              _StatusRow(
+                label: l10n.currenciesDetailActiveLabel,
+                badge: currency.badgeFor(CurrencyStatusKind.active),
+              ),
+              const SizedBox(height: 8),
+              _StatusRow(
+                label: l10n.currenciesDetailTradableLabel,
+                badge: currency.badgeFor(CurrencyStatusKind.tradable),
+              ),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.icon});
+
+  final String title;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: scheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: scheme.primary,
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  String _formatPrice(String? raw, AppLocalizations l10n) {
-    if (raw == null || raw.isEmpty) return l10n.na;
-    return PriceFormatter.formatPriceStr(raw);
-  }
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.symbol, required this.scheme});
 
-  String _formatVolume(String? raw, AppLocalizations l10n) {
-    if (raw == null || raw.isEmpty) return l10n.na;
-    return PriceFormatter.formatVolumeStr(raw);
-  }
+  final String symbol;
+  final ColorScheme scheme;
 
-  String _formatChange(String? raw, AppLocalizations l10n) {
-    final value = _parseDouble(raw);
-    if (value == null) return l10n.na;
-    return FormatUtils.formatPriceChange(value);
+  @override
+  Widget build(BuildContext context) {
+    final letter = symbol.isEmpty ? '?' : symbol.substring(0, 1);
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: scheme.primaryContainer,
+        borderRadius: BorderRadius.circular(40),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.bold,
+          color: scheme.onPrimaryContainer,
+        ),
+      ),
+    );
   }
+}
 
-  Color _changeColor(String? raw) {
-    final value = _parseDouble(raw);
-    if (value == null) return Colors.grey.shade700;
-    if (value > 0) return Colors.green;
-    if (value < 0) return Colors.red;
-    return Colors.grey.shade700;
-  }
+class _ChangePill extends StatelessWidget {
+  const _ChangePill({required this.text, required this.color});
 
-  double? _parseDouble(String? value) {
-    if (value == null || value.trim().isEmpty) return null;
-    return double.tryParse(value);
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: textTheme.titleSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
   }
+}
+
+class _StatusRow extends StatelessWidget {
+  const _StatusRow({required this.label, required this.badge});
+
+  final String label;
+  final Widget badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          badge,
+        ],
+      ),
+    );
+  }
+}
+
+String _formatPrice(String? raw, AppLocalizations l10n) {
+  if (raw == null || raw.isEmpty) return l10n.na;
+  return PriceFormatter.formatPriceStr(raw);
+}
+
+String _formatVolume(String? raw, AppLocalizations l10n) {
+  if (raw == null || raw.isEmpty) return l10n.na;
+  return PriceFormatter.formatVolumeStr(raw);
+}
+
+String _formatChange(double? value, AppLocalizations l10n) {
+  if (value == null) return l10n.na;
+  return FormatUtils.formatPriceChange(value);
+}
+
+Color _changeColor(double? value, ColorScheme scheme) {
+  if (value == null) return scheme.onSurfaceVariant;
+  if (value > 0) return scheme.tertiary;
+  if (value < 0) return scheme.error;
+  return scheme.onSurfaceVariant;
+}
+
+double? _parseDouble(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  return double.tryParse(value);
 }

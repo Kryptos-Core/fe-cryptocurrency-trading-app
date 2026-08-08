@@ -1,16 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:crypto_trading_app/app/router/app_routes.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/features/markets/domain/entities/market_pair.dart';
 import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
 import 'package:crypto_trading_app/features/orders/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/utils/amount_input_formatter.dart';
+import 'package:crypto_trading_app/core/utils/api_error_localizer.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
-import 'package:crypto_trading_app/core/utils/order_api_error_localization.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
 import 'package:crypto_trading_app/core/services/trading_pair_bookmark_store.dart';
@@ -129,19 +132,51 @@ class _OrdersScreenState extends State<OrdersScreen> {
   String _orderType = 'LIMIT';
   MarketPair? _selectedMarket;
 
+  AuthProvider? _authProvider;
+  bool? _lastIsAuthenticated;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrdersProvider>().fetchMyOrders(refresh: true);
+      _authProvider = context.read<AuthProvider>();
+      _authProvider!.addListener(_onAuthChanged);
+      _lastIsAuthenticated = _authProvider!.isAuthenticated;
+      _maybeFetchOrders();
     });
   }
 
   @override
   void dispose() {
+    _authProvider?.removeListener(_onAuthChanged);
+    _authProvider = null;
     _priceController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  void _onAuthChanged() {
+    final auth = context.read<AuthProvider>();
+    if (_lastIsAuthenticated == null) {
+      _lastIsAuthenticated = auth.isAuthenticated;
+      return;
+    }
+    if (_lastIsAuthenticated == auth.isAuthenticated) return;
+
+    _lastIsAuthenticated = auth.isAuthenticated;
+    if (!auth.isAuthenticated) {
+      context.read<OrdersProvider>().reset();
+    } else {
+      context.read<OrdersProvider>().fetchMyOrders(refresh: true);
+    }
+  }
+
+  void _maybeFetchOrders() {
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+    if (auth.isAuthenticated) {
+      context.read<OrdersProvider>().fetchMyOrders(refresh: true);
+    }
   }
 
   Future<void> _openTradingPairPicker(
@@ -171,6 +206,32 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final auth = context.select<AuthProvider, bool>((a) => a.isAuthenticated);
+
+    if (!auth) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.orders),
+        ),
+        body: _OrdersGuestGate(
+          onSignIn: () => context.push(AppRoutes.login),
+          onRegister: () => context.push(AppRoutes.register),
+        ),
+      );
+    }
+
+    final ordersProvider = context.watch<OrdersProvider>();
+    if (ordersProvider.sessionExpired) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.orders),
+        ),
+        body: _OrdersSessionExpiredGate(
+          onSignInAgain: () => context.push(AppRoutes.login),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.orders),
@@ -185,86 +246,129 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= AppBreakpoints.compact;
-          return _buildBody(context, l10n, isWide);
+          final width = constraints.maxWidth;
+          final layout = width < _kCompactBreakpoint
+              ? _OrdersLayout.compact
+              : width < _kMediumBreakpoint
+                  ? _OrdersLayout.medium
+                  : _OrdersLayout.expanded;
+          return _buildBody(context, l10n, layout);
         },
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l10n, bool isWide) {
-    if (isWide) {
-      return _buildWideLayout(context, l10n);
+  /// Responsive layout tier for the Orders screen.
+  static const double _kCompactBreakpoint = 600;
+  static const double _kMediumBreakpoint = 900;
+
+  Widget _buildBody(BuildContext context, AppLocalizations l10n, _OrdersLayout layout) {
+    switch (layout) {
+      case _OrdersLayout.compact:
+        return _buildCompactLayout(context, l10n);
+      case _OrdersLayout.medium:
+        return _buildMediumLayout(context, l10n);
+      case _OrdersLayout.expanded:
+        return _buildExpandedLayout(context, l10n);
     }
-    return _buildCompactLayout(context, l10n);
   }
 
+  // ── Compact: mobile vertical stack ─────────────────────────────────────────
+
   Widget _buildCompactLayout(BuildContext context, AppLocalizations l10n) {
-    return RefreshIndicator(
+    return _ResponsiveOrdersScrollView(
+      layout: _OrdersLayout.compact,
       onRefresh: () =>
           context.read<OrdersProvider>().fetchMyOrders(refresh: true),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(_kSectionPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildPlaceOrderSection(context),
-            const SizedBox(height: _kSectionSpacing),
-            _buildOrderBookSection(context),
-            if (_selectedMarket != null) ...[
-              const SizedBox(height: _kSectionSpacing),
-              _buildRecentTradesSection(context),
-            ],
-            const SizedBox(height: _kSectionSpacing),
-            _buildMyOrdersSection(context),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
+      children: [
+        _buildPlaceOrderSection(context),
+        const SizedBox(height: _kSectionSpacing),
+        _buildOrderBookSection(context, maxLevels: 8),
+        if (_selectedMarket != null) ...[
+          const SizedBox(height: _kSectionSpacing),
+          _buildRecentTradesSection(context, maxRows: 10),
+        ],
+        const SizedBox(height: _kSectionSpacing),
+        _buildMyOrdersSection(context, compact: true),
+        const SizedBox(height: 32),
+      ],
     );
   }
 
-  Widget _buildWideLayout(BuildContext context, AppLocalizations l10n) {
-    return RefreshIndicator(
+  // ── Medium: 600–899px – two columns ───────────────────────────────────────
+
+  Widget _buildMediumLayout(BuildContext context, AppLocalizations l10n) {
+    return _ResponsiveOrdersScrollView(
+      layout: _OrdersLayout.medium,
       onRefresh: () =>
           context.read<OrdersProvider>().fetchMyOrders(refresh: true),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(_kSectionPadding),
-        child: Row(
+      children: [
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Left column: Place Order + My Orders
             Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildPlaceOrderSection(context),
-                  const SizedBox(height: _kSectionSpacing),
-                  _buildMyOrdersSection(context),
-                ],
-              ),
+              child: _buildPlaceOrderSection(context),
             ),
             const SizedBox(width: 16),
-            // Right column: Order Book + Recent Trades
             Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildOrderBookSection(context),
-                  if (_selectedMarket != null) ...[
-                    const SizedBox(height: _kSectionSpacing),
-                    _buildRecentTradesSection(context),
-                  ],
-                ],
-              ),
+              child: _buildOrderBookSection(context, maxLevels: 10),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: _kSectionSpacing),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildMyOrdersSection(context, compact: false),
+            ),
+            if (_selectedMarket != null) ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildRecentTradesSection(context, maxRows: 12),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  // ── Expanded: ≥900px – three columns ─────────────────────────────────────
+
+  Widget _buildExpandedLayout(BuildContext context, AppLocalizations l10n) {
+    return _ResponsiveOrdersScrollView(
+      layout: _OrdersLayout.expanded,
+      onRefresh: () =>
+          context.read<OrdersProvider>().fetchMyOrders(refresh: true),
+      children: [
+        // Row 1: Place Order | Order Book | Recent Trades
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildPlaceOrderSection(context),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildOrderBookSection(context, maxLevels: 12),
+            ),
+            if (_selectedMarket != null) ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildRecentTradesSection(context, maxRows: 15),
+              ),
+            ] else ...[
+              const Spacer(),
+            ],
+          ],
+        ),
+        const SizedBox(height: _kSectionSpacing),
+        // Row 2: My Orders full width
+        _buildMyOrdersSection(context, compact: false),
+        const SizedBox(height: 32),
+      ],
     );
   }
 
@@ -601,7 +705,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   borderRadius: BorderRadius.circular(_kInputRadius),
                 ),
                 child: Text(
-                  localizeOrderApiError(
+                  localizeApiError(
                     l10n,
                     code: ordersProvider.apiErrorCode,
                     message: ordersProvider.error,
@@ -945,7 +1049,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildRecentTradesSection(BuildContext context) {
+  Widget _buildRecentTradesSection(BuildContext context, {int maxRows = 15}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -1046,7 +1150,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ),
                     ],
                   ),
-                  ...trades.take(15).map((t) {
+                  ...trades.take(maxRows).map((t) {
                     return TableRow(
                       decoration: BoxDecoration(color: colorScheme.surface),
                       children: [
@@ -1233,7 +1337,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
-  Widget _buildOrderBookSection(BuildContext context) {
+  Widget _buildOrderBookSection(BuildContext context, {int maxLevels = 10}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -1301,7 +1405,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  localizeOrderApiError(
+                  localizeApiError(
                     l10n,
                     code: provider.apiErrorCode,
                     message: provider.error,
@@ -1322,6 +1426,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       title: l10n.bidsBuy,
                       levels: provider.orderBookBids,
                       isBid: true,
+                      maxLevels: maxLevels,
                       onPriceTap: _orderType == 'LIMIT'
                           ? (price) => setState(() => _priceController.value =
                               AmountInputFormatter.valueFromPlainDecimal(price))
@@ -1334,6 +1439,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       title: l10n.asksSell,
                       levels: provider.orderBookAsks,
                       isBid: false,
+                      maxLevels: maxLevels,
                       onPriceTap: _orderType == 'LIMIT'
                           ? (price) => setState(() => _priceController.value =
                               AmountInputFormatter.valueFromPlainDecimal(price))
@@ -1349,7 +1455,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildMyOrdersSection(BuildContext context) {
+  Widget _buildMyOrdersSection(BuildContext context, {bool compact = true}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -1368,7 +1474,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   size: 48, color: colorScheme.error),
               const SizedBox(height: 12),
               Text(
-                localizeOrderApiError(
+                localizeApiError(
                   l10n,
                   code: provider.apiErrorCode,
                   message: provider.error,
@@ -1466,16 +1572,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 }
 
+enum _OrdersLayout { compact, medium, expanded }
+
 class _OrderBookTable extends StatelessWidget {
   final String title;
   final List<OrderBookLevel> levels;
   final bool isBid;
+  final int maxLevels;
   final void Function(String price)? onPriceTap;
 
   const _OrderBookTable({
     required this.title,
     required this.levels,
     required this.isBid,
+    this.maxLevels = 10,
     this.onPriceTap,
   });
 
@@ -1524,7 +1634,7 @@ class _OrderBookTable extends StatelessWidget {
                           isHeader: true)),
                 ],
               ),
-              ...levels.take(10).map((l) {
+              ...levels.take(maxLevels).map((l) {
                 const cellPadding =
                     EdgeInsets.symmetric(vertical: 6, horizontal: 8);
                 return TableRow(
@@ -1577,6 +1687,8 @@ class _OrderBookTable extends StatelessWidget {
   }
 }
 
+// ── Auth gate widgets ─────────────────────────────────────────────────────────
+
 class _OrderListTile extends StatelessWidget {
   final Order order;
   final VoidCallback onCancel;
@@ -1627,6 +1739,175 @@ class _OrderListTile extends StatelessWidget {
               child: Text(AppLocalizations.of(context).cancel),
             )
           : null,
+    );
+  }
+}
+
+/// Full-screen gate shown to unauthenticated users trying to access the Orders tab.
+class _OrdersGuestGate extends StatelessWidget {
+  final VoidCallback onSignIn;
+  final VoidCallback onRegister;
+
+  const _OrdersGuestGate({
+    required this.onSignIn,
+    required this.onRegister,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AppCenteredContent(
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 32),
+            Icon(
+              Icons.lock_outline,
+              size: 72,
+              color: colorScheme.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.ordersGuestGateTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.ordersGuestGateSubtitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: colorScheme.outline),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 36),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onSignIn,
+                icon: const Icon(Icons.login),
+                label: Text(l10n.signIn),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onRegister,
+                child: Text(l10n.createAccount),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Full-screen gate shown when the auth token has expired on the Orders tab.
+class _OrdersSessionExpiredGate extends StatelessWidget {
+  final VoidCallback onSignInAgain;
+
+  const _OrdersSessionExpiredGate({required this.onSignInAgain});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AppCenteredContent(
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 32),
+            Icon(
+              Icons.timer_off_outlined,
+              size: 72,
+              color: colorScheme.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.ordersSessionExpiredTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.ordersSessionExpiredSubtitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: colorScheme.outline),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 36),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onSignInAgain,
+                icon: const Icon(Icons.login),
+                label: Text(l10n.signInAgain),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Responsive scroll view wrapper ─────────────────────────────────────────────
+
+/// Wrapper that applies layout-appropriate padding and a RefreshIndicator.
+class _ResponsiveOrdersScrollView extends StatelessWidget {
+  final _OrdersLayout layout;
+  final Future<void> Function() onRefresh;
+  final List<Widget> children;
+
+  const _ResponsiveOrdersScrollView({
+    required this.layout,
+    required this.onRefresh,
+    required this.children,
+  });
+
+  EdgeInsets get _padding {
+    switch (layout) {
+      case _OrdersLayout.compact:
+        return const EdgeInsets.all(_kSectionPadding);
+      case _OrdersLayout.medium:
+        return const EdgeInsets.all(20);
+      case _OrdersLayout.expanded:
+        return const EdgeInsets.all(24);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: _padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      ),
     );
   }
 }

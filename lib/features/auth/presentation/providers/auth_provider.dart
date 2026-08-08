@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/enums/user_role.dart';
-import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
 import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
+import 'package:http/http.dart' as http;
 
 /// AuthProvider — single source of truth for authentication state.
 ///
@@ -30,6 +32,11 @@ class AuthProvider extends ChangeNotifier {
   bool _emailVerifiedFromJwt = false;
   bool _isAuthenticated = false;
 
+  /// Email verification required — defaults to true (secure by default).
+  /// Loaded from BE when the user is ADMIN via [refreshEmailVerificationRequired].
+  bool _emailVerificationRequired = true;
+  final http.Client _httpClient;
+
   /// True for one broadcast cycle when a 403 is received from the server.
   /// Consuming widgets (e.g. [MainScreen]) show a SnackBar and reset this.
   bool lastRequestForbidden = false;
@@ -37,8 +44,10 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider({
     required AuthRepository authRepository,
     required TokenService tokenService,
+    http.Client? httpClient,
   })  : _authRepository = authRepository,
-        _tokenService = tokenService;
+        _tokenService = tokenService,
+        _httpClient = httpClient ?? http.Client();
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
@@ -123,6 +132,39 @@ class AuthProvider extends ChangeNotifier {
   bool get canEditSystemConfigCore =>
       hasPermission('system_config:edit_core') || isAdmin;
 
+  /// AUTH_SECURITY: manage AUTH_SECURITY runtime settings (email verification toggle)
+  bool get canEditSystemConfigAuthSecurity =>
+      hasPermission('system_config:edit_auth_security') || isAdmin;
+
+  /// Whether email verification (OTP gating) is currently required.
+  /// False means admin has disabled it and all OTP flows are bypassed.
+  bool get emailVerificationRequired => _emailVerificationRequired;
+
+  /// Fetch the current EMAIL_VERIFICATION_REQUIRED value from BE.
+  /// Safe to call on every screen for any authenticated user.
+  Future<void> refreshEmailVerificationRequired() async {
+    try {
+      final token = _tokenService.getAccessToken();
+      if (token == null) return;
+      final resp = await _httpClient.get(
+        Uri.parse('${ApiConstants.baseUrl}/auth/email-verification-required'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        final data = (decoded is Map && decoded['success'] == true)
+            ? decoded['data']
+            : decoded;
+        if (data is Map && data.containsKey('emailVerificationRequired')) {
+          _emailVerificationRequired = data['emailVerificationRequired'] == true;
+          notifyListeners();
+        }
+      }
+    } catch (_) {
+      // Non-critical: keep the in-memory value
+    }
+  }
+
   bool hasPermission(String permission) => _permissions.contains(permission);
 
   // ── Public API ─────────────────────────────────────────────────────────────
@@ -150,6 +192,9 @@ class AuthProvider extends ChangeNotifier {
 
     // Background-fetch the full user profile (drawer name, avatar, etc.)
     _refreshCurrentUser(token);
+
+    // Also fetch the email verification required flag (for OTP gating in UI).
+    refreshEmailVerificationRequired();
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────

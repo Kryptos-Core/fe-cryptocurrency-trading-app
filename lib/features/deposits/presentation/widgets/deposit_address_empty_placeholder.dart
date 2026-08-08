@@ -1,5 +1,29 @@
-import 'package:crypto_trading_app/core/utils/blockchain_public_error_localization.dart';
 import 'package:flutter/material.dart';
+
+/// How to present the empty deposit-address slot (platform section).
+///
+/// Inlined from the deleted `blockchain_public_error_localization.dart`.
+/// The legacy classifier helpers (`isDepositConfigurationUnavailable`,
+/// `suppressDepositAddressUnavailableSnackBar`,
+/// `localizeBlockchainDepositUserMessage`, `resolveDepositAddressEmptyKind`)
+/// had no callers anywhere in `lib/` — the only public surface that survived
+/// is this enum, which is consumed by [DepositAddressEmptyPlaceholder].
+///
+/// The BE codes `TREASURY_MAIN_WALLET_NOT_CONFIGURED` and
+/// `DEPOSIT_DEFAULT_NOT_CONFIGURED` are not yet covered by the central
+/// `localizeApiError` dispatcher. When a real call site for the user-facing
+/// deposit copy is reintroduced, add the missing branches there rather than
+/// re-creating this helper file.
+enum DepositAddressEmptyKind {
+  /// No API error — generic “could not load” copy.
+  generic,
+
+  /// Treasury / default wallet not configured — “not supported” style messaging.
+  configurationUnavailable,
+
+  /// Other API or server failures.
+  error,
+}
 
 /// Inline empty state for the platform deposit address block — avoids harsh raw red text.
 class DepositAddressEmptyPlaceholder extends StatelessWidget {

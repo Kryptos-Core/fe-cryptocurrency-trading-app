@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:crypto_trading_app/core/error/api_error_parser.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/features/markets/data/models/market_pair_model.dart';
@@ -116,34 +117,64 @@ class MarketsRemoteDataSourceImpl implements MarketsRemoteDataSource {
     if (statusCode == 401) {
       throw AuthenticationException(message: 'Unauthorized');
     } else if (statusCode == 404) {
-      final message = responseData?['message'] ?? 'Resource not found';
-      throw NotFoundException(message: message);
+      final payload = ApiErrorParser.extract(
+        data: responseData,
+        fallbackMessage: 'Resource not found',
+      );
+      throw NotFoundException(message: payload.message, code: payload.code);
     } else if (statusCode == 400) {
       // Parse validation errors
       try {
         final errorResponse =
             ErrorResponse.fromJson(responseData as Map<String, dynamic>);
+        final payload = ApiErrorParser.extract(
+          data: responseData,
+          fallbackMessage: errorResponse.message,
+        );
         throw ValidationException(
-          message: errorResponse.message,
+          message: payload.message,
           errors: errorResponse.context,
+          code: payload.code,
         );
       } catch (_) {
+        final payload = ApiErrorParser.extract(
+          data: responseData,
+          fallbackMessage: 'Validation failed',
+        );
         throw ValidationException(
-          message: responseData?['message'] ?? 'Validation failed',
+          message: payload.message,
+          code: payload.code,
         );
       }
     } else if (statusCode == 409) {
-      final message = responseData?['message'] ?? 'Resource already exists';
-      throw ServerException(message: message, statusCode: statusCode);
-    } else if (statusCode != null && statusCode >= 500) {
+      final payload = ApiErrorParser.extract(
+        data: responseData,
+        fallbackMessage: 'Resource already exists',
+      );
       throw ServerException(
-        message: responseData?['message'] ?? 'Server error',
+        message: payload.message,
         statusCode: statusCode,
+        code: payload.code,
+      );
+    } else if (statusCode != null && statusCode >= 500) {
+      final payload = ApiErrorParser.extract(
+        data: responseData,
+        fallbackMessage: 'Server error',
+      );
+      throw ServerException(
+        message: payload.message,
+        statusCode: statusCode,
+        code: payload.code,
       );
     } else {
+      final payload = ApiErrorParser.extract(
+        data: responseData,
+        fallbackMessage: e.message ?? 'Unknown error',
+      );
       throw ServerException(
-        message: responseData?['message'] ?? e.message ?? 'Unknown error',
+        message: payload.message,
         statusCode: statusCode,
+        code: payload.code,
       );
     }
   }

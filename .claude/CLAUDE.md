@@ -56,4 +56,4 @@ ECC commands (neu can):
 npx ccg-workflow
 ```
 
-Chi tiet: `ECC-COMMANDS.md`.
+Chi tiet: xem `.cursor/commands/` và `.claude/commands/`.

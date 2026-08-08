@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.dart';
+import 'package:crypto_trading_app/core/utils/api_error_localizer.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/features/treasury/domain/entities/treasury_model.dart';
@@ -175,7 +175,7 @@ class _TreasuryHistoryTabViewState extends State<TreasuryHistoryTabView> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        localizeTreasuryApiError(
+                                        localizeApiError(
                                           l10n,
                                           code: provider.apiErrorCode,
                                           message: provider.error,

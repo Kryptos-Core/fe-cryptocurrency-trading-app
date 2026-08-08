@@ -112,6 +112,12 @@ abstract class AuthRepository {
     required String otpCode,
   });
 
+  /// Cập nhật contact email không cần OTP — chỉ khi admin đã tắt email verification.
+  Future<Either<Failure, User>> updateContactEmailWithoutOtp({
+    required String token,
+    required String email,
+  });
+
   Future<Either<Failure, bool>> enable2fa({
     required String token,
     required String otpCode,
@@ -122,11 +128,12 @@ abstract class AuthRepository {
     required String otpCode,
   });
 
-  /// Đổi mật khẩu trực tiếp (không cần xét duyệt). Yêu cầu 2FA OTP.
+  /// Đổi mật khẩu trực tiếp (không cần xét duyệt).
+  /// `otpCode` bắt buộc khi 2FA bật VÀ email verification bật; optional khi email verification tắt.
   Future<Either<Failure, bool>> changePassword({
     required String token,
     required String newPassword,
-    required String otpCode,
+    String? otpCode,
   });
 
   /// Web / extension login: get signable message (nonce) for [address] on [chain].
@@ -433,6 +440,30 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, User>> updateContactEmailWithoutOtp({
+    required String token,
+    required String email,
+  }) async {
+    try {
+      final model = await userRemoteDataSource.updateContactEmailWithoutOtp(
+        token: token,
+        email: email,
+      );
+      return Right(model.toEntity());
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, User>> uploadAvatar({
     required String token,
     required List<int> fileBytes,
@@ -619,7 +650,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, bool>> changePassword({
     required String token,
     required String newPassword,
-    required String otpCode,
+    String? otpCode,
   }) async {
     try {
       final ok = await remoteDataSource.changePassword(

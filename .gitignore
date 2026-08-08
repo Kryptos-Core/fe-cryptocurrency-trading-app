@@ -49,3 +49,13 @@ app.*.map.json
 .env
 .env.local
 .env.*.local
+
+# Firebase / GCP service account keys (must never be in VCS)
+firebase-service-account.json
+**/firebase-service-account*.json
+*.gcp-key.json
+gcp-credentials.json
+
+# Generated Dart files (build_runner output we don't ship)
+lib/**/*.g.dart.bak
+lib/**/*.freezed.dart.bak

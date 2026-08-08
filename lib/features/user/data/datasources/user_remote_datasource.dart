@@ -58,6 +58,12 @@ abstract class UserRemoteDataSource {
     required String otpCode,
   });
 
+  /// Cập nhật email không cần OTP — chỉ khi admin tắt email verification.
+  Future<UserModel> updateContactEmailWithoutOtp({
+    required String token,
+    required String email,
+  });
+
   /// Upload avatar image (multipart)
   Future<UserModel> uploadAvatar({
     required String token,
@@ -524,6 +530,45 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final msg = e.response!.data['message'] ?? 'Verification failed';
+        final code = e.response!.statusCode;
+        if (code == 401) throw AuthenticationException(message: msg);
+        if (code == 400 || code == 409) throw ValidationException(message: msg);
+        throw ServerException(message: msg);
+      }
+      throw NetworkException(message: 'Network error. Please check your connection.');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<UserModel> updateContactEmailWithoutOtp({
+    required String token,
+    required String email,
+  }) async {
+    try {
+      final response = await dio.patch(
+        ApiConstants.usersMeContactEmail,
+        data: {'email': email},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final userData = raw is Map && raw['data'] != null
+            ? raw['data'] as Map<String, dynamic>
+            : raw as Map<String, dynamic>;
+        return UserModel.fromJson(userData);
+      }
+
+      throw ServerException(
+        message: response.data['message'] ?? 'Email update failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final msg = e.response!.data['message'] ?? 'Email update failed';
         final code = e.response!.statusCode;
         if (code == 401) throw AuthenticationException(message: msg);
         if (code == 400 || code == 409) throw ValidationException(message: msg);

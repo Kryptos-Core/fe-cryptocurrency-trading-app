@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/error/api_error_parser.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/features/admin/wallet_adjust/data/models/admin_wallet_adjustment_model.dart';
@@ -73,25 +74,21 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   WalletRemoteDataSourceImpl({required this.dioClient});
 
   String _messageFromResponse(dynamic data, String fallback) {
-    if (data is Map) {
-      final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
-        return message.trim();
-      }
-      if (message != null) {
-        final text = message.toString().trim();
-        if (text.isNotEmpty) return text;
-      }
-      final error = data['error'];
-      if (error is String && error.trim().isNotEmpty) {
-        return error.trim();
-      }
-      if (error != null) {
-        final text = error.toString().trim();
-        if (text.isNotEmpty) return text;
-      }
-    }
-    return fallback;
+    final payload = ApiErrorParser.extract(data: data, fallbackMessage: fallback);
+    return payload.message;
+  }
+
+  /// Pulls both the canonical `code` and the human `message` from a Dio
+  /// response body, returning a fully populated [ServerException].
+  ServerException _buildServerException({
+    required DioException e,
+    required String fallback,
+  }) {
+    return buildServerException(
+      responseData: e.response?.data,
+      statusCode: e.response?.statusCode,
+      fallbackMessage: _messageFromResponse(e.response?.data, fallback),
+    );
   }
 
   Never _throwMappedDioError(
@@ -112,16 +109,20 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       throw AuthenticationException(message: message);
     }
     if (statusCode == 400 || statusCode == 422) {
-      throw ValidationException(message: message);
+      throw ValidationException(message: message, code: _codeFromResponse(e.response?.data));
     }
     if (statusCode == 404) {
-      throw NotFoundException(message: message);
+      throw NotFoundException(message: message, code: _codeFromResponse(e.response?.data));
     }
     if (statusCode != null && statusCode >= 500) {
-      throw ServerException(message: message, statusCode: statusCode);
+      throw _buildServerException(e: e, fallback: fallback);
     }
 
-    throw ServerException(message: message, statusCode: statusCode);
+    throw _buildServerException(e: e, fallback: fallback);
+  }
+
+  String? _codeFromResponse(dynamic data) {
+    return ApiErrorParser.extract(data: data, fallbackMessage: '').code;
   }
 
   @override

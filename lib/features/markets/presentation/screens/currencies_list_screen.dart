@@ -1,15 +1,27 @@
 import 'dart:async';
 
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
+import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
+import 'package:crypto_trading_app/core/widgets/debounced_search_text_field.dart';
+
+import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
+import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
+import 'package:crypto_trading_app/features/markets/presentation/screens/currency_detail_screen.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currencies_filter_bar.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currencies_sort_dropdown.dart';
+import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_card.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/features/markets/domain/entities/currency.dart';
-import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
-import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
-import 'package:crypto_trading_app/features/markets/presentation/widgets/currency_card.dart';
-import 'package:crypto_trading_app/features/markets/presentation/screens/currency_detail_screen.dart';
 
 /// Currencies List Screen
-/// Displays list of all currencies with search and filter
+///
+/// Displays all currencies with debounced search, two filter rows
+/// (status + trading), a sort dropdown and an infinite-scroll list.
+///
+/// Filter, sort and pagination state all live in [CurrenciesProvider] so the
+/// screen can rebuild cleanly on any state change.
 class CurrenciesListScreen extends StatefulWidget {
   const CurrenciesListScreen({super.key});
 
@@ -17,41 +29,67 @@ class CurrenciesListScreen extends StatefulWidget {
   State<CurrenciesListScreen> createState() => _CurrenciesListScreenState();
 }
 
-enum CurrencySortMode {
-  topVolume,
-  topGainers,
-  topLosers,
-  alphabet,
-}
-
 class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  bool _includeInactive = false;
-  bool _showTradableOnly = false;
-  String _searchQuery = '';
-  CurrencySortMode _sortMode = CurrencySortMode.topVolume;
+  final ScrollController _scrollController = ScrollController();
   Timer? _autoRefreshTimer;
+  bool _isLoadingMore = false;
+
+  /// Minimum scroll extent needed before stopping the prefetch loop. When the
+  /// first page is shorter than the viewport, [_onScroll] never fires, so we
+  /// have to keep paging until the list overflows.
+  static const double _minScrollExtentToSkipPrefetch = 48;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
     });
+    _scrollController.addListener(_onScroll);
+
+    // Refresh the first page every 30s so prices stay fresh without the user
+    // having to pull-to-refresh.
     _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (!mounted) return;
-      context.read<CurrenciesProvider>().fetchCurrencies(
-            includeInactive: _includeInactive,
-            refresh: true,
-          );
+      context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
     });
   }
 
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
-    _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= 0) return;
+    if (position.pixels < position.maxScrollExtent * 0.8) return;
+    if (_isLoadingMore) return;
+
+    final provider = context.read<CurrenciesProvider>();
+    if (provider.hasMore && !provider.isLoading) {
+      _isLoadingMore = true;
+      provider.loadMore().whenComplete(() {
+        if (mounted) _isLoadingMore = false;
+      });
+    }
+  }
+
+  Future<void> _prefetchUntilScrollableOrDone(CurrenciesProvider provider) async {
+    if (!mounted) return;
+    if (!provider.hasMore || provider.isLoading) return;
+    if (!_scrollController.hasClients) return;
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent >= _minScrollExtentToSkipPrefetch) return;
+    await provider.loadMore();
+    if (!mounted) return;
+    if (provider.error != null) return;
+    await _prefetchUntilScrollableOrDone(provider);
   }
 
   @override
@@ -61,292 +99,286 @@ class _CurrenciesListScreenState extends State<CurrenciesListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.currencies),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<CurrenciesProvider>().fetchCurrencies(refresh: true);
-            },
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: l10n.currenciesSearchHint,
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _Toolbar(
+              onSearchChanged: (q) =>
+                  context.read<CurrenciesProvider>().setSearch(q),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: Consumer<CurrenciesProvider>(
+                builder: (context, provider, _) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _prefetchUntilScrollableOrDone(provider);
+                  });
+                  return _buildBody(context, provider, l10n);
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase().trim();
-                });
-              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    CurrenciesProvider provider,
+    AppLocalizations l10n,
+  ) {
+    if (provider.isLoading && provider.currencies.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.error != null && provider.currencies.isEmpty) {
+      return AppEmptyState(
+        icon: Icons.error_outline,
+        title: l10n.currenciesNoCurrenciesFound,
+        message: provider.error!,
+        action: () => provider.fetchCurrencies(refresh: true),
+        actionLabel: l10n.currenciesRetryAction,
+      );
+    }
+
+    final items = provider.sortedCurrencies;
+    if (items.isEmpty) {
+      if (provider.hasActiveFilter) {
+        return AppEmptyState(
+          icon: Icons.filter_alt_off_outlined,
+          message: l10n.currenciesEmptyFiltered,
+          action: () => provider.clearFilters(),
+          actionLabel: l10n.currenciesClearFilters,
+        );
+      }
+      return AppEmptyState(
+        icon: Icons.inbox_outlined,
+        message: l10n.currenciesNoCurrenciesFound,
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchCurrencies(refresh: true),
+      child: _CurrencyList(
+        scrollController: _scrollController,
+        items: items,
+        hasMore: provider.hasMore,
+        isLoading: provider.isLoading,
+        provider: provider,
+        onCardTap: (currency) {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => CurrencyDetailScreen(
+                currencyId: currency.currencyId,
+                initialCurrency: currency,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _Toolbar extends StatelessWidget {
+  const _Toolbar({required this.onSearchChanged});
+
+  final ValueChanged<String> onSearchChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final provider = context.watch<CurrenciesProvider>();
+
+    CurrencyStatusFilter statusFilter;
+    if (provider.filterIsActive == true) {
+      statusFilter = CurrencyStatusFilter.activeOnly;
+    } else if (provider.filterIsActive == false) {
+      statusFilter = CurrencyStatusFilter.inactiveOnly;
+    } else if (provider.includeInactive) {
+      statusFilter = CurrencyStatusFilter.all;
+    } else {
+      statusFilter = CurrencyStatusFilter.activeOnly;
+    }
+
+    CurrencyTradingFilter tradingFilter;
+    if (provider.filterTradable == true) {
+      tradingFilter = CurrencyTradingFilter.tradableOnly;
+    } else if (provider.filterTradable == false) {
+      tradingFilter = CurrencyTradingFilter.pausedOnly;
+    } else {
+      tradingFilter = CurrencyTradingFilter.all;
+    }
+
+    return Container(
+      color: scheme.surface,
+      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+            child: DebouncedSearchTextField(
+              hintText: l10n.currenciesSearchHint,
+              onDebouncedChanged: onSearchChanged,
             ),
           ),
-          // Filter Chips
+          CurrenciesFilterBar(
+            statusFilter: statusFilter,
+            tradingFilter: tradingFilter,
+            shownCount: provider.sortedCurrencies.length,
+            totalCount: provider.total,
+            hasActiveFilter: provider.hasActiveFilter,
+            onStatusFilterChanged: (next) {
+              switch (next) {
+                case CurrencyStatusFilter.all:
+                  provider.setStatusFilter(isActive: null);
+                  break;
+                case CurrencyStatusFilter.activeOnly:
+                  provider.setStatusFilter(isActive: true);
+                  break;
+                case CurrencyStatusFilter.inactiveOnly:
+                  provider.setStatusFilter(isActive: false);
+                  break;
+              }
+            },
+            onTradingFilterChanged: (next) {
+              switch (next) {
+                case CurrencyTradingFilter.all:
+                  provider.setTradingFilter(isTradable: null);
+                  break;
+                case CurrencyTradingFilter.tradableOnly:
+                  provider.setTradingFilter(isTradable: true);
+                  break;
+                case CurrencyTradingFilter.pausedOnly:
+                  provider.setTradingFilter(isTradable: false);
+                  break;
+              }
+            },
+            onClearFilters: () => provider.clearFilters(),
+          ),
+          const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
             child: Row(
               children: [
-                FilterChip(
-                  label: Text(l10n.currenciesFilterAll),
-                  selected: _includeInactive && !_showTradableOnly,
-                  onSelected: (selected) {
-                    setState(() {
-                      _includeInactive = true;
-                      _showTradableOnly = false;
-                    });
-                    context.read<CurrenciesProvider>().fetchCurrencies(
-                          includeInactive: true,
-                          refresh: true,
-                        );
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(l10n.active),
-                  selected: !_includeInactive && !_showTradableOnly,
-                  onSelected: (selected) {
-                    setState(() {
-                      _includeInactive = false;
-                      _showTradableOnly = false;
-                    });
-                    context.read<CurrenciesProvider>().fetchCurrencies(
-                          includeInactive: false,
-                          refresh: true,
-                        );
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(l10n.currenciesTradable),
-                  selected: _showTradableOnly,
-                  onSelected: (selected) {
-                    setState(() {
-                      _showTradableOnly = selected;
-                      _includeInactive = false;
-                    });
-                    // For tradable, we'll filter client-side for now
-                    // Optional: add fetchTradableCurrencies() to CurrenciesProvider using repository.getTradableCurrencies()
-                    context.read<CurrenciesProvider>().fetchCurrencies(
-                          includeInactive: false,
-                          refresh: true,
-                        );
-                  },
+                Expanded(
+                  child: CurrenciesSortDropdown(
+                    value: provider.sortMode,
+                    onChanged: provider.setSortMode,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildSortChip(
-                    label: l10n.currenciesSortTopVolume,
-                    mode: CurrencySortMode.topVolume,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSortChip(
-                    label: l10n.currenciesSortTopGainers,
-                    mode: CurrencySortMode.topGainers,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSortChip(
-                    label: l10n.currenciesSortTopLosers,
-                    mode: CurrencySortMode.topLosers,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSortChip(
-                    label: l10n.currenciesSortAlphabet,
-                    mode: CurrencySortMode.alphabet,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Currencies List
-          Expanded(
-            child: Consumer<CurrenciesProvider>(
-              builder: (context, provider, child) {
-                if (provider.isLoading && provider.currencies.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (provider.error != null && provider.currencies.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          provider.error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            provider.fetchCurrencies(refresh: true);
-                          },
-                          child: Text(l10n.retry),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                // Filter currencies client-side
-                var displayedCurrencies = provider.currencies;
-
-                // Apply tradable filter
-                if (_showTradableOnly) {
-                  displayedCurrencies =
-                      displayedCurrencies.where((c) => c.isTradable).toList();
-                }
-
-                // Apply search filter
-                if (_searchQuery.isNotEmpty) {
-                  displayedCurrencies = displayedCurrencies.where((c) {
-                    final symbol = c.symbol.toLowerCase();
-                    final name = c.name.toLowerCase();
-                    return symbol.contains(_searchQuery) ||
-                        name.contains(_searchQuery);
-                  }).toList();
-                }
-
-                displayedCurrencies = _sortCurrencies(displayedCurrencies);
-
-                // Show "No results" if search/filter returns empty
-                if (displayedCurrencies.isEmpty) {
-                  if (provider.currencies.isEmpty) {
-                    return Center(
-                      child: Text(l10n.currenciesNoCurrenciesFound),
-                    );
-                  } else {
-                    return Center(
-                      child: Text(l10n.currenciesNoMatchSearch),
-                    );
-                  }
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    await provider.fetchCurrencies(
-                      includeInactive: _includeInactive,
-                      refresh: true,
-                    );
-                  },
-                  child: ListView.builder(
-                    itemCount:
-                        displayedCurrencies.length + (provider.hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == displayedCurrencies.length) {
-                        // Load more indicator
-                        if (provider.hasMore) {
-                          provider.loadMore();
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      }
-
-                      final currency = displayedCurrencies[index];
-                      return CurrencyCard(
-                        currency: currency,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CurrencyDetailScreen(
-                                currencyId: currency.currencyId,
-                                initialCurrency: currency,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSortChip({
-    required String label,
-    required CurrencySortMode mode,
-  }) {
-    return FilterChip(
-      label: Text(label),
-      selected: _sortMode == mode,
-      onSelected: (selected) {
-        if (!selected) return;
-        setState(() {
-          _sortMode = mode;
-        });
+class _CurrencyList extends StatelessWidget {
+  const _CurrencyList({
+    required this.scrollController,
+    required this.items,
+    required this.hasMore,
+    required this.isLoading,
+    required this.provider,
+    required this.onCardTap,
+  });
+
+  final ScrollController scrollController;
+  final List<Currency> items;
+  final bool hasMore;
+  final bool isLoading;
+  final CurrenciesProvider provider;
+  final ValueChanged<Currency> onCardTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final useGrid = AppBreakpoints.isTwoColumnGrid(width);
+
+    final itemCount = items.length + (hasMore ? 1 : 0);
+
+    if (useGrid) {
+      return GridView.builder(
+        controller: scrollController,
+        padding: const EdgeInsets.only(bottom: 24),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 4,
+          mainAxisExtent: 96,
+        ),
+        itemCount: itemCount,
+        itemBuilder: (context, index) {
+          if (index == items.length) {
+            return _LoadMoreFooter(hasMore: hasMore, isLoading: isLoading);
+          }
+          final currency = items[index];
+          return CurrencyCard(
+            currency: currency,
+            variant: CurrencyCardVariant.compact,
+            showStatus: false,
+            onTap: () => onCardTap(currency),
+          );
+        },
+      );
+    }
+
+    return ListView.builder(
+      controller: scrollController,
+      padding: const EdgeInsets.only(bottom: 24),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if (index == items.length) {
+          return _LoadMoreFooter(hasMore: hasMore, isLoading: isLoading);
+        }
+        final currency = items[index];
+        return CurrencyCard(
+          currency: currency,
+          variant: CurrencyCardVariant.full,
+          onTap: () => onCardTap(currency),
+        );
       },
     );
   }
+}
 
-  List<Currency> _sortCurrencies(List<Currency> input) {
-    final sorted = [...input];
+class _LoadMoreFooter extends StatelessWidget {
+  const _LoadMoreFooter({required this.hasMore, required this.isLoading});
 
-    switch (_sortMode) {
-      case CurrencySortMode.topVolume:
-        sorted.sort((a, b) =>
-            _compareDesc(_parseDouble(a.volume24h), _parseDouble(b.volume24h)));
-        break;
-      case CurrencySortMode.topGainers:
-        sorted.sort((a, b) => _compareDesc(
-            _parseDouble(a.priceChangePercent24h),
-            _parseDouble(b.priceChangePercent24h)));
-        break;
-      case CurrencySortMode.topLosers:
-        sorted.sort((a, b) => _compareAsc(_parseDouble(a.priceChangePercent24h),
-            _parseDouble(b.priceChangePercent24h)));
-        break;
-      case CurrencySortMode.alphabet:
-        sorted.sort((a, b) => a.symbol.compareTo(b.symbol));
-        break;
+  final bool hasMore;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (!hasMore && !isLoading) {
+      return const SizedBox.shrink();
     }
-
-    return sorted;
-  }
-
-  int _compareDesc(double? a, double? b) {
-    if (a == null && b == null) return 0;
-    if (a == null) return 1;
-    if (b == null) return -1;
-    return b.compareTo(a);
-  }
-
-  int _compareAsc(double? a, double? b) {
-    if (a == null && b == null) return 0;
-    if (a == null) return 1;
-    if (b == null) return -1;
-    return a.compareTo(b);
-  }
-
-  double? _parseDouble(String? value) {
-    if (value == null || value.trim().isEmpty) return null;
-    return double.tryParse(value);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            l10n.currenciesLoadingMore,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
   }
 }

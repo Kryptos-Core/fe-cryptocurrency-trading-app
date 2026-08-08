@@ -30,7 +30,7 @@ Mở **đúng thư mục gốc repo Flutter này** làm folder workspace (cùng 
 
 **Hướng dẫn agent chi tiết (nguyên tắc, orchestration, testing, security):** [`.cursor/AGENTS.md`](./.cursor/AGENTS.md).
 
-**Lệnh slash / multi-agent ECC:** [ECC-COMMANDS.md](./ECC-COMMANDS.md).
+**Lệnh slash / multi-agent ECC:** xem `.cursor/commands/` và `.claude/commands/`.
 
 ## Optional upstream
 

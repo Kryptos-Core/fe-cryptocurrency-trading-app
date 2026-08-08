@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:crypto_trading_app/core/utils/treasury_api_error_localization.dart';
+import 'package:crypto_trading_app/core/utils/api_error_localizer.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/data/models/payment_method_config_model.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
@@ -253,7 +253,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            localizeTreasuryApiError(
+            localizeApiError(
               l10n,
               code: provider.apiErrorCode,
               message: provider.error,
@@ -1253,35 +1253,35 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     return [
         _MaskedTextField(
           controller: _payosClientIdCtrl,
-          label: 'Client ID',
+          label: l10n.paymentConfigFieldClientId,
           show: _showSensitiveFields,
         ),
         const SizedBox(height: 10),
         _MaskedTextField(
           controller: _payosApiKeyCtrl,
-          label: 'API Key',
+          label: l10n.paymentConfigFieldApiKey,
           show: _showSensitiveFields,
         ),
         const SizedBox(height: 10),
         _MaskedTextField(
           controller: _payosChecksumKeyCtrl,
-          label: 'Checksum Key',
+          label: l10n.paymentConfigFieldChecksumKey,
           show: _showSensitiveFields,
         ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _payosReturnUrlCtrl,
-          decoration: const InputDecoration(
-            labelText: 'Return URL',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.paymentConfigFieldReturnUrl,
+            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _payosCancelUrlCtrl,
-          decoration: const InputDecoration(
-            labelText: 'Cancel URL',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.paymentConfigFieldCancelUrl,
+            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 10),
@@ -1289,14 +1289,14 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosFiatSymbolCtrl,
-              decoration: const InputDecoration(labelText: 'Fiat Symbol', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.paymentConfigFieldFiatSymbol, border: const OutlineInputBorder()),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
               controller: _payosQuoteSymbolCtrl,
-              decoration: const InputDecoration(labelText: 'Quote Symbol', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.paymentConfigFieldQuoteSymbol, border: const OutlineInputBorder()),
             ),
           ),
         ]),
@@ -1322,7 +1322,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosSpreadCtrl,
-              decoration: const InputDecoration(labelText: 'FX Spread (bps)', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.paymentConfigFieldFxSpreadBps, border: const OutlineInputBorder()),
               keyboardType: TextInputType.number,
             ),
           ),
@@ -1332,9 +1332,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosMinDepositCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Min deposit (fiat, integer)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.paymentConfigFieldMinDepositFiat,
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
@@ -1343,9 +1343,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _payosMaxDepositCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Max deposit (fiat, optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.paymentConfigFieldMaxDepositFiat,
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
@@ -1359,16 +1359,16 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
     return [
         TextFormField(
           controller: _rpcUrlCtrl,
-          decoration: const InputDecoration(
-            labelText: 'RPC URL',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.paymentConfigFieldRpcUrl,
+            border: const OutlineInputBorder(),
             hintText: 'https://...',
           ),
         ),
         const SizedBox(height: 10),
         _MaskedTextField(
           controller: _hotWalletKeyCtrl,
-          label: 'Hot Wallet Private Key',
+          label: l10n.paymentConfigFieldHotWalletKey,
           show: _showSensitiveFields,
         ),
         const SizedBox(height: 10),
@@ -1376,7 +1376,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           Expanded(
             child: TextFormField(
               controller: _nativeCurrencyCtrl,
-              decoration: const InputDecoration(labelText: 'Native Symbol', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.paymentConfigFieldNativeSymbol, border: const OutlineInputBorder()),
             ),
           ),
           const SizedBox(width: 8),
@@ -1385,9 +1385,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
               controller: _withdrawMaxCtrl,
               decoration: CurrencyAmountInput.withCurrencySuffix(
                 context,
-                const InputDecoration(
-                  labelText: 'Withdraw Auto Max',
-                  border: OutlineInputBorder(),
+                InputDecoration(
+                  labelText: l10n.paymentConfigFieldWithdrawAutoMax,
+                  border: const OutlineInputBorder(),
                 ),
                 currencySymbol: _nativeCurrencyCtrl.text.trim().toUpperCase(),
               ),
@@ -1400,9 +1400,9 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
           controller: _fxFallbackRateCtrl,
           decoration: CurrencyAmountInput.withCurrencySuffix(
             context,
-            const InputDecoration(
-              labelText: 'FX Fallback Rate (1 Native → X USDT)',
-              border: OutlineInputBorder(),
+            InputDecoration(
+              labelText: l10n.paymentConfigFieldFxFallbackRate,
+              border: const OutlineInputBorder(),
             ),
             currencySymbol: 'USDT',
           ),
@@ -1410,7 +1410,7 @@ class _ConfigFormSheetState extends State<_ConfigFormSheet> {
         ),
         const SizedBox(height: 10),
         SwitchListTile(
-          title: const Text('Mainnet'),
+          title: Text(l10n.paymentConfigFieldMainnet),
           subtitle: Text(l10n.paymentConfigMainnetSubtitle),
           value: _isMainnet,
           onChanged: (v) => setState(() => _isMainnet = v),

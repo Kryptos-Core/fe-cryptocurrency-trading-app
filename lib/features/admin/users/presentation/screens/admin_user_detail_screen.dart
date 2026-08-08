@@ -261,7 +261,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
                 Expanded(
                   child: FilledButton.icon(
                     icon: const Icon(Icons.arrow_downward, size: 16),
-                    label: const Text('Nạp tiền'),
+                    label: Text(AppLocalizations.of(context).adminUserDetailDepositAction),
                     style: FilledButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.symmetric(vertical: 10)),
@@ -272,7 +272,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen>
                 Expanded(
                   child: FilledButton.icon(
                     icon: const Icon(Icons.arrow_upward, size: 16),
-                    label: const Text('Rút tiền'),
+                    label: Text(AppLocalizations.of(context).adminUserDetailWithdrawAction),
                     style: FilledButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.symmetric(vertical: 10)),
@@ -356,9 +356,10 @@ class _WalletsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (!auth.canManageWallets) {
-      return const _PermissionDenied(
-          message: 'Bạn không có quyền xem số dư ví người dùng');
+      return _PermissionDenied(
+          message: l10n.adminUserDetailPermissionDeniedWallets);
     }
 
     return Consumer<AdminUsersProvider>(
@@ -373,7 +374,7 @@ class _WalletsTab extends StatelessWidget {
           );
         }
         if (provider.selectedUserWallets.isEmpty) {
-          return const Center(child: Text('Người dùng chưa có ví nào'));
+          return Center(child: Text(l10n.adminUserDetailEmptyWallets));
         }
 
         return ListView.separated(
@@ -391,7 +392,9 @@ class _WalletsTab extends StatelessWidget {
               ),
               title: Text('${w.symbol} — ${w.name}'),
               subtitle: Text(
-                  'Khả dụng: ${FormatUtils.formatDecimalAmountDisplay(w.available)}  |  Đóng băng: ${FormatUtils.formatDecimalAmountDisplay(w.frozen)}'),
+                  l10n.adminUserDetailWalletBalanceLine(
+                      FormatUtils.formatDecimalAmountDisplay(w.available),
+                      FormatUtils.formatDecimalAmountDisplay(w.frozen))),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -408,7 +411,7 @@ class _WalletsTab extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.add_circle_outline,
                           size: 20, color: colorScheme.primary),
-                      tooltip: 'Nạp/Rút ${w.symbol}',
+                      tooltip: l10n.adminUserDetailDepositWithdrawTooltip(w.symbol),
                       onPressed: () => _openAdjustForWallet(context, w),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -430,10 +433,11 @@ class _WalletsTab extends StatelessWidget {
 class _AdjustHistoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final auth = context.read<AuthProvider>();
     if (!auth.canManageWallets) {
-      return const _PermissionDenied(
-          message: 'Bạn không có quyền xem lịch sử điều chỉnh');
+      return _PermissionDenied(
+          message: l10n.adminUserDetailPermissionDeniedAdjustments);
     }
 
     return Consumer<AdminUsersProvider>(
@@ -448,7 +452,7 @@ class _AdjustHistoryTab extends StatelessWidget {
           );
         }
         if (provider.adjustments.isEmpty) {
-          return const Center(child: Text('Chưa có lịch sử điều chỉnh nào'));
+          return Center(child: Text(l10n.adminUserDetailEmptyAdjustments));
         }
 
         return RefreshIndicator(
@@ -471,6 +475,7 @@ class _AdjustHistoryTab extends StatelessWidget {
 class _UserOrdersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         if (provider.isLoadingOrders) {
@@ -483,7 +488,7 @@ class _UserOrdersTab extends StatelessWidget {
           );
         }
         if (provider.userOrders.isEmpty) {
-          return const Center(child: Text('Người dùng chưa có lệnh nào'));
+          return Center(child: Text(l10n.adminUserDetailEmptyOrders));
         }
 
         return RefreshIndicator(
@@ -505,6 +510,7 @@ class _UserOrdersTab extends StatelessWidget {
 class _OnchainTxTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Consumer<AdminUsersProvider>(
       builder: (_, provider, __) {
         if (provider.isLoadingOnchainTxs) {
@@ -517,7 +523,7 @@ class _OnchainTxTab extends StatelessWidget {
           );
         }
         if (provider.onchainTxs.isEmpty) {
-          return const Center(child: Text('Không có giao dịch onchain nào'));
+          return Center(child: Text(l10n.adminUserDetailEmptyOnchainTxs));
         }
 
         return RefreshIndicator(
@@ -542,9 +548,10 @@ class _SecurityChangesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (!auth.canReviewSecurityRequests) {
-      return const _PermissionDenied(
-          message: 'Bạn không có quyền xem lịch sử thay đổi thông tin');
+      return _PermissionDenied(
+          message: l10n.adminUserDetailPermissionDeniedSecurity);
     }
 
     return Consumer<AdminUsersProvider>(
@@ -559,7 +566,7 @@ class _SecurityChangesTab extends StatelessWidget {
           );
         }
         if (provider.securityChanges.isEmpty) {
-          return const Center(child: Text('Không có lịch sử thay đổi nào'));
+          return Center(child: Text(l10n.adminUserDetailEmptySecurityChanges));
         }
 
         return RefreshIndicator(
@@ -585,6 +592,7 @@ class _AdjustmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isDeposit = item.isDeposit;
     final color = isDeposit ? Colors.green : Colors.red;
     final sign = isDeposit ? '+' : '-';
@@ -608,10 +616,10 @@ class _AdjustmentTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (item.actorEmail != null)
-            Text('Bởi: ${item.actorEmail}',
+            Text(l10n.adminUserDetailAdjustmentByActor(item.actorEmail!),
                 style: const TextStyle(fontSize: 12)),
           if (item.note != null && item.note!.isNotEmpty)
-            Text('Ghi chú: ${item.note}',
+            Text(l10n.adminUserDetailAdjustmentNoteValue(item.note!),
                 style:
                     const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
           Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
@@ -628,6 +636,7 @@ class _OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final side = order['side']?.toString() ?? '';
     final status = order['status']?.toString() ?? '';
     final type = order['type']?.toString() ?? '';
@@ -647,7 +656,13 @@ class _OrderTile extends StatelessWidget {
 
     final isBuy = side == 'BUY';
     final sideColor = isBuy ? Colors.green : Colors.red;
-    final (statusColor, statusLabel) = _statusInfo(status);
+    final (statusColor, statusLabel) = _statusInfo(l10n, status);
+
+    final buySellLabel =
+        isBuy ? l10n.adminUserDetailOrderStatusFilled : l10n.adminUserDetailOrderStatusPartial;
+    final priceSegment = price != null
+        ? l10n.adminUserDetailOrderQuantityAndPrice(amount, price, type)
+        : l10n.adminUserDetailOrderQuantityAndPrice(amount, '', type);
 
     return ListTile(
       leading: CircleAvatar(
@@ -661,7 +676,7 @@ class _OrderTile extends StatelessWidget {
       title: Row(
         children: [
           Text(
-            '${isBuy ? 'MUA' : 'BÁN'} $pairSymbol',
+            '$buySellLabel $pairSymbol',
             style: TextStyle(fontWeight: FontWeight.w600, color: sideColor),
           ),
           const SizedBox(width: 8),
@@ -684,10 +699,7 @@ class _OrderTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'SL: ${FormatUtils.formatDecimalAmountDisplay(amount)}${price != null ? ' · Giá: ${FormatUtils.formatDecimalAmountDisplay(price)}' : ''} · $type',
-            style: const TextStyle(fontSize: 12),
-          ),
+          Text(priceSegment, style: const TextStyle(fontSize: 12)),
           if (dateStr.isNotEmpty)
             Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
         ],
@@ -696,18 +708,18 @@ class _OrderTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _statusInfo(String status) {
+  (Color, String) _statusInfo(AppLocalizations l10n, String status) {
     switch (status) {
       case 'FILLED':
-        return (Colors.green, 'Khớp xong');
+        return (Colors.green, l10n.adminUserDetailOrderStatusFilled);
       case 'PARTIAL':
-        return (Colors.blue, 'Khớp một phần');
+        return (Colors.blue, l10n.adminUserDetailOrderStatusPartial);
       case 'OPEN':
-        return (Colors.orange, 'Đang mở');
+        return (Colors.orange, l10n.adminUserDetailOrderStatusOpen);
       case 'CANCELLED':
-        return (Colors.grey, 'Huỷ');
+        return (Colors.grey, l10n.adminUserDetailOrderStatusCancelled);
       case 'REJECTED':
-        return (Colors.red, 'Từ chối');
+        return (Colors.red, l10n.adminUserDetailOrderStatusRejected);
       default:
         return (Colors.grey, status);
     }
@@ -720,6 +732,7 @@ class _OnchainTxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isDeposit = tx.isDeposit;
     final color = tx.isFailed
         ? Colors.red
@@ -728,6 +741,12 @@ class _OnchainTxTile extends StatelessWidget {
             : Colors.orange;
     final dateStr =
         DateFormat('dd/MM/yyyy HH:mm').format(tx.createdAt.toLocal());
+
+    final truncatedHash = tx.txHash == null
+        ? null
+        : (tx.txHash!.length > 20
+            ? '${tx.txHash!.substring(0, 20)}...'
+            : tx.txHash!);
 
     return ListTile(
       leading: CircleAvatar(
@@ -749,11 +768,11 @@ class _OnchainTxTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${tx.chain} · ${_statusLabel(tx.status)}',
+          Text('${tx.chain} · ${_statusLabel(l10n, tx.status)}',
               style: const TextStyle(fontSize: 12)),
-          if (tx.txHash != null)
+          if (truncatedHash != null)
             Text(
-              'TX: ${tx.txHash!.length > 20 ? '${tx.txHash!.substring(0, 20)}...' : tx.txHash!}',
+              l10n.adminUserDetailOrderTxHashTruncated(truncatedHash),
               style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
             ),
           Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
@@ -763,16 +782,16 @@ class _OnchainTxTile extends StatelessWidget {
     );
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(AppLocalizations l10n, String status) {
     switch (status) {
       case 'COMPLETED':
-        return 'Hoàn thành';
+        return l10n.adminUserDetailOnchainStatusCompleted;
       case 'CONFIRMING':
-        return 'Đang xác nhận';
+        return l10n.adminUserDetailOnchainStatusConfirming;
       case 'PENDING':
-        return 'Đang chờ';
+        return l10n.adminUserDetailOnchainStatusPending;
       case 'FAILED':
-        return 'Thất bại';
+        return l10n.adminUserDetailOnchainStatusFailed;
       default:
         return status;
     }
@@ -785,7 +804,8 @@ class _SecurityChangeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (statusColor, statusLabel) = _statusInfo(item.status);
+    final l10n = AppLocalizations.of(context);
+    final (statusColor, statusLabel) = _statusInfo(l10n, item.status);
     final dateStr =
         DateFormat('dd/MM/yyyy HH:mm').format(item.requestedAt.toLocal());
 
@@ -822,7 +842,7 @@ class _SecurityChangeTile extends StatelessWidget {
             ],
           ),
           if (item.reviewNote != null && item.reviewNote!.isNotEmpty)
-            Text('Ghi chú: ${item.reviewNote}',
+            Text(l10n.adminUserDetailAdjustmentNoteValue(item.reviewNote!),
                 style:
                     const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
           Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
@@ -832,14 +852,14 @@ class _SecurityChangeTile extends StatelessWidget {
     );
   }
 
-  (Color, String) _statusInfo(String status) {
+  (Color, String) _statusInfo(AppLocalizations l10n, String status) {
     switch (status) {
       case 'APPROVED':
-        return (Colors.green, 'Đã duyệt');
+        return (Colors.green, l10n.adminUserDetailSecurityStatusApproved);
       case 'REJECTED':
-        return (Colors.red, 'Từ chối');
+        return (Colors.red, l10n.adminUserDetailSecurityStatusRejected);
       default:
-        return (Colors.orange, 'Chờ duyệt');
+        return (Colors.orange, l10n.adminUserDetailSecurityStatusPending);
     }
   }
 }
@@ -1003,6 +1023,7 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDeposit = _selectedType == 'DEPOSIT';
@@ -1040,8 +1061,8 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
               ),
               Text(
                 isDeposit
-                    ? 'Nạp coin cho người dùng'
-                    : 'Rút coin từ người dùng',
+                    ? l10n.adminUserDetailAdjustDepositTitle
+                    : l10n.adminUserDetailAdjustWithdrawTitle,
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
@@ -1054,15 +1075,15 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
               const SizedBox(height: 16),
               // Deposit / Withdraw toggle
               SegmentedButton<String>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                       value: 'DEPOSIT',
-                      label: Text('Nạp coin'),
-                      icon: Icon(Icons.arrow_downward)),
+                      label: Text(l10n.adminUserDetailAdjustDepositSegment),
+                      icon: const Icon(Icons.arrow_downward)),
                   ButtonSegment(
                       value: 'WITHDRAW',
-                      label: Text('Rút coin'),
-                      icon: Icon(Icons.arrow_upward)),
+                      label: Text(l10n.adminUserDetailAdjustWithdrawSegment),
+                      icon: const Icon(Icons.arrow_upward)),
                 ],
                 selected: {_selectedType},
                 onSelectionChanged: (s) =>
@@ -1101,8 +1122,8 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
                 decoration: CurrencyAmountInput.withCurrencySuffix(
                   context,
                   InputDecoration(
-                    labelText: 'Số lượng',
-                    hintText: '0.00',
+                    labelText: l10n.adminUserDetailAdjustAmountLabel,
+                    hintText: l10n.adminUserDetailAdjustAmountHint,
                     prefixIcon: Icon(
                       isDeposit
                           ? Icons.add_circle_outline
@@ -1115,12 +1136,14 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
                 ),
                 validator: (v) {
                   final raw = parseAmountInput(v ?? '');
-                  if (raw.isEmpty) return 'Vui lòng nhập số lượng';
+                  if (raw.isEmpty) return l10n.adminUserDetailAdjustAmountRequired;
                   if (!RegExp(r'^\d+(\.\d{1,18})?$').hasMatch(raw)) {
-                    return 'Số lượng không hợp lệ';
+                    return l10n.adminUserDetailAdjustAmountInvalid;
                   }
                   final num = double.tryParse(raw);
-                  if (num == null || num <= 0) return 'Số lượng phải lớn hơn 0';
+                  if (num == null || num <= 0) {
+                    return l10n.adminUserDetailAdjustAmountPositive;
+                  }
                   return null;
                 },
               ),
@@ -1129,11 +1152,11 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
                 controller: _noteController,
                 maxLines: 2,
                 maxLength: 500,
-                decoration: const InputDecoration(
-                  labelText: 'Ghi chú (tuỳ chọn)',
-                  hintText: 'Lý do điều chỉnh...',
-                  prefixIcon: Icon(Icons.notes_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.adminUserDetailAdjustNoteLabel,
+                  hintText: l10n.adminUserDetailAdjustNoteHint,
+                  prefixIcon: const Icon(Icons.notes_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1151,8 +1174,10 @@ class _AdjustBalanceBottomSheetState extends State<AdjustBalanceBottomSheet> {
                       : Icon(
                           isDeposit ? Icons.add_circle : Icons.remove_circle),
                   label: Text(provider.isAdjusting
-                      ? 'Đang xử lý...'
-                      : (isDeposit ? 'Nạp coin' : 'Rút coin')),
+                      ? l10n.adminUserDetailAdjustProcessing
+                      : (isDeposit
+                          ? l10n.adminUserDetailAdjustDepositSegment
+                          : l10n.adminUserDetailAdjustWithdrawSegment)),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: isDeposit ? Colors.green : Colors.red,
@@ -1189,6 +1214,7 @@ class _CurrencyPickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasBalance = currentWallet?.hasBalance == true;
     return InkWell(
       onTap: onTap,
@@ -1223,13 +1249,16 @@ class _CurrencyPickerTile extends StatelessWidget {
                   Text(
                     selectedCurrency != null
                         ? '${selectedCurrency!.symbol} — ${selectedCurrency!.name}'
-                        : 'Chọn loại coin',
+                        : l10n.adminUserDetailPickCoinType,
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (currentWallet != null)
                     Text(
-                      'Số dư khả dụng: ${FormatUtils.formatDecimalAmountDisplay(currentWallet!.available)} ${selectedCurrency?.symbol ?? ''}',
+                      l10n.adminUserDetailBalanceAvailableLabel(
+                          FormatUtils.formatDecimalAmountDisplay(
+                              currentWallet!.available),
+                          selectedCurrency?.symbol ?? ''),
                       style: theme.textTheme.bodySmall?.copyWith(
                           color: hasBalance
                               ? Colors.green
@@ -1238,8 +1267,9 @@ class _CurrencyPickerTile extends StatelessWidget {
                   else if (selectedCurrency != null)
                     Text(
                       isDeposit
-                          ? 'Người dùng chưa có ví — sẽ tự động tạo'
-                          : 'Người dùng chưa có ví ${selectedCurrency!.symbol}',
+                          ? l10n.adminUserDetailNoWalletWillCreate
+                          : l10n.adminUserDetailNoWalletForSymbol(
+                              selectedCurrency!.symbol),
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
@@ -1305,6 +1335,7 @@ class _CurrencyPickerDialogState extends State<_CurrencyPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final walletIds = widget.userWallets.map((w) => w.currencyId).toSet();
@@ -1342,7 +1373,7 @@ class _CurrencyPickerDialogState extends State<_CurrencyPickerDialog> {
                 children: [
                   if (inWallet.isNotEmpty) ...[
                     _SectionLabel(
-                        label: 'VÍ HIỆN CÓ',
+                        label: l10n.adminUserDetailSectionExistingWallets,
                         color: colorScheme.primary,
                         theme: theme),
                     ...inWallet.map((c) {
@@ -1362,12 +1393,12 @@ class _CurrencyPickerDialogState extends State<_CurrencyPickerDialog> {
                   if (notInWallet.isNotEmpty) ...[
                     if (inWallet.isNotEmpty)
                       _SectionLabel(
-                          label: 'TẠO VÍ MỚI',
+                          label: l10n.adminUserDetailSectionNewWallets,
                           color: colorScheme.onSurfaceVariant,
                           theme: theme),
                     ...notInWallet.map((c) => _CurrencyListTile(
                           currency: c,
-                          badge: 'Chưa có ví',
+                          badge: l10n.adminUserDetailNoWalletBadge,
                           badgeColor: null,
                           isSelected: c.currencyId == widget.selectedCurrencyId,
                           onTap: () => Navigator.pop(context, c),
@@ -1390,7 +1421,7 @@ class _CurrencyPickerDialogState extends State<_CurrencyPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
+          child: Text(l10n.adminUserDetailDialogCancel),
         ),
       ],
     );
@@ -1498,6 +1529,7 @@ class _ErrorRetry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1507,7 +1539,7 @@ class _ErrorRetry extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Thử lại')),
+          FilledButton(onPressed: onRetry, child: Text(l10n.adminUserDetailRetryAction)),
         ],
       ),
     );

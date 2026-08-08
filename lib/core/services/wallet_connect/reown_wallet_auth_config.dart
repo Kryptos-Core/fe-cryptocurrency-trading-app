@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations_en.dart';
+
 /// Cấu hình Reown AppKit cho đăng nhập EVM — URI/QR từ SDK, không dùng URI giả từ Nest.
 /// Pairing gồm các mạng EVM mà backend hỗ trợ; chuỗi thực tế khi ký lấy từ session (CAIP-2).
 ///
@@ -54,7 +56,7 @@ class ReownWalletAuthConfig {
     final icon = dotenv.env['APP_ICON_URL']?.trim();
     return PairingMetadata(
       name: (name != null && name.isNotEmpty) ? name : 'Kryptos Core',
-      description: 'Cryptocurrency trading',
+      description: AppLocalizationsEn().walletConnectDescription,
       url: (url != null && url.isNotEmpty) ? url : 'https://reown.com',
       icons: [
         if (icon != null && icon.isNotEmpty)

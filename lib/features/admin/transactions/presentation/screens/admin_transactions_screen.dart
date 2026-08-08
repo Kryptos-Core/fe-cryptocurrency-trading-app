@@ -1254,7 +1254,7 @@ Future<void> _openUserDetail(BuildContext context, String userId) async {
     );
   } catch (e) {
     scaffold.showSnackBar(SnackBar(
-      content: Text('Không thể tải thông tin user: $e'),
+      content: Text(AppLocalizations.of(context).adminTransactionLoadUserFailed(e.toString())),
       behavior: SnackBarBehavior.floating,
     ));
   }
@@ -1384,7 +1384,7 @@ class _OrderDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 _DetailSection(
-                  title: 'Thông tin lệnh',
+                  title: l10n.adminTransactionSectionOrderInfo,
                   children: [
                     if (orderId.isNotEmpty)
                       _CopyableRow(
@@ -1408,7 +1408,7 @@ class _OrderDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Giá & Khối lượng',
+                  title: l10n.adminTransactionSectionPriceAndAmount,
                   children: [
                     _InfoRow(
                       label: l10n.orderDetailAmount,
@@ -1457,7 +1457,7 @@ class _OrderDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Thời gian',
+                  title: l10n.adminTransactionSectionTime,
                   children: [
                     if (createdAt != null)
                       _InfoRow(
@@ -1474,10 +1474,10 @@ class _OrderDetailSheet extends StatelessWidget {
                 if (clientOid != null && clientOid.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _DetailSection(
-                    title: 'Tham chiếu',
+                    title: l10n.adminTransactionSectionReference,
                     children: [
                       _CopyableRow(
-                        label: 'Client Order ID',
+                        label: l10n.adminTransactionLabelClientOrderId,
                         value: clientOid,
                         monospace: true,
                         onCopy: () => _copyToClipboard(context, clientOid, l10n.orderDetailCopied),
@@ -1487,7 +1487,7 @@ class _OrderDetailSheet extends StatelessWidget {
                 ],
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Người dùng',
+                  title: l10n.adminTransactionSectionUser,
                   children: [
                     if (userId.isNotEmpty)
                       _CopyableRow(
@@ -1621,7 +1621,7 @@ class _DepositDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 _DetailSection(
-                  title: 'Thông tin nạp tiền',
+                  title: l10n.adminTransactionSectionDepositInfo,
                   children: [
                     _InfoRow(
                       label: l10n.depositDetailAmount,
@@ -1643,7 +1643,7 @@ class _DepositDetailSheet extends StatelessWidget {
                       ),
                     if (depositId.isNotEmpty)
                       _CopyableRow(
-                        label: 'Deposit ID',
+                        label: l10n.adminTransactionLabelDepositId,
                         value: depositId,
                         monospace: true,
                         onCopy: () => _copyToClipboard(context, depositId, l10n.depositDetailCopied),
@@ -1652,7 +1652,7 @@ class _DepositDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Thời gian',
+                  title: l10n.adminTransactionSectionTime,
                   children: [
                     if (createdAt != null)
                       _InfoRow(
@@ -1668,7 +1668,7 @@ class _DepositDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Người dùng',
+                  title: l10n.adminTransactionSectionUser,
                   children: [
                     if (userId.isNotEmpty)
                       _CopyableRow(
@@ -1803,7 +1803,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 _DetailSection(
-                  title: 'Thông tin giao dịch',
+                  title: l10n.adminTransactionSectionWithdrawalInfo,
                   children: [
                     _InfoRow(
                       label: l10n.withdrawalDetailAmount,
@@ -1820,7 +1820,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                     ),
                     if (txId.isNotEmpty)
                       _CopyableRow(
-                        label: 'Withdrawal ID',
+                        label: l10n.adminTransactionLabelWithdrawalId,
                         value: txId,
                         monospace: true,
                         onCopy: () => _copyToClipboard(context, txId, l10n.withdrawalDetailCopied),
@@ -1830,7 +1830,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                 if (address.isNotEmpty || txHash.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _DetailSection(
-                    title: 'On-Chain',
+                    title: l10n.adminTransactionSectionOnChain,
                     children: [
                       if (address.isNotEmpty)
                         _CopyableRow(
@@ -1851,7 +1851,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                 ],
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Thời gian',
+                  title: l10n.adminTransactionSectionTime,
                   children: [
                     if (createdAt != null)
                       _InfoRow(
@@ -1867,7 +1867,7 @@ class _WithdrawalDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _DetailSection(
-                  title: 'Người dùng',
+                  title: l10n.adminTransactionSectionUser,
                   children: [
                     if (userId.isNotEmpty)
                       _CopyableRow(

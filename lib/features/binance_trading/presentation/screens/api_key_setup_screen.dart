@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import '../../application/providers/binance_credentials_provider.dart';
 
 class ApiKeySetupScreen extends StatefulWidget {
@@ -46,9 +47,10 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Connect Binance API'),
+        title: Text(l10n.binanceApiKeySetupTitle),
         elevation: 0,
       ),
       body: Consumer<BinanceCredentialsProvider>(
@@ -67,18 +69,18 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Label',
+                            l10n.binanceApiKeySetupLabelField,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _labelController,
-                            decoration: const InputDecoration(
-                              hintText: 'e.g. Main Spot Account',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              hintText: l10n.binanceApiKeySetupLabelHint,
+                              border: const OutlineInputBorder(),
                             ),
                             validator: (v) => (v == null || v.trim().isEmpty)
-                                ? 'Label is required'
+                                ? l10n.binanceApiKeySetupLabelRequired
                                 : null,
                           ),
                         ],
@@ -93,7 +95,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'API Key',
+                            l10n.binanceApiKeySetupApiKeyField,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),
@@ -101,7 +103,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                             controller: _apiKeyController,
                             obscureText: _obscureApiKey,
                             decoration: InputDecoration(
-                              hintText: 'Enter your Binance API Key',
+                              hintText: l10n.binanceApiKeySetupApiKeyHint,
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -117,7 +119,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'API Secret',
+                            l10n.binanceApiKeySetupApiSecretField,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),
@@ -125,7 +127,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                             controller: _apiSecretController,
                             obscureText: _obscureApiSecret,
                             decoration: InputDecoration(
-                              hintText: 'Enter your Binance API Secret',
+                              hintText: l10n.binanceApiKeySetupApiSecretHint,
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -151,13 +153,13 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Permissions',
+                            l10n.binanceApiKeySetupPermissionsSection,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),
                           CheckboxListTile(
-                            title: const Text('Spot Trading'),
-                            subtitle: const Text('Enable spot market trading'),
+                            title: Text(l10n.binanceApiKeySetupSpotTradingTitle),
+                            subtitle: Text(l10n.binanceApiKeySetupSpotTradingSubtitle),
                             value: _spotPermission,
                             onChanged: (v) =>
                                 setState(() => _spotPermission = v ?? true),
@@ -165,8 +167,8 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
-                            title: const Text('Futures Trading'),
-                            subtitle: const Text('Enable USD-M futures trading'),
+                            title: Text(l10n.binanceApiKeySetupFuturesTradingTitle),
+                            subtitle: Text(l10n.binanceApiKeySetupFuturesTradingSubtitle),
                             value: _futuresPermission,
                             onChanged: (v) =>
                                 setState(() => _futuresPermission = v ?? false),
@@ -175,9 +177,9 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                           ),
                           const Divider(),
                           CheckboxListTile(
-                            title: const Text('Use Testnet'),
-                            subtitle: const Text(
-                                'Connect to Binance testnet instead of mainnet'),
+                            title: Text(l10n.binanceApiKeySetupUseTestnetTitle),
+                            subtitle: Text(
+                                l10n.binanceApiKeySetupUseTestnetSubtitle),
                             value: _isTestnet,
                             onChanged: (v) =>
                                 setState(() => _isTestnet = v ?? false),
@@ -205,7 +207,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'API Key Setup Guide',
+                                l10n.binanceApiKeySetupGuideTitle,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
@@ -215,18 +217,18 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'When creating your API key on Binance:',
+                            l10n.binanceApiKeySetupGuideIntro,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 8),
-                          _buildBullet('Disable all Withdrawal permissions'),
-                          _buildBullet('Enable: Spot/Futures Trading'),
-                          _buildBullet('Enable: Read-only market data'),
+                          _buildBullet(l10n.binanceApiKeySetupGuideTip1),
+                          _buildBullet(l10n.binanceApiKeySetupGuideTip2),
+                          _buildBullet(l10n.binanceApiKeySetupGuideTip3),
                           const SizedBox(height: 12),
                           TextButton.icon(
                             onPressed: _launchBinanceGuide,
                             icon: const Icon(Icons.open_in_new, size: 16),
-                            label: const Text('View Binance API Guide'),
+                            label: Text(l10n.binanceApiKeySetupGuideLink),
                           ),
                         ],
                       ),
@@ -234,7 +236,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                   ),
                   const SizedBox(height: 24),
                   if (provider.lastTestResult != null)
-                    _buildTestResultBanner(provider),
+                    _buildTestResultBanner(provider, l10n),
                   if (provider.error != null) ...[
                     const SizedBox(height: 8),
                     Text(
@@ -248,27 +250,27 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                   FilledButton(
                     onPressed: provider.isSaving || provider.isTesting
                         ? null
-                        : () => _testConnection(provider),
+                        : () => _testConnection(provider, l10n),
                     child: provider.isTesting
                         ? const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Test Connection'),
+                        : Text(l10n.binanceApiKeySetupTestConnection),
                   ),
                   const SizedBox(height: 12),
                   FilledButton.tonal(
                     onPressed: provider.isSaving || provider.isTesting
                         ? null
-                        : () => _saveCredentials(provider),
+                        : () => _saveCredentials(provider, l10n),
                     child: provider.isSaving
                         ? const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Save API Key'),
+                        : Text(l10n.binanceApiKeySetupSaveAction),
                   ),
                 ],
               ),
@@ -292,7 +294,10 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
     );
   }
 
-  Widget _buildTestResultBanner(BinanceCredentialsProvider provider) {
+  Widget _buildTestResultBanner(
+    BinanceCredentialsProvider provider,
+    AppLocalizations l10n,
+  ) {
     final success = provider.lastTestResult == true;
     return Container(
       padding: const EdgeInsets.all(12),
@@ -316,8 +321,9 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
           Expanded(
             child: Text(
               success
-                  ? 'Connection successful!'
-                  : 'Connection failed: ${provider.lastTestError ?? "Unknown error"}',
+                  ? l10n.binanceApiKeySetupConnectionSuccessful
+                  : l10n.binanceApiKeySetupConnectionFailed(
+                      provider.lastTestError ?? l10n.unknownError),
               style: TextStyle(
                 color: success ? Colors.green.shade700 : Colors.red.shade700,
               ),
@@ -328,7 +334,10 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
     );
   }
 
-  Future<void> _testConnection(BinanceCredentialsProvider provider) async {
+  Future<void> _testConnection(
+    BinanceCredentialsProvider provider,
+    AppLocalizations l10n,
+  ) async {
     if (!_formKey.currentState!.validate()) return;
 
     final result = await provider.saveCredentials(
@@ -342,15 +351,18 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
     if (result.success && mounted) {
       provider.clearError();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Connection test passed! Credentials saved.'),
+        SnackBar(
+          content: Text(l10n.binanceApiKeySetupConnectionPassedSaved),
           backgroundColor: Colors.green,
         ),
       );
     }
   }
 
-  Future<void> _saveCredentials(BinanceCredentialsProvider provider) async {
+  Future<void> _saveCredentials(
+    BinanceCredentialsProvider provider,
+    AppLocalizations l10n,
+  ) async {
     if (!_formKey.currentState!.validate()) return;
 
     final result = await provider.saveCredentials(
@@ -364,8 +376,8 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
     if (mounted) {
       if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('API Key saved successfully'),
+          SnackBar(
+            content: Text(l10n.binanceApiKeySetupSavedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -373,7 +385,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed: ${result.error}'),
+            content: Text(l10n.binanceApiKeySetupSavedFailed(result.error ?? l10n.unknownError)),
             backgroundColor: Colors.red,
           ),
         );

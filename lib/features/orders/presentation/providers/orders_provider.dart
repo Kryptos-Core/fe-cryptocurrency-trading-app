@@ -31,6 +31,7 @@ class OrdersProvider extends ChangeNotifier {
   String? _apiErrorCode;
   WalletBalance? _baseBalance;
   WalletBalance? _quoteBalance;
+  bool _sessionExpired = false;
 
   List<OrderBookLevel> get orderBookBids => List.unmodifiable(_orderBookBids);
   List<OrderBookLevel> get orderBookAsks => List.unmodifiable(_orderBookAsks);
@@ -46,6 +47,28 @@ class OrdersProvider extends ChangeNotifier {
   String? get apiErrorCode => _apiErrorCode;
   WalletBalance? get baseBalance => _baseBalance;
   WalletBalance? get quoteBalance => _quoteBalance;
+
+  /// True when the last API error was a 401 (expired/invalid token).
+  bool get sessionExpired => _sessionExpired;
+
+  /// Clears all state — call this when the user logs out or the
+  /// session is known to be invalid.
+  void reset() {
+    _myOrders = [];
+    _myOrdersTotal = 0;
+    _myOrdersPage = 1;
+    _myOrdersStatusFilter = null;
+    _orderBookBids = [];
+    _orderBookAsks = [];
+    _orderBookPairId = null;
+    _selectedOrder = null;
+    _error = null;
+    _apiErrorCode = null;
+    _baseBalance = null;
+    _quoteBalance = null;
+    _sessionExpired = false;
+    notifyListeners();
+  }
 
   void clearError() {
     _error = null;
@@ -249,6 +272,15 @@ class OrdersProvider extends ChangeNotifier {
   }
 
   void _setFailure(Failure failure) {
+    final code = failure.code?.toUpperCase();
+    // Detect expired/invalid token (HTTP 401 from BE, or explicit UNAUTHORIZED code).
+    if (code == 'UNAUTHORIZED' ||
+        failure is AuthenticationFailure ||
+        failure.message.contains('expired') ||
+        failure.message.contains('invalid') ||
+        failure.message.contains('unauthorized')) {
+      _sessionExpired = true;
+    }
     _error = _mapFailureToMessage(failure);
     _apiErrorCode = failure.code;
   }

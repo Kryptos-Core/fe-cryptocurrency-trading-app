@@ -16,10 +16,18 @@ import 'package:crypto_trading_app/features/markets/domain/repositories/markets_
 import 'package:crypto_trading_app/features/wallets/domain/repositories/wallet_repository.dart';
 import 'package:crypto_trading_app/features/orders/domain/repositories/orders_repository.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/widgets/market_row.dart';
 import 'package:crypto_trading_app/features/orders/presentation/providers/orders_provider.dart';
 import 'package:crypto_trading_app/features/orders/presentation/screens/orders_screen.dart';
+
+/// Minimal fake that satisfies what [OrdersScreen] reads from [AuthProvider].
+/// Registered as [AuthProvider] so that context.select<AuthProvider, bool> resolves.
+class FakeAuthProvider extends ChangeNotifier {
+  final bool _isAuthenticated = true;
+  bool get isAuthenticated => _isAuthenticated;
+}
 
 class FakeOrdersRepository implements OrdersRepository {
   int createOrderCalls = 0;
@@ -377,6 +385,9 @@ Widget _buildTestApp({
 }) {
   return MultiProvider(
     providers: [
+      ChangeNotifierProvider<AuthProvider>.value(
+        value: FakeAuthProvider() as dynamic,
+      ),
       ChangeNotifierProvider(
         create: (_) => MarketsProvider(marketsRepository: marketsRepository),
       ),

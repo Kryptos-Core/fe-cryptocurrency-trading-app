@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/price_formatter.dart';
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import '../../application/providers/binance_trading_provider.dart';
 import '../../domain/entities/binance_trading_entities.dart';
 
@@ -56,14 +57,15 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Spot Trading'),
+            Text(l10n.binanceSpotTradingTitle),
             Text(
-              widget.label ?? 'Binance',
+              widget.label ?? l10n.binanceSpotTradingBinanceLabel,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -90,7 +92,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
                 ),
                 Expanded(
                   flex: 2,
-                  child: _buildOrdersPanel(),
+                  child: _buildOrdersPanel(l10n),
                 ),
               ],
             ),
@@ -132,22 +134,23 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
       padding: const EdgeInsets.all(12),
       child: Consumer<BinanceTradingProvider>(
         builder: (context, trading, _) {
+          final l10n = AppLocalizations.of(context);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildBalanceCard(trading),
+              _buildBalanceCard(trading, l10n),
               const SizedBox(height: 12),
-              _buildSideToggle(),
+              _buildSideToggle(l10n),
               const SizedBox(height: 12),
-              _buildOrderTypeSelector(),
+              _buildOrderTypeSelector(l10n),
               const SizedBox(height: 12),
-              _buildPriceInput(),
+              _buildPriceInput(l10n),
               const SizedBox(height: 12),
-              _buildAmountInput(trading),
+              _buildAmountInput(trading, l10n),
               const SizedBox(height: 12),
-              _buildTotalRow(),
+              _buildTotalRow(l10n),
               const SizedBox(height: 16),
-              _buildSubmitButton(trading),
+              _buildSubmitButton(trading, l10n),
             ],
           );
         },
@@ -155,7 +158,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildBalanceCard(BinanceTradingProvider trading) {
+  Widget _buildBalanceCard(BinanceTradingProvider trading, AppLocalizations l10n) {
     final balances = trading.balances;
     return Card(
       child: Padding(
@@ -164,7 +167,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Balances',
+              l10n.binanceSpotTradingBalancesTitle,
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 8),
@@ -172,7 +175,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
             else if (balances.isEmpty)
               Text(
-                'No assets with balance',
+                l10n.binanceSpotTradingNoAssetsWithBalance,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -185,7 +188,8 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
                   children: [
                     Text(b.asset, style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                      '${FormatUtils.formatDecimalAmountDisplay(b.free)} free',
+                      l10n.binanceSpotTradingBalanceFree(
+                          FormatUtils.formatDecimalAmountDisplay(b.free)),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -197,7 +201,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildSideToggle() {
+  Widget _buildSideToggle(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -216,7 +220,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
               ),
               alignment: Alignment.center,
               child: Text(
-                'BUY',
+                l10n.binanceSpotTradingSideBuy,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: _orderSide == 'BUY' ? Colors.white : Colors.green,
@@ -241,7 +245,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
               ),
               alignment: Alignment.center,
               child: Text(
-                'SELL',
+                l10n.binanceSpotTradingSideSell,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: _orderSide == 'SELL' ? Colors.white : Colors.red,
@@ -254,10 +258,13 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildOrderTypeSelector() {
+  Widget _buildOrderTypeSelector(AppLocalizations l10n) {
     return Row(
       children: ['LIMIT', 'MARKET'].map((type) {
         final isSelected = type == _orderType;
+        final localized = type == 'LIMIT'
+            ? l10n.binanceSpotTradingTypeLimit
+            : l10n.binanceSpotTradingTypeMarket;
         return Expanded(
           child: GestureDetector(
             onTap: () => setState(() => _orderType = type),
@@ -276,7 +283,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
               ),
               alignment: Alignment.center,
               child: Text(
-                type,
+                localized,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: isSelected
@@ -291,12 +298,12 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildPriceInput() {
+  Widget _buildPriceInput(AppLocalizations l10n) {
     if (_orderType == 'MARKET') return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Price (${_selectedSymbol.replaceAll('USDT', '')})',
+        Text(l10n.binanceSpotTradingPriceLabel(_selectedSymbol.replaceAll('USDT', '')),
             style: Theme.of(context).textTheme.labelMedium),
         const SizedBox(height: 4),
         TextField(
@@ -312,12 +319,12 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildAmountInput(BinanceTradingProvider trading) {
+  Widget _buildAmountInput(BinanceTradingProvider trading, AppLocalizations l10n) {
     final baseAsset = _selectedSymbol.replaceAll('USDT', '');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Amount ($baseAsset)',
+        Text(l10n.binanceSpotTradingAmountLabel(baseAsset),
             style: Theme.of(context).textTheme.labelMedium),
         const SizedBox(height: 4),
         TextField(
@@ -371,7 +378,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     }
   }
 
-  Widget _buildTotalRow() {
+  Widget _buildTotalRow(AppLocalizations l10n) {
     final price = double.tryParse(_priceController.text) ?? 0;
     final amount = double.tryParse(_amountController.text) ?? 0;
     final total = price * amount;
@@ -385,9 +392,10 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Total', style: Theme.of(context).textTheme.labelLarge),
+          Text(l10n.binanceSpotTradingTotalLabel, style: Theme.of(context).textTheme.labelLarge),
           Text(
-            '${FormatUtils.formatQuoteAmount(total)} USDT',
+            l10n.binanceSpotTradingTotalAmount(
+                FormatUtils.formatQuoteAmount(total)),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -397,12 +405,16 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildSubmitButton(BinanceTradingProvider trading) {
+  Widget _buildSubmitButton(BinanceTradingProvider trading, AppLocalizations l10n) {
     final buttonColor = _orderSide == 'BUY' ? Colors.green : Colors.red;
-    final label = '$_orderSide ${_selectedSymbol.replaceAll('USDT', '')}';
+    final asset = _selectedSymbol.replaceAll('USDT', '');
+    final localizedSide = _orderSide == 'BUY'
+        ? l10n.binanceSpotTradingSideBuy
+        : l10n.binanceSpotTradingSideSell;
+    final label = l10n.binanceSpotTradingSubmitButton(localizedSide, asset);
 
     return FilledButton(
-      onPressed: trading.isPlacing ? null : () => _placeOrder(trading),
+      onPressed: trading.isPlacing ? null : () => _placeOrder(trading, l10n),
       style: FilledButton.styleFrom(
         backgroundColor: buttonColor,
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -413,17 +425,17 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Future<void> _placeOrder(BinanceTradingProvider trading) async {
+  Future<void> _placeOrder(BinanceTradingProvider trading, AppLocalizations l10n) async {
     final amount = _amountController.text.trim();
     if (amount.isEmpty || (double.tryParse(amount) ?? 0) <= 0) {
-      _showError('Please enter a valid amount');
+      _showError(l10n.binanceSpotTradingInvalidAmount);
       return;
     }
 
     if (_orderType == 'LIMIT') {
       final price = _priceController.text.trim();
       if (price.isEmpty || (double.tryParse(price) ?? 0) <= 0) {
-        _showError('Please enter a valid price');
+        _showError(l10n.binanceSpotTradingInvalidPrice);
         return;
       }
     }
@@ -443,13 +455,13 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
       _amountController.clear();
       _priceController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order placed successfully'),
+        SnackBar(
+          content: Text(l10n.binanceSpotTradingOrderPlaced),
           backgroundColor: Colors.green,
         ),
       );
     } else {
-      _showError(result.error ?? 'Order failed');
+      _showError(result.error ?? l10n.binanceSpotTradingOrderFailed);
     }
   }
 
@@ -459,23 +471,23 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildOrdersPanel() {
+  Widget _buildOrdersPanel(AppLocalizations l10n) {
     return Column(
       children: [
         TabBar(
           controller: _tabController,
           labelColor: Theme.of(context).colorScheme.primary,
-          tabs: const [
-            Tab(text: 'Open Orders'),
-            Tab(text: 'History'),
+          tabs: [
+            Tab(text: l10n.binanceSpotTradingOpenOrdersTab),
+            Tab(text: l10n.binanceSpotTradingHistoryTab),
           ],
         ),
         Expanded(
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildOpenOrdersTab(),
-              _buildOrderHistoryTab(),
+              _buildOpenOrdersTab(l10n),
+              _buildOrderHistoryTab(l10n),
             ],
           ),
         ),
@@ -483,7 +495,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildOpenOrdersTab() {
+  Widget _buildOpenOrdersTab(AppLocalizations l10n) {
     return Consumer<BinanceTradingProvider>(
       builder: (context, trading, _) {
         if (trading.isLoading) {
@@ -493,7 +505,7 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
         if (trading.openOrders.isEmpty) {
           return Center(
             child: Text(
-              'No open orders',
+              l10n.binanceSpotTradingNoOpenOrders,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -508,7 +520,8 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
             final order = trading.openOrders[index];
             return _OrderTile(
               order: order,
-              onCancel: () => _cancelOrder(trading, order),
+              l10n: l10n,
+              onCancel: () => _cancelOrder(trading, order, l10n),
             );
           },
         );
@@ -516,33 +529,34 @@ class _SpotTradingScreenState extends State<SpotTradingScreen>
     );
   }
 
-  Widget _buildOrderHistoryTab() {
+  Widget _buildOrderHistoryTab(AppLocalizations l10n) {
     return Consumer<BinanceTradingProvider>(
       builder: (context, trading, _) {
         return TextButton(
           onPressed: () {
             trading.loadOrderHistory(symbol: _selectedSymbol, limit: 50);
           },
-          child: const Text('Load History'),
+          child: Text(l10n.binanceSpotTradingLoadHistory),
         );
       },
     );
   }
 
-  Future<void> _cancelOrder(BinanceTradingProvider trading, BinanceSpotOrder order) async {
+  Future<void> _cancelOrder(BinanceTradingProvider trading, BinanceSpotOrder order, AppLocalizations l10n) async {
     await trading.cancelSpotOrder(symbol: order.symbol, orderId: order.orderId);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Order cancelled'), backgroundColor: Colors.orange),
+      SnackBar(content: Text(l10n.binanceSpotTradingOrderCancelled), backgroundColor: Colors.orange),
     );
   }
 }
 
 class _OrderTile extends StatelessWidget {
   final BinanceSpotOrder order;
+  final AppLocalizations l10n;
   final VoidCallback onCancel;
 
-  const _OrderTile({required this.order, required this.onCancel});
+  const _OrderTile({required this.order, required this.l10n, required this.onCancel});
 
   @override
   Widget build(BuildContext context) {
@@ -600,7 +614,7 @@ class _OrderTile extends StatelessWidget {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                    child: Text('Cancel', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error)),
+                    child: Text(l10n.binanceSpotTradingCancelOrder, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error)),
                 ),
               ],
             ),

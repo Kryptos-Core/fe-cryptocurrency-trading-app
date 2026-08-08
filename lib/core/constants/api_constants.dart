@@ -92,6 +92,8 @@ class ApiConstants {
       '/users/me/security-change-requests';
   static const String usersMeContactEmailSendOtp =
       '/users/me/contact-email/send-otp';
+  static const String usersMeContactEmail =
+      '/users/me/contact-email';
   static const String usersMeContactEmailVerify =
       '/users/me/contact-email/verify';
   static const String usersMeAvatar = '/users/me/avatar';

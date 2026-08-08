@@ -316,6 +316,11 @@ class _RuntimeCategoryBanner extends StatelessWidget {
         l10n.paymentConfigRuntimeSectionCore,
         l10n.paymentConfigRuntimeSectionCoreDesc,
       );
+    case 'auth_security':
+      return (
+        l10n.paymentConfigRuntimeSectionAuthSecurity,
+        l10n.paymentConfigRuntimeSectionAuthSecurityDesc,
+      );
     default:
       return (
         l10n.paymentConfigRuntimeSectionCore,

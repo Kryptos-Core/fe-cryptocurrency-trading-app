@@ -2,6 +2,7 @@ import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_re
 import 'package:crypto_trading_app/features/auth/domain/entities/wc_auth_results.dart';
 import 'package:dio/dio.dart';
 import 'package:crypto_trading_app/core/constants/api_constants.dart';
+import 'package:crypto_trading_app/core/error/api_error_parser.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/features/auth/data/models/auth_response_model.dart';
 import 'package:crypto_trading_app/features/user/data/models/user_model.dart';
@@ -90,11 +91,12 @@ abstract class AuthRemoteDataSource {
     required String otpCode,
   });
 
-  /// Change password directly (no admin approval). Requires 2FA OTP.
+  /// Change password directly (no admin approval).
+  /// `otpCode` required when 2FA is on AND email verification is enabled.
   Future<bool> changePassword({
     required String token,
     required String newPassword,
-    required String otpCode,
+    String? otpCode,
   });
 }
 
@@ -143,14 +145,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Registration failed';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Registration failed',
+        );
+        final message = payload.message;
+        final code = payload.code;
 
         if (statusCode == 400 || statusCode == 409) {
           // Email already exists or validation error
-          throw ValidationException(message: message);
+          throw ValidationException(message: message, code: code);
         }
 
-        throw ServerException(message: message);
+        throw ServerException(message: message, statusCode: statusCode, code: code);
       }
 
       final healthUrl = '${ApiConstants.baseUrl}/health';
@@ -190,12 +197,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Login failed';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Login failed',
+        );
 
         if (statusCode == 401) {
-          throw AuthenticationException(message: message);
+          throw AuthenticationException(message: payload.message);
         }
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: statusCode, code: payload.code);
       }
       final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
@@ -232,14 +242,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Failed to get user';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to get user',
+        );
 
         if (statusCode == 401 || statusCode == 404) {
           // Unauthorized or user deleted/not found - clear stale session in UI
-          throw AuthenticationException(message: message);
+          throw AuthenticationException(message: payload.message);
         }
 
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: statusCode, code: payload.code);
       }
       final healthUrl = '${ApiConstants.baseUrl}/health';
       throw NetworkException(
@@ -288,11 +301,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message = e.response!.data['message'] ?? 'Failed to get nonce';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to get nonce',
+        );
         if (e.response!.statusCode == 400) {
-          throw ValidationException(message: message);
+          throw ValidationException(message: payload.message, code: payload.code);
         }
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: e.response!.statusCode, code: payload.code);
       }
       throw NetworkException(
         message: 'Cannot reach server. Check connection.',
@@ -333,12 +349,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message =
-            e.response!.data['message'] ?? 'Wallet verification failed';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Wallet verification failed',
+        );
         if (e.response!.statusCode == 401 || e.response!.statusCode == 400) {
-          throw AuthenticationException(message: message);
+          throw AuthenticationException(message: payload.message);
         }
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: e.response!.statusCode, code: payload.code);
       }
       throw NetworkException(
         message: 'Cannot reach server. Check connection.',
@@ -372,11 +390,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message = e.response!.data['message'] ?? 'WC auth init failed';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'WC auth init failed',
+        );
         if (e.response!.statusCode == 400) {
-          throw ValidationException(message: message);
+          throw ValidationException(message: payload.message, code: payload.code);
         }
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: e.response!.statusCode, code: payload.code);
       }
       throw NetworkException(
         message: 'Cannot reach server. Check connection.',
@@ -407,8 +428,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'WC auth status failed',
+        );
         throw ServerException(
-          message: e.response!.data['message'] ?? 'WC auth status failed',
+          message: payload.message,
+          statusCode: e.response!.statusCode,
+          code: payload.code,
         );
       }
       throw NetworkException(
@@ -453,11 +480,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final message = e.response!.data['message'] ?? 'WC auth verify failed';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'WC auth verify failed',
+        );
         if (e.response!.statusCode == 401 || e.response!.statusCode == 400) {
-          throw AuthenticationException(message: message);
+          throw AuthenticationException(message: payload.message);
         }
-        throw ServerException(message: message);
+        throw ServerException(message: payload.message, statusCode: e.response!.statusCode, code: payload.code);
       }
       throw NetworkException(
         message: 'Cannot reach server. Check connection.',
@@ -533,9 +563,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Failed to send OTP';
-        if (statusCode == 401) throw AuthenticationException(message: message);
-        throw ServerException(message: message);
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to send OTP',
+        );
+        if (statusCode == 401) throw AuthenticationException(message: payload.message);
+        throw ServerException(message: payload.message, statusCode: statusCode, code: payload.code);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {
@@ -567,10 +600,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Failed to enable 2FA';
-        if (statusCode == 401) throw AuthenticationException(message: message);
-        if (statusCode == 400) throw ValidationException(message: message);
-        throw ServerException(message: message);
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to enable 2FA',
+        );
+        if (statusCode == 401) throw AuthenticationException(message: payload.message);
+        if (statusCode == 400) throw ValidationException(message: payload.message, code: payload.code);
+        throw ServerException(message: payload.message, statusCode: statusCode, code: payload.code);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {
@@ -602,10 +638,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
-        final message = e.response!.data['message'] ?? 'Failed to disable 2FA';
-        if (statusCode == 401) throw AuthenticationException(message: message);
-        if (statusCode == 400) throw ValidationException(message: message);
-        throw ServerException(message: message);
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to disable 2FA',
+        );
+        if (statusCode == 401) throw AuthenticationException(message: payload.message);
+        if (statusCode == 400) throw ValidationException(message: payload.message, code: payload.code);
+        throw ServerException(message: payload.message, statusCode: statusCode, code: payload.code);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {
@@ -617,15 +656,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<bool> changePassword({
     required String token,
     required String newPassword,
-    required String otpCode,
+    String? otpCode,
   }) async {
     try {
+      final data = <String, dynamic>{'newPassword': newPassword};
+      if (otpCode != null) data['otpCode'] = otpCode;
       final response = await dio.post(
         ApiConstants.authChangePassword,
-        data: {
-          'newPassword': newPassword,
-          'otpCode': otpCode,
-        },
+        data: data,
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
         ),
@@ -640,14 +678,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on DioException catch (e) {
       if (e.response != null) {
-        final msg = e.response!.data['message'] ?? 'Failed to change password';
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to change password',
+        );
         if (e.response!.statusCode == 401) {
-          throw AuthenticationException(message: msg);
+          throw AuthenticationException(message: payload.message);
         }
         if (e.response!.statusCode == 400) {
-          throw ValidationException(message: msg);
+          throw ValidationException(message: payload.message, code: payload.code);
         }
-        throw ServerException(message: msg);
+        throw ServerException(message: payload.message, statusCode: e.response!.statusCode, code: payload.code);
       }
       throw NetworkException(message: 'Cannot reach server. Check connection.');
     } catch (e) {

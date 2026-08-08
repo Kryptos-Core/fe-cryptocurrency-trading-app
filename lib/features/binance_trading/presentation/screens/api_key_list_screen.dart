@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart' as di;
+import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 import '../../application/providers/binance_credentials_provider.dart';
 import '../../application/providers/binance_trading_provider.dart';
 import '../../data/repositories/binance_trading_repository_impl.dart';
@@ -26,9 +27,10 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Binance API Keys'),
+        title: Text(l10n.binanceApiKeyListTitle),
         elevation: 0,
       ),
       body: Consumer<BinanceCredentialsProvider>(
@@ -49,12 +51,12 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No Binance API Keys',
+                    l10n.binanceApiKeyListEmptyTitle,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Connect your Binance account to start trading',
+                    l10n.binanceApiKeyListEmptyDescription,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.outline,
                         ),
@@ -63,7 +65,7 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
                   FilledButton.icon(
                     onPressed: () => _navigateToSetup(context),
                     icon: const Icon(Icons.add),
-                    label: const Text('Add API Key'),
+                    label: Text(l10n.binanceApiKeyListAddAction),
                   ),
                 ],
               ),
@@ -79,9 +81,10 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
                 final cred = provider.credentials[index];
                 return _CredentialCard(
                   credential: cred,
+                  l10n: l10n,
                   onTap: () => _navigateToTrading(context, cred),
-                  onDelete: () => _confirmDelete(context, provider, cred),
-                  onTest: () => _testConnection(context, provider, cred),
+                  onDelete: () => _confirmDelete(context, provider, cred, l10n),
+                  onTest: () => _testConnection(context, provider, cred, l10n),
                 );
               },
             ),
@@ -128,6 +131,7 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
     BuildContext context,
     BinanceCredentialsProvider provider,
     BinanceCredentials cred,
+    AppLocalizations l10n,
   ) async {
     final result = await provider.testConnection(cred.id);
     if (!context.mounted) return;
@@ -136,8 +140,8 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
       SnackBar(
         content: Text(
           result.success
-              ? 'Connection OK — Account: ${result.error ?? "verified"}'
-              : 'Connection failed: ${result.error}',
+              ? l10n.binanceApiKeyListConnectionOk(result.error ?? 'verified')
+              : l10n.binanceApiKeyListConnectionFailed(result.error ?? ''),
         ),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
@@ -148,25 +152,26 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
     BuildContext context,
     BinanceCredentialsProvider provider,
     BinanceCredentials cred,
+    AppLocalizations l10n,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete API Key?'),
+        title: Text(l10n.binanceApiKeyListDeleteConfirmTitle),
         content: Text(
-          'Are you sure you want to delete "${cred.label ?? "API Key"}"? This action cannot be undone.',
+          l10n.binanceApiKeyListDeleteConfirmContent(cred.label ?? 'API Key'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.binanceApiKeyListDelete),
           ),
         ],
       ),
@@ -180,12 +185,14 @@ class _ApiKeyListScreenState extends State<ApiKeyListScreen> {
 
 class _CredentialCard extends StatelessWidget {
   final BinanceCredentials credential;
+  final AppLocalizations l10n;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onTest;
 
   const _CredentialCard({
     required this.credential,
+    required this.l10n,
     required this.onTap,
     required this.onDelete,
     required this.onTest,
@@ -193,6 +200,11 @@ class _CredentialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizedLabel =
+        credential.label ?? l10n.binanceApiKeyListAccountFallbackLabel;
+    final testnetBadge = l10n.binanceApiKeyListTestnetBadge;
+    final mainnetBadge = l10n.binanceApiKeyListMainnetBadge;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -218,14 +230,14 @@ class _CredentialCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          credential.label ?? 'Binance Account',
+                          localizedLabel,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 2),
                         Row(
                           children: [
                             _buildChip(
-                              credential.testnet ? 'TESTNET' : 'MAINNET',
+                              credential.testnet ? testnetBadge : mainnetBadge,
                               credential.testnet ? Colors.orange : Colors.green,
                             ),
                             const SizedBox(width: 6),
@@ -247,10 +259,13 @@ class _CredentialCard extends StatelessWidget {
                       if (value == 'delete') onDelete();
                     },
                     itemBuilder: (ctx) => [
-                      const PopupMenuItem(value: 'test', child: Text('Test Connection')),
-                      const PopupMenuItem(
+                      PopupMenuItem(
+                          value: 'test',
+                          child: Text(l10n.binanceApiKeyListTestConnection)),
+                      PopupMenuItem(
                         value: 'delete',
-                        child: Text('Delete', style: TextStyle(color: Colors.red)),
+                        child: Text(l10n.binanceApiKeyListDelete,
+                            style: const TextStyle(color: Colors.red)),
                       ),
                     ],
                   ),
@@ -267,14 +282,15 @@ class _CredentialCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Last used: ${_formatDate(credential.lastUsedAt!)}',
+                      l10n.binanceApiKeyListLastUsedAt(
+                          _formatDate(credential.lastUsedAt!)),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.outline,
                           ),
                     ),
                   ] else
                     Text(
-                      'Never used',
+                      l10n.binanceApiKeyListNeverUsed,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.outline,
                           ),
@@ -283,7 +299,7 @@ class _CredentialCard extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onTap,
                     icon: const Icon(Icons.trending_up, size: 16),
-                    label: const Text('Trade'),
+                    label: Text(l10n.binanceApiKeyListTrade),
                   ),
                 ],
               ),
@@ -315,10 +331,11 @@ class _CredentialCard extends StatelessWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    final l10n = this.l10n;
+    if (diff.inMinutes < 1) return l10n.binanceApiKeyListJustNow;
+    if (diff.inMinutes < 60) return l10n.binanceApiKeyListMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.binanceApiKeyListHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.binanceApiKeyListDaysAgo(diff.inDays);
     return '${date.day}/${date.month}/${date.year}';
   }
 }

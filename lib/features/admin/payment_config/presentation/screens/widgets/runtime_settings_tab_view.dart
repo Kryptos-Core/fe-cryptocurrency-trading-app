@@ -21,7 +21,8 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    // Default 4 (tech, finance, ops, core); grows to 5 when auth_security tab is also visible.
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -56,6 +57,11 @@ class _RuntimeSettingsTabViewState extends State<RuntimeSettingsTabView>
     if (auth.canEditSystemConfigCore) {
       tabs.add(Tab(text: l10n.paymentConfigRuntimeSectionCore));
       views.add(const RuntimeSettingsCategoryView(category: 'core'));
+    }
+
+    if (auth.canEditSystemConfigAuthSecurity) {
+      tabs.add(Tab(text: l10n.paymentConfigRuntimeSectionAuthSecurity));
+      views.add(const RuntimeSettingsCategoryView(category: 'auth_security'));
     }
 
     // If no tabs are visible, show an empty state.

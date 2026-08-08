@@ -67,8 +67,8 @@ lib/
     ├── settings/
     ├── user/                            # Entity user + datasource dùng chéo (admin/profile)
     └── admin/                           # users, transactions, currencies, markets, wallet_adjust,
-                                         # security_requests, broadcast, payment_config,
-                                         # withdrawal_management, market_maker, fiat_withdrawals, …
+                                         # security_requests, broadcast, payment_config (runtime tabs gồm
+                                         # Auth & Security), withdrawal_management, market_maker, …
 ```
 
 > `lib/examples/` không tồn tại trong repo hiện tại (chỉ reserved trong comment); `lib/shared/` rỗng, đợi nhu cầu thật mới thêm helper theo nguyên tắc YAGNI.
@@ -93,6 +93,10 @@ Logic realtime / orchestration gắn một bounded context nhưng được gọi
 - **`createAppRouter(AuthProvider)`** (`app/router/app_router.dart`): `MaterialApp.router` dùng cấu hình này; **redirect** guest → `/login` khi path không nằm allowlist; user đã đăng nhập vào `/login` hoặc `/register` → về `/`.
 - **Shell**: route `/` bọc trong **`ShellRoute`** (pass-through `child`), bên trong là **`MainScreen`** — chuyển tab vẫn là **state cục bộ** trong `MainScreen`, không đổi URL theo tab.
 - Màn được **đẩy chồng** (orders, settings, admin, treasury, …) là các **`GoRoute` cùng cấp** với shell; từ UI dùng `context.push(AppRoutes....)` (không `Navigator.push` chuỗi `MaterialPageRoute` trong `MainScreen`).
+
+### Runtime settings admin UI
+
+`features/admin/payment_config/` hiển thị runtime settings theo category. ADMIN thấy tab **Auth & Security** (`auth_security` / `ConfigCategory.authSecurity`), hiện chứa boolean `EMAIL_VERIFICATION_REQUIRED` với default hiệu lực `true`. Tắt setting này khiến backend bypass email OTP cho đổi password/email, contact-email OTP và thêm/xóa ví; UI gọi category endpoint `GET/PATCH /api/v1/system-configs/runtime/auth_security`. Định nghĩa key, fallback env và migration enum là source of truth phía backend; xem `../be-cryptocurrency-trading-app/docs/ARCHITECTURE.md#email-verification-runtime-setting`.
 
 ## Đa nền tảng & responsive
 

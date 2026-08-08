@@ -43,6 +43,8 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingBlockchainDepositEthToUsdtRateName;
       case 'BLOCKCHAIN_DEPOSIT_SOL_TO_USDT_RATE':
         return l10n.runtimeSettingBlockchainDepositSolToUsdtRateName;
+      case 'EMAIL_VERIFICATION_REQUIRED':
+        return l10n.runtimeSettingEmailVerificationRequiredName;
       default:
         return r.name;
     }
@@ -86,6 +88,8 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingBlockchainDepositEthToUsdtRateDesc;
       case 'BLOCKCHAIN_DEPOSIT_SOL_TO_USDT_RATE':
         return l10n.runtimeSettingBlockchainDepositSolToUsdtRateDesc;
+      case 'EMAIL_VERIFICATION_REQUIRED':
+        return l10n.runtimeSettingEmailVerificationRequiredDesc;
       default:
         return r.description;
     }

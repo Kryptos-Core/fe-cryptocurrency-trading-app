@@ -17,7 +17,7 @@
 |------|---------|
 | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Feature-first Clean Architecture (4 lớp), GoRouter, `import_lint`, layout `test/features/`. |
 | [`test/README.md`](../test/README.md) | Tổ chức test (`features/<name>`, `core/`, `support/`), navigation/router tests. |
-| [`AGENTS.md`](../AGENTS.md), [`VIBE_CODE.md`](../VIBE_CODE.md), [`CONTRIBUTING-RULES.md`](../CONTRIBUTING-RULES.md), [`ECC-COMMANDS.md`](../ECC-COMMANDS.md) | AI workflow, conventions, PR process. |
+| [`AGENTS.md`](../AGENTS.md), [`VIBE_CODE.md`](../VIBE_CODE.md), [`CONTRIBUTING-RULES.md`](../CONTRIBUTING-RULES.md) | AI workflow, conventions, PR process. Lệnh slash: xem `.cursor/commands/` và `.claude/commands/`. |
 
 ## Security
 
@@ -38,7 +38,6 @@
 
 - `lib/app/` — `app.dart`, DI, router, providers, bootstrap.
 - `lib/core/` — network, theme, localization, wallet_auth, services, utils, widgets.
-- `lib/shared/` — reserved (hiện rỗng).
 - `lib/features/<feature>/` — feature-first với `data/`, `domain/`, `application/`, `presentation/`.
 
 Xem chi tiết: [`ARCHITECTURE.md`](../ARCHITECTURE.md).

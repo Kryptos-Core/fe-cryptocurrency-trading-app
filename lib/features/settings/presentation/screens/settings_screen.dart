@@ -201,32 +201,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _isUpdating2fa = true);
     try {
       final repo = sl<AuthRepository>();
-      final sendOtp = await repo.send2faOtp(token);
-      final otpSent = sendOtp.fold((_) => false, (_) => true);
-      if (!otpSent) {
-        sendOtp.fold((f) {
-          showAppSnackBar(
-            context,
-            message: f.message,
-            type: SnackBarType.error,
-          );
-        }, (_) {});
-        return;
+      String? otpCode;
+
+      if (auth.emailVerificationRequired) {
+        final sendOtp = await repo.send2faOtp(token);
+        final otpSent = sendOtp.fold((_) => false, (_) => true);
+        if (!otpSent) {
+          sendOtp.fold((f) {
+            showAppSnackBar(
+              context,
+              message: f.message,
+              type: SnackBarType.error,
+            );
+          }, (_) {});
+          return;
+        }
+
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).otpSentToEmail,
+          type: SnackBarType.success,
+        );
+
+        otpCode = await _askOtp(context, repo, token);
+        if (otpCode == null || otpCode.isEmpty || otpCode.length != 6) return;
       }
 
-      if (!mounted) return;
-      showAppSnackBar(
-        context,
-        message: AppLocalizations.of(context).otpSentToEmail,
-        type: SnackBarType.success,
-      );
-
-      final otp = await _askOtp(context, repo, token);
-      if (otp == null || otp.isEmpty || otp.length != 6) return;
-
       final result = enable
-          ? await repo.enable2fa(token: token, otpCode: otp)
-          : await repo.disable2fa(token: token, otpCode: otp);
+          ? await repo.enable2fa(token: token, otpCode: otpCode!)
+          : await repo.disable2fa(token: token, otpCode: otpCode!);
 
       result.fold(
         (f) {

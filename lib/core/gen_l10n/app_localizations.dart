@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Crypto Trading App'**
   String get appTitle;
 
+  /// No description provided for @walletConnectDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cryptocurrency trading'**
+  String get walletConnectDescription;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
@@ -2518,6 +2524,12 @@ abstract class AppLocalizations {
   /// **'Tradable'**
   String get currenciesTradable;
 
+  /// No description provided for @currenciesPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get currenciesPaused;
+
   /// No description provided for @currenciesSortTopVolume.
   ///
   /// In en, this message translates to:
@@ -2541,6 +2553,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A-Z'**
   String get currenciesSortAlphabet;
+
+  /// No description provided for @currenciesSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get currenciesSortLabel;
+
+  /// Action that resets all currency list filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get currenciesClearFilters;
+
+  /// Counter shown next to the filter bar.
+  ///
+  /// In en, this message translates to:
+  /// **'{shown} of {total} currencies'**
+  String currenciesResultCounter(int shown, int total);
+
+  /// No description provided for @currenciesEmptyFiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies match the current filters'**
+  String get currenciesEmptyFiltered;
+
+  /// No description provided for @currenciesRetryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get currenciesRetryAction;
+
+  /// No description provided for @currenciesLoadingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more...'**
+  String get currenciesLoadingMore;
 
   /// No description provided for @currenciesNoCurrenciesFound.
   ///
@@ -2577,6 +2625,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Currency Configuration'**
   String get currenciesConfigurationTitle;
+
+  /// No description provided for @currenciesDetailStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get currenciesDetailStatusTitle;
+
+  /// No description provided for @currenciesDetailBackToMarkets.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Markets'**
+  String get currenciesDetailBackToMarkets;
+
+  /// No description provided for @currenciesDetailActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active status'**
+  String get currenciesDetailActiveLabel;
+
+  /// No description provided for @currenciesDetailTradableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable status'**
+  String get currenciesDetailTradableLabel;
 
   /// No description provided for @currenciesSymbolLabel.
   ///
@@ -4030,6 +4102,30 @@ abstract class AppLocalizations {
   /// **'Ops & Engine'**
   String get paymentConfigRuntimeSectionOps;
 
+  /// No description provided for @paymentConfigRuntimeSectionAuthSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Auth / Security'**
+  String get paymentConfigRuntimeSectionAuthSecurity;
+
+  /// No description provided for @paymentConfigRuntimeSectionAuthSecurityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verification toggle and other auth/security settings — admin only.'**
+  String get paymentConfigRuntimeSectionAuthSecurityDesc;
+
+  /// No description provided for @runtimeSettingEmailVerificationRequiredName.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verification required (OTP gating)'**
+  String get runtimeSettingEmailVerificationRequiredName;
+
+  /// No description provided for @runtimeSettingEmailVerificationRequiredDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When true, sensitive actions (wallet add/remove, password change, email change, contact-email OTP) require OTP email. When false, all email-OTP flows are bypassed. Only disable in trusted/internal environments.'**
+  String get runtimeSettingEmailVerificationRequiredDesc;
+
   /// No description provided for @paymentConfigRuntimeSectionOpsDesc.
   ///
   /// In en, this message translates to:
@@ -4879,7 +4975,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiErrorTronAccountPreflightUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'We could not check the destination TRON wallet status right now. Please try again later.'**
+  /// **'Could not check the destination TRON wallet status right now. Please try again later.'**
   String get apiErrorTronAccountPreflightUnavailable;
 
   /// No description provided for @treasuryWalletCreatedSuccess.
@@ -6214,6 +6310,121 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trading paused'**
   String get adminCurrenciesTradingPausedTooltip;
+
+  /// No description provided for @adminCurrenciesReadOnlyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You are in read-only mode. Any change to the coin catalog requires an Admin account.'**
+  String get adminCurrenciesReadOnlyBanner;
+
+  /// No description provided for @adminCurrenciesReadOnlySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only'**
+  String get adminCurrenciesReadOnlySubtitle;
+
+  /// No description provided for @adminCurrenciesCountSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {total} · Active {active} · Inactive {inactive} · Tradable {tradable} · Paused {paused}'**
+  String adminCurrenciesCountSummary(
+      int total, int active, int inactive, int tradable, int paused);
+
+  /// No description provided for @adminCurrenciesDetailPrecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Precision scale'**
+  String get adminCurrenciesDetailPrecision;
+
+  /// No description provided for @adminCurrenciesDetailMinWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Min withdraw'**
+  String get adminCurrenciesDetailMinWithdraw;
+
+  /// No description provided for @adminCurrenciesDetailStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminCurrenciesDetailStatus;
+
+  /// No description provided for @adminCurrenciesDetailTrading.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable'**
+  String get adminCurrenciesDetailTrading;
+
+  /// No description provided for @adminCurrenciesDetailCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get adminCurrenciesDetailCreatedAt;
+
+  /// No description provided for @adminCurrenciesDetailUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get adminCurrenciesDetailUpdatedAt;
+
+  /// No description provided for @adminCurrenciesDetailCopySymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy symbol'**
+  String get adminCurrenciesDetailCopySymbol;
+
+  /// No description provided for @adminCurrenciesCopySymbolDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {symbol}'**
+  String adminCurrenciesCopySymbolDone(String symbol);
+
+  /// No description provided for @adminCurrenciesRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get adminCurrenciesRefreshTooltip;
+
+  /// No description provided for @adminCurrenciesStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminCurrenciesStatusActive;
+
+  /// No description provided for @adminCurrenciesStatusInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get adminCurrenciesStatusInactive;
+
+  /// No description provided for @adminCurrenciesStatusTradable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradable'**
+  String get adminCurrenciesStatusTradable;
+
+  /// No description provided for @adminCurrenciesStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading paused'**
+  String get adminCurrenciesStatusPaused;
+
+  /// No description provided for @adminCurrenciesSectionBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic info'**
+  String get adminCurrenciesSectionBasic;
+
+  /// No description provided for @adminCurrenciesSectionTrading.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading parameters'**
+  String get adminCurrenciesSectionTrading;
+
+  /// No description provided for @adminCurrenciesSectionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminCurrenciesSectionStatus;
 
   /// No description provided for @adminShowingCount.
   ///
@@ -9595,6 +9806,1705 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can edit email or password here for testing'**
   String get youCanEditCredentialsAbove;
+
+  /// Title shown on the Orders tab when the user is not authenticated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to view your orders'**
+  String get ordersGuestGateTitle;
+
+  /// Subtitle explaining why the Orders tab is locked for guests.
+  ///
+  /// In en, this message translates to:
+  /// **'The Orders tab is available after signing in. Sign in to view your order book, place buy/sell orders, and manage your portfolio.'**
+  String get ordersGuestGateSubtitle;
+
+  /// Title shown when the Orders tab detects an expired/invalid auth token.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired'**
+  String get ordersSessionExpiredTitle;
+
+  /// Subtitle for the Orders tab session-expired state.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again to continue viewing your orders.'**
+  String get ordersSessionExpiredSubtitle;
+
+  /// Button label for re-authenticating after the session has expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again'**
+  String get signInAgain;
+
+  /// No description provided for @apiErrorEmailExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already in use.'**
+  String get apiErrorEmailExists;
+
+  /// No description provided for @apiErrorInvalidOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'The OTP code is invalid or has expired.'**
+  String get apiErrorInvalidOtp;
+
+  /// No description provided for @apiErrorOtpRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP code is required.'**
+  String get apiErrorOtpRequired;
+
+  /// No description provided for @apiErrorOtpCooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait {seconds} seconds before requesting another OTP.'**
+  String apiErrorOtpCooldown(int seconds);
+
+  /// No description provided for @apiErrorOtpAttemptLimitExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many OTP attempts. Please try again in {seconds} seconds.'**
+  String apiErrorOtpAttemptLimitExceeded(int seconds);
+
+  /// No description provided for @apiErrorTwoFaRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication is required. Please enable 2FA in Settings first.'**
+  String get apiErrorTwoFaRequired;
+
+  /// No description provided for @apiErrorAccountBanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been banned. Contact support.'**
+  String get apiErrorAccountBanned;
+
+  /// No description provided for @apiErrorEmailVerificationDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verification is disabled by admin. OTP is not required.'**
+  String get apiErrorEmailVerificationDisabled;
+
+  /// No description provided for @apiErrorNotWalletPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Only wallet-placeholder accounts can use this flow. Use the regular email-change endpoint in Settings.'**
+  String get apiErrorNotWalletPlaceholder;
+
+  /// No description provided for @apiErrorUseContactEmailVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet accounts use a temporary email. Please verify a real email in Profile.'**
+  String get apiErrorUseContactEmailVerification;
+
+  /// No description provided for @apiErrorUseChangePasswordEndpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use the dedicated change-password endpoint.'**
+  String get apiErrorUseChangePasswordEndpoint;
+
+  /// No description provided for @apiErrorInvalidPayload.
+  ///
+  /// In en, this message translates to:
+  /// **'Request payload is invalid.'**
+  String get apiErrorInvalidPayload;
+
+  /// No description provided for @apiErrorInvalidChangeType.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported change type.'**
+  String get apiErrorInvalidChangeType;
+
+  /// No description provided for @apiErrorAvatarUploadDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar upload is currently disabled.'**
+  String get apiErrorAvatarUploadDisabled;
+
+  /// No description provided for @apiErrorContactEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A contact email is required.'**
+  String get apiErrorContactEmailRequired;
+
+  /// No description provided for @apiErrorInvalidAvatarFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Only JPEG, PNG, or WebP images are allowed.'**
+  String get apiErrorInvalidAvatarFormat;
+
+  /// No description provided for @apiErrorAvatarRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar file is required.'**
+  String get apiErrorAvatarRequired;
+
+  /// No description provided for @apiErrorWithdrawalProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'A withdrawal is being processed.'**
+  String get apiErrorWithdrawalProcessing;
+
+  /// No description provided for @apiErrorWithdrawalDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate withdrawal request.'**
+  String get apiErrorWithdrawalDuplicate;
+
+  /// No description provided for @apiErrorWithdrawalNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal not found.'**
+  String get apiErrorWithdrawalNotFound;
+
+  /// No description provided for @apiErrorWithdrawalPendingExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot change email while {count} withdrawal(s) are pending. Please wait or cancel them first.'**
+  String apiErrorWithdrawalPendingExists(int count);
+
+  /// No description provided for @apiErrorPendingWithdrawals.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot perform this action while a withdrawal is pending.'**
+  String get apiErrorPendingWithdrawals;
+
+  /// No description provided for @apiErrorUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'User not found.'**
+  String get apiErrorUserNotFound;
+
+  /// No description provided for @apiErrorWalletNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet not found.'**
+  String get apiErrorWalletNotFound;
+
+  /// No description provided for @apiErrorInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount.'**
+  String get apiErrorInvalidAmount;
+
+  /// No description provided for @apiErrorInvalidTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot transfer to the same user.'**
+  String get apiErrorInvalidTarget;
+
+  /// No description provided for @apiErrorTargetRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'targetUserId is required for transfers.'**
+  String get apiErrorTargetRequired;
+
+  /// No description provided for @apiErrorInvalidAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid wallet action.'**
+  String get apiErrorInvalidAction;
+
+  /// No description provided for @apiErrorInsufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance.'**
+  String get apiErrorInsufficientBalance;
+
+  /// No description provided for @apiErrorAccountFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Account is frozen.'**
+  String get apiErrorAccountFrozen;
+
+  /// No description provided for @apiErrorChainRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing query param: chain.'**
+  String get apiErrorChainRequired;
+
+  /// No description provided for @apiErrorTxHashRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing query param: txHash.'**
+  String get apiErrorTxHashRequired;
+
+  /// No description provided for @apiErrorAdminIngestMissingParams.
+  ///
+  /// In en, this message translates to:
+  /// **'chain and txHash are required.'**
+  String get apiErrorAdminIngestMissingParams;
+
+  /// No description provided for @apiErrorInvalidAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid wallet address on chain {chain}.'**
+  String apiErrorInvalidAddress(String chain);
+
+  /// No description provided for @apiErrorInvalidTronAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Tron destination address.'**
+  String get apiErrorInvalidTronAddress;
+
+  /// No description provided for @apiErrorInvalidEvmAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid EVM destination address.'**
+  String get apiErrorInvalidEvmAddress;
+
+  /// No description provided for @apiErrorInvalidSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature is invalid.'**
+  String get apiErrorInvalidSignature;
+
+  /// No description provided for @apiErrorWalletAlreadyLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet is already linked to your account.'**
+  String get apiErrorWalletAlreadyLinked;
+
+  /// No description provided for @apiErrorWalletInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive wallet cannot be set as default.'**
+  String get apiErrorWalletInactive;
+
+  /// No description provided for @apiErrorLinkNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked wallet not found.'**
+  String get apiErrorLinkNotFound;
+
+  /// No description provided for @apiErrorWcAuthSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'WalletConnect session expired. Please try again.'**
+  String get apiErrorWcAuthSessionExpired;
+
+  /// No description provided for @apiErrorWcAuthInvalidPayload.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid WalletConnect payload.'**
+  String get apiErrorWcAuthInvalidPayload;
+
+  /// No description provided for @apiErrorTreasuryChainUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported treasury chain.'**
+  String get apiErrorTreasuryChainUnsupported;
+
+  /// No description provided for @apiErrorTreasuryChainNotEvm.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation requires an EVM-compatible chain.'**
+  String get apiErrorTreasuryChainNotEvm;
+
+  /// No description provided for @apiErrorTreasuryInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than zero.'**
+  String get apiErrorTreasuryInvalidAmount;
+
+  /// No description provided for @apiErrorTreasurySweepUsdtZero.
+  ///
+  /// In en, this message translates to:
+  /// **'No USDT balance to sweep.'**
+  String get apiErrorTreasurySweepUsdtZero;
+
+  /// No description provided for @apiErrorTreasuryUsdtChain.
+  ///
+  /// In en, this message translates to:
+  /// **'USDT sweep requires a Tron chain.'**
+  String get apiErrorTreasuryUsdtChain;
+
+  /// No description provided for @apiErrorTreasuryConfirmNoWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing to_wallet_id for confirm operation.'**
+  String get apiErrorTreasuryConfirmNoWallet;
+
+  /// No description provided for @apiErrorTreasuryManualSettleTxEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction hash is required.'**
+  String get apiErrorTreasuryManualSettleTxEmpty;
+
+  /// No description provided for @apiErrorTreasuryOperationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury operation not found.'**
+  String get apiErrorTreasuryOperationNotFound;
+
+  /// No description provided for @apiErrorTreasuryOperationStateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is in an invalid state for this action.'**
+  String get apiErrorTreasuryOperationStateInvalid;
+
+  /// No description provided for @apiErrorTreasuryOperationNotQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is not in the queued state.'**
+  String get apiErrorTreasuryOperationNotQueued;
+
+  /// No description provided for @apiErrorTreasuryOperationNotProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is not being processed.'**
+  String get apiErrorTreasuryOperationNotProcessing;
+
+  /// No description provided for @apiErrorTreasuryOperationNotConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is not confirming on-chain.'**
+  String get apiErrorTreasuryOperationNotConfirming;
+
+  /// No description provided for @apiErrorTreasuryOperationNotCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation has not completed yet.'**
+  String get apiErrorTreasuryOperationNotCompleted;
+
+  /// No description provided for @apiErrorTreasuryOperationNotFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation has not failed.'**
+  String get apiErrorTreasuryOperationNotFailed;
+
+  /// No description provided for @apiErrorTreasuryTxHashNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction hash not found in our records.'**
+  String get apiErrorTreasuryTxHashNotFound;
+
+  /// No description provided for @apiErrorTreasuryInsufficientFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient on-chain balance for this operation.'**
+  String get apiErrorTreasuryInsufficientFunds;
+
+  /// No description provided for @apiErrorTreasuryBalanceReconcileFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reconcile treasury balance.'**
+  String get apiErrorTreasuryBalanceReconcileFailed;
+
+  /// No description provided for @apiErrorTreasuryOperationTypeUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported treasury operation type.'**
+  String get apiErrorTreasuryOperationTypeUnsupported;
+
+  /// No description provided for @apiErrorTreasuryRpcUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockchain RPC is unavailable. Please try again later.'**
+  String get apiErrorTreasuryRpcUnavailable;
+
+  /// No description provided for @apiErrorTreasuryRpcTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockchain RPC timed out. Please try again later.'**
+  String get apiErrorTreasuryRpcTimeout;
+
+  /// No description provided for @apiErrorTreasuryGasEstimateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not estimate gas for the transaction.'**
+  String get apiErrorTreasuryGasEstimateFailed;
+
+  /// No description provided for @apiErrorTreasuryNonceConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Nonce conflict. Another transaction is in flight for this wallet.'**
+  String get apiErrorTreasuryNonceConflict;
+
+  /// No description provided for @apiErrorTreasuryTxReverted.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain transaction reverted.'**
+  String get apiErrorTreasuryTxReverted;
+
+  /// No description provided for @apiErrorTreasuryTxBroadcastFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to broadcast transaction to the network.'**
+  String get apiErrorTreasuryTxBroadcastFailed;
+
+  /// No description provided for @apiErrorTxWalletNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction wallet not found.'**
+  String get apiErrorTxWalletNotFound;
+
+  /// No description provided for @apiErrorTxWalletDefaultDepositDeleteForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Unset this wallet as the user deposit default before deleting it.'**
+  String get apiErrorTxWalletDefaultDepositDeleteForbidden;
+
+  /// No description provided for @apiErrorDefaultUserDepositDeactivateForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot deactivate the current default user deposit wallet.'**
+  String get apiErrorDefaultUserDepositDeactivateForbidden;
+
+  /// No description provided for @apiErrorTreasuryMainWalletNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury main wallet not found.'**
+  String get apiErrorTreasuryMainWalletNotFound;
+
+  /// No description provided for @apiErrorTreasuryMainWalletConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A treasury main wallet with this configuration already exists.'**
+  String get apiErrorTreasuryMainWalletConflict;
+
+  /// No description provided for @apiErrorOrderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Order not found.'**
+  String get apiErrorOrderNotFound;
+
+  /// No description provided for @apiErrorOrderNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Order is not open.'**
+  String get apiErrorOrderNotOpen;
+
+  /// No description provided for @apiErrorInvalidPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid price.'**
+  String get apiErrorInvalidPrice;
+
+  /// No description provided for @apiErrorInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid order input.'**
+  String get apiErrorInvalidInput;
+
+  /// No description provided for @apiErrorInvalidMarketBuyReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid market buy reserve.'**
+  String get apiErrorInvalidMarketBuyReserve;
+
+  /// No description provided for @apiErrorNoLiquidity.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough liquidity for this order.'**
+  String get apiErrorNoLiquidity;
+
+  /// No description provided for @apiErrorOrderCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create order.'**
+  String get apiErrorOrderCreateFailed;
+
+  /// No description provided for @apiErrorInvalidState.
+  ///
+  /// In en, this message translates to:
+  /// **'Order is in an invalid state.'**
+  String get apiErrorInvalidState;
+
+  /// No description provided for @apiErrorOverfillAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Order would be overfilled.'**
+  String get apiErrorOverfillAttempt;
+
+  /// No description provided for @apiErrorCancelFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel failed.'**
+  String get apiErrorCancelFailed;
+
+  /// No description provided for @apiErrorPairNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading pair not found.'**
+  String get apiErrorPairNotFound;
+
+  /// No description provided for @apiErrorInvalidOrderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid order type.'**
+  String get apiErrorInvalidOrderType;
+
+  /// No description provided for @apiErrorOrderBookServiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Order book service is not available.'**
+  String get apiErrorOrderBookServiceUnavailable;
+
+  /// No description provided for @apiErrorInvalidDepthLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth limit must be 5, 10, or 20.'**
+  String get apiErrorInvalidDepthLimit;
+
+  /// No description provided for @apiErrorInvalidInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid interval.'**
+  String get apiErrorInvalidInterval;
+
+  /// No description provided for @apiErrorMarketPairSymbolExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A market pair with this symbol already exists.'**
+  String get apiErrorMarketPairSymbolExists;
+
+  /// No description provided for @apiErrorBaseQuoteSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Base and quote currencies cannot be the same.'**
+  String get apiErrorBaseQuoteSame;
+
+  /// No description provided for @apiErrorBaseQuoteRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Base and quote currencies are required.'**
+  String get apiErrorBaseQuoteRequired;
+
+  /// No description provided for @apiErrorCurrencyNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency not found.'**
+  String get apiErrorCurrencyNotFound;
+
+  /// No description provided for @apiErrorCurrencySymbolExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A currency with this symbol already exists.'**
+  String get apiErrorCurrencySymbolExists;
+
+  /// No description provided for @apiErrorCurrencyDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency is disabled.'**
+  String get apiErrorCurrencyDisabled;
+
+  /// No description provided for @apiErrorMarketMakerConfigNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Market maker config not found.'**
+  String get apiErrorMarketMakerConfigNotFound;
+
+  /// No description provided for @apiErrorMarketMakerConfigConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A market maker config for this user and pair already exists.'**
+  String get apiErrorMarketMakerConfigConflict;
+
+  /// No description provided for @apiErrorMarketMakerInvalidSpread.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid market maker spread.'**
+  String get apiErrorMarketMakerInvalidSpread;
+
+  /// No description provided for @apiErrorMarketMakerInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid market maker order amount.'**
+  String get apiErrorMarketMakerInvalidAmount;
+
+  /// No description provided for @apiErrorMarketMakerNoActivePairs.
+  ///
+  /// In en, this message translates to:
+  /// **'No active trading pairs configured for market making.'**
+  String get apiErrorMarketMakerNoActivePairs;
+
+  /// No description provided for @apiErrorMarketMakerPlaceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Market maker could not place orders.'**
+  String get apiErrorMarketMakerPlaceFailed;
+
+  /// No description provided for @apiErrorConfigKeyNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration key not found.'**
+  String get apiErrorConfigKeyNotFound;
+
+  /// No description provided for @apiErrorConfigKeyDisallowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This configuration key is not allowed.'**
+  String get apiErrorConfigKeyDisallowed;
+
+  /// No description provided for @apiErrorConfigKeyReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This configuration key is read-only.'**
+  String get apiErrorConfigKeyReadOnly;
+
+  /// No description provided for @apiErrorConfigValueInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid value for configuration key.'**
+  String get apiErrorConfigValueInvalid;
+
+  /// No description provided for @apiErrorAdminRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin role required.'**
+  String get apiErrorAdminRequired;
+
+  /// No description provided for @apiErrorRiskOfficerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk officer role required.'**
+  String get apiErrorRiskOfficerRequired;
+
+  /// No description provided for @apiErrorFinanceManagerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance manager role required.'**
+  String get apiErrorFinanceManagerRequired;
+
+  /// No description provided for @apiErrorDepositNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit not found.'**
+  String get apiErrorDepositNotFound;
+
+  /// No description provided for @apiErrorDepositAlreadyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit already paid or not found.'**
+  String get apiErrorDepositAlreadyPaid;
+
+  /// No description provided for @apiErrorDepositAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid deposit amount.'**
+  String get apiErrorDepositAmountInvalid;
+
+  /// No description provided for @apiErrorDepositChainUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported deposit chain.'**
+  String get apiErrorDepositChainUnsupported;
+
+  /// No description provided for @apiErrorDepositPollFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check deposit status. Please try again later.'**
+  String get apiErrorDepositPollFailed;
+
+  /// No description provided for @apiErrorTxFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'On-chain transaction failed.'**
+  String get apiErrorTxFailed;
+
+  /// No description provided for @apiErrorEncryptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Encryption failed.'**
+  String get apiErrorEncryptionFailed;
+
+  /// No description provided for @apiErrorDecryptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Decryption failed.'**
+  String get apiErrorDecryptionFailed;
+
+  /// No description provided for @apiErrorEncryptedPayloadMalformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted payload is malformed.'**
+  String get apiErrorEncryptedPayloadMalformed;
+
+  /// No description provided for @apiErrorDecryptedPayloadInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrypted payload is invalid.'**
+  String get apiErrorDecryptedPayloadInvalid;
+
+  /// No description provided for @apiErrorExternalProviderUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'External provider is unavailable.'**
+  String get apiErrorExternalProviderUnavailable;
+
+  /// No description provided for @apiErrorExternalProviderRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'External provider rate limit reached. Please try again later.'**
+  String get apiErrorExternalProviderRateLimited;
+
+  /// No description provided for @apiErrorNotificationDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification delivery failed.'**
+  String get apiErrorNotificationDeliveryFailed;
+
+  /// No description provided for @apiErrorFcmNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications are not configured.'**
+  String get apiErrorFcmNotConfigured;
+
+  /// No description provided for @apiErrorTronSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit Tron transaction.'**
+  String get apiErrorTronSendFailed;
+
+  /// No description provided for @adminTransactionSectionOrderInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Order information'**
+  String get adminTransactionSectionOrderInfo;
+
+  /// No description provided for @adminTransactionSectionPriceAndAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Price & quantity'**
+  String get adminTransactionSectionPriceAndAmount;
+
+  /// No description provided for @adminTransactionSectionTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get adminTransactionSectionTime;
+
+  /// No description provided for @adminTransactionSectionReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get adminTransactionSectionReference;
+
+  /// No description provided for @adminTransactionLabelClientOrderId.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Order ID'**
+  String get adminTransactionLabelClientOrderId;
+
+  /// No description provided for @adminTransactionSectionUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get adminTransactionSectionUser;
+
+  /// No description provided for @adminTransactionSectionDepositInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit information'**
+  String get adminTransactionSectionDepositInfo;
+
+  /// No description provided for @adminTransactionLabelDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit ID'**
+  String get adminTransactionLabelDepositId;
+
+  /// No description provided for @adminTransactionSectionWithdrawalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction information'**
+  String get adminTransactionSectionWithdrawalInfo;
+
+  /// No description provided for @adminTransactionLabelWithdrawalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal ID'**
+  String get adminTransactionLabelWithdrawalId;
+
+  /// No description provided for @adminTransactionSectionOnChain.
+  ///
+  /// In en, this message translates to:
+  /// **'On-Chain'**
+  String get adminTransactionSectionOnChain;
+
+  /// No description provided for @adminTransactionLoadUserFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot load user info: {error}'**
+  String adminTransactionLoadUserFailed(String error);
+
+  /// No description provided for @adminUserDetailDepositAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get adminUserDetailDepositAction;
+
+  /// No description provided for @adminUserDetailWithdrawAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get adminUserDetailWithdrawAction;
+
+  /// No description provided for @adminUserDetailAdjustDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit coin for user'**
+  String get adminUserDetailAdjustDepositTitle;
+
+  /// No description provided for @adminUserDetailAdjustWithdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw coin from user'**
+  String get adminUserDetailAdjustWithdrawTitle;
+
+  /// No description provided for @adminUserDetailAdjustDepositSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit coin'**
+  String get adminUserDetailAdjustDepositSegment;
+
+  /// No description provided for @adminUserDetailAdjustWithdrawSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw coin'**
+  String get adminUserDetailAdjustWithdrawSegment;
+
+  /// No description provided for @adminUserDetailAdjustAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get adminUserDetailAdjustAmountLabel;
+
+  /// No description provided for @adminUserDetailAdjustAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0.00'**
+  String get adminUserDetailAdjustAmountHint;
+
+  /// No description provided for @adminUserDetailAdjustAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the amount'**
+  String get adminUserDetailAdjustAmountRequired;
+
+  /// No description provided for @adminUserDetailAdjustAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount'**
+  String get adminUserDetailAdjustAmountInvalid;
+
+  /// No description provided for @adminUserDetailAdjustAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than 0'**
+  String get adminUserDetailAdjustAmountPositive;
+
+  /// No description provided for @adminUserDetailAdjustNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get adminUserDetailAdjustNoteLabel;
+
+  /// No description provided for @adminUserDetailAdjustNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for adjustment...'**
+  String get adminUserDetailAdjustNoteHint;
+
+  /// No description provided for @adminUserDetailAdjustProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get adminUserDetailAdjustProcessing;
+
+  /// No description provided for @adminUserDetailPickCoinType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select coin type'**
+  String get adminUserDetailPickCoinType;
+
+  /// No description provided for @adminUserDetailBalanceAvailableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available balance: {amount} {symbol}'**
+  String adminUserDetailBalanceAvailableLabel(String amount, String symbol);
+
+  /// No description provided for @adminUserDetailNoWalletWillCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'User has no wallet — will be auto-created'**
+  String get adminUserDetailNoWalletWillCreate;
+
+  /// No description provided for @adminUserDetailNoWalletForSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'User has no {symbol} wallet'**
+  String adminUserDetailNoWalletForSymbol(String symbol);
+
+  /// No description provided for @adminUserDetailSectionExistingWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'EXISTING WALLETS'**
+  String get adminUserDetailSectionExistingWallets;
+
+  /// No description provided for @adminUserDetailSectionNewWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE NEW WALLET'**
+  String get adminUserDetailSectionNewWallets;
+
+  /// No description provided for @adminUserDetailNoWalletBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet yet'**
+  String get adminUserDetailNoWalletBadge;
+
+  /// No description provided for @adminUserDetailPermissionDeniedWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to view this user\'s wallet balances'**
+  String get adminUserDetailPermissionDeniedWallets;
+
+  /// No description provided for @adminUserDetailPermissionDeniedAdjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to view adjustment history'**
+  String get adminUserDetailPermissionDeniedAdjustments;
+
+  /// No description provided for @adminUserDetailPermissionDeniedSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to view security change history'**
+  String get adminUserDetailPermissionDeniedSecurity;
+
+  /// No description provided for @adminUserDetailEmptyWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'User has no wallets yet'**
+  String get adminUserDetailEmptyWallets;
+
+  /// No description provided for @adminUserDetailEmptyAdjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'No adjustment history yet'**
+  String get adminUserDetailEmptyAdjustments;
+
+  /// No description provided for @adminUserDetailEmptyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'User has no orders yet'**
+  String get adminUserDetailEmptyOrders;
+
+  /// No description provided for @adminUserDetailEmptyOnchainTxs.
+  ///
+  /// In en, this message translates to:
+  /// **'No on-chain transactions'**
+  String get adminUserDetailEmptyOnchainTxs;
+
+  /// No description provided for @adminUserDetailEmptySecurityChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'No security change history'**
+  String get adminUserDetailEmptySecurityChanges;
+
+  /// No description provided for @adminUserDetailAdjustmentByActor.
+  ///
+  /// In en, this message translates to:
+  /// **'By: {actor}'**
+  String adminUserDetailAdjustmentByActor(String actor);
+
+  /// No description provided for @adminUserDetailAdjustmentNoteValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String adminUserDetailAdjustmentNoteValue(String note);
+
+  /// No description provided for @adminUserDetailOrderQuantityAndPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty: {amount}{price, select, undefined{} other{ · Price: {price}}} · {type}'**
+  String adminUserDetailOrderQuantityAndPrice(
+      String amount, String price, String type);
+
+  /// No description provided for @adminUserDetailOrderTxHashTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'TX: {hash}'**
+  String adminUserDetailOrderTxHashTruncated(String hash);
+
+  /// No description provided for @adminUserDetailOrderStatusFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled'**
+  String get adminUserDetailOrderStatusFilled;
+
+  /// No description provided for @adminUserDetailOrderStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partially filled'**
+  String get adminUserDetailOrderStatusPartial;
+
+  /// No description provided for @adminUserDetailOrderStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get adminUserDetailOrderStatusOpen;
+
+  /// No description provided for @adminUserDetailOrderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get adminUserDetailOrderStatusCancelled;
+
+  /// No description provided for @adminUserDetailOrderStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminUserDetailOrderStatusRejected;
+
+  /// No description provided for @adminUserDetailOnchainStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get adminUserDetailOnchainStatusCompleted;
+
+  /// No description provided for @adminUserDetailOnchainStatusConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get adminUserDetailOnchainStatusConfirming;
+
+  /// No description provided for @adminUserDetailOnchainStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminUserDetailOnchainStatusPending;
+
+  /// No description provided for @adminUserDetailOnchainStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get adminUserDetailOnchainStatusFailed;
+
+  /// No description provided for @adminUserDetailSecurityStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminUserDetailSecurityStatusApproved;
+
+  /// No description provided for @adminUserDetailSecurityStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminUserDetailSecurityStatusRejected;
+
+  /// No description provided for @adminUserDetailSecurityStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending review'**
+  String get adminUserDetailSecurityStatusPending;
+
+  /// No description provided for @adminUserDetailRetryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get adminUserDetailRetryAction;
+
+  /// No description provided for @adminUserDetailDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminUserDetailDialogCancel;
+
+  /// No description provided for @adminUserDetailWalletBalanceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Available: {available}  |  Frozen: {frozen}'**
+  String adminUserDetailWalletBalanceLine(String available, String frozen);
+
+  /// No description provided for @adminUserDetailDepositWithdrawTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit/Withdraw {symbol}'**
+  String adminUserDetailDepositWithdrawTooltip(String symbol);
+
+  /// No description provided for @paymentConfigFieldClientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Client ID'**
+  String get paymentConfigFieldClientId;
+
+  /// No description provided for @paymentConfigFieldApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get paymentConfigFieldApiKey;
+
+  /// No description provided for @paymentConfigFieldChecksumKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Checksum Key'**
+  String get paymentConfigFieldChecksumKey;
+
+  /// No description provided for @paymentConfigFieldReturnUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Return URL'**
+  String get paymentConfigFieldReturnUrl;
+
+  /// No description provided for @paymentConfigFieldCancelUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel URL'**
+  String get paymentConfigFieldCancelUrl;
+
+  /// No description provided for @paymentConfigFieldFiatSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiat Symbol'**
+  String get paymentConfigFieldFiatSymbol;
+
+  /// No description provided for @paymentConfigFieldQuoteSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote Symbol'**
+  String get paymentConfigFieldQuoteSymbol;
+
+  /// No description provided for @paymentConfigFieldFxSpreadBps.
+  ///
+  /// In en, this message translates to:
+  /// **'FX Spread (bps)'**
+  String get paymentConfigFieldFxSpreadBps;
+
+  /// No description provided for @paymentConfigFieldMinDepositFiat.
+  ///
+  /// In en, this message translates to:
+  /// **'Min deposit (fiat, integer)'**
+  String get paymentConfigFieldMinDepositFiat;
+
+  /// No description provided for @paymentConfigFieldMaxDepositFiat.
+  ///
+  /// In en, this message translates to:
+  /// **'Max deposit (fiat, optional)'**
+  String get paymentConfigFieldMaxDepositFiat;
+
+  /// No description provided for @paymentConfigFieldRpcUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'RPC URL'**
+  String get paymentConfigFieldRpcUrl;
+
+  /// No description provided for @paymentConfigFieldHotWalletKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Wallet Private Key'**
+  String get paymentConfigFieldHotWalletKey;
+
+  /// No description provided for @paymentConfigFieldNativeSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Native Symbol'**
+  String get paymentConfigFieldNativeSymbol;
+
+  /// No description provided for @paymentConfigFieldWithdrawAutoMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw Auto Max'**
+  String get paymentConfigFieldWithdrawAutoMax;
+
+  /// No description provided for @paymentConfigFieldFxFallbackRate.
+  ///
+  /// In en, this message translates to:
+  /// **'FX Fallback Rate (1 Native → X USDT)'**
+  String get paymentConfigFieldFxFallbackRate;
+
+  /// No description provided for @paymentConfigFieldMainnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Mainnet'**
+  String get paymentConfigFieldMainnet;
+
+  /// No description provided for @marketMakerValidationMustBeAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be ≥ {minValue}'**
+  String marketMakerValidationMustBeAtLeast(String minValue);
+
+  /// No description provided for @binanceSpotTradingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot Trading'**
+  String get binanceSpotTradingTitle;
+
+  /// No description provided for @binanceSpotTradingBinanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Binance'**
+  String get binanceSpotTradingBinanceLabel;
+
+  /// No description provided for @binanceSpotTradingBalancesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances'**
+  String get binanceSpotTradingBalancesTitle;
+
+  /// No description provided for @binanceSpotTradingNoAssetsWithBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'No assets with balance'**
+  String get binanceSpotTradingNoAssetsWithBalance;
+
+  /// No description provided for @binanceSpotTradingBalanceFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} free'**
+  String binanceSpotTradingBalanceFree(String amount);
+
+  /// No description provided for @binanceSpotTradingSideBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'BUY'**
+  String get binanceSpotTradingSideBuy;
+
+  /// No description provided for @binanceSpotTradingSideSell.
+  ///
+  /// In en, this message translates to:
+  /// **'SELL'**
+  String get binanceSpotTradingSideSell;
+
+  /// No description provided for @binanceSpotTradingTypeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'LIMIT'**
+  String get binanceSpotTradingTypeLimit;
+
+  /// No description provided for @binanceSpotTradingTypeMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'MARKET'**
+  String get binanceSpotTradingTypeMarket;
+
+  /// No description provided for @binanceSpotTradingPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ({asset})'**
+  String binanceSpotTradingPriceLabel(String asset);
+
+  /// No description provided for @binanceSpotTradingAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount ({asset})'**
+  String binanceSpotTradingAmountLabel(String asset);
+
+  /// No description provided for @binanceSpotTradingTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get binanceSpotTradingTotalLabel;
+
+  /// No description provided for @binanceSpotTradingTotalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} USDT'**
+  String binanceSpotTradingTotalAmount(String amount);
+
+  /// No description provided for @binanceSpotTradingSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'{side} {asset}'**
+  String binanceSpotTradingSubmitButton(String side, String asset);
+
+  /// No description provided for @binanceSpotTradingInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid amount'**
+  String get binanceSpotTradingInvalidAmount;
+
+  /// No description provided for @binanceSpotTradingInvalidPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid price'**
+  String get binanceSpotTradingInvalidPrice;
+
+  /// No description provided for @binanceSpotTradingOrderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Order failed'**
+  String get binanceSpotTradingOrderFailed;
+
+  /// No description provided for @binanceSpotTradingOrderPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed successfully'**
+  String get binanceSpotTradingOrderPlaced;
+
+  /// No description provided for @binanceSpotTradingOrderCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled'**
+  String get binanceSpotTradingOrderCancelled;
+
+  /// No description provided for @binanceSpotTradingOpenOrdersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Orders'**
+  String get binanceSpotTradingOpenOrdersTab;
+
+  /// No description provided for @binanceSpotTradingHistoryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get binanceSpotTradingHistoryTab;
+
+  /// No description provided for @binanceSpotTradingNoOpenOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders'**
+  String get binanceSpotTradingNoOpenOrders;
+
+  /// No description provided for @binanceSpotTradingLoadHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Load History'**
+  String get binanceSpotTradingLoadHistory;
+
+  /// No description provided for @binanceSpotTradingCancelOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get binanceSpotTradingCancelOrder;
+
+  /// No description provided for @binanceApiKeyListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Binance API Keys'**
+  String get binanceApiKeyListTitle;
+
+  /// No description provided for @binanceApiKeyListEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Binance API Keys'**
+  String get binanceApiKeyListEmptyTitle;
+
+  /// No description provided for @binanceApiKeyListEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Binance account to start trading'**
+  String get binanceApiKeyListEmptyDescription;
+
+  /// No description provided for @binanceApiKeyListAddAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add API Key'**
+  String get binanceApiKeyListAddAction;
+
+  /// No description provided for @binanceApiKeyListTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Connection'**
+  String get binanceApiKeyListTestConnection;
+
+  /// No description provided for @binanceApiKeyListTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get binanceApiKeyListTrade;
+
+  /// No description provided for @binanceApiKeyListDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get binanceApiKeyListDelete;
+
+  /// No description provided for @binanceApiKeyListDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete API Key?'**
+  String get binanceApiKeyListDeleteConfirmTitle;
+
+  /// No description provided for @binanceApiKeyListDeleteConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{label}\"? This action cannot be undone.'**
+  String binanceApiKeyListDeleteConfirmContent(String label);
+
+  /// No description provided for @binanceApiKeyListAccountFallbackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Binance Account'**
+  String get binanceApiKeyListAccountFallbackLabel;
+
+  /// No description provided for @binanceApiKeyListTestnetBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'TESTNET'**
+  String get binanceApiKeyListTestnetBadge;
+
+  /// No description provided for @binanceApiKeyListMainnetBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'MAINNET'**
+  String get binanceApiKeyListMainnetBadge;
+
+  /// No description provided for @binanceApiKeyListLastUsedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last used: {date}'**
+  String binanceApiKeyListLastUsedAt(String date);
+
+  /// No description provided for @binanceApiKeyListNeverUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Never used'**
+  String get binanceApiKeyListNeverUsed;
+
+  /// No description provided for @binanceApiKeyListConnectionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection OK — Account: {info}'**
+  String binanceApiKeyListConnectionOk(String info);
+
+  /// No description provided for @binanceApiKeyListConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed: {error}'**
+  String binanceApiKeyListConnectionFailed(String error);
+
+  /// No description provided for @binanceApiKeyListJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get binanceApiKeyListJustNow;
+
+  /// No description provided for @binanceApiKeyListMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m ago'**
+  String binanceApiKeyListMinutesAgo(int minutes);
+
+  /// No description provided for @binanceApiKeyListHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h ago'**
+  String binanceApiKeyListHoursAgo(int hours);
+
+  /// No description provided for @binanceApiKeyListDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d ago'**
+  String binanceApiKeyListDaysAgo(int days);
+
+  /// No description provided for @binanceApiKeySetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Binance API'**
+  String get binanceApiKeySetupTitle;
+
+  /// No description provided for @binanceApiKeySetupDefaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Spot Account'**
+  String get binanceApiKeySetupDefaultLabel;
+
+  /// No description provided for @binanceApiKeySetupLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get binanceApiKeySetupLabelField;
+
+  /// No description provided for @binanceApiKeySetupLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Main Spot Account'**
+  String get binanceApiKeySetupLabelHint;
+
+  /// No description provided for @binanceApiKeySetupLabelRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Label is required'**
+  String get binanceApiKeySetupLabelRequired;
+
+  /// No description provided for @binanceApiKeySetupApiKeyField.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get binanceApiKeySetupApiKeyField;
+
+  /// No description provided for @binanceApiKeySetupApiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your Binance API Key'**
+  String get binanceApiKeySetupApiKeyHint;
+
+  /// No description provided for @binanceApiKeySetupApiSecretField.
+  ///
+  /// In en, this message translates to:
+  /// **'API Secret'**
+  String get binanceApiKeySetupApiSecretField;
+
+  /// No description provided for @binanceApiKeySetupApiSecretHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your Binance API Secret'**
+  String get binanceApiKeySetupApiSecretHint;
+
+  /// No description provided for @binanceApiKeySetupPermissionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get binanceApiKeySetupPermissionsSection;
+
+  /// No description provided for @binanceApiKeySetupSpotTradingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot Trading'**
+  String get binanceApiKeySetupSpotTradingTitle;
+
+  /// No description provided for @binanceApiKeySetupSpotTradingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable spot market trading'**
+  String get binanceApiKeySetupSpotTradingSubtitle;
+
+  /// No description provided for @binanceApiKeySetupFuturesTradingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures Trading'**
+  String get binanceApiKeySetupFuturesTradingTitle;
+
+  /// No description provided for @binanceApiKeySetupFuturesTradingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable USD-M futures trading'**
+  String get binanceApiKeySetupFuturesTradingSubtitle;
+
+  /// No description provided for @binanceApiKeySetupUseTestnetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Testnet'**
+  String get binanceApiKeySetupUseTestnetTitle;
+
+  /// No description provided for @binanceApiKeySetupUseTestnetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Binance testnet instead of mainnet'**
+  String get binanceApiKeySetupUseTestnetSubtitle;
+
+  /// No description provided for @binanceApiKeySetupGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key Setup Guide'**
+  String get binanceApiKeySetupGuideTitle;
+
+  /// No description provided for @binanceApiKeySetupGuideIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'When creating your API key on Binance:'**
+  String get binanceApiKeySetupGuideIntro;
+
+  /// No description provided for @binanceApiKeySetupGuideTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable all Withdrawal permissions'**
+  String get binanceApiKeySetupGuideTip1;
+
+  /// No description provided for @binanceApiKeySetupGuideTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable: Spot/Futures Trading'**
+  String get binanceApiKeySetupGuideTip2;
+
+  /// No description provided for @binanceApiKeySetupGuideTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable: Read-only market data'**
+  String get binanceApiKeySetupGuideTip3;
+
+  /// No description provided for @binanceApiKeySetupGuideLink.
+  ///
+  /// In en, this message translates to:
+  /// **'View Binance API Guide'**
+  String get binanceApiKeySetupGuideLink;
+
+  /// No description provided for @binanceApiKeySetupTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Connection'**
+  String get binanceApiKeySetupTestConnection;
+
+  /// No description provided for @binanceApiKeySetupSaveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save API Key'**
+  String get binanceApiKeySetupSaveAction;
+
+  /// No description provided for @binanceApiKeySetupConnectionPassedSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection test passed! Credentials saved.'**
+  String get binanceApiKeySetupConnectionPassedSaved;
+
+  /// No description provided for @binanceApiKeySetupSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key saved successfully'**
+  String get binanceApiKeySetupSavedSuccess;
+
+  /// No description provided for @binanceApiKeySetupSavedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String binanceApiKeySetupSavedFailed(String error);
+
+  /// No description provided for @binanceApiKeySetupConnectionSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection successful!'**
+  String get binanceApiKeySetupConnectionSuccessful;
+
+  /// No description provided for @binanceApiKeySetupConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed: {error}'**
+  String binanceApiKeySetupConnectionFailed(String error);
+
+  /// No description provided for @walletAuthOpenTronLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open TronLink on your phone, then return to the app.'**
+  String get walletAuthOpenTronLinkHint;
+
+  /// No description provided for @walletAuthTronLinkUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open TronLink. Install the app or use Chrome (extension).'**
+  String get walletAuthTronLinkUnavailable;
+
+  /// No description provided for @walletAuthMetaMaskOrTronLinkUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} not detected. Install the Chrome extension and open the app in the browser.'**
+  String walletAuthMetaMaskOrTronLinkUnavailable(String name);
+
+  /// No description provided for @walletAuthNonceFetchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fetch nonce: {error}'**
+  String walletAuthNonceFetchFailed(String error);
+
+  /// No description provided for @walletAuthWrongMetaMaskAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong MetaMask address. Currently connected: {address}'**
+  String walletAuthWrongMetaMaskAddress(String address);
+
+  /// No description provided for @walletAuthWrongTronLinkAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong TronLink address. Currently connected: {address}'**
+  String walletAuthWrongTronLinkAddress(String address);
+
+  /// No description provided for @walletAuthVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed: {message}'**
+  String walletAuthVerificationFailed(String message);
 }
 
 class _AppLocalizationsDelegate

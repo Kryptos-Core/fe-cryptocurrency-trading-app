@@ -292,7 +292,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Đổi mật khẩu trực tiếp (không cần xét duyệt)
+  /// Đổi mật khẩu trực tiếp (không cần xét duyệt).
+  /// Khi emailVerificationRequired = false (admin đã tắt), bỏ qua bước OTP.
   Future<void> _requestPasswordChange() async {
     if (_currentUser == null) return;
     final effective = _mergeProfileWithAuth(
@@ -321,28 +322,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final token = sl<TokenService>().getAccessToken();
     if (token == null) return;
     final authRepo = sl<AuthRepository>();
+    final authProvider = context.read<AuthProvider>();
 
-    final otpSent = await authRepo.send2faOtp(token);
-    final canContinue = otpSent.fold((f) {
+    // Bỏ qua OTP khi admin đã tắt email verification.
+    final emailVerificationRequired = authProvider.emailVerificationRequired;
+    String? otpCode;
+
+    if (emailVerificationRequired) {
+      final otpSent = await authRepo.send2faOtp(token);
+      final canContinue = otpSent.fold((f) {
+        if (mounted) {
+          showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        }
+        return false;
+      }, (_) => true);
+      if (!canContinue) return;
+
       if (mounted) {
-        showAppSnackBar(context, message: f.message, type: SnackBarType.error);
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).otpSentToEmail,
+          type: SnackBarType.success,
+        );
       }
-      return false;
-    }, (_) => true);
-    if (!canContinue) return;
 
-    if (mounted) {
-      showAppSnackBar(
-        context,
-        message: AppLocalizations.of(context).otpSentToEmail,
-        type: SnackBarType.success,
-      );
+      if (!mounted) return;
+      otpCode = await OtpVerificationDialog.show(context, repo: authRepo, token: token);
+      if (otpCode == null || otpCode.length != 6) return;
     }
-    if (!mounted) return;
-
-    final otp =
-        await OtpVerificationDialog.show(context, repo: authRepo, token: token);
-    if (otp == null || otp.length != 6) return;
 
     final newPassword = await _showChangePasswordDialog();
     if (newPassword == null || newPassword.isEmpty) return;
@@ -350,7 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await authRepo.changePassword(
       token: token,
       newPassword: newPassword,
-      otpCode: otp,
+      otpCode: otpCode,
     );
     result.fold(
       (f) {

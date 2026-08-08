@@ -17,6 +17,7 @@ class MarketMakerProvider extends ChangeNotifier {
   bool _isSubmitting = false;
   String? _error;
   ServerErrorCode _errorCode = ServerErrorCode.unknown;
+  String? _apiErrorCode;
 
   List<MarketMakerConfigModel> get configs => _configs;
   List<MarketMakerPairOption> get pairs => _pairs;
@@ -25,6 +26,7 @@ class MarketMakerProvider extends ChangeNotifier {
   bool get isSubmitting => _isSubmitting;
   String? get error => _error;
   ServerErrorCode get errorCode => _errorCode;
+  String? get apiErrorCode => _apiErrorCode;
 
   MarketMakerConfigModel? configByPairId(String pairId) {
     for (final item in _configs) {
@@ -35,8 +37,10 @@ class MarketMakerProvider extends ChangeNotifier {
 
   void _captureError(Object e) {
     _error = e.toString();
+    _apiErrorCode = null;
     if (e is ServerException) {
       _errorCode = e.errorCode;
+      _apiErrorCode = e.code;
     } else {
       _errorCode = ServerErrorCode.unknown;
     }
@@ -46,6 +50,7 @@ class MarketMakerProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     _errorCode = ServerErrorCode.unknown;
+    _apiErrorCode = null;
     notifyListeners();
 
     try {
@@ -76,6 +81,7 @@ class MarketMakerProvider extends ChangeNotifier {
     _isSubmitting = true;
     _error = null;
     _errorCode = ServerErrorCode.unknown;
+    _apiErrorCode = null;
     notifyListeners();
 
     try {
@@ -100,6 +106,7 @@ class MarketMakerProvider extends ChangeNotifier {
     _isSubmitting = true;
     _error = null;
     _errorCode = ServerErrorCode.unknown;
+    _apiErrorCode = null;
     notifyListeners();
 
     try {
@@ -123,6 +130,7 @@ class MarketMakerProvider extends ChangeNotifier {
     _isSubmitting = true;
     _error = null;
     _errorCode = ServerErrorCode.unknown;
+    _apiErrorCode = null;
     notifyListeners();
 
     try {

@@ -14,4 +14,4 @@ flutter devices
 flutter run
 ```
 
-Kiến trúc và routing: [ARCHITECTURE.md](../../ARCHITECTURE.md). Slash commands AI: [ECC-COMMANDS.md](../../ECC-COMMANDS.md).
+Kiến trúc và routing: [ARCHITECTURE.md](../../ARCHITECTURE.md). Slash commands AI: xem `.cursor/commands/` và `.claude/commands/`.

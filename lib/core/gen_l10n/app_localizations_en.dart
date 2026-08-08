@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Crypto Trading App';
 
   @override
+  String get walletConnectDescription => 'Cryptocurrency trading';
+
+  @override
   String get login => 'Login';
 
   @override
@@ -1346,6 +1349,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currenciesTradable => 'Tradable';
 
   @override
+  String get currenciesPaused => 'Paused';
+
+  @override
   String get currenciesSortTopVolume => 'Top Volume';
 
   @override
@@ -1356,6 +1362,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currenciesSortAlphabet => 'A-Z';
+
+  @override
+  String get currenciesSortLabel => 'Sort';
+
+  @override
+  String get currenciesClearFilters => 'Clear filters';
+
+  @override
+  String currenciesResultCounter(int shown, int total) {
+    return '$shown of $total currencies';
+  }
+
+  @override
+  String get currenciesEmptyFiltered =>
+      'No currencies match the current filters';
+
+  @override
+  String get currenciesRetryAction => 'Retry';
+
+  @override
+  String get currenciesLoadingMore => 'Loading more...';
 
   @override
   String get currenciesNoCurrenciesFound => 'No currencies found';
@@ -1374,6 +1401,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currenciesConfigurationTitle => 'Currency Configuration';
+
+  @override
+  String get currenciesDetailStatusTitle => 'Status';
+
+  @override
+  String get currenciesDetailBackToMarkets => 'Back to Markets';
+
+  @override
+  String get currenciesDetailActiveLabel => 'Active status';
+
+  @override
+  String get currenciesDetailTradableLabel => 'Tradable status';
 
   @override
   String get currenciesSymbolLabel => 'Symbol';
@@ -2172,6 +2211,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentConfigRuntimeSectionOps => 'Ops & Engine';
 
   @override
+  String get paymentConfigRuntimeSectionAuthSecurity => 'Auth / Security';
+
+  @override
+  String get paymentConfigRuntimeSectionAuthSecurityDesc =>
+      'Email verification toggle and other auth/security settings — admin only.';
+
+  @override
+  String get runtimeSettingEmailVerificationRequiredName =>
+      'Email verification required (OTP gating)';
+
+  @override
+  String get runtimeSettingEmailVerificationRequiredDesc =>
+      'When true, sensitive actions (wallet add/remove, password change, email change, contact-email OTP) require OTP email. When false, all email-OTP flows are bypassed. Only disable in trusted/internal environments.';
+
+  @override
   String get paymentConfigRuntimeSectionOpsDesc =>
       'Matching engine, Go aggregator, outbox alerts, rollout strategy, and market read — for ops team.';
 
@@ -2665,7 +2719,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiErrorTronAccountPreflightUnavailable =>
-      'We could not check the destination TRON wallet status right now. Please try again later.';
+      'Could not check the destination TRON wallet status right now. Please try again later.';
 
   @override
   String get treasuryWalletCreatedSuccess => 'Transaction wallet created';
@@ -3383,6 +3437,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminCurrenciesTradingPausedTooltip => 'Trading paused';
+
+  @override
+  String get adminCurrenciesReadOnlyBanner =>
+      'You are in read-only mode. Any change to the coin catalog requires an Admin account.';
+
+  @override
+  String get adminCurrenciesReadOnlySubtitle => 'Read-only';
+
+  @override
+  String adminCurrenciesCountSummary(
+      int total, int active, int inactive, int tradable, int paused) {
+    return 'Total $total · Active $active · Inactive $inactive · Tradable $tradable · Paused $paused';
+  }
+
+  @override
+  String get adminCurrenciesDetailPrecision => 'Precision scale';
+
+  @override
+  String get adminCurrenciesDetailMinWithdraw => 'Min withdraw';
+
+  @override
+  String get adminCurrenciesDetailStatus => 'Status';
+
+  @override
+  String get adminCurrenciesDetailTrading => 'Tradable';
+
+  @override
+  String get adminCurrenciesDetailCreatedAt => 'Created at';
+
+  @override
+  String get adminCurrenciesDetailUpdatedAt => 'Updated at';
+
+  @override
+  String get adminCurrenciesDetailCopySymbol => 'Copy symbol';
+
+  @override
+  String adminCurrenciesCopySymbolDone(String symbol) {
+    return 'Copied $symbol';
+  }
+
+  @override
+  String get adminCurrenciesRefreshTooltip => 'Refresh';
+
+  @override
+  String get adminCurrenciesStatusActive => 'Active';
+
+  @override
+  String get adminCurrenciesStatusInactive => 'Inactive';
+
+  @override
+  String get adminCurrenciesStatusTradable => 'Tradable';
+
+  @override
+  String get adminCurrenciesStatusPaused => 'Trading paused';
+
+  @override
+  String get adminCurrenciesSectionBasic => 'Basic info';
+
+  @override
+  String get adminCurrenciesSectionTrading => 'Trading parameters';
+
+  @override
+  String get adminCurrenciesSectionStatus => 'Status';
 
   @override
   String adminShowingCount(int shown, int total, String label) {
@@ -5277,4 +5394,1001 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get youCanEditCredentialsAbove =>
       'You can edit email or password here for testing';
+
+  @override
+  String get ordersGuestGateTitle => 'Sign in to view your orders';
+
+  @override
+  String get ordersGuestGateSubtitle =>
+      'The Orders tab is available after signing in. Sign in to view your order book, place buy/sell orders, and manage your portfolio.';
+
+  @override
+  String get ordersSessionExpiredTitle => 'Your session has expired';
+
+  @override
+  String get ordersSessionExpiredSubtitle =>
+      'Please sign in again to continue viewing your orders.';
+
+  @override
+  String get signInAgain => 'Sign in again';
+
+  @override
+  String get apiErrorEmailExists => 'This email is already in use.';
+
+  @override
+  String get apiErrorInvalidOtp => 'The OTP code is invalid or has expired.';
+
+  @override
+  String get apiErrorOtpRequired => 'OTP code is required.';
+
+  @override
+  String apiErrorOtpCooldown(int seconds) {
+    return 'Please wait $seconds seconds before requesting another OTP.';
+  }
+
+  @override
+  String apiErrorOtpAttemptLimitExceeded(int seconds) {
+    return 'Too many OTP attempts. Please try again in $seconds seconds.';
+  }
+
+  @override
+  String get apiErrorTwoFaRequired =>
+      'Two-factor authentication is required. Please enable 2FA in Settings first.';
+
+  @override
+  String get apiErrorAccountBanned =>
+      'Your account has been banned. Contact support.';
+
+  @override
+  String get apiErrorEmailVerificationDisabled =>
+      'Email verification is disabled by admin. OTP is not required.';
+
+  @override
+  String get apiErrorNotWalletPlaceholder =>
+      'Only wallet-placeholder accounts can use this flow. Use the regular email-change endpoint in Settings.';
+
+  @override
+  String get apiErrorUseContactEmailVerification =>
+      'Wallet accounts use a temporary email. Please verify a real email in Profile.';
+
+  @override
+  String get apiErrorUseChangePasswordEndpoint =>
+      'Please use the dedicated change-password endpoint.';
+
+  @override
+  String get apiErrorInvalidPayload => 'Request payload is invalid.';
+
+  @override
+  String get apiErrorInvalidChangeType => 'Unsupported change type.';
+
+  @override
+  String get apiErrorAvatarUploadDisabled =>
+      'Avatar upload is currently disabled.';
+
+  @override
+  String get apiErrorContactEmailRequired => 'A contact email is required.';
+
+  @override
+  String get apiErrorInvalidAvatarFormat =>
+      'Only JPEG, PNG, or WebP images are allowed.';
+
+  @override
+  String get apiErrorAvatarRequired => 'Avatar file is required.';
+
+  @override
+  String get apiErrorWithdrawalProcessing => 'A withdrawal is being processed.';
+
+  @override
+  String get apiErrorWithdrawalDuplicate => 'Duplicate withdrawal request.';
+
+  @override
+  String get apiErrorWithdrawalNotFound => 'Withdrawal not found.';
+
+  @override
+  String apiErrorWithdrawalPendingExists(int count) {
+    return 'Cannot change email while $count withdrawal(s) are pending. Please wait or cancel them first.';
+  }
+
+  @override
+  String get apiErrorPendingWithdrawals =>
+      'Cannot perform this action while a withdrawal is pending.';
+
+  @override
+  String get apiErrorUserNotFound => 'User not found.';
+
+  @override
+  String get apiErrorWalletNotFound => 'Wallet not found.';
+
+  @override
+  String get apiErrorInvalidAmount => 'Invalid amount.';
+
+  @override
+  String get apiErrorInvalidTarget => 'Cannot transfer to the same user.';
+
+  @override
+  String get apiErrorTargetRequired =>
+      'targetUserId is required for transfers.';
+
+  @override
+  String get apiErrorInvalidAction => 'Invalid wallet action.';
+
+  @override
+  String get apiErrorInsufficientBalance => 'Insufficient balance.';
+
+  @override
+  String get apiErrorAccountFrozen => 'Account is frozen.';
+
+  @override
+  String get apiErrorChainRequired => 'Missing query param: chain.';
+
+  @override
+  String get apiErrorTxHashRequired => 'Missing query param: txHash.';
+
+  @override
+  String get apiErrorAdminIngestMissingParams =>
+      'chain and txHash are required.';
+
+  @override
+  String apiErrorInvalidAddress(String chain) {
+    return 'Invalid wallet address on chain $chain.';
+  }
+
+  @override
+  String get apiErrorInvalidTronAddress => 'Invalid Tron destination address.';
+
+  @override
+  String get apiErrorInvalidEvmAddress => 'Invalid EVM destination address.';
+
+  @override
+  String get apiErrorInvalidSignature => 'Signature is invalid.';
+
+  @override
+  String get apiErrorWalletAlreadyLinked =>
+      'This wallet is already linked to your account.';
+
+  @override
+  String get apiErrorWalletInactive =>
+      'Inactive wallet cannot be set as default.';
+
+  @override
+  String get apiErrorLinkNotFound => 'Linked wallet not found.';
+
+  @override
+  String get apiErrorWcAuthSessionExpired =>
+      'WalletConnect session expired. Please try again.';
+
+  @override
+  String get apiErrorWcAuthInvalidPayload => 'Invalid WalletConnect payload.';
+
+  @override
+  String get apiErrorTreasuryChainUnsupported => 'Unsupported treasury chain.';
+
+  @override
+  String get apiErrorTreasuryChainNotEvm =>
+      'Operation requires an EVM-compatible chain.';
+
+  @override
+  String get apiErrorTreasuryInvalidAmount =>
+      'Amount must be greater than zero.';
+
+  @override
+  String get apiErrorTreasurySweepUsdtZero => 'No USDT balance to sweep.';
+
+  @override
+  String get apiErrorTreasuryUsdtChain => 'USDT sweep requires a Tron chain.';
+
+  @override
+  String get apiErrorTreasuryConfirmNoWallet =>
+      'Missing to_wallet_id for confirm operation.';
+
+  @override
+  String get apiErrorTreasuryManualSettleTxEmpty =>
+      'Transaction hash is required.';
+
+  @override
+  String get apiErrorTreasuryOperationNotFound =>
+      'Treasury operation not found.';
+
+  @override
+  String get apiErrorTreasuryOperationStateInvalid =>
+      'Operation is in an invalid state for this action.';
+
+  @override
+  String get apiErrorTreasuryOperationNotQueued =>
+      'Operation is not in the queued state.';
+
+  @override
+  String get apiErrorTreasuryOperationNotProcessing =>
+      'Operation is not being processed.';
+
+  @override
+  String get apiErrorTreasuryOperationNotConfirming =>
+      'Operation is not confirming on-chain.';
+
+  @override
+  String get apiErrorTreasuryOperationNotCompleted =>
+      'Operation has not completed yet.';
+
+  @override
+  String get apiErrorTreasuryOperationNotFailed => 'Operation has not failed.';
+
+  @override
+  String get apiErrorTreasuryTxHashNotFound =>
+      'Transaction hash not found in our records.';
+
+  @override
+  String get apiErrorTreasuryInsufficientFunds =>
+      'Insufficient on-chain balance for this operation.';
+
+  @override
+  String get apiErrorTreasuryBalanceReconcileFailed =>
+      'Failed to reconcile treasury balance.';
+
+  @override
+  String get apiErrorTreasuryOperationTypeUnsupported =>
+      'Unsupported treasury operation type.';
+
+  @override
+  String get apiErrorTreasuryRpcUnavailable =>
+      'Blockchain RPC is unavailable. Please try again later.';
+
+  @override
+  String get apiErrorTreasuryRpcTimeout =>
+      'Blockchain RPC timed out. Please try again later.';
+
+  @override
+  String get apiErrorTreasuryGasEstimateFailed =>
+      'Could not estimate gas for the transaction.';
+
+  @override
+  String get apiErrorTreasuryNonceConflict =>
+      'Nonce conflict. Another transaction is in flight for this wallet.';
+
+  @override
+  String get apiErrorTreasuryTxReverted => 'On-chain transaction reverted.';
+
+  @override
+  String get apiErrorTreasuryTxBroadcastFailed =>
+      'Failed to broadcast transaction to the network.';
+
+  @override
+  String get apiErrorTxWalletNotFound => 'Transaction wallet not found.';
+
+  @override
+  String get apiErrorTxWalletDefaultDepositDeleteForbidden =>
+      'Unset this wallet as the user deposit default before deleting it.';
+
+  @override
+  String get apiErrorDefaultUserDepositDeactivateForbidden =>
+      'You cannot deactivate the current default user deposit wallet.';
+
+  @override
+  String get apiErrorTreasuryMainWalletNotFound =>
+      'Treasury main wallet not found.';
+
+  @override
+  String get apiErrorTreasuryMainWalletConflict =>
+      'A treasury main wallet with this configuration already exists.';
+
+  @override
+  String get apiErrorOrderNotFound => 'Order not found.';
+
+  @override
+  String get apiErrorOrderNotOpen => 'Order is not open.';
+
+  @override
+  String get apiErrorInvalidPrice => 'Invalid price.';
+
+  @override
+  String get apiErrorInvalidInput => 'Invalid order input.';
+
+  @override
+  String get apiErrorInvalidMarketBuyReserve => 'Invalid market buy reserve.';
+
+  @override
+  String get apiErrorNoLiquidity => 'Not enough liquidity for this order.';
+
+  @override
+  String get apiErrorOrderCreateFailed => 'Could not create order.';
+
+  @override
+  String get apiErrorInvalidState => 'Order is in an invalid state.';
+
+  @override
+  String get apiErrorOverfillAttempt => 'Order would be overfilled.';
+
+  @override
+  String get apiErrorCancelFailed => 'Cancel failed.';
+
+  @override
+  String get apiErrorPairNotFound => 'Trading pair not found.';
+
+  @override
+  String get apiErrorInvalidOrderType => 'Invalid order type.';
+
+  @override
+  String get apiErrorOrderBookServiceUnavailable =>
+      'Order book service is not available.';
+
+  @override
+  String get apiErrorInvalidDepthLimit => 'Depth limit must be 5, 10, or 20.';
+
+  @override
+  String get apiErrorInvalidInterval => 'Invalid interval.';
+
+  @override
+  String get apiErrorMarketPairSymbolExists =>
+      'A market pair with this symbol already exists.';
+
+  @override
+  String get apiErrorBaseQuoteSame =>
+      'Base and quote currencies cannot be the same.';
+
+  @override
+  String get apiErrorBaseQuoteRequired =>
+      'Base and quote currencies are required.';
+
+  @override
+  String get apiErrorCurrencyNotFound => 'Currency not found.';
+
+  @override
+  String get apiErrorCurrencySymbolExists =>
+      'A currency with this symbol already exists.';
+
+  @override
+  String get apiErrorCurrencyDisabled => 'Currency is disabled.';
+
+  @override
+  String get apiErrorMarketMakerConfigNotFound =>
+      'Market maker config not found.';
+
+  @override
+  String get apiErrorMarketMakerConfigConflict =>
+      'A market maker config for this user and pair already exists.';
+
+  @override
+  String get apiErrorMarketMakerInvalidSpread => 'Invalid market maker spread.';
+
+  @override
+  String get apiErrorMarketMakerInvalidAmount =>
+      'Invalid market maker order amount.';
+
+  @override
+  String get apiErrorMarketMakerNoActivePairs =>
+      'No active trading pairs configured for market making.';
+
+  @override
+  String get apiErrorMarketMakerPlaceFailed =>
+      'Market maker could not place orders.';
+
+  @override
+  String get apiErrorConfigKeyNotFound => 'Configuration key not found.';
+
+  @override
+  String get apiErrorConfigKeyDisallowed =>
+      'This configuration key is not allowed.';
+
+  @override
+  String get apiErrorConfigKeyReadOnly =>
+      'This configuration key is read-only.';
+
+  @override
+  String get apiErrorConfigValueInvalid =>
+      'Invalid value for configuration key.';
+
+  @override
+  String get apiErrorAdminRequired => 'Admin role required.';
+
+  @override
+  String get apiErrorRiskOfficerRequired => 'Risk officer role required.';
+
+  @override
+  String get apiErrorFinanceManagerRequired => 'Finance manager role required.';
+
+  @override
+  String get apiErrorDepositNotFound => 'Deposit not found.';
+
+  @override
+  String get apiErrorDepositAlreadyPaid => 'Deposit already paid or not found.';
+
+  @override
+  String get apiErrorDepositAmountInvalid => 'Invalid deposit amount.';
+
+  @override
+  String get apiErrorDepositChainUnsupported => 'Unsupported deposit chain.';
+
+  @override
+  String get apiErrorDepositPollFailed =>
+      'Could not check deposit status. Please try again later.';
+
+  @override
+  String get apiErrorTxFailed => 'On-chain transaction failed.';
+
+  @override
+  String get apiErrorEncryptionFailed => 'Encryption failed.';
+
+  @override
+  String get apiErrorDecryptionFailed => 'Decryption failed.';
+
+  @override
+  String get apiErrorEncryptedPayloadMalformed =>
+      'Encrypted payload is malformed.';
+
+  @override
+  String get apiErrorDecryptedPayloadInvalid => 'Decrypted payload is invalid.';
+
+  @override
+  String get apiErrorExternalProviderUnavailable =>
+      'External provider is unavailable.';
+
+  @override
+  String get apiErrorExternalProviderRateLimited =>
+      'External provider rate limit reached. Please try again later.';
+
+  @override
+  String get apiErrorNotificationDeliveryFailed =>
+      'Notification delivery failed.';
+
+  @override
+  String get apiErrorFcmNotConfigured =>
+      'Push notifications are not configured.';
+
+  @override
+  String get apiErrorTronSendFailed => 'Failed to submit Tron transaction.';
+
+  @override
+  String get adminTransactionSectionOrderInfo => 'Order information';
+
+  @override
+  String get adminTransactionSectionPriceAndAmount => 'Price & quantity';
+
+  @override
+  String get adminTransactionSectionTime => 'Time';
+
+  @override
+  String get adminTransactionSectionReference => 'Reference';
+
+  @override
+  String get adminTransactionLabelClientOrderId => 'Client Order ID';
+
+  @override
+  String get adminTransactionSectionUser => 'User';
+
+  @override
+  String get adminTransactionSectionDepositInfo => 'Deposit information';
+
+  @override
+  String get adminTransactionLabelDepositId => 'Deposit ID';
+
+  @override
+  String get adminTransactionSectionWithdrawalInfo => 'Transaction information';
+
+  @override
+  String get adminTransactionLabelWithdrawalId => 'Withdrawal ID';
+
+  @override
+  String get adminTransactionSectionOnChain => 'On-Chain';
+
+  @override
+  String adminTransactionLoadUserFailed(String error) {
+    return 'Cannot load user info: $error';
+  }
+
+  @override
+  String get adminUserDetailDepositAction => 'Deposit';
+
+  @override
+  String get adminUserDetailWithdrawAction => 'Withdraw';
+
+  @override
+  String get adminUserDetailAdjustDepositTitle => 'Deposit coin for user';
+
+  @override
+  String get adminUserDetailAdjustWithdrawTitle => 'Withdraw coin from user';
+
+  @override
+  String get adminUserDetailAdjustDepositSegment => 'Deposit coin';
+
+  @override
+  String get adminUserDetailAdjustWithdrawSegment => 'Withdraw coin';
+
+  @override
+  String get adminUserDetailAdjustAmountLabel => 'Amount';
+
+  @override
+  String get adminUserDetailAdjustAmountHint => '0.00';
+
+  @override
+  String get adminUserDetailAdjustAmountRequired => 'Please enter the amount';
+
+  @override
+  String get adminUserDetailAdjustAmountInvalid => 'Invalid amount';
+
+  @override
+  String get adminUserDetailAdjustAmountPositive =>
+      'Amount must be greater than 0';
+
+  @override
+  String get adminUserDetailAdjustNoteLabel => 'Note (optional)';
+
+  @override
+  String get adminUserDetailAdjustNoteHint => 'Reason for adjustment...';
+
+  @override
+  String get adminUserDetailAdjustProcessing => 'Processing...';
+
+  @override
+  String get adminUserDetailPickCoinType => 'Select coin type';
+
+  @override
+  String adminUserDetailBalanceAvailableLabel(String amount, String symbol) {
+    return 'Available balance: $amount $symbol';
+  }
+
+  @override
+  String get adminUserDetailNoWalletWillCreate =>
+      'User has no wallet — will be auto-created';
+
+  @override
+  String adminUserDetailNoWalletForSymbol(String symbol) {
+    return 'User has no $symbol wallet';
+  }
+
+  @override
+  String get adminUserDetailSectionExistingWallets => 'EXISTING WALLETS';
+
+  @override
+  String get adminUserDetailSectionNewWallets => 'CREATE NEW WALLET';
+
+  @override
+  String get adminUserDetailNoWalletBadge => 'No wallet yet';
+
+  @override
+  String get adminUserDetailPermissionDeniedWallets =>
+      'You do not have permission to view this user\'s wallet balances';
+
+  @override
+  String get adminUserDetailPermissionDeniedAdjustments =>
+      'You do not have permission to view adjustment history';
+
+  @override
+  String get adminUserDetailPermissionDeniedSecurity =>
+      'You do not have permission to view security change history';
+
+  @override
+  String get adminUserDetailEmptyWallets => 'User has no wallets yet';
+
+  @override
+  String get adminUserDetailEmptyAdjustments => 'No adjustment history yet';
+
+  @override
+  String get adminUserDetailEmptyOrders => 'User has no orders yet';
+
+  @override
+  String get adminUserDetailEmptyOnchainTxs => 'No on-chain transactions';
+
+  @override
+  String get adminUserDetailEmptySecurityChanges =>
+      'No security change history';
+
+  @override
+  String adminUserDetailAdjustmentByActor(String actor) {
+    return 'By: $actor';
+  }
+
+  @override
+  String adminUserDetailAdjustmentNoteValue(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String adminUserDetailOrderQuantityAndPrice(
+      String amount, String price, String type) {
+    String _temp0 = intl.Intl.selectLogic(
+      price,
+      {
+        'undefined': '',
+        'other': ' · Price: $price',
+      },
+    );
+    return 'Qty: $amount$_temp0 · $type';
+  }
+
+  @override
+  String adminUserDetailOrderTxHashTruncated(String hash) {
+    return 'TX: $hash';
+  }
+
+  @override
+  String get adminUserDetailOrderStatusFilled => 'Filled';
+
+  @override
+  String get adminUserDetailOrderStatusPartial => 'Partially filled';
+
+  @override
+  String get adminUserDetailOrderStatusOpen => 'Open';
+
+  @override
+  String get adminUserDetailOrderStatusCancelled => 'Cancelled';
+
+  @override
+  String get adminUserDetailOrderStatusRejected => 'Rejected';
+
+  @override
+  String get adminUserDetailOnchainStatusCompleted => 'Completed';
+
+  @override
+  String get adminUserDetailOnchainStatusConfirming => 'Confirming';
+
+  @override
+  String get adminUserDetailOnchainStatusPending => 'Pending';
+
+  @override
+  String get adminUserDetailOnchainStatusFailed => 'Failed';
+
+  @override
+  String get adminUserDetailSecurityStatusApproved => 'Approved';
+
+  @override
+  String get adminUserDetailSecurityStatusRejected => 'Rejected';
+
+  @override
+  String get adminUserDetailSecurityStatusPending => 'Pending review';
+
+  @override
+  String get adminUserDetailRetryAction => 'Try again';
+
+  @override
+  String get adminUserDetailDialogCancel => 'Cancel';
+
+  @override
+  String adminUserDetailWalletBalanceLine(String available, String frozen) {
+    return 'Available: $available  |  Frozen: $frozen';
+  }
+
+  @override
+  String adminUserDetailDepositWithdrawTooltip(String symbol) {
+    return 'Deposit/Withdraw $symbol';
+  }
+
+  @override
+  String get paymentConfigFieldClientId => 'Client ID';
+
+  @override
+  String get paymentConfigFieldApiKey => 'API Key';
+
+  @override
+  String get paymentConfigFieldChecksumKey => 'Checksum Key';
+
+  @override
+  String get paymentConfigFieldReturnUrl => 'Return URL';
+
+  @override
+  String get paymentConfigFieldCancelUrl => 'Cancel URL';
+
+  @override
+  String get paymentConfigFieldFiatSymbol => 'Fiat Symbol';
+
+  @override
+  String get paymentConfigFieldQuoteSymbol => 'Quote Symbol';
+
+  @override
+  String get paymentConfigFieldFxSpreadBps => 'FX Spread (bps)';
+
+  @override
+  String get paymentConfigFieldMinDepositFiat => 'Min deposit (fiat, integer)';
+
+  @override
+  String get paymentConfigFieldMaxDepositFiat => 'Max deposit (fiat, optional)';
+
+  @override
+  String get paymentConfigFieldRpcUrl => 'RPC URL';
+
+  @override
+  String get paymentConfigFieldHotWalletKey => 'Hot Wallet Private Key';
+
+  @override
+  String get paymentConfigFieldNativeSymbol => 'Native Symbol';
+
+  @override
+  String get paymentConfigFieldWithdrawAutoMax => 'Withdraw Auto Max';
+
+  @override
+  String get paymentConfigFieldFxFallbackRate =>
+      'FX Fallback Rate (1 Native → X USDT)';
+
+  @override
+  String get paymentConfigFieldMainnet => 'Mainnet';
+
+  @override
+  String marketMakerValidationMustBeAtLeast(String minValue) {
+    return 'Must be ≥ $minValue';
+  }
+
+  @override
+  String get binanceSpotTradingTitle => 'Spot Trading';
+
+  @override
+  String get binanceSpotTradingBinanceLabel => 'Binance';
+
+  @override
+  String get binanceSpotTradingBalancesTitle => 'Balances';
+
+  @override
+  String get binanceSpotTradingNoAssetsWithBalance => 'No assets with balance';
+
+  @override
+  String binanceSpotTradingBalanceFree(String amount) {
+    return '$amount free';
+  }
+
+  @override
+  String get binanceSpotTradingSideBuy => 'BUY';
+
+  @override
+  String get binanceSpotTradingSideSell => 'SELL';
+
+  @override
+  String get binanceSpotTradingTypeLimit => 'LIMIT';
+
+  @override
+  String get binanceSpotTradingTypeMarket => 'MARKET';
+
+  @override
+  String binanceSpotTradingPriceLabel(String asset) {
+    return 'Price ($asset)';
+  }
+
+  @override
+  String binanceSpotTradingAmountLabel(String asset) {
+    return 'Amount ($asset)';
+  }
+
+  @override
+  String get binanceSpotTradingTotalLabel => 'Total';
+
+  @override
+  String binanceSpotTradingTotalAmount(String amount) {
+    return '$amount USDT';
+  }
+
+  @override
+  String binanceSpotTradingSubmitButton(String side, String asset) {
+    return '$side $asset';
+  }
+
+  @override
+  String get binanceSpotTradingInvalidAmount => 'Please enter a valid amount';
+
+  @override
+  String get binanceSpotTradingInvalidPrice => 'Please enter a valid price';
+
+  @override
+  String get binanceSpotTradingOrderFailed => 'Order failed';
+
+  @override
+  String get binanceSpotTradingOrderPlaced => 'Order placed successfully';
+
+  @override
+  String get binanceSpotTradingOrderCancelled => 'Order cancelled';
+
+  @override
+  String get binanceSpotTradingOpenOrdersTab => 'Open Orders';
+
+  @override
+  String get binanceSpotTradingHistoryTab => 'History';
+
+  @override
+  String get binanceSpotTradingNoOpenOrders => 'No open orders';
+
+  @override
+  String get binanceSpotTradingLoadHistory => 'Load History';
+
+  @override
+  String get binanceSpotTradingCancelOrder => 'Cancel';
+
+  @override
+  String get binanceApiKeyListTitle => 'My Binance API Keys';
+
+  @override
+  String get binanceApiKeyListEmptyTitle => 'No Binance API Keys';
+
+  @override
+  String get binanceApiKeyListEmptyDescription =>
+      'Connect your Binance account to start trading';
+
+  @override
+  String get binanceApiKeyListAddAction => 'Add API Key';
+
+  @override
+  String get binanceApiKeyListTestConnection => 'Test Connection';
+
+  @override
+  String get binanceApiKeyListTrade => 'Trade';
+
+  @override
+  String get binanceApiKeyListDelete => 'Delete';
+
+  @override
+  String get binanceApiKeyListDeleteConfirmTitle => 'Delete API Key?';
+
+  @override
+  String binanceApiKeyListDeleteConfirmContent(String label) {
+    return 'Are you sure you want to delete \"$label\"? This action cannot be undone.';
+  }
+
+  @override
+  String get binanceApiKeyListAccountFallbackLabel => 'Binance Account';
+
+  @override
+  String get binanceApiKeyListTestnetBadge => 'TESTNET';
+
+  @override
+  String get binanceApiKeyListMainnetBadge => 'MAINNET';
+
+  @override
+  String binanceApiKeyListLastUsedAt(String date) {
+    return 'Last used: $date';
+  }
+
+  @override
+  String get binanceApiKeyListNeverUsed => 'Never used';
+
+  @override
+  String binanceApiKeyListConnectionOk(String info) {
+    return 'Connection OK — Account: $info';
+  }
+
+  @override
+  String binanceApiKeyListConnectionFailed(String error) {
+    return 'Connection failed: $error';
+  }
+
+  @override
+  String get binanceApiKeyListJustNow => 'Just now';
+
+  @override
+  String binanceApiKeyListMinutesAgo(int minutes) {
+    return '${minutes}m ago';
+  }
+
+  @override
+  String binanceApiKeyListHoursAgo(int hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String binanceApiKeyListDaysAgo(int days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String get binanceApiKeySetupTitle => 'Connect Binance API';
+
+  @override
+  String get binanceApiKeySetupDefaultLabel => 'Main Spot Account';
+
+  @override
+  String get binanceApiKeySetupLabelField => 'Label';
+
+  @override
+  String get binanceApiKeySetupLabelHint => 'e.g. Main Spot Account';
+
+  @override
+  String get binanceApiKeySetupLabelRequired => 'Label is required';
+
+  @override
+  String get binanceApiKeySetupApiKeyField => 'API Key';
+
+  @override
+  String get binanceApiKeySetupApiKeyHint => 'Enter your Binance API Key';
+
+  @override
+  String get binanceApiKeySetupApiSecretField => 'API Secret';
+
+  @override
+  String get binanceApiKeySetupApiSecretHint => 'Enter your Binance API Secret';
+
+  @override
+  String get binanceApiKeySetupPermissionsSection => 'Permissions';
+
+  @override
+  String get binanceApiKeySetupSpotTradingTitle => 'Spot Trading';
+
+  @override
+  String get binanceApiKeySetupSpotTradingSubtitle =>
+      'Enable spot market trading';
+
+  @override
+  String get binanceApiKeySetupFuturesTradingTitle => 'Futures Trading';
+
+  @override
+  String get binanceApiKeySetupFuturesTradingSubtitle =>
+      'Enable USD-M futures trading';
+
+  @override
+  String get binanceApiKeySetupUseTestnetTitle => 'Use Testnet';
+
+  @override
+  String get binanceApiKeySetupUseTestnetSubtitle =>
+      'Connect to Binance testnet instead of mainnet';
+
+  @override
+  String get binanceApiKeySetupGuideTitle => 'API Key Setup Guide';
+
+  @override
+  String get binanceApiKeySetupGuideIntro =>
+      'When creating your API key on Binance:';
+
+  @override
+  String get binanceApiKeySetupGuideTip1 =>
+      'Disable all Withdrawal permissions';
+
+  @override
+  String get binanceApiKeySetupGuideTip2 => 'Enable: Spot/Futures Trading';
+
+  @override
+  String get binanceApiKeySetupGuideTip3 => 'Enable: Read-only market data';
+
+  @override
+  String get binanceApiKeySetupGuideLink => 'View Binance API Guide';
+
+  @override
+  String get binanceApiKeySetupTestConnection => 'Test Connection';
+
+  @override
+  String get binanceApiKeySetupSaveAction => 'Save API Key';
+
+  @override
+  String get binanceApiKeySetupConnectionPassedSaved =>
+      'Connection test passed! Credentials saved.';
+
+  @override
+  String get binanceApiKeySetupSavedSuccess => 'API Key saved successfully';
+
+  @override
+  String binanceApiKeySetupSavedFailed(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String get binanceApiKeySetupConnectionSuccessful => 'Connection successful!';
+
+  @override
+  String binanceApiKeySetupConnectionFailed(String error) {
+    return 'Connection failed: $error';
+  }
+
+  @override
+  String get walletAuthOpenTronLinkHint =>
+      'Open TronLink on your phone, then return to the app.';
+
+  @override
+  String get walletAuthTronLinkUnavailable =>
+      'Could not open TronLink. Install the app or use Chrome (extension).';
+
+  @override
+  String walletAuthMetaMaskOrTronLinkUnavailable(String name) {
+    return '$name not detected. Install the Chrome extension and open the app in the browser.';
+  }
+
+  @override
+  String walletAuthNonceFetchFailed(String error) {
+    return 'Failed to fetch nonce: $error';
+  }
+
+  @override
+  String walletAuthWrongMetaMaskAddress(String address) {
+    return 'Wrong MetaMask address. Currently connected: $address';
+  }
+
+  @override
+  String walletAuthWrongTronLinkAddress(String address) {
+    return 'Wrong TronLink address. Currently connected: $address';
+  }
+
+  @override
+  String walletAuthVerificationFailed(String message) {
+    return 'Verification failed: $message';
+  }
 }

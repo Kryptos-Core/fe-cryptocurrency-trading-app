@@ -193,33 +193,41 @@ class CryptoTradingApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Builder(
-        builder: (context) {
-          _cachedAppRouter ??=
-              createAppRouter(context.read<AuthProvider>());
-          return Consumer2<LocaleProvider, ThemeProvider>(
-            builder: (context, localeProvider, themeProvider, _) =>
-                MaterialApp.router(
-              title: localeProvider.locale.languageCode == 'vi'
-                  ? 'Ung dung Giao dich Crypto'
-                  : 'Crypto Trading App',
-              debugShowCheckedModeBanner: false,
-              scrollBehavior: appScrollBehavior,
-              theme: themeProvider.lightTheme,
-              darkTheme: themeProvider.darkTheme,
-              themeMode: themeProvider.themeMode,
-              locale: localeProvider.locale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: LocaleProvider.supportedLocales,
-              routerConfig: _cachedAppRouter!,
-            ),
-          );
-        },
+      child: Localizations(
+        locale: const Locale('en'),
+        delegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        child: Builder(
+          builder: (context) {
+            _cachedAppRouter ??=
+                createAppRouter(context.read<AuthProvider>());
+            final l10n = AppLocalizations.of(context);
+            return Consumer2<LocaleProvider, ThemeProvider>(
+              builder: (context, localeProvider, themeProvider, _) =>
+                  MaterialApp.router(
+                title: l10n.appTitle,
+                debugShowCheckedModeBanner: false,
+                scrollBehavior: appScrollBehavior,
+                theme: themeProvider.lightTheme,
+                darkTheme: themeProvider.darkTheme,
+                themeMode: themeProvider.themeMode,
+                locale: localeProvider.locale,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: LocaleProvider.supportedLocales,
+                routerConfig: _cachedAppRouter!,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

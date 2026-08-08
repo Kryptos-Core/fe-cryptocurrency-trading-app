@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "appTitle": "Crypto Trading App",
+  "walletConnectDescription": "Cryptocurrency trading",
   "login": "Login",
   "logout": "Logout",
   "register": "Register",
@@ -620,16 +621,37 @@
   "currenciesSearchHint": "Search currencies...",
   "currenciesFilterAll": "All",
   "currenciesTradable": "Tradable",
+  "currenciesPaused": "Paused",
   "currenciesSortTopVolume": "Top Volume",
   "currenciesSortTopGainers": "Top Gainers",
   "currenciesSortTopLosers": "Top Losers",
   "currenciesSortAlphabet": "A-Z",
+  "currenciesSortLabel": "Sort",
+  "currenciesClearFilters": "Clear filters",
+  "@currenciesClearFilters": {
+    "description": "Action that resets all currency list filters."
+  },
+  "currenciesResultCounter": "{shown} of {total} currencies",
+  "@currenciesResultCounter": {
+    "description": "Counter shown next to the filter bar.",
+    "placeholders": {
+      "shown": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "currenciesEmptyFiltered": "No currencies match the current filters",
+  "currenciesRetryAction": "Retry",
+  "currenciesLoadingMore": "Loading more...",
   "currenciesNoCurrenciesFound": "No currencies found",
   "currenciesNoMatchSearch": "No currencies match your search",
   "currenciesDetailTitle": "Currency Details",
   "currenciesNotFound": "Currency not found",
   "currenciesMarketOverviewTitle": "Market Overview",
   "currenciesConfigurationTitle": "Currency Configuration",
+  "currenciesDetailStatusTitle": "Status",
+  "currenciesDetailBackToMarkets": "Back to Markets",
+  "currenciesDetailActiveLabel": "Active status",
+  "currenciesDetailTradableLabel": "Tradable status",
   "currenciesSymbolLabel": "Symbol",
   "currenciesNameLabel": "Name",
   "currenciesPrecisionScaleLabel": "Precision Scale",
@@ -973,6 +995,10 @@
   "paymentConfigRuntimeSectionTech": "Infrastructure & RPC",
   "paymentConfigRuntimeSectionFinance": "Finance & Limits",
   "paymentConfigRuntimeSectionOps": "Ops & Engine",
+  "paymentConfigRuntimeSectionAuthSecurity": "Auth / Security",
+  "paymentConfigRuntimeSectionAuthSecurityDesc": "Email verification toggle and other auth/security settings — admin only.",
+  "runtimeSettingEmailVerificationRequiredName": "Email verification required (OTP gating)",
+  "runtimeSettingEmailVerificationRequiredDesc": "When true, sensitive actions (wallet add/remove, password change, email change, contact-email OTP) require OTP email. When false, all email-OTP flows are bypassed. Only disable in trusted/internal environments.",
   "paymentConfigRuntimeSectionOpsDesc": "Matching engine, Go aggregator, outbox alerts, rollout strategy, and market read — for ops team.",
   "paymentConfigRuntimeSectionTechDesc": "RPC URLs, API endpoints, and blockchain infra configuration — for tech team.",
   "paymentConfigRuntimeSectionFinanceDesc": "Withdraw limits, transfer limits, rate fallbacks, and MM defaults — for finance team.",
@@ -1441,6 +1467,39 @@
   "adminCurrenciesTradableBadgeOn": "Trade",
   "adminCurrenciesTradableBadgeOff": "Off",
   "adminCurrenciesTradingPausedTooltip": "Trading paused",
+  "adminCurrenciesReadOnlyBanner": "You are in read-only mode. Any change to the coin catalog requires an Admin account.",
+  "adminCurrenciesReadOnlySubtitle": "Read-only",
+  "adminCurrenciesCountSummary": "Total {total} · Active {active} · Inactive {inactive} · Tradable {tradable} · Paused {paused}",
+  "@adminCurrenciesCountSummary": {
+    "placeholders": {
+      "total": {"type": "int"},
+      "active": {"type": "int"},
+      "inactive": {"type": "int"},
+      "tradable": {"type": "int"},
+      "paused": {"type": "int"}
+    }
+  },
+  "adminCurrenciesDetailPrecision": "Precision scale",
+  "adminCurrenciesDetailMinWithdraw": "Min withdraw",
+  "adminCurrenciesDetailStatus": "Status",
+  "adminCurrenciesDetailTrading": "Tradable",
+  "adminCurrenciesDetailCreatedAt": "Created at",
+  "adminCurrenciesDetailUpdatedAt": "Updated at",
+  "adminCurrenciesDetailCopySymbol": "Copy symbol",
+  "adminCurrenciesCopySymbolDone": "Copied {symbol}",
+  "@adminCurrenciesCopySymbolDone": {
+    "placeholders": {
+      "symbol": {"type": "String"}
+    }
+  },
+  "adminCurrenciesRefreshTooltip": "Refresh",
+  "adminCurrenciesStatusActive": "Active",
+  "adminCurrenciesStatusInactive": "Inactive",
+  "adminCurrenciesStatusTradable": "Tradable",
+  "adminCurrenciesStatusPaused": "Trading paused",
+  "adminCurrenciesSectionBasic": "Basic info",
+  "adminCurrenciesSectionTrading": "Trading parameters",
+  "adminCurrenciesSectionStatus": "Status",
   "adminShowingCount": "Showing {shown} of {total} {label}",
   "@adminShowingCount": {
     "placeholders": {
@@ -2362,5 +2421,478 @@
   "hidePassword": "Hide password",
   "loggingIn": "Logging in...",
   "selectAccount": "Select account",
-  "youCanEditCredentialsAbove": "You can edit email or password here for testing"
+  "youCanEditCredentialsAbove": "You can edit email or password here for testing",
+  "ordersGuestGateTitle": "Sign in to view your orders",
+  "@ordersGuestGateTitle": {
+    "description": "Title shown on the Orders tab when the user is not authenticated."
+  },
+  "ordersGuestGateSubtitle": "The Orders tab is available after signing in. Sign in to view your order book, place buy/sell orders, and manage your portfolio.",
+  "@ordersGuestGateSubtitle": {
+    "description": "Subtitle explaining why the Orders tab is locked for guests."
+  },
+  "ordersSessionExpiredTitle": "Your session has expired",
+  "@ordersSessionExpiredTitle": {
+    "description": "Title shown when the Orders tab detects an expired/invalid auth token."
+  },
+  "ordersSessionExpiredSubtitle": "Please sign in again to continue viewing your orders.",
+  "@ordersSessionExpiredSubtitle": {
+    "description": "Subtitle for the Orders tab session-expired state."
+  },
+  "signInAgain": "Sign in again",
+  "@signInAgain": {
+    "description": "Button label for re-authenticating after the session has expired."
+  },
+  "apiErrorEmailExists": "This email is already in use.",
+  "apiErrorInvalidOtp": "The OTP code is invalid or has expired.",
+  "apiErrorOtpRequired": "OTP code is required.",
+  "apiErrorOtpCooldown": "Please wait {seconds} seconds before requesting another OTP.",
+  "@apiErrorOtpCooldown": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "apiErrorOtpAttemptLimitExceeded": "Too many OTP attempts. Please try again in {seconds} seconds.",
+  "@apiErrorOtpAttemptLimitExceeded": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "apiErrorTwoFaRequired": "Two-factor authentication is required. Please enable 2FA in Settings first.",
+  "apiErrorAccountBanned": "Your account has been banned. Contact support.",
+  "apiErrorEmailVerificationDisabled": "Email verification is disabled by admin. OTP is not required.",
+  "apiErrorNotWalletPlaceholder": "Only wallet-placeholder accounts can use this flow. Use the regular email-change endpoint in Settings.",
+  "apiErrorUseContactEmailVerification": "Wallet accounts use a temporary email. Please verify a real email in Profile.",
+  "apiErrorUseChangePasswordEndpoint": "Please use the dedicated change-password endpoint.",
+  "apiErrorInvalidPayload": "Request payload is invalid.",
+  "apiErrorInvalidChangeType": "Unsupported change type.",
+  "apiErrorAvatarUploadDisabled": "Avatar upload is currently disabled.",
+  "apiErrorContactEmailRequired": "A contact email is required.",
+  "apiErrorInvalidAvatarFormat": "Only JPEG, PNG, or WebP images are allowed.",
+  "apiErrorAvatarRequired": "Avatar file is required.",
+  "apiErrorWithdrawalProcessing": "A withdrawal is being processed.",
+  "apiErrorWithdrawalDuplicate": "Duplicate withdrawal request.",
+  "apiErrorWithdrawalNotFound": "Withdrawal not found.",
+  "apiErrorWithdrawalPendingExists": "Cannot change email while {count} withdrawal(s) are pending. Please wait or cancel them first.",
+  "@apiErrorWithdrawalPendingExists": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "apiErrorPendingWithdrawals": "Cannot perform this action while a withdrawal is pending.",
+  "apiErrorUserNotFound": "User not found.",
+  "apiErrorWalletNotFound": "Wallet not found.",
+  "apiErrorInvalidAmount": "Invalid amount.",
+  "apiErrorInvalidTarget": "Cannot transfer to the same user.",
+  "apiErrorTargetRequired": "targetUserId is required for transfers.",
+  "apiErrorInvalidAction": "Invalid wallet action.",
+  "apiErrorInsufficientBalance": "Insufficient balance.",
+  "apiErrorAccountFrozen": "Account is frozen.",
+  "apiErrorChainRequired": "Missing query param: chain.",
+  "apiErrorTxHashRequired": "Missing query param: txHash.",
+  "apiErrorAdminIngestMissingParams": "chain and txHash are required.",
+  "apiErrorInvalidAddress": "Invalid wallet address on chain {chain}.",
+  "@apiErrorInvalidAddress": {
+    "placeholders": {
+      "chain": {"type": "String"}
+    }
+  },
+  "apiErrorInvalidTronAddress": "Invalid Tron destination address.",
+  "apiErrorInvalidEvmAddress": "Invalid EVM destination address.",
+  "apiErrorInvalidSignature": "Signature is invalid.",
+  "apiErrorWalletAlreadyLinked": "This wallet is already linked to your account.",
+  "apiErrorWalletInactive": "Inactive wallet cannot be set as default.",
+  "apiErrorLinkNotFound": "Linked wallet not found.",
+  "apiErrorWcAuthSessionExpired": "WalletConnect session expired. Please try again.",
+  "apiErrorWcAuthInvalidPayload": "Invalid WalletConnect payload.",
+  "apiErrorTreasuryChainUnsupported": "Unsupported treasury chain.",
+  "apiErrorTreasuryChainNotEvm": "Operation requires an EVM-compatible chain.",
+  "apiErrorTreasuryInvalidAmount": "Amount must be greater than zero.",
+  "apiErrorTreasurySweepUsdtZero": "No USDT balance to sweep.",
+  "apiErrorTreasuryUsdtChain": "USDT sweep requires a Tron chain.",
+  "apiErrorTreasuryConfirmNoWallet": "Missing to_wallet_id for confirm operation.",
+  "apiErrorTreasuryManualSettleTxEmpty": "Transaction hash is required.",
+  "apiErrorTreasuryOperationNotFound": "Treasury operation not found.",
+  "apiErrorTreasuryOperationStateInvalid": "Operation is in an invalid state for this action.",
+  "apiErrorTreasuryOperationNotQueued": "Operation is not in the queued state.",
+  "apiErrorTreasuryOperationNotProcessing": "Operation is not being processed.",
+  "apiErrorTreasuryOperationNotConfirming": "Operation is not confirming on-chain.",
+  "apiErrorTreasuryOperationNotCompleted": "Operation has not completed yet.",
+  "apiErrorTreasuryOperationNotFailed": "Operation has not failed.",
+  "apiErrorTreasuryTxHashNotFound": "Transaction hash not found in our records.",
+  "apiErrorTreasuryInsufficientFunds": "Insufficient on-chain balance for this operation.",
+  "apiErrorTreasuryBalanceReconcileFailed": "Failed to reconcile treasury balance.",
+  "apiErrorTreasuryOperationTypeUnsupported": "Unsupported treasury operation type.",
+  "apiErrorTreasuryRpcUnavailable": "Blockchain RPC is unavailable. Please try again later.",
+  "apiErrorTreasuryRpcTimeout": "Blockchain RPC timed out. Please try again later.",
+  "apiErrorTreasuryGasEstimateFailed": "Could not estimate gas for the transaction.",
+  "apiErrorTreasuryNonceConflict": "Nonce conflict. Another transaction is in flight for this wallet.",
+  "apiErrorTreasuryTxReverted": "On-chain transaction reverted.",
+  "apiErrorTreasuryTxBroadcastFailed": "Failed to broadcast transaction to the network.",
+  "apiErrorTxWalletExists": "A transaction wallet with this chain and purpose already exists.",
+  "apiErrorTxWalletNotFound": "Transaction wallet not found.",
+  "apiErrorTxWalletUsdtNonZero": "Move TRC-20 USDT off this wallet before deleting it.",
+  "apiErrorTxWalletDefaultDepositDeleteForbidden": "Unset this wallet as the user deposit default before deleting it.",
+  "apiErrorTxWalletOperationInFlight": "Wait for pending Fund or Sweep operations to finish before deleting this wallet.",
+  "apiErrorDefaultUserDepositDeactivateForbidden": "You cannot deactivate the current default user deposit wallet.",
+  "apiErrorTronUsdtDestinationNotActivated": "The destination TRON wallet is not activated yet. Deposit TRX to that address before sending USDT.",
+  "apiErrorTronAccountPreflightUnavailable": "Could not check the destination TRON wallet status right now. Please try again later.",
+  "apiErrorTreasuryMainWalletNotFound": "Treasury main wallet not found.",
+  "apiErrorTreasuryMainWalletConflict": "A treasury main wallet with this configuration already exists.",
+  "apiErrorOrderNotFound": "Order not found.",
+  "apiErrorOrderNotOpen": "Order is not open.",
+  "apiErrorInvalidPrice": "Invalid price.",
+  "apiErrorInvalidInput": "Invalid order input.",
+  "apiErrorInvalidMarketBuyReserve": "Invalid market buy reserve.",
+  "apiErrorNoLiquidity": "Not enough liquidity for this order.",
+  "apiErrorOrderCreateFailed": "Could not create order.",
+  "apiErrorInvalidState": "Order is in an invalid state.",
+  "apiErrorOverfillAttempt": "Order would be overfilled.",
+  "apiErrorCancelFailed": "Cancel failed.",
+  "apiErrorPairNotFound": "Trading pair not found.",
+  "apiErrorInvalidOrderType": "Invalid order type.",
+  "apiErrorOrderBookServiceUnavailable": "Order book service is not available.",
+  "apiErrorInvalidDepthLimit": "Depth limit must be 5, 10, or 20.",
+  "apiErrorInvalidInterval": "Invalid interval.",
+  "apiErrorMarketPairSymbolExists": "A market pair with this symbol already exists.",
+  "apiErrorBaseQuoteSame": "Base and quote currencies cannot be the same.",
+  "apiErrorBaseQuoteRequired": "Base and quote currencies are required.",
+  "apiErrorCurrencyNotFound": "Currency not found.",
+  "apiErrorCurrencySymbolExists": "A currency with this symbol already exists.",
+  "apiErrorCurrencyDisabled": "Currency is disabled.",
+  "apiErrorMarketMakerConfigNotFound": "Market maker config not found.",
+  "apiErrorMarketMakerConfigConflict": "A market maker config for this user and pair already exists.",
+  "apiErrorMarketMakerInvalidSpread": "Invalid market maker spread.",
+  "apiErrorMarketMakerInvalidAmount": "Invalid market maker order amount.",
+  "apiErrorMarketMakerNoActivePairs": "No active trading pairs configured for market making.",
+  "apiErrorMarketMakerPlaceFailed": "Market maker could not place orders.",
+  "apiErrorConfigKeyNotFound": "Configuration key not found.",
+  "apiErrorConfigKeyDisallowed": "This configuration key is not allowed.",
+  "apiErrorConfigKeyReadOnly": "This configuration key is read-only.",
+  "apiErrorConfigValueInvalid": "Invalid value for configuration key.",
+  "apiErrorAdminRequired": "Admin role required.",
+  "apiErrorRiskOfficerRequired": "Risk officer role required.",
+  "apiErrorFinanceManagerRequired": "Finance manager role required.",
+  "apiErrorDepositNotFound": "Deposit not found.",
+  "apiErrorDepositAlreadyPaid": "Deposit already paid or not found.",
+  "apiErrorDepositAmountInvalid": "Invalid deposit amount.",
+  "apiErrorDepositChainUnsupported": "Unsupported deposit chain.",
+  "apiErrorDepositPollFailed": "Could not check deposit status. Please try again later.",
+  "apiErrorTxFailed": "On-chain transaction failed.",
+  "apiErrorEncryptionFailed": "Encryption failed.",
+  "apiErrorDecryptionFailed": "Decryption failed.",
+  "apiErrorEncryptedPayloadMalformed": "Encrypted payload is malformed.",
+  "apiErrorDecryptedPayloadInvalid": "Decrypted payload is invalid.",
+  "apiErrorExternalProviderUnavailable": "External provider is unavailable.",
+  "apiErrorExternalProviderRateLimited": "External provider rate limit reached. Please try again later.",
+  "apiErrorNotificationDeliveryFailed": "Notification delivery failed.",
+  "apiErrorFcmNotConfigured": "Push notifications are not configured.",
+  "apiErrorTronSendFailed": "Failed to submit Tron transaction.",
+  "adminTransactionSectionOrderInfo": "Order information",
+  "adminTransactionSectionPriceAndAmount": "Price & quantity",
+  "adminTransactionSectionTime": "Time",
+  "adminTransactionSectionReference": "Reference",
+  "adminTransactionLabelClientOrderId": "Client Order ID",
+  "adminTransactionSectionUser": "User",
+  "adminTransactionSectionDepositInfo": "Deposit information",
+  "adminTransactionLabelDepositId": "Deposit ID",
+  "adminTransactionSectionWithdrawalInfo": "Transaction information",
+  "adminTransactionLabelWithdrawalId": "Withdrawal ID",
+  "adminTransactionSectionOnChain": "On-Chain",
+  "adminTransactionLoadUserFailed": "Cannot load user info: {error}",
+  "@adminTransactionLoadUserFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "adminUserDetailDepositAction": "Deposit",
+  "adminUserDetailWithdrawAction": "Withdraw",
+  "adminUserDetailAdjustDepositTitle": "Deposit coin for user",
+  "adminUserDetailAdjustWithdrawTitle": "Withdraw coin from user",
+  "adminUserDetailAdjustDepositSegment": "Deposit coin",
+  "adminUserDetailAdjustWithdrawSegment": "Withdraw coin",
+  "adminUserDetailAdjustAmountLabel": "Amount",
+  "adminUserDetailAdjustAmountHint": "0.00",
+  "adminUserDetailAdjustAmountRequired": "Please enter the amount",
+  "adminUserDetailAdjustAmountInvalid": "Invalid amount",
+  "adminUserDetailAdjustAmountPositive": "Amount must be greater than 0",
+  "adminUserDetailAdjustNoteLabel": "Note (optional)",
+  "adminUserDetailAdjustNoteHint": "Reason for adjustment...",
+  "adminUserDetailAdjustProcessing": "Processing...",
+  "adminUserDetailPickCoinType": "Select coin type",
+  "adminUserDetailBalanceAvailableLabel": "Available balance: {amount} {symbol}",
+  "@adminUserDetailBalanceAvailableLabel": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "symbol": { "type": "String" }
+    }
+  },
+  "adminUserDetailNoWalletWillCreate": "User has no wallet — will be auto-created",
+  "adminUserDetailNoWalletForSymbol": "User has no {symbol} wallet",
+  "@adminUserDetailNoWalletForSymbol": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "adminUserDetailSectionExistingWallets": "EXISTING WALLETS",
+  "adminUserDetailSectionNewWallets": "CREATE NEW WALLET",
+  "adminUserDetailNoWalletBadge": "No wallet yet",
+  "adminUserDetailPermissionDeniedWallets": "You do not have permission to view this user's wallet balances",
+  "adminUserDetailPermissionDeniedAdjustments": "You do not have permission to view adjustment history",
+  "adminUserDetailPermissionDeniedSecurity": "You do not have permission to view security change history",
+  "adminUserDetailEmptyWallets": "User has no wallets yet",
+  "adminUserDetailEmptyAdjustments": "No adjustment history yet",
+  "adminUserDetailEmptyOrders": "User has no orders yet",
+  "adminUserDetailEmptyOnchainTxs": "No on-chain transactions",
+  "adminUserDetailEmptySecurityChanges": "No security change history",
+  "adminUserDetailAdjustmentByActor": "By: {actor}",
+  "@adminUserDetailAdjustmentByActor": {
+    "placeholders": {
+      "actor": { "type": "String" }
+    }
+  },
+  "adminUserDetailAdjustmentNoteValue": "Note: {note}",
+  "@adminUserDetailAdjustmentNoteValue": {
+    "placeholders": {
+      "note": { "type": "String" }
+    }
+  },
+  "adminUserDetailOrderQuantityAndPrice": "Qty: {amount}{price, select, undefined{} other{ · Price: {price}}} · {type}",
+  "@adminUserDetailOrderQuantityAndPrice": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "price": { "type": "String" },
+      "type": { "type": "String" }
+    }
+  },
+  "adminUserDetailOrderTxHashTruncated": "TX: {hash}",
+  "@adminUserDetailOrderTxHashTruncated": {
+    "placeholders": {
+      "hash": { "type": "String" }
+    }
+  },
+  "adminUserDetailOrderStatusFilled": "Filled",
+  "adminUserDetailOrderStatusPartial": "Partially filled",
+  "adminUserDetailOrderStatusOpen": "Open",
+  "adminUserDetailOrderStatusCancelled": "Cancelled",
+  "adminUserDetailOrderStatusRejected": "Rejected",
+  "adminUserDetailOnchainStatusCompleted": "Completed",
+  "adminUserDetailOnchainStatusConfirming": "Confirming",
+  "adminUserDetailOnchainStatusPending": "Pending",
+  "adminUserDetailOnchainStatusFailed": "Failed",
+  "adminUserDetailSecurityStatusApproved": "Approved",
+  "adminUserDetailSecurityStatusRejected": "Rejected",
+  "adminUserDetailSecurityStatusPending": "Pending review",
+  "adminUserDetailRetryAction": "Try again",
+  "adminUserDetailDialogCancel": "Cancel",
+  "adminUserDetailWalletBalanceLine": "Available: {available}  |  Frozen: {frozen}",
+  "@adminUserDetailWalletBalanceLine": {
+    "placeholders": {
+      "available": { "type": "String" },
+      "frozen": { "type": "String" }
+    }
+  },
+  "adminUserDetailDepositWithdrawTooltip": "Deposit/Withdraw {symbol}",
+  "@adminUserDetailDepositWithdrawTooltip": {
+    "placeholders": {
+      "symbol": { "type": "String" }
+    }
+  },
+  "paymentConfigFieldClientId": "Client ID",
+  "paymentConfigFieldApiKey": "API Key",
+  "paymentConfigFieldChecksumKey": "Checksum Key",
+  "paymentConfigFieldReturnUrl": "Return URL",
+  "paymentConfigFieldCancelUrl": "Cancel URL",
+  "paymentConfigFieldFiatSymbol": "Fiat Symbol",
+  "paymentConfigFieldQuoteSymbol": "Quote Symbol",
+  "paymentConfigFieldFxSpreadBps": "FX Spread (bps)",
+  "paymentConfigFieldMinDepositFiat": "Min deposit (fiat, integer)",
+  "paymentConfigFieldMaxDepositFiat": "Max deposit (fiat, optional)",
+  "paymentConfigFieldRpcUrl": "RPC URL",
+  "paymentConfigFieldHotWalletKey": "Hot Wallet Private Key",
+  "paymentConfigFieldNativeSymbol": "Native Symbol",
+  "paymentConfigFieldWithdrawAutoMax": "Withdraw Auto Max",
+  "paymentConfigFieldFxFallbackRate": "FX Fallback Rate (1 Native → X USDT)",
+  "paymentConfigFieldMainnet": "Mainnet",
+  "marketMakerValidationMustBeAtLeast": "Must be ≥ {minValue}",
+  "@marketMakerValidationMustBeAtLeast": {
+    "placeholders": {
+      "minValue": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingTitle": "Spot Trading",
+  "binanceSpotTradingBinanceLabel": "Binance",
+  "binanceSpotTradingBalancesTitle": "Balances",
+  "binanceSpotTradingNoAssetsWithBalance": "No assets with balance",
+  "binanceSpotTradingBalanceFree": "{amount} free",
+  "@binanceSpotTradingBalanceFree": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingSideBuy": "BUY",
+  "binanceSpotTradingSideSell": "SELL",
+  "binanceSpotTradingTypeLimit": "LIMIT",
+  "binanceSpotTradingTypeMarket": "MARKET",
+  "binanceSpotTradingPriceLabel": "Price ({asset})",
+  "@binanceSpotTradingPriceLabel": {
+    "placeholders": {
+      "asset": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingAmountLabel": "Amount ({asset})",
+  "@binanceSpotTradingAmountLabel": {
+    "placeholders": {
+      "asset": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingTotalLabel": "Total",
+  "binanceSpotTradingTotalAmount": "{amount} USDT",
+  "@binanceSpotTradingTotalAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingSubmitButton": "{side} {asset}",
+  "@binanceSpotTradingSubmitButton": {
+    "placeholders": {
+      "side": { "type": "String" },
+      "asset": { "type": "String" }
+    }
+  },
+  "binanceSpotTradingInvalidAmount": "Please enter a valid amount",
+  "binanceSpotTradingInvalidPrice": "Please enter a valid price",
+  "binanceSpotTradingOrderFailed": "Order failed",
+  "binanceSpotTradingOrderPlaced": "Order placed successfully",
+  "binanceSpotTradingOrderCancelled": "Order cancelled",
+  "binanceSpotTradingOpenOrdersTab": "Open Orders",
+  "binanceSpotTradingHistoryTab": "History",
+  "binanceSpotTradingNoOpenOrders": "No open orders",
+  "binanceSpotTradingLoadHistory": "Load History",
+  "binanceSpotTradingCancelOrder": "Cancel",
+  "binanceApiKeyListTitle": "My Binance API Keys",
+  "binanceApiKeyListEmptyTitle": "No Binance API Keys",
+  "binanceApiKeyListEmptyDescription": "Connect your Binance account to start trading",
+  "binanceApiKeyListAddAction": "Add API Key",
+  "binanceApiKeyListTestConnection": "Test Connection",
+  "binanceApiKeyListTrade": "Trade",
+  "binanceApiKeyListDelete": "Delete",
+  "binanceApiKeyListDeleteConfirmTitle": "Delete API Key?",
+  "binanceApiKeyListDeleteConfirmContent": "Are you sure you want to delete \"{label}\"? This action cannot be undone.",
+  "@binanceApiKeyListDeleteConfirmContent": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "binanceApiKeyListAccountFallbackLabel": "Binance Account",
+  "binanceApiKeyListTestnetBadge": "TESTNET",
+  "binanceApiKeyListMainnetBadge": "MAINNET",
+  "binanceApiKeyListLastUsedAt": "Last used: {date}",
+  "@binanceApiKeyListLastUsedAt": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "binanceApiKeyListNeverUsed": "Never used",
+  "binanceApiKeyListConnectionOk": "Connection OK — Account: {info}",
+  "@binanceApiKeyListConnectionOk": {
+    "placeholders": {
+      "info": { "type": "String" }
+    }
+  },
+  "binanceApiKeyListConnectionFailed": "Connection failed: {error}",
+  "@binanceApiKeyListConnectionFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "binanceApiKeyListJustNow": "Just now",
+  "binanceApiKeyListMinutesAgo": "{minutes}m ago",
+  "@binanceApiKeyListMinutesAgo": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "binanceApiKeyListHoursAgo": "{hours}h ago",
+  "@binanceApiKeyListHoursAgo": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "binanceApiKeyListDaysAgo": "{days}d ago",
+  "@binanceApiKeyListDaysAgo": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "binanceApiKeySetupTitle": "Connect Binance API",
+  "binanceApiKeySetupDefaultLabel": "Main Spot Account",
+  "binanceApiKeySetupLabelField": "Label",
+  "binanceApiKeySetupLabelHint": "e.g. Main Spot Account",
+  "binanceApiKeySetupLabelRequired": "Label is required",
+  "binanceApiKeySetupApiKeyField": "API Key",
+  "binanceApiKeySetupApiKeyHint": "Enter your Binance API Key",
+  "binanceApiKeySetupApiSecretField": "API Secret",
+  "binanceApiKeySetupApiSecretHint": "Enter your Binance API Secret",
+  "binanceApiKeySetupPermissionsSection": "Permissions",
+  "binanceApiKeySetupSpotTradingTitle": "Spot Trading",
+  "binanceApiKeySetupSpotTradingSubtitle": "Enable spot market trading",
+  "binanceApiKeySetupFuturesTradingTitle": "Futures Trading",
+  "binanceApiKeySetupFuturesTradingSubtitle": "Enable USD-M futures trading",
+  "binanceApiKeySetupUseTestnetTitle": "Use Testnet",
+  "binanceApiKeySetupUseTestnetSubtitle": "Connect to Binance testnet instead of mainnet",
+  "binanceApiKeySetupGuideTitle": "API Key Setup Guide",
+  "binanceApiKeySetupGuideIntro": "When creating your API key on Binance:",
+  "binanceApiKeySetupGuideTip1": "Disable all Withdrawal permissions",
+  "binanceApiKeySetupGuideTip2": "Enable: Spot/Futures Trading",
+  "binanceApiKeySetupGuideTip3": "Enable: Read-only market data",
+  "binanceApiKeySetupGuideLink": "View Binance API Guide",
+  "binanceApiKeySetupTestConnection": "Test Connection",
+  "binanceApiKeySetupSaveAction": "Save API Key",
+  "binanceApiKeySetupConnectionPassedSaved": "Connection test passed! Credentials saved.",
+  "binanceApiKeySetupSavedSuccess": "API Key saved successfully",
+  "binanceApiKeySetupSavedFailed": "Failed: {error}",
+  "@binanceApiKeySetupSavedFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "binanceApiKeySetupConnectionSuccessful": "Connection successful!",
+  "binanceApiKeySetupConnectionFailed": "Connection failed: {error}",
+  "@binanceApiKeySetupConnectionFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "walletAuthOpenTronLinkHint": "Open TronLink on your phone, then return to the app.",
+  "walletAuthTronLinkUnavailable": "Could not open TronLink. Install the app or use Chrome (extension).",
+  "walletAuthMetaMaskOrTronLinkUnavailable": "{name} not detected. Install the Chrome extension and open the app in the browser.",
+  "@walletAuthMetaMaskOrTronLinkUnavailable": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "walletAuthNonceFetchFailed": "Failed to fetch nonce: {error}",
+  "@walletAuthNonceFetchFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "walletAuthWrongMetaMaskAddress": "Wrong MetaMask address. Currently connected: {address}",
+  "@walletAuthWrongMetaMaskAddress": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "walletAuthWrongTronLinkAddress": "Wrong TronLink address. Currently connected: {address}",
+  "@walletAuthWrongTronLinkAddress": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "walletAuthVerificationFailed": "Verification failed: {message}",
+  "@walletAuthVerificationFailed": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  }
 }

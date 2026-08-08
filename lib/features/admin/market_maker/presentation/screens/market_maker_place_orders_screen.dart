@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
+import 'package:crypto_trading_app/core/utils/api_error_localizer.dart';
 import 'package:crypto_trading_app/core/utils/currency_amount_input.dart';
 import 'package:crypto_trading_app/core/utils/format_utils.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -9,7 +10,6 @@ import 'package:crypto_trading_app/core/widgets/app_empty_state.dart';
 
 import 'package:crypto_trading_app/features/admin/market_maker/data/models/market_maker_config_model.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/providers/market_maker_provider.dart';
-import 'package:crypto_trading_app/features/admin/market_maker/presentation/utils/market_maker_error_localizer.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/market_maker_action_bar.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/market_maker_section.dart';
 import 'package:crypto_trading_app/features/admin/market_maker/presentation/widgets/pair_selector_card.dart';
@@ -80,7 +80,8 @@ class _MarketMakerPlaceOrdersScreenState
       return l10n.marketMakerValidationOrderAmount;
     }
     if (n < minValue) {
-      return 'Must be ≥ ${_formatMinForDisplay(minValue)}';
+      return l10n.marketMakerValidationMustBeAtLeast(
+          _formatMinForDisplay(minValue));
     }
     return null;
   }
@@ -105,15 +106,15 @@ class _MarketMakerPlaceOrdersScreenState
     if (result == null) {
       showAppSnackBar(
         context,
-        message: localizeMarketMakerError(
-          l10n,
-          provider.errorCode,
-          serverMessage: provider.error,
-        ),
-        type: SnackBarType.error,
-      );
-      return;
-    }
+message: localizeApiError(
+        l10n,
+        code: provider.apiErrorCode,
+        message: provider.error,
+      ),
+      type: SnackBarType.error,
+    );
+    return;
+  }
 
     final placed = (result['placed'] as Map<String, dynamic>?) ?? const {};
     final buyPrice = (placed['buyPrice'] ?? '').toString();
@@ -183,19 +184,19 @@ class _MarketMakerPlaceOrdersScreenState
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      localizeMarketMakerError(
-                        l10n,
-                        provider.errorCode,
-                        serverMessage: provider.error,
-                      ),
-                      textAlign: TextAlign.center,
+Text(
+                    localizeApiError(
+                      l10n,
+                      code: provider.apiErrorCode,
+                      message: provider.error,
                     ),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: () => provider.loadAll(),
-                      child: Text(l10n.retry),
-                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () => provider.loadAll(),
+                    child: Text(l10n.retry),
+                  ),
                   ],
                 ),
               ),

@@ -12,6 +12,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get appTitle => 'Ứng dụng Giao dịch Crypto';
 
   @override
+  String get walletConnectDescription => 'Giao dịch tiền mã hóa';
+
+  @override
   String get login => 'Đăng nhập';
 
   @override
@@ -1345,6 +1348,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get currenciesTradable => 'Có thể giao dịch';
 
   @override
+  String get currenciesPaused => 'Tạm dừng';
+
+  @override
   String get currenciesSortTopVolume => 'Top Khối lượng';
 
   @override
@@ -1355,6 +1361,27 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get currenciesSortAlphabet => 'A-Z';
+
+  @override
+  String get currenciesSortLabel => 'Sắp xếp';
+
+  @override
+  String get currenciesClearFilters => 'Xóa bộ lọc';
+
+  @override
+  String currenciesResultCounter(int shown, int total) {
+    return '$shown/$total tiền tệ';
+  }
+
+  @override
+  String get currenciesEmptyFiltered =>
+      'Không có tiền tệ nào khớp bộ lọc hiện tại';
+
+  @override
+  String get currenciesRetryAction => 'Thử lại';
+
+  @override
+  String get currenciesLoadingMore => 'Đang tải thêm...';
 
   @override
   String get currenciesNoCurrenciesFound => 'Không tìm thấy tiền tệ';
@@ -1373,6 +1400,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get currenciesConfigurationTitle => 'Cấu hình tiền tệ';
+
+  @override
+  String get currenciesDetailStatusTitle => 'Trạng thái';
+
+  @override
+  String get currenciesDetailBackToMarkets => 'Về danh sách tiền tệ';
+
+  @override
+  String get currenciesDetailActiveLabel => 'Trạng thái hoạt động';
+
+  @override
+  String get currenciesDetailTradableLabel => 'Trạng thái giao dịch';
 
   @override
   String get currenciesSymbolLabel => 'Mã';
@@ -2175,6 +2214,21 @@ class AppLocalizationsVi extends AppLocalizations {
   String get paymentConfigRuntimeSectionOps => 'Vận hành & Engine';
 
   @override
+  String get paymentConfigRuntimeSectionAuthSecurity => 'Xác thực & Bảo mật';
+
+  @override
+  String get paymentConfigRuntimeSectionAuthSecurityDesc =>
+      'Bật/tắt xác thực email và các cài đặt bảo mật khác — chỉ admin.';
+
+  @override
+  String get runtimeSettingEmailVerificationRequiredName =>
+      'Yêu cầu xác thực email (OTP gating)';
+
+  @override
+  String get runtimeSettingEmailVerificationRequiredDesc =>
+      'Bật: các thao tác nhạy cảm (thêm/xóa ví, đổi mật khẩu, đổi email, OTP liên hệ) yêu cầu mã OTP qua email. Tắt: bỏ qua tất cả luồng OTP. Chỉ tắt trong môi trường đáng tin cậy/nội bộ.';
+
+  @override
   String get paymentConfigRuntimeSectionOpsDesc =>
       'Matching engine, Go aggregator, outbox alerts, rollout strategy và market read — dành cho đội vận hành.';
 
@@ -2661,7 +2715,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get apiErrorTronUsdtDestinationNotActivated =>
-      'Ví TRON đích chưa được kích hoạt. Hãy nạp TRX vào địa chỉ trước khi cấp USDT.';
+      'Ví TRON đích chưa được kích hoạt. Hãy nạp TRX vào địa chỉ đó trước khi gửi USDT.';
 
   @override
   String get apiErrorTronAccountPreflightUnavailable =>
@@ -3381,6 +3435,69 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get adminCurrenciesTradingPausedTooltip => 'Tạm dừng giao dịch';
+
+  @override
+  String get adminCurrenciesReadOnlyBanner =>
+      'Bạn đang ở chế độ chỉ xem. Mọi thay đổi catalog coin cần tài khoản Admin.';
+
+  @override
+  String get adminCurrenciesReadOnlySubtitle => 'Chỉ xem';
+
+  @override
+  String adminCurrenciesCountSummary(
+      int total, int active, int inactive, int tradable, int paused) {
+    return 'Tổng $total · Active $active · Inactive $inactive · Tradable $tradable · Paused $paused';
+  }
+
+  @override
+  String get adminCurrenciesDetailPrecision => 'Số chữ số thập phân';
+
+  @override
+  String get adminCurrenciesDetailMinWithdraw => 'Min rút';
+
+  @override
+  String get adminCurrenciesDetailStatus => 'Trạng thái';
+
+  @override
+  String get adminCurrenciesDetailTrading => 'Cho phép giao dịch';
+
+  @override
+  String get adminCurrenciesDetailCreatedAt => 'Tạo lúc';
+
+  @override
+  String get adminCurrenciesDetailUpdatedAt => 'Cập nhật lúc';
+
+  @override
+  String get adminCurrenciesDetailCopySymbol => 'Sao chép symbol';
+
+  @override
+  String adminCurrenciesCopySymbolDone(String symbol) {
+    return 'Đã sao chép $symbol';
+  }
+
+  @override
+  String get adminCurrenciesRefreshTooltip => 'Làm mới';
+
+  @override
+  String get adminCurrenciesStatusActive => 'Đang hoạt động';
+
+  @override
+  String get adminCurrenciesStatusInactive => 'Ngừng hoạt động';
+
+  @override
+  String get adminCurrenciesStatusTradable => 'Cho phép giao dịch';
+
+  @override
+  String get adminCurrenciesStatusPaused => 'Tạm dừng giao dịch';
+
+  @override
+  String get adminCurrenciesSectionBasic => 'Thông tin cơ bản';
+
+  @override
+  String get adminCurrenciesSectionTrading => 'Thông số giao dịch';
+
+  @override
+  String get adminCurrenciesSectionStatus => 'Trạng thái';
 
   @override
   String adminShowingCount(int shown, int total, String label) {
@@ -5269,4 +5386,1003 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get youCanEditCredentialsAbove =>
       'Có thể sửa email hoặc mật khẩu ở đây để test';
+
+  @override
+  String get ordersGuestGateTitle => 'Bạn cần đăng nhập để xem lệnh';
+
+  @override
+  String get ordersGuestGateSubtitle =>
+      'Tab Lệnh chỉ hiển thị sau khi đăng nhập. Đăng nhập để xem sổ lệnh, đặt lệnh mua/bán và quản lý danh mục.';
+
+  @override
+  String get ordersSessionExpiredTitle => 'Phiên đăng nhập đã hết hạn';
+
+  @override
+  String get ordersSessionExpiredSubtitle =>
+      'Vui lòng đăng nhập lại để tiếp tục xem lệnh.';
+
+  @override
+  String get signInAgain => 'Đăng nhập lại';
+
+  @override
+  String get apiErrorEmailExists => 'Email này đã được sử dụng.';
+
+  @override
+  String get apiErrorInvalidOtp => 'Mã OTP không hợp lệ hoặc đã hết hạn.';
+
+  @override
+  String get apiErrorOtpRequired => 'Vui lòng nhập mã OTP.';
+
+  @override
+  String apiErrorOtpCooldown(int seconds) {
+    return 'Vui lòng chờ $seconds giây trước khi yêu cầu mã OTP mới.';
+  }
+
+  @override
+  String apiErrorOtpAttemptLimitExceeded(int seconds) {
+    return 'Quá nhiều lần thử OTP. Vui lòng thử lại sau $seconds giây.';
+  }
+
+  @override
+  String get apiErrorTwoFaRequired =>
+      'Vui lòng bật xác thực hai bước trong Cài đặt trước.';
+
+  @override
+  String get apiErrorAccountBanned =>
+      'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.';
+
+  @override
+  String get apiErrorEmailVerificationDisabled =>
+      'Xác minh email đã bị quản trị viên tắt. Không cần OTP.';
+
+  @override
+  String get apiErrorNotWalletPlaceholder =>
+      'Chỉ tài khoản đăng nhập ví (email tạm) mới dùng được bước này. Hãy dùng đổi email có xét duyệt trong Cài đặt.';
+
+  @override
+  String get apiErrorUseContactEmailVerification =>
+      'Tài khoản ví dùng email tạm. Vui lòng xác minh email thật trong Hồ sơ.';
+
+  @override
+  String get apiErrorUseChangePasswordEndpoint =>
+      'Vui lòng dùng endpoint đổi mật khẩu chuyên dụng.';
+
+  @override
+  String get apiErrorInvalidPayload => 'Dữ liệu gửi lên không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidChangeType => 'Loại thay đổi không được hỗ trợ.';
+
+  @override
+  String get apiErrorAvatarUploadDisabled =>
+      'Tải lên ảnh đại diện đang bị tắt.';
+
+  @override
+  String get apiErrorContactEmailRequired => 'Vui lòng nhập email liên hệ.';
+
+  @override
+  String get apiErrorInvalidAvatarFormat =>
+      'Chỉ chấp nhận ảnh JPEG, PNG hoặc WebP.';
+
+  @override
+  String get apiErrorAvatarRequired => 'Vui lòng chọn tệp ảnh đại diện.';
+
+  @override
+  String get apiErrorWithdrawalProcessing =>
+      'Yêu cầu rút tiền đang được xử lý.';
+
+  @override
+  String get apiErrorWithdrawalDuplicate => 'Yêu cầu rút tiền bị gửi trùng.';
+
+  @override
+  String get apiErrorWithdrawalNotFound => 'Không tìm thấy giao dịch rút tiền.';
+
+  @override
+  String apiErrorWithdrawalPendingExists(int count) {
+    return 'Không thể thay đổi email khi có $count yêu cầu rút tiền đang chờ xử lý. Vui lòng đợi hoặc hủy yêu cầu rút tiền trước.';
+  }
+
+  @override
+  String get apiErrorPendingWithdrawals =>
+      'Không thể thực hiện hành động này khi đang có lệnh rút tiền chờ.';
+
+  @override
+  String get apiErrorUserNotFound => 'Không tìm thấy người dùng.';
+
+  @override
+  String get apiErrorWalletNotFound => 'Không tìm thấy ví.';
+
+  @override
+  String get apiErrorInvalidAmount => 'Số lượng không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidTarget => 'Không thể chuyển cho chính bạn.';
+
+  @override
+  String get apiErrorTargetRequired => 'Vui lòng chọn người nhận.';
+
+  @override
+  String get apiErrorInvalidAction => 'Hành động ví không hợp lệ.';
+
+  @override
+  String get apiErrorInsufficientBalance => 'Số dư không đủ.';
+
+  @override
+  String get apiErrorAccountFrozen => 'Tài khoản đang bị đóng băng.';
+
+  @override
+  String get apiErrorChainRequired => 'Thiếu tham số chain.';
+
+  @override
+  String get apiErrorTxHashRequired => 'Thiếu tham số txHash.';
+
+  @override
+  String get apiErrorAdminIngestMissingParams => 'chain và txHash là bắt buộc.';
+
+  @override
+  String apiErrorInvalidAddress(String chain) {
+    return 'Địa chỉ ví không hợp lệ trên mạng $chain.';
+  }
+
+  @override
+  String get apiErrorInvalidTronAddress => 'Địa chỉ Tron không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidEvmAddress => 'Địa chỉ EVM không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidSignature => 'Chữ ký không hợp lệ.';
+
+  @override
+  String get apiErrorWalletAlreadyLinked =>
+      'Ví này đã được liên kết với tài khoản của bạn.';
+
+  @override
+  String get apiErrorWalletInactive =>
+      'Ví không hoạt động không thể làm mặc định.';
+
+  @override
+  String get apiErrorLinkNotFound => 'Không tìm thấy ví liên kết.';
+
+  @override
+  String get apiErrorWcAuthSessionExpired =>
+      'Phiên WalletConnect đã hết hạn. Vui lòng thử lại.';
+
+  @override
+  String get apiErrorWcAuthInvalidPayload =>
+      'Dữ liệu WalletConnect không hợp lệ.';
+
+  @override
+  String get apiErrorTreasuryChainUnsupported =>
+      'Mạng ngân quỹ không được hỗ trợ.';
+
+  @override
+  String get apiErrorTreasuryChainNotEvm =>
+      'Thao tác yêu cầu mạng tương thích EVM.';
+
+  @override
+  String get apiErrorTreasuryInvalidAmount => 'Số lượng phải lớn hơn 0.';
+
+  @override
+  String get apiErrorTreasurySweepUsdtZero => 'Không có USDT để quét về.';
+
+  @override
+  String get apiErrorTreasuryUsdtChain => 'Quét USDT yêu cầu mạng Tron.';
+
+  @override
+  String get apiErrorTreasuryConfirmNoWallet =>
+      'Thiếu to_wallet_id cho thao tác xác nhận.';
+
+  @override
+  String get apiErrorTreasuryManualSettleTxEmpty =>
+      'Vui lòng nhập mã giao dịch.';
+
+  @override
+  String get apiErrorTreasuryOperationNotFound =>
+      'Không tìm thấy thao tác ngân quỹ.';
+
+  @override
+  String get apiErrorTreasuryOperationStateInvalid =>
+      'Thao tác ngân quỹ đang ở trạng thái không hợp lệ cho hành động này.';
+
+  @override
+  String get apiErrorTreasuryOperationNotQueued =>
+      'Thao tác không ở trạng thái chờ.';
+
+  @override
+  String get apiErrorTreasuryOperationNotProcessing =>
+      'Thao tác không đang xử lý.';
+
+  @override
+  String get apiErrorTreasuryOperationNotConfirming =>
+      'Thao tác không đang chờ xác nhận trên chuỗi.';
+
+  @override
+  String get apiErrorTreasuryOperationNotCompleted => 'Thao tác chưa hoàn tất.';
+
+  @override
+  String get apiErrorTreasuryOperationNotFailed => 'Thao tác chưa thất bại.';
+
+  @override
+  String get apiErrorTreasuryTxHashNotFound =>
+      'Không tìm thấy giao dịch trong hệ thống.';
+
+  @override
+  String get apiErrorTreasuryInsufficientFunds =>
+      'Số dư trên chuỗi không đủ cho thao tác này.';
+
+  @override
+  String get apiErrorTreasuryBalanceReconcileFailed =>
+      'Không thể đối chiếu số dư ngân quỹ.';
+
+  @override
+  String get apiErrorTreasuryOperationTypeUnsupported =>
+      'Loại thao tác ngân quỹ không được hỗ trợ.';
+
+  @override
+  String get apiErrorTreasuryRpcUnavailable =>
+      'RPC blockchain không khả dụng. Vui lòng thử lại sau.';
+
+  @override
+  String get apiErrorTreasuryRpcTimeout =>
+      'RPC blockchain quá thời gian. Vui lòng thử lại sau.';
+
+  @override
+  String get apiErrorTreasuryGasEstimateFailed =>
+      'Không thể ước lượng gas cho giao dịch.';
+
+  @override
+  String get apiErrorTreasuryNonceConflict =>
+      'Xung đột nonce. Có giao dịch khác đang chờ cho ví này.';
+
+  @override
+  String get apiErrorTreasuryTxReverted => 'Giao dịch trên chuỗi đã bị revert.';
+
+  @override
+  String get apiErrorTreasuryTxBroadcastFailed =>
+      'Không thể phát giao dịch lên mạng.';
+
+  @override
+  String get apiErrorTxWalletNotFound => 'Không tìm thấy ví giao dịch.';
+
+  @override
+  String get apiErrorTxWalletDefaultDepositDeleteForbidden =>
+      'Bỏ ví khỏi mặc định nạp tiền cho người dùng trước khi xóa.';
+
+  @override
+  String get apiErrorDefaultUserDepositDeactivateForbidden =>
+      'Không thể vô hiệu hóa ví nạp tiền mặc định hiện tại.';
+
+  @override
+  String get apiErrorTreasuryMainWalletNotFound =>
+      'Không tìm thấy ví chính ngân quỹ.';
+
+  @override
+  String get apiErrorTreasuryMainWalletConflict =>
+      'Đã có ví chính ngân quỹ với cấu hình này.';
+
+  @override
+  String get apiErrorOrderNotFound => 'Không tìm thấy lệnh.';
+
+  @override
+  String get apiErrorOrderNotOpen => 'Lệnh không còn ở trạng thái mở.';
+
+  @override
+  String get apiErrorInvalidPrice => 'Giá không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidInput => 'Dữ liệu lệnh không hợp lệ.';
+
+  @override
+  String get apiErrorInvalidMarketBuyReserve =>
+      'Khoản dự trữ cho lệnh mua thị trường không hợp lệ.';
+
+  @override
+  String get apiErrorNoLiquidity => 'Không đủ thanh khoản cho lệnh này.';
+
+  @override
+  String get apiErrorOrderCreateFailed => 'Không thể tạo lệnh.';
+
+  @override
+  String get apiErrorInvalidState => 'Lệnh đang ở trạng thái không hợp lệ.';
+
+  @override
+  String get apiErrorOverfillAttempt =>
+      'Lệnh sẽ bị khớp vượt quá số lượng cho phép.';
+
+  @override
+  String get apiErrorCancelFailed => 'Hủy lệnh thất bại.';
+
+  @override
+  String get apiErrorPairNotFound => 'Không tìm thấy cặp giao dịch.';
+
+  @override
+  String get apiErrorInvalidOrderType => 'Loại lệnh không hợp lệ.';
+
+  @override
+  String get apiErrorOrderBookServiceUnavailable =>
+      'Dịch vụ sổ lệnh không khả dụng.';
+
+  @override
+  String get apiErrorInvalidDepthLimit =>
+      'Giới hạn chiều sâu phải là 5, 10 hoặc 20.';
+
+  @override
+  String get apiErrorInvalidInterval => 'Khoảng thời gian không hợp lệ.';
+
+  @override
+  String get apiErrorMarketPairSymbolExists =>
+      'Cặp thị trường với ký hiệu này đã tồn tại.';
+
+  @override
+  String get apiErrorBaseQuoteSame =>
+      'Tiền tệ cơ sở và tiền tệ định giá phải khác nhau.';
+
+  @override
+  String get apiErrorBaseQuoteRequired =>
+      'Vui lòng chọn tiền tệ cơ sở và tiền tệ định giá.';
+
+  @override
+  String get apiErrorCurrencyNotFound => 'Không tìm thấy tiền tệ.';
+
+  @override
+  String get apiErrorCurrencySymbolExists =>
+      'Tiền tệ với ký hiệu này đã tồn tại.';
+
+  @override
+  String get apiErrorCurrencyDisabled => 'Tiền tệ đang bị tắt.';
+
+  @override
+  String get apiErrorMarketMakerConfigNotFound =>
+      'Không tìm thấy cấu hình market maker.';
+
+  @override
+  String get apiErrorMarketMakerConfigConflict =>
+      'Đã có cấu hình market maker cho người dùng và cặp này.';
+
+  @override
+  String get apiErrorMarketMakerInvalidSpread =>
+      'Spread market maker không hợp lệ.';
+
+  @override
+  String get apiErrorMarketMakerInvalidAmount =>
+      'Khối lượng lệnh market maker không hợp lệ.';
+
+  @override
+  String get apiErrorMarketMakerNoActivePairs =>
+      'Chưa cấu hình cặp giao dịch nào đang hoạt động cho market making.';
+
+  @override
+  String get apiErrorMarketMakerPlaceFailed =>
+      'Market maker không thể đặt lệnh.';
+
+  @override
+  String get apiErrorConfigKeyNotFound => 'Không tìm thấy khóa cấu hình.';
+
+  @override
+  String get apiErrorConfigKeyDisallowed =>
+      'Khóa cấu hình này không được phép.';
+
+  @override
+  String get apiErrorConfigKeyReadOnly => 'Khóa cấu hình này chỉ đọc.';
+
+  @override
+  String get apiErrorConfigValueInvalid =>
+      'Giá trị không hợp lệ cho khóa cấu hình.';
+
+  @override
+  String get apiErrorAdminRequired => 'Yêu cầu quyền quản trị viên.';
+
+  @override
+  String get apiErrorRiskOfficerRequired => 'Yêu cầu quyền cán bộ rủi ro.';
+
+  @override
+  String get apiErrorFinanceManagerRequired =>
+      'Yêu cầu quyền quản lý tài chính.';
+
+  @override
+  String get apiErrorDepositNotFound => 'Không tìm thấy giao dịch nạp.';
+
+  @override
+  String get apiErrorDepositAlreadyPaid =>
+      'Giao dịch nạp đã được thanh toán hoặc không tồn tại.';
+
+  @override
+  String get apiErrorDepositAmountInvalid => 'Số lượng nạp không hợp lệ.';
+
+  @override
+  String get apiErrorDepositChainUnsupported => 'Mạng nạp không được hỗ trợ.';
+
+  @override
+  String get apiErrorDepositPollFailed =>
+      'Không thể kiểm tra trạng thái nạp. Vui lòng thử lại sau.';
+
+  @override
+  String get apiErrorTxFailed => 'Giao dịch on-chain đã thất bại.';
+
+  @override
+  String get apiErrorEncryptionFailed => 'Mã hóa thất bại.';
+
+  @override
+  String get apiErrorDecryptionFailed => 'Giải mã thất bại.';
+
+  @override
+  String get apiErrorEncryptedPayloadMalformed => 'Dữ liệu mã hóa bị lỗi.';
+
+  @override
+  String get apiErrorDecryptedPayloadInvalid =>
+      'Dữ liệu sau giải mã không hợp lệ.';
+
+  @override
+  String get apiErrorExternalProviderUnavailable =>
+      'Nhà cung cấp bên ngoài không khả dụng.';
+
+  @override
+  String get apiErrorExternalProviderRateLimited =>
+      'Đã đạt giới hạn tốc độ của nhà cung cấp. Vui lòng thử lại sau.';
+
+  @override
+  String get apiErrorNotificationDeliveryFailed => 'Gửi thông báo thất bại.';
+
+  @override
+  String get apiErrorFcmNotConfigured => 'Thông báo đẩy chưa được cấu hình.';
+
+  @override
+  String get apiErrorTronSendFailed => 'Không thể gửi giao dịch Tron.';
+
+  @override
+  String get adminTransactionSectionOrderInfo => 'Thông tin lệnh';
+
+  @override
+  String get adminTransactionSectionPriceAndAmount => 'Giá & Khối lượng';
+
+  @override
+  String get adminTransactionSectionTime => 'Thời gian';
+
+  @override
+  String get adminTransactionSectionReference => 'Tham chiếu';
+
+  @override
+  String get adminTransactionLabelClientOrderId => 'Client Order ID';
+
+  @override
+  String get adminTransactionSectionUser => 'Người dùng';
+
+  @override
+  String get adminTransactionSectionDepositInfo => 'Thông tin nạp tiền';
+
+  @override
+  String get adminTransactionLabelDepositId => 'Deposit ID';
+
+  @override
+  String get adminTransactionSectionWithdrawalInfo => 'Thông tin giao dịch';
+
+  @override
+  String get adminTransactionLabelWithdrawalId => 'Withdrawal ID';
+
+  @override
+  String get adminTransactionSectionOnChain => 'On-Chain';
+
+  @override
+  String adminTransactionLoadUserFailed(String error) {
+    return 'Không thể tải thông tin user: $error';
+  }
+
+  @override
+  String get adminUserDetailDepositAction => 'Nạp tiền';
+
+  @override
+  String get adminUserDetailWithdrawAction => 'Rút tiền';
+
+  @override
+  String get adminUserDetailAdjustDepositTitle => 'Nạp coin cho người dùng';
+
+  @override
+  String get adminUserDetailAdjustWithdrawTitle => 'Rút coin từ người dùng';
+
+  @override
+  String get adminUserDetailAdjustDepositSegment => 'Nạp coin';
+
+  @override
+  String get adminUserDetailAdjustWithdrawSegment => 'Rút coin';
+
+  @override
+  String get adminUserDetailAdjustAmountLabel => 'Số lượng';
+
+  @override
+  String get adminUserDetailAdjustAmountHint => '0.00';
+
+  @override
+  String get adminUserDetailAdjustAmountRequired => 'Vui lòng nhập số lượng';
+
+  @override
+  String get adminUserDetailAdjustAmountInvalid => 'Số lượng không hợp lệ';
+
+  @override
+  String get adminUserDetailAdjustAmountPositive => 'Số lượng phải lớn hơn 0';
+
+  @override
+  String get adminUserDetailAdjustNoteLabel => 'Ghi chú (tuỳ chọn)';
+
+  @override
+  String get adminUserDetailAdjustNoteHint => 'Lý do điều chỉnh...';
+
+  @override
+  String get adminUserDetailAdjustProcessing => 'Đang xử lý...';
+
+  @override
+  String get adminUserDetailPickCoinType => 'Chọn loại coin';
+
+  @override
+  String adminUserDetailBalanceAvailableLabel(String amount, String symbol) {
+    return 'Số dư khả dụng: $amount $symbol';
+  }
+
+  @override
+  String get adminUserDetailNoWalletWillCreate =>
+      'Người dùng chưa có ví — sẽ tự động tạo';
+
+  @override
+  String adminUserDetailNoWalletForSymbol(String symbol) {
+    return 'Người dùng chưa có ví $symbol';
+  }
+
+  @override
+  String get adminUserDetailSectionExistingWallets => 'VÍ HIỆN CÓ';
+
+  @override
+  String get adminUserDetailSectionNewWallets => 'TẠO VÍ MỚI';
+
+  @override
+  String get adminUserDetailNoWalletBadge => 'Chưa có ví';
+
+  @override
+  String get adminUserDetailPermissionDeniedWallets =>
+      'Bạn không có quyền xem số dư ví người dùng';
+
+  @override
+  String get adminUserDetailPermissionDeniedAdjustments =>
+      'Bạn không có quyền xem lịch sử điều chỉnh';
+
+  @override
+  String get adminUserDetailPermissionDeniedSecurity =>
+      'Bạn không có quyền xem lịch sử thay đổi thông tin';
+
+  @override
+  String get adminUserDetailEmptyWallets => 'Người dùng chưa có ví nào';
+
+  @override
+  String get adminUserDetailEmptyAdjustments =>
+      'Chưa có lịch sử điều chỉnh nào';
+
+  @override
+  String get adminUserDetailEmptyOrders => 'Người dùng chưa có lệnh nào';
+
+  @override
+  String get adminUserDetailEmptyOnchainTxs => 'Không có giao dịch onchain nào';
+
+  @override
+  String get adminUserDetailEmptySecurityChanges =>
+      'Không có lịch sử thay đổi nào';
+
+  @override
+  String adminUserDetailAdjustmentByActor(String actor) {
+    return 'Bởi: $actor';
+  }
+
+  @override
+  String adminUserDetailAdjustmentNoteValue(String note) {
+    return 'Ghi chú: $note';
+  }
+
+  @override
+  String adminUserDetailOrderQuantityAndPrice(
+      String amount, String price, String type) {
+    String _temp0 = intl.Intl.selectLogic(
+      price,
+      {
+        'undefined': '',
+        'other': ' · Giá: $price',
+      },
+    );
+    return 'SL: $amount$_temp0 · $type';
+  }
+
+  @override
+  String adminUserDetailOrderTxHashTruncated(String hash) {
+    return 'TX: $hash';
+  }
+
+  @override
+  String get adminUserDetailOrderStatusFilled => 'Khớp xong';
+
+  @override
+  String get adminUserDetailOrderStatusPartial => 'Khớp một phần';
+
+  @override
+  String get adminUserDetailOrderStatusOpen => 'Đang mở';
+
+  @override
+  String get adminUserDetailOrderStatusCancelled => 'Huỷ';
+
+  @override
+  String get adminUserDetailOrderStatusRejected => 'Từ chối';
+
+  @override
+  String get adminUserDetailOnchainStatusCompleted => 'Hoàn thành';
+
+  @override
+  String get adminUserDetailOnchainStatusConfirming => 'Đang xác nhận';
+
+  @override
+  String get adminUserDetailOnchainStatusPending => 'Đang chờ';
+
+  @override
+  String get adminUserDetailOnchainStatusFailed => 'Thất bại';
+
+  @override
+  String get adminUserDetailSecurityStatusApproved => 'Đã duyệt';
+
+  @override
+  String get adminUserDetailSecurityStatusRejected => 'Từ chối';
+
+  @override
+  String get adminUserDetailSecurityStatusPending => 'Chờ duyệt';
+
+  @override
+  String get adminUserDetailRetryAction => 'Thử lại';
+
+  @override
+  String get adminUserDetailDialogCancel => 'Hủy';
+
+  @override
+  String adminUserDetailWalletBalanceLine(String available, String frozen) {
+    return 'Khả dụng: $available  |  Đóng băng: $frozen';
+  }
+
+  @override
+  String adminUserDetailDepositWithdrawTooltip(String symbol) {
+    return 'Nạp/Rút $symbol';
+  }
+
+  @override
+  String get paymentConfigFieldClientId => 'Client ID';
+
+  @override
+  String get paymentConfigFieldApiKey => 'API Key';
+
+  @override
+  String get paymentConfigFieldChecksumKey => 'Checksum Key';
+
+  @override
+  String get paymentConfigFieldReturnUrl => 'Return URL';
+
+  @override
+  String get paymentConfigFieldCancelUrl => 'Cancel URL';
+
+  @override
+  String get paymentConfigFieldFiatSymbol => 'Fiat Symbol';
+
+  @override
+  String get paymentConfigFieldQuoteSymbol => 'Quote Symbol';
+
+  @override
+  String get paymentConfigFieldFxSpreadBps => 'FX Spread (bps)';
+
+  @override
+  String get paymentConfigFieldMinDepositFiat => 'Min deposit (fiat, integer)';
+
+  @override
+  String get paymentConfigFieldMaxDepositFiat => 'Max deposit (fiat, optional)';
+
+  @override
+  String get paymentConfigFieldRpcUrl => 'RPC URL';
+
+  @override
+  String get paymentConfigFieldHotWalletKey => 'Hot Wallet Private Key';
+
+  @override
+  String get paymentConfigFieldNativeSymbol => 'Native Symbol';
+
+  @override
+  String get paymentConfigFieldWithdrawAutoMax => 'Withdraw Auto Max';
+
+  @override
+  String get paymentConfigFieldFxFallbackRate =>
+      'FX Fallback Rate (1 Native → X USDT)';
+
+  @override
+  String get paymentConfigFieldMainnet => 'Mainnet';
+
+  @override
+  String marketMakerValidationMustBeAtLeast(String minValue) {
+    return 'Phải ≥ $minValue';
+  }
+
+  @override
+  String get binanceSpotTradingTitle => 'Spot Trading';
+
+  @override
+  String get binanceSpotTradingBinanceLabel => 'Binance';
+
+  @override
+  String get binanceSpotTradingBalancesTitle => 'Balances';
+
+  @override
+  String get binanceSpotTradingNoAssetsWithBalance =>
+      'Không có tài sản nào có số dư';
+
+  @override
+  String binanceSpotTradingBalanceFree(String amount) {
+    return '$amount khả dụng';
+  }
+
+  @override
+  String get binanceSpotTradingSideBuy => 'MUA';
+
+  @override
+  String get binanceSpotTradingSideSell => 'BÁN';
+
+  @override
+  String get binanceSpotTradingTypeLimit => 'LIMIT';
+
+  @override
+  String get binanceSpotTradingTypeMarket => 'MARKET';
+
+  @override
+  String binanceSpotTradingPriceLabel(String asset) {
+    return 'Giá ($asset)';
+  }
+
+  @override
+  String binanceSpotTradingAmountLabel(String asset) {
+    return 'Số lượng ($asset)';
+  }
+
+  @override
+  String get binanceSpotTradingTotalLabel => 'Tổng';
+
+  @override
+  String binanceSpotTradingTotalAmount(String amount) {
+    return '$amount USDT';
+  }
+
+  @override
+  String binanceSpotTradingSubmitButton(String side, String asset) {
+    return '$side $asset';
+  }
+
+  @override
+  String get binanceSpotTradingInvalidAmount => 'Vui lòng nhập số lượng hợp lệ';
+
+  @override
+  String get binanceSpotTradingInvalidPrice => 'Vui lòng nhập giá hợp lệ';
+
+  @override
+  String get binanceSpotTradingOrderFailed => 'Đặt lệnh thất bại';
+
+  @override
+  String get binanceSpotTradingOrderPlaced => 'Đặt lệnh thành công';
+
+  @override
+  String get binanceSpotTradingOrderCancelled => 'Đã huỷ lệnh';
+
+  @override
+  String get binanceSpotTradingOpenOrdersTab => 'Lệnh đang mở';
+
+  @override
+  String get binanceSpotTradingHistoryTab => 'Lịch sử';
+
+  @override
+  String get binanceSpotTradingNoOpenOrders => 'Không có lệnh đang mở';
+
+  @override
+  String get binanceSpotTradingLoadHistory => 'Tải lịch sử';
+
+  @override
+  String get binanceSpotTradingCancelOrder => 'Huỷ';
+
+  @override
+  String get binanceApiKeyListTitle => 'Khoá API Binance của tôi';
+
+  @override
+  String get binanceApiKeyListEmptyTitle => 'Chưa có khoá API Binance nào';
+
+  @override
+  String get binanceApiKeyListEmptyDescription =>
+      'Kết nối tài khoản Binance của bạn để bắt đầu giao dịch';
+
+  @override
+  String get binanceApiKeyListAddAction => 'Thêm khoá API';
+
+  @override
+  String get binanceApiKeyListTestConnection => 'Kiểm tra kết nối';
+
+  @override
+  String get binanceApiKeyListTrade => 'Giao dịch';
+
+  @override
+  String get binanceApiKeyListDelete => 'Xoá';
+
+  @override
+  String get binanceApiKeyListDeleteConfirmTitle => 'Xoá khoá API?';
+
+  @override
+  String binanceApiKeyListDeleteConfirmContent(String label) {
+    return 'Bạn có chắc muốn xoá \"$label\"? Hành động này không thể hoàn tác.';
+  }
+
+  @override
+  String get binanceApiKeyListAccountFallbackLabel => 'Tài khoản Binance';
+
+  @override
+  String get binanceApiKeyListTestnetBadge => 'TESTNET';
+
+  @override
+  String get binanceApiKeyListMainnetBadge => 'MAINNET';
+
+  @override
+  String binanceApiKeyListLastUsedAt(String date) {
+    return 'Lần dùng cuối: $date';
+  }
+
+  @override
+  String get binanceApiKeyListNeverUsed => 'Chưa từng dùng';
+
+  @override
+  String binanceApiKeyListConnectionOk(String info) {
+    return 'Kết nối OK — Tài khoản: $info';
+  }
+
+  @override
+  String binanceApiKeyListConnectionFailed(String error) {
+    return 'Kết nối thất bại: $error';
+  }
+
+  @override
+  String get binanceApiKeyListJustNow => 'Vừa xong';
+
+  @override
+  String binanceApiKeyListMinutesAgo(int minutes) {
+    return '$minutes phút trước';
+  }
+
+  @override
+  String binanceApiKeyListHoursAgo(int hours) {
+    return '$hours giờ trước';
+  }
+
+  @override
+  String binanceApiKeyListDaysAgo(int days) {
+    return '$days ngày trước';
+  }
+
+  @override
+  String get binanceApiKeySetupTitle => 'Kết nối API Binance';
+
+  @override
+  String get binanceApiKeySetupDefaultLabel => 'Tài khoản Spot chính';
+
+  @override
+  String get binanceApiKeySetupLabelField => 'Nhãn';
+
+  @override
+  String get binanceApiKeySetupLabelHint => 'vd. Tài khoản Spot chính';
+
+  @override
+  String get binanceApiKeySetupLabelRequired => 'Vui lòng nhập nhãn';
+
+  @override
+  String get binanceApiKeySetupApiKeyField => 'API Key';
+
+  @override
+  String get binanceApiKeySetupApiKeyHint => 'Nhập API Key Binance của bạn';
+
+  @override
+  String get binanceApiKeySetupApiSecretField => 'API Secret';
+
+  @override
+  String get binanceApiKeySetupApiSecretHint =>
+      'Nhập API Secret Binance của bạn';
+
+  @override
+  String get binanceApiKeySetupPermissionsSection => 'Quyền';
+
+  @override
+  String get binanceApiKeySetupSpotTradingTitle => 'Giao dịch Spot';
+
+  @override
+  String get binanceApiKeySetupSpotTradingSubtitle =>
+      'Bật giao dịch spot thị trường';
+
+  @override
+  String get binanceApiKeySetupFuturesTradingTitle => 'Giao dịch Futures';
+
+  @override
+  String get binanceApiKeySetupFuturesTradingSubtitle =>
+      'Bật giao dịch futures USD-M';
+
+  @override
+  String get binanceApiKeySetupUseTestnetTitle => 'Dùng Testnet';
+
+  @override
+  String get binanceApiKeySetupUseTestnetSubtitle =>
+      'Kết nối tới Binance testnet thay vì mainnet';
+
+  @override
+  String get binanceApiKeySetupGuideTitle => 'Hướng dẫn tạo khoá API';
+
+  @override
+  String get binanceApiKeySetupGuideIntro => 'Khi tạo khoá API trên Binance:';
+
+  @override
+  String get binanceApiKeySetupGuideTip1 => 'Tắt tất cả các quyền Withdrawal';
+
+  @override
+  String get binanceApiKeySetupGuideTip2 => 'Bật: Spot/Futures Trading';
+
+  @override
+  String get binanceApiKeySetupGuideTip3 => 'Bật: Read-only market data';
+
+  @override
+  String get binanceApiKeySetupGuideLink => 'Xem hướng dẫn API Binance';
+
+  @override
+  String get binanceApiKeySetupTestConnection => 'Kiểm tra kết nối';
+
+  @override
+  String get binanceApiKeySetupSaveAction => 'Lưu khoá API';
+
+  @override
+  String get binanceApiKeySetupConnectionPassedSaved =>
+      'Kiểm tra kết nối thành công! Đã lưu thông tin.';
+
+  @override
+  String get binanceApiKeySetupSavedSuccess => 'Đã lưu khoá API thành công';
+
+  @override
+  String binanceApiKeySetupSavedFailed(String error) {
+    return 'Thất bại: $error';
+  }
+
+  @override
+  String get binanceApiKeySetupConnectionSuccessful => 'Kết nối thành công!';
+
+  @override
+  String binanceApiKeySetupConnectionFailed(String error) {
+    return 'Kết nối thất bại: $error';
+  }
+
+  @override
+  String get walletAuthOpenTronLinkHint =>
+      'Mở TronLink trên điện thoại, sau đó quay lại ứng dụng.';
+
+  @override
+  String get walletAuthTronLinkUnavailable =>
+      'Không mở được TronLink. Cài app hoặc dùng Chrome (extension).';
+
+  @override
+  String walletAuthMetaMaskOrTronLinkUnavailable(String name) {
+    return '$name không phát hiện được. Cài extension Chrome và mở app trên trình duyệt.';
+  }
+
+  @override
+  String walletAuthNonceFetchFailed(String error) {
+    return 'Không thể lấy nonce: $error';
+  }
+
+  @override
+  String walletAuthWrongMetaMaskAddress(String address) {
+    return 'Sai địa chỉ MetaMask. Đang kết nối: $address';
+  }
+
+  @override
+  String walletAuthWrongTronLinkAddress(String address) {
+    return 'Sai địa chỉ TronLink. Đang kết nối: $address';
+  }
+
+  @override
+  String walletAuthVerificationFailed(String message) {
+    return 'Xác thực thất bại: $message';
+  }
 }
