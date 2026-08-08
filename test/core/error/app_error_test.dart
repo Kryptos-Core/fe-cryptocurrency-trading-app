@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto_trading_app/core/error/app_error.dart';
 
 class _SampleError extends AppError {
-  const _SampleError() : super(code: 'TEST/SAMPLE', userMessageKey: 'error.test');
+  const _SampleError({super.metadata})
+    : super(code: 'TEST/SAMPLE', userMessageKey: 'error.test');
 }
 
 void main() {

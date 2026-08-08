@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto_trading_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 
@@ -47,9 +45,10 @@ void main() {
           )).thenAnswer((_) async => http.Response(
             jsonEncode({
               'success': true,
-              'data': [
-                {'key': 'EMAIL_VERIFICATION_REQUIRED', 'value': 'false'}
-              ]
+              'data': {
+                'emailVerificationRequired': false,
+                'treasuryWalletTotpRequired': true,
+              },
             }),
             200,
           ));
@@ -67,9 +66,10 @@ void main() {
           )).thenAnswer((_) async => http.Response(
             jsonEncode({
               'success': true,
-              'data': [
-                {'key': 'EMAIL_VERIFICATION_REQUIRED', 'value': 'true'}
-              ]
+              'data': {
+                'emailVerificationRequired': true,
+                'treasuryWalletTotpRequired': true,
+              },
             }),
             200,
           ));
@@ -77,6 +77,29 @@ void main() {
       await provider.refreshEmailVerificationRequired();
 
       expect(provider.emailVerificationRequired, true);
+    });
+
+    test('refreshEmailVerificationRequired also loads treasuryWalletTotpRequired', () async {
+      when(() => mockTokenService.getAccessToken()).thenReturn(fakeAdminToken);
+      when(() => mockHttpClient.get(
+            any(),
+            headers: any(named: 'headers'),
+          )).thenAnswer((_) async => http.Response(
+            jsonEncode({
+              'success': true,
+              'data': {
+                'emailVerificationRequired': false,
+                'treasuryWalletTotpRequired': false,
+              },
+            }),
+            200,
+          ));
+
+      await provider.refreshEmailVerificationRequired();
+
+      expect(provider.emailVerificationRequired, false);
+      expect(provider.treasuryWalletTotpRequired, false);
+      expect(provider.canBypassAllSensitiveOps, true);
     });
 
     test('refreshEmailVerificationRequired does nothing when token is null', () async {

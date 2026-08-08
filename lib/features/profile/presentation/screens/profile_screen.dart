@@ -385,12 +385,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final effective = _mergeProfileWithAuth(
         _currentUser!, context.read<AuthProvider>().currentUser);
     final walletPlaceholder = isWalletPlaceholderEmail(effective.email);
+    final emailVerificationRequired =
+        context.read<AuthProvider>().emailVerificationRequired;
 
     final token = sl<TokenService>().getAccessToken();
     if (token == null) return;
     final authRepo = sl<AuthRepository>();
+    String? otp;
 
-    if (!walletPlaceholder) {
+if (!walletPlaceholder) {
       if (!effective.twoFaEnabled) {
         if (mounted) {
           showAppSnackBar(
@@ -402,28 +405,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
-      final otpSent = await authRepo.send2faOtp(token);
-      final canContinue = otpSent.fold((f) {
+      // Bỏ qua OTP khi admin đã tắt email verification.
+      if (emailVerificationRequired) {
+        final otpSent = await authRepo.send2faOtp(token);
+        final canContinue = otpSent.fold((f) {
+          if (mounted) {
+            showAppSnackBar(context,
+                message: f.message, type: SnackBarType.error);
+          }
+          return false;
+        }, (_) => true);
+        if (!canContinue) return;
+
         if (mounted) {
-          showAppSnackBar(context,
-              message: f.message, type: SnackBarType.error);
+          showAppSnackBar(
+            context,
+            message: l10n.otpSentToEmail,
+            type: SnackBarType.success,
+          );
         }
-        return false;
-      }, (_) => true);
-      if (!canContinue) return;
+        if (!mounted) return;
 
-      if (mounted) {
-        showAppSnackBar(
-          context,
-          message: l10n.otpSentToEmail,
-          type: SnackBarType.success,
-        );
+        otp = await OtpVerificationDialog.show(context,
+            repo: authRepo, token: token);
+        if (otp == null || otp.length != 6) return;
       }
-      if (!mounted) return;
-
-      final otp = await OtpVerificationDialog.show(context,
-          repo: authRepo, token: token);
-      if (otp == null || otp.length != 6) return;
 
       final newEmail = await _showChangeEmailDialog(
         label: l10n.profileChangeEmail,
@@ -435,7 +441,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         token: token,
         changeType: 'EMAIL_CHANGE',
         payload: {'email': newEmail},
-        otpCode: otp,
+        // When admin disabled email verification, the backend auto-approves
+        // the request — no OTP code is required.
+        otpCode: emailVerificationRequired ? otp : null,
       );
       result.fold(
         (f) {

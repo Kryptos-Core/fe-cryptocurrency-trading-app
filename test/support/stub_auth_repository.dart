@@ -98,6 +98,13 @@ class StubAuthRepository implements AuthRepository {
       const Left(_f);
 
   @override
+  Future<Either<Failure, User>> updateContactEmailWithoutOtp({
+    required String token,
+    required String email,
+  }) async =>
+      const Left(_f);
+
+  @override
   Future<Either<Failure, User>> uploadAvatar({
     required String token,
     required List<int> fileBytes,
@@ -158,7 +165,7 @@ class StubAuthRepository implements AuthRepository {
   Future<Either<Failure, bool>> changePassword({
     required String token,
     required String newPassword,
-    required String otpCode,
+    String? otpCode,
   }) async =>
       const Left(_f);
 

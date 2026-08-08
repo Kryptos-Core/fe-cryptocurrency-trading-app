@@ -2223,7 +2223,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get runtimeSettingEmailVerificationRequiredDesc =>
-      'When true, sensitive actions (wallet add/remove, password change, email change, contact-email OTP) require OTP email. When false, all email-OTP flows are bypassed. Only disable in trusted/internal environments.';
+      'When ON: every operation below requires a one-time code sent by email — Change password, Change contact email, Request security change. When OFF: all of the above OTP steps are skipped. Does NOT affect TOTP authenticator codes or import/reveal of treasury main wallets — see the toggle below. Only disable in trusted/internal (sandbox) environments.';
+
+  @override
+  String get runtimeSettingTreasuryWalletTotpRequiredName =>
+      'TOTP required for treasury main wallet import / reveal';
+
+  @override
+  String get runtimeSettingTreasuryWalletTotpRequiredDesc =>
+      'When ON (default): importing a treasury main wallet and revealing its private key both require a TOTP code from an authenticator app (Google Authenticator, Authy…). When OFF: TOTP is bypassed. On production on-chain mode (ONCHAIN_OPERATOR_MODE=production), TOTP is ALWAYS required regardless of this flag — it cannot be disabled to protect real wallets. Only disable in sandbox.';
 
   @override
   String get paymentConfigRuntimeSectionOpsDesc =>

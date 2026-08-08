@@ -33,8 +33,13 @@ class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated = false;
 
   /// Email verification required — defaults to true (secure by default).
-  /// Loaded from BE when the user is ADMIN via [refreshEmailVerificationRequired].
+  /// Loaded from BE when the user is ADMIN via [refreshAuthSecurityFlags].
   bool _emailVerificationRequired = true;
+
+  /// Treasury main-wallet TOTP required — defaults to true (secure by default).
+  /// Even when set to false, the backend hard-enforces TOTP on production on-chain mode.
+  /// Loaded from BE alongside [refreshAuthSecurityFlags].
+  bool _treasuryWalletTotpRequired = true;
   final http.Client _httpClient;
 
   /// True for one broadcast cycle when a 403 is received from the server.
@@ -140,14 +145,24 @@ class AuthProvider extends ChangeNotifier {
   /// False means admin has disabled it and all OTP flows are bypassed.
   bool get emailVerificationRequired => _emailVerificationRequired;
 
-  /// Fetch the current EMAIL_VERIFICATION_REQUIRED value from BE.
+  /// Whether TOTP gating is currently required for treasury main-wallet
+  /// operations (import / reveal private key). False means admin has disabled
+  /// it (sandbox only — backend still enforces on production on-chain mode).
+  bool get treasuryWalletTotpRequired => _treasuryWalletTotpRequired;
+
+  /// True when BOTH email-OTP and treasury-TOTP gating are off — i.e. the
+  /// user can perform every sensitive operation without a one-time code.
+  bool get canBypassAllSensitiveOps =>
+      !_emailVerificationRequired && !_treasuryWalletTotpRequired;
+
+  /// Fetch the latest auth/security runtime flags from BE in one round-trip.
   /// Safe to call on every screen for any authenticated user.
-  Future<void> refreshEmailVerificationRequired() async {
+  Future<void> refreshAuthSecurityFlags() async {
     try {
       final token = _tokenService.getAccessToken();
       if (token == null) return;
       final resp = await _httpClient.get(
-        Uri.parse('${ApiConstants.baseUrl}/auth/email-verification-required'),
+        Uri.parse('${ApiConstants.baseUrl}/auth/auth-security-flags'),
         headers: {'Authorization': 'Bearer $token'},
       );
       if (resp.statusCode == 200) {
@@ -155,15 +170,34 @@ class AuthProvider extends ChangeNotifier {
         final data = (decoded is Map && decoded['success'] == true)
             ? decoded['data']
             : decoded;
-        if (data is Map && data.containsKey('emailVerificationRequired')) {
-          _emailVerificationRequired = data['emailVerificationRequired'] == true;
-          notifyListeners();
+        if (data is Map) {
+          var changed = false;
+          if (data.containsKey('emailVerificationRequired')) {
+            final newEmailFlag = data['emailVerificationRequired'] == true;
+            if (newEmailFlag != _emailVerificationRequired) {
+              _emailVerificationRequired = newEmailFlag;
+              changed = true;
+            }
+          }
+          if (data.containsKey('treasuryWalletTotpRequired')) {
+            final newTotpFlag = data['treasuryWalletTotpRequired'] == true;
+            if (newTotpFlag != _treasuryWalletTotpRequired) {
+              _treasuryWalletTotpRequired = newTotpFlag;
+              changed = true;
+            }
+          }
+          if (changed) notifyListeners();
         }
       }
     } catch (_) {
       // Non-critical: keep the in-memory value
     }
   }
+
+  /// Back-compat wrapper for callers still using the older name.
+  /// Equivalent to [refreshAuthSecurityFlags].
+  Future<void> refreshEmailVerificationRequired() =>
+      refreshAuthSecurityFlags();
 
   bool hasPermission(String permission) => _permissions.contains(permission);
 

@@ -24,34 +24,43 @@ class ApiClient {
 
   ApiClient({required Dio dio, required TokenStorage tokenStorage})
     : _dio = dio,
-      _tokenStorage = tokenStorage;
+      _tokenStorage = tokenStorage {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await _tokenStorage.readAccessToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+      ),
+    );
+  }
 
-  Future<Result<T>> get<T>(String path, {Parser<T> parser, Map<String, dynamic>? query}) {
+  Future<Result<T>> get<T>(String path, {required Parser<T> parser, Map<String, dynamic>? query}) {
     return _request<T>(() => _dio.get<dynamic>(path, queryParameters: query), parser);
   }
 
-  Future<Result<T>> post<T>(String path, {Object? data, Parser<T> parser}) {
+  Future<Result<T>> post<T>(String path, {Object? data, required Parser<T> parser}) {
     return _request<T>(
       () => _dio.post<dynamic>(path, data: data),
       parser,
     );
   }
 
-  Future<Result<T>> put<T>(String path, {Object? data, Parser<T> parser}) {
+  Future<Result<T>> put<T>(String path, {Object? data, required Parser<T> parser}) {
     return _request<T>(() => _dio.put<dynamic>(path, data: data), parser);
   }
 
-  Future<Result<T>> delete<T>(String path, {Parser<T> parser, Object? data}) {
+  Future<Result<T>> delete<T>(String path, {required Parser<T> parser, Object? data}) {
     return _request<T>(() => _dio.delete<dynamic>(path, data: data), parser);
   }
 
-  Future<Result<T>> _request<T>(Future<Response<dynamic>> Function() send, Parser<T>? parser) async {
+  Future<Result<T>> _request<T>(Future<Response<dynamic>> Function() send, Parser<T> parser) async {
     try {
       final response = await send();
       final raw = response.data;
-      if (parser == null) {
-        return Success<T>(raw as T);
-      }
       return Success<T>(parser(raw));
     } on DioException catch (e) {
       return Failure<T>(_mapDioError(e));
@@ -123,7 +132,13 @@ class ApiClient {
         if (status != null && status >= 500) {
           return ServerError(statusCode: status, cause: e);
         }
-        return UnknownError(metadata: {'code': code, 'status': status}, cause: e);
+        return UnknownError(
+          metadata: <String, Object>{
+            'code': code,
+            if (status != null) 'status': status,
+          },
+          cause: e,
+        );
     }
   }
 }

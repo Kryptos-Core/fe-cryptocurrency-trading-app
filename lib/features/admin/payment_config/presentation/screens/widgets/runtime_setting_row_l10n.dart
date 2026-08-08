@@ -45,6 +45,8 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingBlockchainDepositSolToUsdtRateName;
       case 'EMAIL_VERIFICATION_REQUIRED':
         return l10n.runtimeSettingEmailVerificationRequiredName;
+      case 'TREASURY_WALLET_TOTP_REQUIRED':
+        return l10n.runtimeSettingTreasuryWalletTotpRequiredName;
       default:
         return r.name;
     }
@@ -90,6 +92,8 @@ class RuntimeSettingRowL10n {
         return l10n.runtimeSettingBlockchainDepositSolToUsdtRateDesc;
       case 'EMAIL_VERIFICATION_REQUIRED':
         return l10n.runtimeSettingEmailVerificationRequiredDesc;
+      case 'TREASURY_WALLET_TOTP_REQUIRED':
+        return l10n.runtimeSettingTreasuryWalletTotpRequiredDesc;
       default:
         return r.description;
     }

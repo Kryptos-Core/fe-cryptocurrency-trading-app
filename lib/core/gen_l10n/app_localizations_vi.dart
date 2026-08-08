@@ -2226,7 +2226,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get runtimeSettingEmailVerificationRequiredDesc =>
-      'Bật: các thao tác nhạy cảm (thêm/xóa ví, đổi mật khẩu, đổi email, OTP liên hệ) yêu cầu mã OTP qua email. Tắt: bỏ qua tất cả luồng OTP. Chỉ tắt trong môi trường đáng tin cậy/nội bộ.';
+      'Khi BẬT: các thao tác sau yêu cầu mã OTP gửi qua email — Đổi mật khẩu, Đổi email liên hệ, Gửi yêu cầu đổi thông tin bảo mật. Khi TẮT: tất cả các bước OTP qua email ở trên được bỏ qua. KHÔNG ảnh hưởng tới TOTP (authenticator app) và import/reveal ví chính — xem cờ bên dưới. Chỉ tắt trong môi trường sandbox/nội bộ đáng tin cậy.';
+
+  @override
+  String get runtimeSettingTreasuryWalletTotpRequiredName =>
+      'Yêu cầu TOTP khi import / reveal ví chính';
+
+  @override
+  String get runtimeSettingTreasuryWalletTotpRequiredDesc =>
+      'Khi BẬT (mặc định): import ví chính và reveal private key yêu cầu mã TOTP từ authenticator app (Google Authenticator, Authy…). Khi TẮT: bỏ qua bước TOTP. Trên môi trường production on-chain (ONCHAIN_OPERATOR_MODE=production), TOTP LUÔN bắt buộc bất kể cờ này — không thể tắt để bảo vệ ví thật. Chỉ tắt ở sandbox.';
 
   @override
   String get paymentConfigRuntimeSectionOpsDesc =>

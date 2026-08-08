@@ -26,6 +26,18 @@ class _CopyMainWalletPrivateKeyDialogState extends State<CopyMainWalletPrivateKe
   String? _mfaFieldError;
 
   @override
+  void initState() {
+    super.initState();
+    // Refresh auth/security flags so the dialog always reflects the latest
+    // admin toggle state (in case the admin flipped the flag after the user
+    // opened the screen).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().refreshAuthSecurityFlags();
+    });
+  }
+
+  @override
   void dispose() {
     _mfaCodeController.dispose();
     super.dispose();
@@ -59,8 +71,10 @@ class _CopyMainWalletPrivateKeyDialogState extends State<CopyMainWalletPrivateKe
 
   Future<void> _revealAndCopy() async {
     final l10n = AppLocalizations.of(context);
-    final code = _mfaCodeController.text.trim();
-    if (code.isEmpty) {
+    final auth = context.read<AuthProvider>();
+    final bypassOtp = auth.canBypassAllSensitiveOps;
+    final code = bypassOtp ? '' : _mfaCodeController.text.trim();
+    if (!bypassOtp && code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.treasuryImportWalletOtpEmpty)),
       );
@@ -144,39 +158,42 @@ class _CopyMainWalletPrivateKeyDialogState extends State<CopyMainWalletPrivateKe
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.treasuryImportWalletMfaCode,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _mfaCodeController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      errorText: _mfaFieldError,
+            // OTP bypass: when admin disabled both flags, skip the OTP step.
+            if (!auth.canBypassAllSensitiveOps) ...[
+              const SizedBox(height: 16),
+              Text(
+                l10n.treasuryImportWalletMfaCode,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _mfaCodeController,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        errorText: _mfaFieldError,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: otpBusy ? null : _sendMfaOtp,
-                  child: _isSendingOtp
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.treasuryImportWalletSendOtp),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: otpBusy ? null : _sendMfaOtp,
+                    child: _isSendingOtp
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(l10n.treasuryImportWalletSendOtp),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

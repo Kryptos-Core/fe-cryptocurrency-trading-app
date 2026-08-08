@@ -36,6 +36,13 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
   void initState() {
     super.initState();
     _mfaCodeController.addListener(_onOtpTextChanged);
+    // Refresh auth/security flags so the dialog always reflects the latest
+    // admin toggle state (in case the admin flipped the flag after the user
+    // opened the screen).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().refreshAuthSecurityFlags();
+    });
   }
 
   void _onOtpTextChanged() {
@@ -120,11 +127,15 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
 
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
-    if (!_otpVerified) return;
+    final auth = context.read<AuthProvider>();
+    // OTP bypass: when admin has disabled both email OTP and treasury TOTP,
+    // the user can submit without entering a one-time code.
+    final bypassOtp = auth.canBypassAllSensitiveOps;
+    if (!bypassOtp && !_otpVerified) return;
 
     final label = _labelController.text.trim();
     final pk = _privateKeyController.text.trim();
-    final mfa = _mfaCodeController.text.trim();
+    final mfa = bypassOtp ? '' : _mfaCodeController.text.trim();
 
     if (pk.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,7 +143,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
       );
       return;
     }
-    if (mfa.isEmpty) {
+    if (!bypassOtp && mfa.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.treasuryImportWalletOtpEmpty)),
       );
@@ -335,72 +346,76 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
                 ),
               ),
             ],
-            Text(
-              l10n.treasuryImportWalletOtpStepHint,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-                height: 1.45,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _mfaCodeController,
-              focusNode: _mfaFocus,
-              enabled: !_otpVerified,
-              keyboardType: TextInputType.number,
-              decoration: outlineDecoration(
-                label: l10n.treasuryImportWalletMfaCode,
-                error: _mfaFieldError,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: OutlinedButton.icon(
-                onPressed: otpBusy || _otpVerified ? null : _sendMfaOtp,
-                icon: _isSendingOtp
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: cs.primary,
-                        ),
-                      )
-                    : Icon(Icons.mark_email_read_outlined, size: 20, color: cs.primary),
-                label: Text(l10n.treasuryImportWalletSendOtp),
-              ),
-            ),
-            if (_otpVerified) ...[
-              const SizedBox(height: 16),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: cs.primaryContainer.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(_fieldRadius),
-                  border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+            // OTP bypass: when admin has disabled both email-OTP and treasury-TOTP gating,
+// skip the OTP step entirely. Only label + private key + Import button shown.
+            if (!auth.canBypassAllSensitiveOps) ...[
+              Text(
+                l10n.treasuryImportWalletOtpStepHint,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  height: 1.45,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.verified_outlined, color: cs.primary, size: 22),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          l10n.treasuryImportWalletOtpVerifiedBanner,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: cs.onPrimaryContainer,
-                            height: 1.4,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _mfaCodeController,
+                focusNode: _mfaFocus,
+                enabled: !_otpVerified,
+                keyboardType: TextInputType.number,
+                decoration: outlineDecoration(
+                  label: l10n.treasuryImportWalletMfaCode,
+                  error: _mfaFieldError,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  onPressed: otpBusy || _otpVerified ? null : _sendMfaOtp,
+                  icon: _isSendingOtp
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: cs.primary,
+                          ),
+                        )
+                      : Icon(Icons.mark_email_read_outlined, size: 20, color: cs.primary),
+                  label: Text(l10n.treasuryImportWalletSendOtp),
+                ),
+              ),
+              if (_otpVerified) ...[
+                const SizedBox(height: 16),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(_fieldRadius),
+                    border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.verified_outlined, color: cs.primary, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.treasuryImportWalletOtpVerifiedBanner,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: cs.onPrimaryContainer,
+                              height: 1.4,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
-            if (_walletFieldsUnlocked) ...[
+            if (auth.canBypassAllSensitiveOps || _walletFieldsUnlocked) ...[
               const SizedBox(height: 20),
               TextField(
                 controller: _labelController,
@@ -424,7 +439,7 @@ class _ImportWalletDialogState extends State<ImportWalletDialog> {
           onPressed: isSubmitting ? null : () => Navigator.pop(context),
           child: Text(l10n.cancel),
         ),
-        if (!_otpVerified)
+        if (!auth.canBypassAllSensitiveOps && !_otpVerified)
           FilledButton(
             onPressed: canConfirmOtp ? _confirmOtp : null,
             child: _isVerifyingOtp

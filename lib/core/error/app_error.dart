@@ -10,7 +10,7 @@ import 'package:equatable/equatable.dart';
 ///
 /// All error subclasses must extend this. Use [Result] from `core/network/result.dart`
 /// to bubble errors without throwing.
-sealed class AppError extends Equatable implements Exception {
+abstract class AppError extends Equatable implements Exception {
   final String code;
   final String userMessageKey;
   final Map<String, Object> metadata;
