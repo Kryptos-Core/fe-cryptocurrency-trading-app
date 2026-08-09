@@ -11517,6 +11517,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verification failed: {message}'**
   String walletAuthVerificationFailed(String message);
+
+  /// No description provided for @manualTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator Manual'**
+  String get manualTitle;
+
+  /// No description provided for @manualSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step-by-step guide for every role and tab'**
+  String get manualSubtitle;
+
+  /// No description provided for @manualIntroHeroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome. Browse the sections below to learn how to use every feature of the platform, from basic trading to advanced operations.'**
+  String get manualIntroHeroDesc;
+
+  /// No description provided for @manualEmptyForRole.
+  ///
+  /// In en, this message translates to:
+  /// **'No manual sections are available for this role.'**
+  String get manualEmptyForRole;
+
+  /// No description provided for @manualGettingStartedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get manualGettingStartedTitle;
+
+  /// No description provided for @manualGettingStartedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your account in a few minutes.'**
+  String get manualGettingStartedDesc;
+
+  /// No description provided for @manualDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get manualDashboardTitle;
+
+  /// No description provided for @manualDashboardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio overview, top markets and my wallets.'**
+  String get manualDashboardDesc;
+
+  /// No description provided for @manualMarketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Markets'**
+  String get manualMarketsTitle;
+
+  /// No description provided for @manualMarketsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and search all trading pairs.'**
+  String get manualMarketsDesc;
+
+  /// No description provided for @manualWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get manualWalletsTitle;
+
+  /// No description provided for @manualWalletsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'View balances and transaction history.'**
+  String get manualWalletsDesc;
+
+  /// No description provided for @manualOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders / Trading'**
+  String get manualOrdersTitle;
+
+  /// No description provided for @manualOrdersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Place orders and manage open positions.'**
+  String get manualOrdersDesc;
+
+  /// No description provided for @manualAccountSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Settings'**
+  String get manualAccountSettingsTitle;
+
+  /// No description provided for @manualAccountSettingsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, language, 2FA and exchange sync.'**
+  String get manualAccountSettingsDesc;
+
+  /// No description provided for @manualUserManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get manualUserManagementTitle;
+
+  /// No description provided for @manualUserManagementDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users, assign roles and lock accounts.'**
+  String get manualUserManagementDesc;
+
+  /// No description provided for @manualSecurityRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Requests'**
+  String get manualSecurityRequestsTitle;
+
+  /// No description provided for @manualSecurityRequestsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Review OTP + admin approval workflows.'**
+  String get manualSecurityRequestsDesc;
+
+  /// No description provided for @manualManagedWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Managed Wallets'**
+  String get manualManagedWalletsTitle;
+
+  /// No description provided for @manualManagedWalletsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'System wallets, on-chain monitoring and sweeps.'**
+  String get manualManagedWalletsDesc;
+
+  /// No description provided for @manualPaymentConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Configuration'**
+  String get manualPaymentConfigTitle;
+
+  /// No description provided for @manualPaymentConfigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure PayOS, FX spreads and limits.'**
+  String get manualPaymentConfigDesc;
+
+  /// No description provided for @manualTreasuryE2ETitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasury E2E Configuration'**
+  String get manualTreasuryE2ETitle;
+
+  /// No description provided for @manualTreasuryE2EDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'End-to-end settings for treasury flows.'**
+  String get manualTreasuryE2EDesc;
+
+  /// No description provided for @manualMarketMakerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Maker Hub'**
+  String get manualMarketMakerTitle;
+
+  /// No description provided for @manualMarketMakerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create pairs, manage depth and sync exchange.'**
+  String get manualMarketMakerDesc;
+
+  /// No description provided for @manualMonitoringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Monitoring'**
+  String get manualMonitoringTitle;
+
+  /// No description provided for @manualMonitoringDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect transactions, currencies and deposits.'**
+  String get manualMonitoringDesc;
+
+  /// No description provided for @manualSystemConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Configuration'**
+  String get manualSystemConfigTitle;
+
+  /// No description provided for @manualSystemConfigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Auth Security / Core / Finance / Ops / Tech editors.'**
+  String get manualSystemConfigDesc;
+
+  /// No description provided for @manualBroadcastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast Notification'**
+  String get manualBroadcastTitle;
+
+  /// No description provided for @manualBroadcastDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Send announcements to all active users.'**
+  String get manualBroadcastDesc;
+
+  /// No description provided for @manualGlossaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Glossary'**
+  String get manualGlossaryTitle;
+
+  /// No description provided for @manualGlossaryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Common crypto and platform terms.'**
+  String get manualGlossaryDesc;
+
+  /// No description provided for @manualFaqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get manualFaqTitle;
+
+  /// No description provided for @manualFaqDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently asked questions.'**
+  String get manualFaqDesc;
+
+  /// No description provided for @manualContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get manualContactTitle;
+
+  /// No description provided for @manualContactDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How to reach the support team.'**
+  String get manualContactDesc;
+
+  /// No description provided for @manualEntrySetupAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your account'**
+  String get manualEntrySetupAccountTitle;
+
+  /// No description provided for @manualEntrySetupAccountDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit your profile, upload an avatar and confirm your email.'**
+  String get manualEntrySetupAccountDesc;
+
+  /// No description provided for @manualEntryEnable2faTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable 2FA'**
+  String get manualEntryEnable2faTitle;
+
+  /// No description provided for @manualEntryEnable2faDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an extra layer of security before changing email or password.'**
+  String get manualEntryEnable2faDesc;
+
+  /// No description provided for @manualEntryChangeLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change language'**
+  String get manualEntryChangeLanguageTitle;
+
+  /// No description provided for @manualEntryChangeLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the interface between English and Vietnamese.'**
+  String get manualEntryChangeLanguageDesc;
+
+  /// No description provided for @manualEntryChangeThemeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change theme'**
+  String get manualEntryChangeThemeTitle;
+
+  /// No description provided for @manualEntryChangeThemeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick light, dark or follow the system, and choose a seed color.'**
+  String get manualEntryChangeThemeDesc;
+
+  /// No description provided for @manualEntryDashboardOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio overview'**
+  String get manualEntryDashboardOverviewTitle;
+
+  /// No description provided for @manualEntryDashboardOverviewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Read total portfolio value, top markets preview and wallet summary.'**
+  String get manualEntryDashboardOverviewDesc;
+
+  /// No description provided for @manualEntryDashboardPullRefreshTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to refresh'**
+  String get manualEntryDashboardPullRefreshTitle;
+
+  /// No description provided for @manualEntryDashboardPullRefreshDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe down on the dashboard to reload balances and top markets.'**
+  String get manualEntryDashboardPullRefreshDesc;
+
+  /// No description provided for @manualEntryMarketsSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search markets'**
+  String get manualEntryMarketsSearchTitle;
+
+  /// No description provided for @manualEntryMarketsSearchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a symbol (e.g. BTC) to filter the list instantly.'**
+  String get manualEntryMarketsSearchDesc;
+
+  /// No description provided for @manualEntryMarketsFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by currency'**
+  String get manualEntryMarketsFilterTitle;
+
+  /// No description provided for @manualEntryMarketsFilterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the currency picker to show only pairs using a chosen base.'**
+  String get manualEntryMarketsFilterDesc;
+
+  /// No description provided for @manualEntryMarketsSortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort and filter (admin)'**
+  String get manualEntryMarketsSortTitle;
+
+  /// No description provided for @manualEntryMarketsSortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the sort dropdown to view top volume, top gainers or A-Z.'**
+  String get manualEntryMarketsSortDesc;
+
+  /// No description provided for @manualEntryWalletsViewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View balances'**
+  String get manualEntryWalletsViewTitle;
+
+  /// No description provided for @manualEntryWalletsViewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch currency in the picker to see available, frozen and total.'**
+  String get manualEntryWalletsViewDesc;
+
+  /// No description provided for @manualEntryWalletsHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction history'**
+  String get manualEntryWalletsHistoryTitle;
+
+  /// No description provided for @manualEntryWalletsHistoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by type and search by ref to find a specific movement.'**
+  String get manualEntryWalletsHistoryDesc;
+
+  /// No description provided for @manualEntryOrdersPlaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place an order'**
+  String get manualEntryOrdersPlaceTitle;
+
+  /// No description provided for @manualEntryOrdersPlaceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick LIMIT, MARKET or STOP_LOSS and choose BUY or SELL.'**
+  String get manualEntryOrdersPlaceDesc;
+
+  /// No description provided for @manualEntryOrdersCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel an open order'**
+  String get manualEntryOrdersCancelTitle;
+
+  /// No description provided for @manualEntryOrdersCancelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open My Orders and tap the X next to an open order to cancel it.'**
+  String get manualEntryOrdersCancelDesc;
+
+  /// No description provided for @manualEntrySettings2faTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable / disable 2FA'**
+  String get manualEntrySettings2faTitle;
+
+  /// No description provided for @manualEntrySettings2faDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle 2FA in Settings; an OTP dialog will confirm the change.'**
+  String get manualEntrySettings2faDesc;
+
+  /// No description provided for @manualEntrySettingsSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual exchange sync'**
+  String get manualEntrySettingsSyncTitle;
+
+  /// No description provided for @manualEntrySettingsSyncDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger a manual Binance sync and read the last sync timestamp.'**
+  String get manualEntrySettingsSyncDesc;
+
+  /// No description provided for @manualEntryAdminUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and filter users'**
+  String get manualEntryAdminUsersTitle;
+
+  /// No description provided for @manualEntryAdminUsersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by email, filter by role and status, then open a user.'**
+  String get manualEntryAdminUsersDesc;
+
+  /// No description provided for @manualEntryAdminRolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign roles'**
+  String get manualEntryAdminRolesTitle;
+
+  /// No description provided for @manualEntryAdminRolesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Update a user role from the detail panel; changes are audited.'**
+  String get manualEntryAdminRolesDesc;
+
+  /// No description provided for @manualEntryAdminBanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock or unlock users'**
+  String get manualEntryAdminBanTitle;
+
+  /// No description provided for @manualEntryAdminBanDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ban/unban, set status to PENDING/ACTIVE and review 2FA flags.'**
+  String get manualEntryAdminBanDesc;
+
+  /// No description provided for @manualEntrySecurityRequestsReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review a security request'**
+  String get manualEntrySecurityRequestsReviewTitle;
+
+  /// No description provided for @manualEntrySecurityRequestsReviewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve or reject OTP-protected email / password changes.'**
+  String get manualEntrySecurityRequestsReviewDesc;
+
+  /// No description provided for @manualEntryManagedWalletsOpsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run wallet operations'**
+  String get manualEntryManagedWalletsOpsTitle;
+
+  /// No description provided for @manualEntryManagedWalletsOpsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweep, top up and inspect on-chain balances per managed wallet.'**
+  String get manualEntryManagedWalletsOpsDesc;
+
+  /// No description provided for @manualEntryPaymentConfigSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment config'**
+  String get manualEntryPaymentConfigSaveTitle;
+
+  /// No description provided for @manualEntryPaymentConfigSaveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Update client id, API key, FX spread and deposit limits.'**
+  String get manualEntryPaymentConfigSaveDesc;
+
+  /// No description provided for @manualEntryTreasuryE2EConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit treasury E2E settings'**
+  String get manualEntryTreasuryE2EConfigTitle;
+
+  /// No description provided for @manualEntryTreasuryE2EConfigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure RPC URL, hot wallet key and FX fallback rate.'**
+  String get manualEntryTreasuryE2EConfigDesc;
+
+  /// No description provided for @manualEntryMarketMakerPairTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create or edit a pair'**
+  String get manualEntryMarketMakerPairTitle;
+
+  /// No description provided for @manualEntryMarketMakerPairDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Set base/quote, depth, min order size and trading status.'**
+  String get manualEntryMarketMakerPairDesc;
+
+  /// No description provided for @manualEntryMarketMakerSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync the exchange'**
+  String get manualEntryMarketMakerSyncTitle;
+
+  /// No description provided for @manualEntryMarketMakerSyncDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger a manual sync to refresh markets from Binance.'**
+  String get manualEntryMarketMakerSyncDesc;
+
+  /// No description provided for @manualEntryAdminTransactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor transactions'**
+  String get manualEntryAdminTransactionsTitle;
+
+  /// No description provided for @manualEntryAdminTransactionsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect suspicious activity and export filtered lists.'**
+  String get manualEntryAdminTransactionsDesc;
+
+  /// No description provided for @manualEntryAdminCurrenciesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage currencies'**
+  String get manualEntryAdminCurrenciesTitle;
+
+  /// No description provided for @manualEntryAdminCurrenciesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, edit or pause tradable currencies.'**
+  String get manualEntryAdminCurrenciesDesc;
+
+  /// No description provided for @manualEntryAdminDepositWatcherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit watcher'**
+  String get manualEntryAdminDepositWatcherTitle;
+
+  /// No description provided for @manualEntryAdminDepositWatcherDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track incoming on-chain deposits and credit users.'**
+  String get manualEntryAdminDepositWatcherDesc;
+
+  /// No description provided for @manualEntrySystemConfigSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit system config'**
+  String get manualEntrySystemConfigSaveTitle;
+
+  /// No description provided for @manualEntrySystemConfigSaveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch tabs (Auth Security / Core / Finance / Ops / Tech) and save.'**
+  String get manualEntrySystemConfigSaveDesc;
+
+  /// No description provided for @manualEntryBroadcastSendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a broadcast'**
+  String get manualEntryBroadcastSendTitle;
+
+  /// No description provided for @manualEntryBroadcastSendDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a type (system / alert / promo) and broadcast to all users.'**
+  String get manualEntryBroadcastSendDesc;
+
+  /// No description provided for @manualGlossaryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'## Key terms\n\n- **Order Book** — the live list of buy (bid) and sell (ask) orders for a trading pair.\n- **LIMIT order** — buy or sell at a price you choose; it waits in the book until matched.\n- **MARKET order** — buy or sell immediately at the best available price.\n- **STOP_LOSS** — a conditional order triggered when price reaches a threshold.\n- **Maker / Taker** — maker adds liquidity (LIMIT); taker removes it (MARKET).\n- **Available vs Frozen** — available can be traded; frozen is locked by an open order or pending withdrawal.\n- **2FA / TOTP** — a 6-digit code from an authenticator app used to confirm sensitive actions.\n- **On-chain** — a transaction settled on the blockchain (vs. internal ledger transfer).\n- **Sweep** — a treasury operation that consolidates funds into a cold wallet.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.'**
+  String get manualGlossaryBody;
+
+  /// No description provided for @manualFaqBody.
+  ///
+  /// In en, this message translates to:
+  /// **'## Frequently asked questions\n\n### Why is my withdrawal pending?\nLarge or first-time withdrawals are reviewed by an admin. You will receive a notification once approved.\n\n### I lost access to my 2FA device — what now?\nOpen Profile → Security, then contact support. An admin can reset your 2FA after identity verification.\n\n### How do I switch between demo and live trading?\nUse the exchange-sync card in Settings to refresh markets from Binance. For spot trading on Binance directly, link an API key under the Market Maker area.\n\n### Why is a market hidden from the list?\nAdmin can pause a market. Open Currencies from the drawer to view all currencies regardless of status.\n\n### What is the difference between Wallet and Managed Wallets?\nWallets are your personal balances. Managed Wallets are platform-owned wallets used for treasury operations.'**
+  String get manualFaqBody;
+
+  /// No description provided for @manualContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'## Contact Support\n\n- **In-app**: open this manual\'s Glossary / FAQ first; many issues are covered there.\n- **Profile → Security**: request an email or password change; admin review is required.\n- **Notifications tab**: review the latest announcements and broadcast messages.\n- **Admin / Finance / Risk users**: use the drawer sections to reach the relevant operational tools.\n\nIf your issue is not covered, raise it inside the app and an admin will route it to the right team.'**
+  String get manualContactBody;
 }
 
 class _AppLocalizationsDelegate

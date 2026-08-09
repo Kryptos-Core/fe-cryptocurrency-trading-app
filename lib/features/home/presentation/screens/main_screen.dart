@@ -153,23 +153,64 @@ class _MainScreenState extends State<MainScreen> {
 
   // Public tabs always rendered — no auth required.
   // Auth-gated tabs are replaced with _AuthRequiredTab when user is a guest.
+  // Each entry carries a stable `key` derived from `(tabIndex, isAuthenticated)`
+  // so the underlying `State<StatefulWidget>` is preserved across rebuilds
+  // when the widget type for a given tab is stable, and unmounted cleanly
+  // when it changes. Without these stable keys, every call to
+  // `_buildTabChildren` produces a fresh child list whose widgets look
+  // identical to Flutter (same runtimeType) but represent different
+  // Element instances, so concurrent rebuilds can register the same GlobalKey
+  // on two parents inside a single frame — surfacing the
+  // `BuildOwner.finalizeTree` "Multiple widgets used the same GlobalKey"
+  // assertion.
   List<Widget> _buildScreens(bool isAuthenticated) => [
-        const DashboardScreen(),
-        const MarketsListScreen(),
+        const DashboardScreen(key: ValueKey<String>('tab:0:dashboard')),
+        const MarketsListScreen(key: ValueKey<String>('tab:1:markets')),
         isAuthenticated
-            ? const WalletApiScreen()
-            : const _AuthRequiredTab(returnTab: 2),
-        isAuthenticated ? const ProfileScreen() : const _GuestProfileTab(),
+            ? const WalletApiScreen(key: ValueKey<String>('tab:2:wallet'))
+            : const _AuthRequiredTab(
+                key: ValueKey<String>('tab:2:authRequired'),
+                returnTab: 2,
+              ),
+        isAuthenticated
+            ? const ProfileScreen(key: ValueKey<String>('tab:3:profile'))
+            : const _GuestProfileTab(key: ValueKey<String>('tab:3:guest')),
       ];
 
-  List<Widget> _buildIndexedStackChildren(bool isAuthenticated) {
+  List<Widget> _buildTabChildren(bool isAuthenticated) {
     final screens = _buildScreens(isAuthenticated);
-    return List<Widget>.generate(
-      screens.length,
-      (index) => _materializedTabs.contains(index)
-          ? screens[index]
-          : const SizedBox.shrink(),
-    );
+    // Use a Stack + Offstage (instead of IndexedStack) so that inactive
+    // tabs are laid out offstage but their widget identity stays tied
+    // to their position in the children list.
+    //
+    // `_buildScreens` also attaches a stable `ValueKey` to every tab so
+    // that switching between auth states (e.g. login → guest) does not
+    // recycle the same Element for two different widgets, and so that
+    // Flutter's element-reconciliation can match a tab widget across
+    // rebuilds even when the surrounding list is recreated.
+    final List<Widget> result = <Widget>[
+      for (var i = 0; i < screens.length; i++)
+        _materializedTabs.contains(i)
+            ? Offstage(
+                key: ValueKey<String>('offstage:tab:$i'),
+                offstage: i != _currentIndex,
+                child: screens[i],
+              )
+            : SizedBox(key: ValueKey<String>('empty:tab:$i')),
+    ];
+    // DIAG: count children by type to detect duplicate mounts in the same frame.
+    final typeCounts = <String, int>{};
+    for (final w in screens) {
+      final t = w.runtimeType.toString();
+      typeCounts[t] = (typeCounts[t] ?? 0) + 1;
+    }
+    debugPrint(
+        '[MainScreen._buildTabChildren] instance=${identityHashCode(this)} '
+        'currentIndex=$_currentIndex '
+        'isAuth=$isAuthenticated '
+        'materialized=$_materializedTabs '
+        'types=$typeCounts');
+    return result;
   }
 
   List<String> _tabTitles(AppLocalizations l10n) => [
@@ -181,6 +222,9 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Handle bottom nav tab tap with smart refresh logic.
   void _onTabTap(int index) {
+    debugPrint('[MainScreen._onTabTap] instance=${identityHashCode(this)} '
+        'from=$_currentIndex to=$index '
+        'materializedBefore=$_materializedTabs');
     setState(() {
       _currentIndex = index;
       _materializedTabs.add(index);
@@ -262,7 +306,7 @@ class _MainScreenState extends State<MainScreen> {
     final l10n = AppLocalizations.of(context);
     final isAuthenticated =
         context.select<AuthProvider, bool>((a) => a.isAuthenticated);
-    final screens = _buildIndexedStackChildren(isAuthenticated);
+    final tabChildren = _buildTabChildren(isAuthenticated);
     final titles = _tabTitles(l10n);
     return Scaffold(
       key: _scaffoldKey,
@@ -332,9 +376,8 @@ class _MainScreenState extends State<MainScreen> {
             ),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
+      body: Stack(
+        children: tabChildren,
       ),
       bottomNavigationBar: SizedBox(
         height: 72,
@@ -755,15 +798,16 @@ class _MainScreenState extends State<MainScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 leading: Icon(
-                  Icons.info_outline,
+                  Icons.menu_book_outlined,
                   size: 22,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                title: Text(l10n.aboutTitle),
+                title: Text(l10n.manualTitle),
+                subtitle: Text(l10n.manualSubtitle),
                 mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Navigator.pop(context);
-                  context.push(AppRoutes.about);
+                  context.push(AppRoutes.manual);
                 },
               ),
               if (isAuthenticated)
@@ -1094,7 +1138,7 @@ class _DrawerManagementCard extends StatelessWidget {
 class _AuthRequiredTab extends StatelessWidget {
   final int returnTab;
 
-  const _AuthRequiredTab({required this.returnTab});
+  const _AuthRequiredTab({super.key, required this.returnTab});
 
   @override
   Widget build(BuildContext context) {
@@ -1151,7 +1195,7 @@ class _AuthRequiredTab extends StatelessWidget {
 
 /// Profile tab content shown to guests — highlights what they can do after signing in.
 class _GuestProfileTab extends StatelessWidget {
-  const _GuestProfileTab();
+  const _GuestProfileTab({super.key});
 
   @override
   Widget build(BuildContext context) {

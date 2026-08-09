@@ -6393,4 +6393,348 @@ class AppLocalizationsVi extends AppLocalizations {
   String walletAuthVerificationFailed(String message) {
     return 'Xác thực thất bại: $message';
   }
+
+  @override
+  String get manualTitle => 'Hướng dẫn vận hành';
+
+  @override
+  String get manualSubtitle => 'Hướng dẫn chi tiết cho từng vai trò và tab';
+
+  @override
+  String get manualIntroHeroDesc =>
+      'Chào mừng. Duyệt các mục bên dưới để học cách sử dụng mọi tính năng của hệ thống, từ giao dịch cơ bản đến vận hành nâng cao.';
+
+  @override
+  String get manualEmptyForRole => 'Chưa có mục hướng dẫn nào cho vai trò này.';
+
+  @override
+  String get manualGettingStartedTitle => 'Bắt đầu nhanh';
+
+  @override
+  String get manualGettingStartedDesc => 'Thiết lập tài khoản trong vài phút.';
+
+  @override
+  String get manualDashboardTitle => 'Tổng quan';
+
+  @override
+  String get manualDashboardDesc =>
+      'Tổng quan danh mục, top thị trường và ví của tôi.';
+
+  @override
+  String get manualMarketsTitle => 'Thị trường';
+
+  @override
+  String get manualMarketsDesc => 'Duyệt và tìm kiếm tất cả cặp giao dịch.';
+
+  @override
+  String get manualWalletsTitle => 'Ví';
+
+  @override
+  String get manualWalletsDesc => 'Xem số dư và lịch sử giao dịch.';
+
+  @override
+  String get manualOrdersTitle => 'Lệnh / Giao dịch';
+
+  @override
+  String get manualOrdersDesc => 'Đặt lệnh và quản lý lệnh đang mở.';
+
+  @override
+  String get manualAccountSettingsTitle => 'Cài đặt tài khoản';
+
+  @override
+  String get manualAccountSettingsDesc =>
+      'Giao diện, ngôn ngữ, 2FA và đồng bộ sàn.';
+
+  @override
+  String get manualUserManagementTitle => 'Quản lý người dùng';
+
+  @override
+  String get manualUserManagementDesc =>
+      'Tìm user, gán vai trò và khoá tài khoản.';
+
+  @override
+  String get manualSecurityRequestsTitle => 'Yêu cầu bảo mật';
+
+  @override
+  String get manualSecurityRequestsDesc =>
+      'Duyệt OTP + quy trình phê duyệt của admin.';
+
+  @override
+  String get manualManagedWalletsTitle => 'Ví hệ thống';
+
+  @override
+  String get manualManagedWalletsDesc =>
+      'Ví nền tảng, giám sát on-chain và sweep.';
+
+  @override
+  String get manualPaymentConfigTitle => 'Cấu hình thanh toán';
+
+  @override
+  String get manualPaymentConfigDesc => 'Cấu hình PayOS, FX spread và hạn mức.';
+
+  @override
+  String get manualTreasuryE2ETitle => 'Cấu hình Treasury E2E';
+
+  @override
+  String get manualTreasuryE2EDesc =>
+      'Thiết lập end-to-end cho luồng treasury.';
+
+  @override
+  String get manualMarketMakerTitle => 'Market Maker Hub';
+
+  @override
+  String get manualMarketMakerDesc => 'Tạo cặp, quản lý depth và đồng bộ sàn.';
+
+  @override
+  String get manualMonitoringTitle => 'Giám sát giao dịch';
+
+  @override
+  String get manualMonitoringDesc => 'Kiểm tra giao dịch, tiền tệ và nạp tiền.';
+
+  @override
+  String get manualSystemConfigTitle => 'Cấu hình hệ thống';
+
+  @override
+  String get manualSystemConfigDesc =>
+      'Tab Auth Security / Core / Finance / Ops / Tech.';
+
+  @override
+  String get manualBroadcastTitle => 'Phát thông báo';
+
+  @override
+  String get manualBroadcastDesc =>
+      'Gửi thông báo đến tất cả user đang hoạt động.';
+
+  @override
+  String get manualGlossaryTitle => 'Thuật ngữ';
+
+  @override
+  String get manualGlossaryDesc => 'Thuật ngữ crypto và hệ thống.';
+
+  @override
+  String get manualFaqTitle => 'Câu hỏi thường gặp';
+
+  @override
+  String get manualFaqDesc => 'Các câu hỏi phổ biến.';
+
+  @override
+  String get manualContactTitle => 'Liên hệ hỗ trợ';
+
+  @override
+  String get manualContactDesc => 'Cách liên hệ đội ngũ hỗ trợ.';
+
+  @override
+  String get manualEntrySetupAccountTitle => 'Thiết lập tài khoản';
+
+  @override
+  String get manualEntrySetupAccountDesc =>
+      'Chỉnh hồ sơ, đổi avatar và xác minh email.';
+
+  @override
+  String get manualEntryEnable2faTitle => 'Bật 2FA';
+
+  @override
+  String get manualEntryEnable2faDesc =>
+      'Thêm lớp bảo mật trước khi đổi email hoặc mật khẩu.';
+
+  @override
+  String get manualEntryChangeLanguageTitle => 'Đổi ngôn ngữ';
+
+  @override
+  String get manualEntryChangeLanguageDesc =>
+      'Chuyển giao diện giữa Tiếng Anh và Tiếng Việt.';
+
+  @override
+  String get manualEntryChangeThemeTitle => 'Đổi giao diện';
+
+  @override
+  String get manualEntryChangeThemeDesc =>
+      'Chọn sáng, tối hoặc theo hệ thống và chọn màu chủ đạo.';
+
+  @override
+  String get manualEntryDashboardOverviewTitle => 'Tổng quan danh mục';
+
+  @override
+  String get manualEntryDashboardOverviewDesc =>
+      'Đọc tổng giá trị, top thị trường và tóm tắt ví.';
+
+  @override
+  String get manualEntryDashboardPullRefreshTitle => 'Kéo để làm mới';
+
+  @override
+  String get manualEntryDashboardPullRefreshDesc =>
+      'Vuốt xuống ở Tổng quan để tải lại số dư và top thị trường.';
+
+  @override
+  String get manualEntryMarketsSearchTitle => 'Tìm thị trường';
+
+  @override
+  String get manualEntryMarketsSearchDesc =>
+      'Gõ symbol (vd. BTC) để lọc danh sách ngay lập tức.';
+
+  @override
+  String get manualEntryMarketsFilterTitle => 'Lọc theo tiền tệ';
+
+  @override
+  String get manualEntryMarketsFilterDesc =>
+      'Mở bộ chọn tiền tệ để chỉ hiện các cặp dùng base mong muốn.';
+
+  @override
+  String get manualEntryMarketsSortTitle => 'Sắp xếp và lọc (admin)';
+
+  @override
+  String get manualEntryMarketsSortDesc =>
+      'Dùng menu sắp xếp để xem top volume, top tăng hoặc A-Z.';
+
+  @override
+  String get manualEntryWalletsViewTitle => 'Xem số dư';
+
+  @override
+  String get manualEntryWalletsViewDesc =>
+      'Đổi tiền tệ để xem khả dụng, đóng băng và tổng.';
+
+  @override
+  String get manualEntryWalletsHistoryTitle => 'Lịch sử giao dịch';
+
+  @override
+  String get manualEntryWalletsHistoryDesc =>
+      'Lọc theo loại và tìm theo mã ref để tra một giao dịch.';
+
+  @override
+  String get manualEntryOrdersPlaceTitle => 'Đặt lệnh';
+
+  @override
+  String get manualEntryOrdersPlaceDesc =>
+      'Chọn LIMIT, MARKET hoặc STOP_LOSS và chọn MUA / BÁN.';
+
+  @override
+  String get manualEntryOrdersCancelTitle => 'Huỷ lệnh đang mở';
+
+  @override
+  String get manualEntryOrdersCancelDesc =>
+      'Mở Lệnh của tôi và bấm X cạnh lệnh đang mở để huỷ.';
+
+  @override
+  String get manualEntrySettings2faTitle => 'Bật / tắt 2FA';
+
+  @override
+  String get manualEntrySettings2faDesc =>
+      'Bật/tắt 2FA trong Cài đặt; hộp thoại OTP sẽ xác nhận.';
+
+  @override
+  String get manualEntrySettingsSyncTitle => 'Đồng bộ sàn thủ công';
+
+  @override
+  String get manualEntrySettingsSyncDesc =>
+      'Kích hoạt sync Binance thủ công và xem thời điểm sync gần nhất.';
+
+  @override
+  String get manualEntryAdminUsersTitle => 'Duyệt và lọc người dùng';
+
+  @override
+  String get manualEntryAdminUsersDesc =>
+      'Tìm theo email, lọc theo vai trò và trạng thái, rồi mở user.';
+
+  @override
+  String get manualEntryAdminRolesTitle => 'Gán vai trò';
+
+  @override
+  String get manualEntryAdminRolesDesc =>
+      'Cập nhật vai trò từ panel chi tiết; thay đổi được audit.';
+
+  @override
+  String get manualEntryAdminBanTitle => 'Khoá hoặc mở khoá user';
+
+  @override
+  String get manualEntryAdminBanDesc =>
+      'Ban/unban, đặt trạng thái PENDING/ACTIVE và xem cờ 2FA.';
+
+  @override
+  String get manualEntrySecurityRequestsReviewTitle => 'Duyệt yêu cầu bảo mật';
+
+  @override
+  String get manualEntrySecurityRequestsReviewDesc =>
+      'Duyệt hoặc từ chối thay đổi email / mật khẩu có OTP.';
+
+  @override
+  String get manualEntryManagedWalletsOpsTitle => 'Vận hành ví hệ thống';
+
+  @override
+  String get manualEntryManagedWalletsOpsDesc =>
+      'Sweep, top up và xem số dư on-chain của từng ví hệ thống.';
+
+  @override
+  String get manualEntryPaymentConfigSaveTitle => 'Sửa cấu hình thanh toán';
+
+  @override
+  String get manualEntryPaymentConfigSaveDesc =>
+      'Cập nhật client id, API key, FX spread và hạn mức nạp.';
+
+  @override
+  String get manualEntryTreasuryE2EConfigTitle => 'Sửa cấu hình Treasury E2E';
+
+  @override
+  String get manualEntryTreasuryE2EConfigDesc =>
+      'Thiết lập RPC URL, khoá hot wallet và FX fallback rate.';
+
+  @override
+  String get manualEntryMarketMakerPairTitle => 'Tạo hoặc sửa cặp';
+
+  @override
+  String get manualEntryMarketMakerPairDesc =>
+      'Đặt base/quote, depth, khối lượng tối thiểu và trạng thái.';
+
+  @override
+  String get manualEntryMarketMakerSyncTitle => 'Đồng bộ sàn';
+
+  @override
+  String get manualEntryMarketMakerSyncDesc =>
+      'Kích hoạt sync thủ công để làm mới thị trường từ Binance.';
+
+  @override
+  String get manualEntryAdminTransactionsTitle => 'Giám sát giao dịch';
+
+  @override
+  String get manualEntryAdminTransactionsDesc =>
+      'Kiểm tra hoạt động đáng ngờ và xuất danh sách đã lọc.';
+
+  @override
+  String get manualEntryAdminCurrenciesTitle => 'Quản lý tiền tệ';
+
+  @override
+  String get manualEntryAdminCurrenciesDesc =>
+      'Tạo, sửa hoặc tạm dừng tiền tệ có thể giao dịch.';
+
+  @override
+  String get manualEntryAdminDepositWatcherTitle => 'Deposit watcher';
+
+  @override
+  String get manualEntryAdminDepositWatcherDesc =>
+      'Theo dõi nạp on-chain đến và cộng tiền cho user.';
+
+  @override
+  String get manualEntrySystemConfigSaveTitle => 'Sửa system config';
+
+  @override
+  String get manualEntrySystemConfigSaveDesc =>
+      'Chuyển tab (Auth Security / Core / Finance / Ops / Tech) và lưu.';
+
+  @override
+  String get manualEntryBroadcastSendTitle => 'Gửi broadcast';
+
+  @override
+  String get manualEntryBroadcastSendDesc =>
+      'Chọn loại (system / alert / promo) và phát tới tất cả user.';
+
+  @override
+  String get manualGlossaryBody =>
+      '## Thuật ngữ chính\n\n- **Order Book** — danh sách lệnh mua (bid) và bán (ask) trực tiếp của một cặp.\n- **Lệnh LIMIT** — mua/bán ở giá bạn chọn; chờ trong sổ lệnh đến khi khớp.\n- **Lệnh MARKET** — mua/bán ngay ở giá tốt nhất hiện có.\n- **STOP_LOSS** — lệnh có điều kiện kích hoạt khi giá chạm ngưỡng.\n- **Maker / Taker** — maker cung cấp thanh khoản (LIMIT); taker lấy thanh khoản (MARKET).\n- **Khả dụng vs Đóng băng** — khả dụng có thể giao dịch; đóng băng bị khoá bởi lệnh mở hoặc rút tiền chờ.\n- **2FA / TOTP** — mã 6 số từ app authenticator dùng để xác nhận thao tác nhạy cảm.\n- **On-chain** — giao dịch chốt trên blockchain (khác với chuyển nội bộ sổ cái).\n- **Sweep** — thao tác treasury gom tiền vào ví lạnh.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.';
+
+  @override
+  String get manualFaqBody =>
+      '## Câu hỏi thường gặp\n\n### Vì sao lệnh rút của tôi đang chờ?\nCác lệnh rút lớn hoặc lần đầu cần admin duyệt. Bạn sẽ nhận thông báo khi được duyệt.\n\n### Tôi mất thiết bị 2FA — phải làm sao?\nMở Hồ sơ → Bảo mật, rồi liên hệ hỗ trợ. Admin có thể reset 2FA sau khi xác minh danh tính.\n\n### Làm sao chuyển giữa giao dịch demo và live?\nDùng card đồng bộ sàn trong Cài đặt để làm mới thị trường từ Binance. Để spot trực tiếp trên Binance, liên kết API key ở khu vực Market Maker.\n\n### Vì sao một thị trường bị ẩn khỏi danh sách?\nAdmin có thể tạm dừng một thị trường. Mở Tiền tệ trong drawer để xem tất cả bất kể trạng thái.\n\n### Ví và Ví hệ thống khác nhau thế nào?\nVí là số dư cá nhân của bạn. Ví hệ thống thuộc sở hữu nền tảng, dùng cho thao tác treasury.';
+
+  @override
+  String get manualContactBody =>
+      '## Liên hệ hỗ trợ\n\n- **Trong app**: mở Thuật ngữ / FAQ trong hướng dẫn này trước; nhiều vấn đề đã được đề cập.\n- **Hồ sơ → Bảo mật**: yêu cầu đổi email hoặc mật khẩu; cần admin duyệt.\n- **Tab Thông báo**: xem các thông báo và broadcast mới nhất.\n- **Admin / Finance / Risk**: dùng các mục trong drawer để vào công cụ vận hành phù hợp.\n\nNếu vấn đề chưa được đề cập, hãy gửi yêu cầu trong app — admin sẽ chuyển đến đội ngũ phù hợp.';
 }

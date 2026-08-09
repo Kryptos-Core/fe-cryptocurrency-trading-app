@@ -13,6 +13,11 @@ abstract final class AppRoutes {
   static const String orders = '/orders';
   static const String settings = '/settings';
   static const String about = '/about';
+  static const String manual = '/manual';
+  static const String manualDetailBase = '/manual/detail';
+  static const String manualDetailGlossary = '$manualDetailBase/glossary';
+  static const String manualDetailFaq = '$manualDetailBase/faq';
+  static const String manualDetailContact = '$manualDetailBase/contact';
   static const String currencies = '/currencies';
   static const String notifications = '/notifications';
   static const String marketMaker = '/market-maker';
@@ -53,5 +58,9 @@ abstract final class AppRoutes {
     currencies,
     about,
     settings,
+    manual,
+    manualDetailGlossary,
+    manualDetailFaq,
+    manualDetailContact,
   };
 }

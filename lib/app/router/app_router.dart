@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +22,7 @@ import 'package:crypto_trading_app/features/admin/users/presentation/screens/adm
 import 'package:crypto_trading_app/features/admin/withdrawal_management/presentation/screens/withdrawal_management_screen.dart';
 import 'package:crypto_trading_app/features/home/presentation/screens/about_screen.dart';
 import 'package:crypto_trading_app/features/home/presentation/screens/main_screen.dart';
+import 'package:crypto_trading_app/features/home/presentation/screens/manual_detail_screen.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/screens/managed_wallets_screen.dart';
 import 'package:crypto_trading_app/features/managed_wallets/presentation/providers/managed_wallets_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/screens/currencies_list_screen.dart';
@@ -36,8 +37,15 @@ import 'package:crypto_trading_app/features/binance_trading/application/provider
 import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
 import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
 
+// Shared navigator key for the root-level Navigator. Used both to opt
+// routes into the root Navigator (via `parentNavigatorKey`) and to anchor
+// GoRouter itself so we don't depend on a hidden default key.
+final GlobalKey<NavigatorState> _rootNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'root');
+
 GoRouter createAppRouter(AuthProvider auth) {
   return GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.root,
     refreshListenable: auth,
     redirect: (context, state) {
@@ -53,14 +61,32 @@ GoRouter createAppRouter(AuthProvider auth) {
       return null;
     },
     routes: [
-      ShellRoute(
-        builder: (_, __, Widget child) => child,
-        routes: [
-          GoRoute(
-            path: AppRoutes.root,
-            builder: (_, __) => const MainScreen(),
-          ),
-        ],
+      // The root shell used to live here as a `ShellRoute` wrapping
+      // `MainScreen`. That configuration triggers flutter/flutter#140586
+      // (`!keyReservation.contains(key)`) and a follow-on
+      // `Multiple widgets used the same GlobalKey` crash whenever two
+      // concurrent `GoRouterState` rebuilds leave two `MainScreen`
+      // Elements live in the same frame — `GoRouter` rebuilds the
+      // shell page alongside a transition, which makes
+      // `_MainScreenState` mount twice and the framework-allocated
+      // `GlobalObjectKey<State<StatefulWidget>>` to be reserved for
+      // both. The MaterialPage-key fix we landed before this only
+      // silences the navigator-level duplicate-key assertion; the
+      // element-level `Semantics` parent in the new crash log proves
+      // the underlying duplicate-Element problem is still there.
+      //
+      // Simplest, correct fix: promote `MainScreen` to a top-level
+      // `GoRoute` with no shell. The bottom-nav lives entirely inside
+      // `MainScreen` (it doesn't need a parent shell), and child
+      // routes are pushed onto the root navigator so `MainScreen` is
+      // disposed cleanly when leaving `/` — guaranteeing there is only
+      // ever one `_MainScreenState` mounted at a time.
+      GoRoute(
+        path: AppRoutes.root,
+        pageBuilder: (context, state) => NoTransitionPage<void>(
+          key: state.pageKey,
+          child: const MainScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -81,6 +107,22 @@ GoRouter createAppRouter(AuthProvider auth) {
       GoRoute(
         path: AppRoutes.about,
         builder: (_, __) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.manual,
+        builder: (_, __) => const OperatorManualScreen(),
+        routes: [
+          GoRoute(
+            path: 'detail/:topic',
+            builder: (context, state) {
+              final extra = state.extra;
+              final topic = extra is ManualDetailTopic
+                  ? extra
+                  : _topicFromKey(state.pathParameters['topic']);
+              return ManualDetailScreen(topic: topic);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.currencies,
@@ -185,4 +227,16 @@ GoRouter createAppRouter(AuthProvider auth) {
       ),
     ],
   );
+}
+
+ManualDetailTopic _topicFromKey(String? key) {
+  switch (key) {
+    case 'faq':
+      return ManualDetailTopic.faq;
+    case 'contact':
+      return ManualDetailTopic.contact;
+    case 'glossary':
+    default:
+      return ManualDetailTopic.glossary;
+  }
 }

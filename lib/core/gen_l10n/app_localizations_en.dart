@@ -6399,4 +6399,352 @@ class AppLocalizationsEn extends AppLocalizations {
   String walletAuthVerificationFailed(String message) {
     return 'Verification failed: $message';
   }
+
+  @override
+  String get manualTitle => 'Operator Manual';
+
+  @override
+  String get manualSubtitle => 'Step-by-step guide for every role and tab';
+
+  @override
+  String get manualIntroHeroDesc =>
+      'Welcome. Browse the sections below to learn how to use every feature of the platform, from basic trading to advanced operations.';
+
+  @override
+  String get manualEmptyForRole =>
+      'No manual sections are available for this role.';
+
+  @override
+  String get manualGettingStartedTitle => 'Getting Started';
+
+  @override
+  String get manualGettingStartedDesc =>
+      'Set up your account in a few minutes.';
+
+  @override
+  String get manualDashboardTitle => 'Dashboard';
+
+  @override
+  String get manualDashboardDesc =>
+      'Portfolio overview, top markets and my wallets.';
+
+  @override
+  String get manualMarketsTitle => 'Markets';
+
+  @override
+  String get manualMarketsDesc => 'Browse and search all trading pairs.';
+
+  @override
+  String get manualWalletsTitle => 'Wallets';
+
+  @override
+  String get manualWalletsDesc => 'View balances and transaction history.';
+
+  @override
+  String get manualOrdersTitle => 'Orders / Trading';
+
+  @override
+  String get manualOrdersDesc => 'Place orders and manage open positions.';
+
+  @override
+  String get manualAccountSettingsTitle => 'Account Settings';
+
+  @override
+  String get manualAccountSettingsDesc =>
+      'Theme, language, 2FA and exchange sync.';
+
+  @override
+  String get manualUserManagementTitle => 'User Management';
+
+  @override
+  String get manualUserManagementDesc =>
+      'Search users, assign roles and lock accounts.';
+
+  @override
+  String get manualSecurityRequestsTitle => 'Security Requests';
+
+  @override
+  String get manualSecurityRequestsDesc =>
+      'Review OTP + admin approval workflows.';
+
+  @override
+  String get manualManagedWalletsTitle => 'Managed Wallets';
+
+  @override
+  String get manualManagedWalletsDesc =>
+      'System wallets, on-chain monitoring and sweeps.';
+
+  @override
+  String get manualPaymentConfigTitle => 'Payment Configuration';
+
+  @override
+  String get manualPaymentConfigDesc =>
+      'Configure PayOS, FX spreads and limits.';
+
+  @override
+  String get manualTreasuryE2ETitle => 'Treasury E2E Configuration';
+
+  @override
+  String get manualTreasuryE2EDesc => 'End-to-end settings for treasury flows.';
+
+  @override
+  String get manualMarketMakerTitle => 'Market Maker Hub';
+
+  @override
+  String get manualMarketMakerDesc =>
+      'Create pairs, manage depth and sync exchange.';
+
+  @override
+  String get manualMonitoringTitle => 'Transaction Monitoring';
+
+  @override
+  String get manualMonitoringDesc =>
+      'Inspect transactions, currencies and deposits.';
+
+  @override
+  String get manualSystemConfigTitle => 'System Configuration';
+
+  @override
+  String get manualSystemConfigDesc =>
+      'Auth Security / Core / Finance / Ops / Tech editors.';
+
+  @override
+  String get manualBroadcastTitle => 'Broadcast Notification';
+
+  @override
+  String get manualBroadcastDesc => 'Send announcements to all active users.';
+
+  @override
+  String get manualGlossaryTitle => 'Glossary';
+
+  @override
+  String get manualGlossaryDesc => 'Common crypto and platform terms.';
+
+  @override
+  String get manualFaqTitle => 'FAQ';
+
+  @override
+  String get manualFaqDesc => 'Frequently asked questions.';
+
+  @override
+  String get manualContactTitle => 'Contact Support';
+
+  @override
+  String get manualContactDesc => 'How to reach the support team.';
+
+  @override
+  String get manualEntrySetupAccountTitle => 'Set up your account';
+
+  @override
+  String get manualEntrySetupAccountDesc =>
+      'Edit your profile, upload an avatar and confirm your email.';
+
+  @override
+  String get manualEntryEnable2faTitle => 'Enable 2FA';
+
+  @override
+  String get manualEntryEnable2faDesc =>
+      'Add an extra layer of security before changing email or password.';
+
+  @override
+  String get manualEntryChangeLanguageTitle => 'Change language';
+
+  @override
+  String get manualEntryChangeLanguageDesc =>
+      'Switch the interface between English and Vietnamese.';
+
+  @override
+  String get manualEntryChangeThemeTitle => 'Change theme';
+
+  @override
+  String get manualEntryChangeThemeDesc =>
+      'Pick light, dark or follow the system, and choose a seed color.';
+
+  @override
+  String get manualEntryDashboardOverviewTitle => 'Portfolio overview';
+
+  @override
+  String get manualEntryDashboardOverviewDesc =>
+      'Read total portfolio value, top markets preview and wallet summary.';
+
+  @override
+  String get manualEntryDashboardPullRefreshTitle => 'Pull to refresh';
+
+  @override
+  String get manualEntryDashboardPullRefreshDesc =>
+      'Swipe down on the dashboard to reload balances and top markets.';
+
+  @override
+  String get manualEntryMarketsSearchTitle => 'Search markets';
+
+  @override
+  String get manualEntryMarketsSearchDesc =>
+      'Type a symbol (e.g. BTC) to filter the list instantly.';
+
+  @override
+  String get manualEntryMarketsFilterTitle => 'Filter by currency';
+
+  @override
+  String get manualEntryMarketsFilterDesc =>
+      'Open the currency picker to show only pairs using a chosen base.';
+
+  @override
+  String get manualEntryMarketsSortTitle => 'Sort and filter (admin)';
+
+  @override
+  String get manualEntryMarketsSortDesc =>
+      'Use the sort dropdown to view top volume, top gainers or A-Z.';
+
+  @override
+  String get manualEntryWalletsViewTitle => 'View balances';
+
+  @override
+  String get manualEntryWalletsViewDesc =>
+      'Switch currency in the picker to see available, frozen and total.';
+
+  @override
+  String get manualEntryWalletsHistoryTitle => 'Transaction history';
+
+  @override
+  String get manualEntryWalletsHistoryDesc =>
+      'Filter by type and search by ref to find a specific movement.';
+
+  @override
+  String get manualEntryOrdersPlaceTitle => 'Place an order';
+
+  @override
+  String get manualEntryOrdersPlaceDesc =>
+      'Pick LIMIT, MARKET or STOP_LOSS and choose BUY or SELL.';
+
+  @override
+  String get manualEntryOrdersCancelTitle => 'Cancel an open order';
+
+  @override
+  String get manualEntryOrdersCancelDesc =>
+      'Open My Orders and tap the X next to an open order to cancel it.';
+
+  @override
+  String get manualEntrySettings2faTitle => 'Enable / disable 2FA';
+
+  @override
+  String get manualEntrySettings2faDesc =>
+      'Toggle 2FA in Settings; an OTP dialog will confirm the change.';
+
+  @override
+  String get manualEntrySettingsSyncTitle => 'Manual exchange sync';
+
+  @override
+  String get manualEntrySettingsSyncDesc =>
+      'Trigger a manual Binance sync and read the last sync timestamp.';
+
+  @override
+  String get manualEntryAdminUsersTitle => 'Browse and filter users';
+
+  @override
+  String get manualEntryAdminUsersDesc =>
+      'Search by email, filter by role and status, then open a user.';
+
+  @override
+  String get manualEntryAdminRolesTitle => 'Assign roles';
+
+  @override
+  String get manualEntryAdminRolesDesc =>
+      'Update a user role from the detail panel; changes are audited.';
+
+  @override
+  String get manualEntryAdminBanTitle => 'Lock or unlock users';
+
+  @override
+  String get manualEntryAdminBanDesc =>
+      'Ban/unban, set status to PENDING/ACTIVE and review 2FA flags.';
+
+  @override
+  String get manualEntrySecurityRequestsReviewTitle =>
+      'Review a security request';
+
+  @override
+  String get manualEntrySecurityRequestsReviewDesc =>
+      'Approve or reject OTP-protected email / password changes.';
+
+  @override
+  String get manualEntryManagedWalletsOpsTitle => 'Run wallet operations';
+
+  @override
+  String get manualEntryManagedWalletsOpsDesc =>
+      'Sweep, top up and inspect on-chain balances per managed wallet.';
+
+  @override
+  String get manualEntryPaymentConfigSaveTitle => 'Edit payment config';
+
+  @override
+  String get manualEntryPaymentConfigSaveDesc =>
+      'Update client id, API key, FX spread and deposit limits.';
+
+  @override
+  String get manualEntryTreasuryE2EConfigTitle => 'Edit treasury E2E settings';
+
+  @override
+  String get manualEntryTreasuryE2EConfigDesc =>
+      'Configure RPC URL, hot wallet key and FX fallback rate.';
+
+  @override
+  String get manualEntryMarketMakerPairTitle => 'Create or edit a pair';
+
+  @override
+  String get manualEntryMarketMakerPairDesc =>
+      'Set base/quote, depth, min order size and trading status.';
+
+  @override
+  String get manualEntryMarketMakerSyncTitle => 'Sync the exchange';
+
+  @override
+  String get manualEntryMarketMakerSyncDesc =>
+      'Trigger a manual sync to refresh markets from Binance.';
+
+  @override
+  String get manualEntryAdminTransactionsTitle => 'Monitor transactions';
+
+  @override
+  String get manualEntryAdminTransactionsDesc =>
+      'Inspect suspicious activity and export filtered lists.';
+
+  @override
+  String get manualEntryAdminCurrenciesTitle => 'Manage currencies';
+
+  @override
+  String get manualEntryAdminCurrenciesDesc =>
+      'Create, edit or pause tradable currencies.';
+
+  @override
+  String get manualEntryAdminDepositWatcherTitle => 'Deposit watcher';
+
+  @override
+  String get manualEntryAdminDepositWatcherDesc =>
+      'Track incoming on-chain deposits and credit users.';
+
+  @override
+  String get manualEntrySystemConfigSaveTitle => 'Edit system config';
+
+  @override
+  String get manualEntrySystemConfigSaveDesc =>
+      'Switch tabs (Auth Security / Core / Finance / Ops / Tech) and save.';
+
+  @override
+  String get manualEntryBroadcastSendTitle => 'Send a broadcast';
+
+  @override
+  String get manualEntryBroadcastSendDesc =>
+      'Choose a type (system / alert / promo) and broadcast to all users.';
+
+  @override
+  String get manualGlossaryBody =>
+      '## Key terms\n\n- **Order Book** — the live list of buy (bid) and sell (ask) orders for a trading pair.\n- **LIMIT order** — buy or sell at a price you choose; it waits in the book until matched.\n- **MARKET order** — buy or sell immediately at the best available price.\n- **STOP_LOSS** — a conditional order triggered when price reaches a threshold.\n- **Maker / Taker** — maker adds liquidity (LIMIT); taker removes it (MARKET).\n- **Available vs Frozen** — available can be traded; frozen is locked by an open order or pending withdrawal.\n- **2FA / TOTP** — a 6-digit code from an authenticator app used to confirm sensitive actions.\n- **On-chain** — a transaction settled on the blockchain (vs. internal ledger transfer).\n- **Sweep** — a treasury operation that consolidates funds into a cold wallet.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.';
+
+  @override
+  String get manualFaqBody =>
+      '## Frequently asked questions\n\n### Why is my withdrawal pending?\nLarge or first-time withdrawals are reviewed by an admin. You will receive a notification once approved.\n\n### I lost access to my 2FA device — what now?\nOpen Profile → Security, then contact support. An admin can reset your 2FA after identity verification.\n\n### How do I switch between demo and live trading?\nUse the exchange-sync card in Settings to refresh markets from Binance. For spot trading on Binance directly, link an API key under the Market Maker area.\n\n### Why is a market hidden from the list?\nAdmin can pause a market. Open Currencies from the drawer to view all currencies regardless of status.\n\n### What is the difference between Wallet and Managed Wallets?\nWallets are your personal balances. Managed Wallets are platform-owned wallets used for treasury operations.';
+
+  @override
+  String get manualContactBody =>
+      '## Contact Support\n\n- **In-app**: open this manual\'s Glossary / FAQ first; many issues are covered there.\n- **Profile → Security**: request an email or password change; admin review is required.\n- **Notifications tab**: review the latest announcements and broadcast messages.\n- **Admin / Finance / Risk users**: use the drawer sections to reach the relevant operational tools.\n\nIf your issue is not covered, raise it inside the app and an admin will route it to the right team.';
 }

@@ -16,8 +16,6 @@ import 'package:crypto_trading_app/features/auth/presentation/providers/auth_pro
 import 'package:crypto_trading_app/features/auth/presentation/widgets/otp_verification_dialog.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/widgets/wallet_contact_email_verification_dialog.dart';
 import 'package:crypto_trading_app/core/widgets/user_email_verified_mark.dart';
-import 'package:crypto_trading_app/features/settings/presentation/screens/settings_screen.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/about_screen.dart';
 
 /// Profile Screen - User account information
 class ProfileScreen extends StatefulWidget {
@@ -293,7 +291,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Đổi mật khẩu trực tiếp (không cần xét duyệt).
-  /// Khi emailVerificationRequired = false (admin đã tắt), bỏ qua bước OTP.
+  /// Khi emailVerificationRequired = false (admin đã tắt), bỏ qua bước OTP
+  /// và cho phép đổi ngay cả khi user chưa bật 2FA cá nhân.
   Future<void> _requestPasswordChange() async {
     if (_currentUser == null) return;
     final effective = _mergeProfileWithAuth(
@@ -308,7 +307,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       return;
     }
-    if (!effective.twoFaEnabled) {
+    final authProvider = context.read<AuthProvider>();
+    final emailVerificationRequired = authProvider.emailVerificationRequired;
+    if (!effective.twoFaEnabled && emailVerificationRequired) {
       if (mounted) {
         showAppSnackBar(
           context,
@@ -322,10 +323,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final token = sl<TokenService>().getAccessToken();
     if (token == null) return;
     final authRepo = sl<AuthRepository>();
-    final authProvider = context.read<AuthProvider>();
 
     // Bỏ qua OTP khi admin đã tắt email verification.
-    final emailVerificationRequired = authProvider.emailVerificationRequired;
     String? otpCode;
 
     if (emailVerificationRequired) {
@@ -394,7 +393,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String? otp;
 
 if (!walletPlaceholder) {
-      if (!effective.twoFaEnabled) {
+      // Khi admin đã tắt emailVerification, cho phép đổi email ngay cả khi user chưa bật 2FA.
+      if (!effective.twoFaEnabled && emailVerificationRequired) {
         if (mounted) {
           showAppSnackBar(
             context,
@@ -832,6 +832,12 @@ if (!walletPlaceholder) {
     AppLocalizations l10n,
     User user,
   ) {
+    // Đổi email / password khả dụng khi:
+    // - user đã bật 2FA cá nhân, HOẶC
+    // - admin đã tắt emailVerificationRequired (lúc đó BE auto-approve, không cần OTP).
+    final emailVerificationRequired =
+        context.watch<AuthProvider>().emailVerificationRequired;
+    final canChangeSecurity = user.twoFaEnabled || !emailVerificationRequired;
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -846,7 +852,7 @@ if (!walletPlaceholder) {
                   ),
             ),
           ),
-          if (user.twoFaEnabled) ...[
+          if (canChangeSecurity) ...[
             ListTile(
               leading: const Icon(Icons.email_outlined),
               title: Text(l10n.profileChangeEmail),
@@ -871,12 +877,14 @@ if (!walletPlaceholder) {
               trailing: const Icon(Icons.chevron_right),
               mouseCursor: SystemMouseCursors.click,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                );
+                // Use GoRouter rather than the raw Navigator so all pushes
+                // are reflected in the same page list the GoRouter shell
+                // maintains. Mixing raw `Navigator.push` with GoRouter on
+                // the same Navigator surfaces a
+                // `!keyReservation.contains(key)` assertion during
+                // rebuilds (flutter#140586, also documented in
+                // `app_router.dart`).
+                context.push(AppRoutes.settings);
               },
             ),
         ],
@@ -895,27 +903,24 @@ if (!walletPlaceholder) {
             trailing: const Icon(Icons.chevron_right),
             mouseCursor: SystemMouseCursors.click,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
-                ),
-              );
+              // Use GoRouter rather than the raw Navigator so all pushes
+              // are reflected in the same page list the GoRouter shell
+              // maintains. Mixing raw `Navigator.push` with GoRouter on
+              // the same Navigator surfaces a
+              // `!keyReservation.contains(key)` assertion during
+              // rebuilds (flutter#140586, also documented in
+              // `app_router.dart`).
+              context.push(AppRoutes.settings);
             },
           ),
           ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: Text(l10n.aboutTitle),
-            subtitle: Text(l10n.aboutAppTileSubtitle),
+            leading: const Icon(Icons.menu_book_outlined),
+            title: Text(l10n.manualTitle),
+            subtitle: Text(l10n.manualSubtitle),
             trailing: const Icon(Icons.chevron_right),
             mouseCursor: SystemMouseCursors.click,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AboutScreen(),
-                ),
-              );
+              context.push(AppRoutes.manual);
             },
           ),
         ],

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:crypto_trading_app/app/di/injection_container.dart';
+import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/core/responsive/app_responsive.dart';
 import 'package:crypto_trading_app/core/localization/locale_provider.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart'
@@ -18,7 +20,6 @@ import 'package:crypto_trading_app/features/auth/presentation/providers/auth_pro
 import 'package:crypto_trading_app/features/markets/presentation/providers/currencies_provider.dart';
 import 'package:crypto_trading_app/features/markets/presentation/providers/markets_provider.dart';
 import 'package:crypto_trading_app/features/auth/presentation/widgets/otp_verification_dialog.dart';
-import 'package:crypto_trading_app/features/home/presentation/screens/about_screen.dart';
 
 /// App Settings screen (Sync Binance, etc.)
 class SettingsScreen extends StatefulWidget {
@@ -623,18 +624,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildAboutSection(BuildContext context, AppLocalizations l10n) {
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.info_outline),
-        title: Text(AppLocalizations.of(context).aboutAppTileTitle),
-        subtitle: Text(AppLocalizations.of(context).aboutAppTileSubtitle),
+        leading: const Icon(Icons.menu_book_outlined),
+        title: Text(l10n.manualTitle),
+        subtitle: Text(l10n.manualSubtitle),
         trailing: const Icon(Icons.chevron_right),
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AboutScreen(),
-            ),
-          );
+          context.push(AppRoutes.manual);
         },
       ),
     );
