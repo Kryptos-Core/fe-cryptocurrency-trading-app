@@ -67,6 +67,13 @@ class ApiConstants {
   // Auth Endpoints (Xác thực) - Không có prefix /api/v1
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';
+
+  /// Sandbox-only login by email (no password). Returns 404 in production.
+  static const String authLoginEmailOnly = '/auth/login-email-only';
+
+  /// Sandbox-only: list active users for the dev account picker. Returns 404 in production.
+  static const String authSandboxUsers = '/auth/sandbox-users';
+
   static const String authWalletNonce = '/auth/wallet-nonce';
   static const String authWalletVerify = '/auth/wallet-verify';
 

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crypto_trading_app/app/router/app_routes.dart';
 import 'package:crypto_trading_app/features/auth/application/services/auth_wallet_flow_service.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 import 'package:crypto_trading_app/features/auth/presentation/dev/dev_account_sheet.dart';
 import 'package:crypto_trading_app/features/auth/presentation/dev/dev_test_accounts.dart';
 import 'package:crypto_trading_app/core/utils/snackbar_helper.dart';
@@ -291,19 +292,98 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showDevAccounts() {
+    final authProvider = context.read<AuthProvider>();
+    // Kick off the live fetch once when the sheet is opened. The sheet will
+    // show a loading spinner if the list is still empty.
+    authProvider.loadSandboxUsers();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => DevAccountSheet(
-        accounts: devTestAccounts,
-        onLogin: (email, password) {
-          Navigator.of(context).pop();
-          _emailController.text = email;
-          _passwordController.text = password;
-          _handleLogin();
-        },
-      ),
+      builder: (sheetContext) {
+        return Consumer<AuthProvider>(
+          builder: (ctx, auth, _) {
+            final List<DevUserPick> accounts = auth.sandboxUsers.isNotEmpty
+                ? auth.sandboxUsers
+                : (auth.sandboxUsersError != null
+                    ? devTestAccounts.map((a) => a.toPick()).toList()
+                    : const <DevUserPick>[]);
+            return DevAccountSheet(
+              accounts: accounts,
+              isLoading: auth.isLoadingSandboxUsers,
+              loadError: auth.sandboxUsersError,
+              onReload: () => auth.loadSandboxUsers(),
+              onLoginEmailOnly: (email) async {
+                if (auth.sandboxUsers.isNotEmpty) {
+                  // Live list — use the email-only API.
+                  Navigator.of(ctx).pop();
+                  await _handleEmailOnlyLogin(email);
+                } else {
+                  // Fallback path — fall through to the form with password
+                  // so the user can still log in with the hardcoded creds.
+                  final fallback = devTestAccounts.firstWhere(
+                    (a) => a.email == email,
+                    orElse: () => devTestAccounts.first,
+                  );
+                  Navigator.of(ctx).pop();
+                  _emailController.text = fallback.email;
+                  _passwordController.text = fallback.password;
+                  _handleLogin();
+                }
+              },
+            );
+          },
+        );
+      },
     );
+  }
+
+  Future<void> _handleEmailOnlyLogin(String email) async {
+    final authProvider = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context);
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final result = await authProvider.loginEmailOnly(email: email);
+      result.fold(
+        (failure) {
+          setState(() => _isLoading = false);
+          if (mounted) {
+            showAppSnackBar(
+              context,
+              message: '${l10n.loginFailed}: ${failure.message}',
+              type: SnackBarType.error,
+              duration: const Duration(seconds: 4),
+            );
+          }
+        },
+        (_) {
+          setState(() => _isLoading = false);
+          if (mounted) {
+            showAppSnackBar(
+              context,
+              message: 'Login successful!',
+              type: SnackBarType.success,
+              duration: const Duration(seconds: 1),
+            );
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) context.go(AppRoutes.root);
+            });
+          }
+        },
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: 'Error: ${e.toString()}',
+          type: SnackBarType.error,
+          duration: const Duration(seconds: 4),
+        );
+      }
+    }
   }
 
   @override

@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
 
-import 'package:crypto_trading_app/features/auth/presentation/dev/dev_test_accounts.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 import 'package:crypto_trading_app/core/gen_l10n/app_localizations.dart';
 
+/// Bottom-sheet picker for the sandbox-only "Đăng nhập bằng tài khoản test" UI.
+///
+/// Receives a list of [DevUserPick] entities (loaded from the backend via
+/// `GET /auth/sandbox-users` or, on failure, the hardcoded fallback).
+/// On tap of a row, calls [onLoginEmailOnly] with the picked email — the
+/// parent then drives [AuthProvider.loginEmailOnly] (no password required).
 class DevAccountSheet extends StatefulWidget {
-  final List<DevTestAccount> accounts;
-  final void Function(String email, String password) onLogin;
+  final List<DevUserPick> accounts;
+  final bool isLoading;
+  final String? loadError;
+  final Future<void> Function() onReload;
+  final Future<void> Function(String email) onLoginEmailOnly;
 
   const DevAccountSheet({
     super.key,
     required this.accounts,
-    required this.onLogin,
+    required this.isLoading,
+    required this.loadError,
+    required this.onReload,
+    required this.onLoginEmailOnly,
   });
 
   @override
@@ -18,33 +30,18 @@ class DevAccountSheet extends StatefulWidget {
 }
 
 class _DevAccountSheetState extends State<DevAccountSheet> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _isLoading = false;
+  bool _isSubmitting = false;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleLogin() async {
-    if (_emailController.text.trim().isEmpty ||
-        _passwordController.text.isEmpty) {
-      return;
+  Future<void> _handleLogin(DevUserPick account) async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      await widget.onLoginEmailOnly(account.email);
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
-    setState(() => _isLoading = true);
-    widget.onLogin(_emailController.text.trim(), _passwordController.text);
-  }
-
-  void _fillAccount(DevTestAccount account) {
-    setState(() {
-      _emailController.text = account.email;
-      _passwordController.text = account.password;
-      _obscurePassword = false; // reveal so user can see and edit
-    });
   }
 
   Color _roleColor(String role) {
@@ -113,25 +110,20 @@ class _DevAccountSheetState extends State<DevAccountSheet> {
                   const SizedBox(width: 16),
                   const Icon(Icons.bug_report, color: Colors.orange, size: 22),
                   const SizedBox(width: 8),
-                  Text(
-                    l10n.testAccountDev,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange[800],
-                        ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      size: 20,
+                  Expanded(
+                    child: Text(
+                      l10n.testAccountDev,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange[800],
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    tooltip: _obscurePassword ? l10n.hidePassword : l10n.showPassword,
-                    onPressed: () {
-                      setState(() => _obscurePassword = !_obscurePassword);
-                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 20),
+                    tooltip: 'Reload',
+                    onPressed: widget.isLoading ? null : widget.onReload,
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -153,14 +145,14 @@ class _DevAccountSheetState extends State<DevAccountSheet> {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.edit_note,
+                        Icons.password,
                         size: 16,
                         color: Colors.orange,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          l10n.youCanEditCredentialsAbove,
+                          'Sandbox: mật khẩu bị bỏ qua — click tài khoản để đăng nhập.',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 color: Colors.orange[800],
@@ -172,111 +164,27 @@ class _DevAccountSheetState extends State<DevAccountSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              hintText: l10n.email,
-                              prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6),
-                                borderSide: BorderSide(
-                                  color: Colors.orange.withValues(alpha: 0.5),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6),
-                                borderSide: BorderSide(
-                                  color: Colors.orange.withValues(alpha: 0.5),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6),
-                                borderSide: const BorderSide(
-                                  color: Colors.orange,
-                                  width: 2,
-                                ),
-                              ),
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: 'Clear',
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () => setState(
-                            () => _emailController.clear(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              hintText: l10n.password,
-                              prefixIcon: const Icon(Icons.lock_outlined, size: 20),
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                            ),
-                            textInputAction: TextInputAction.done,
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: 'Clear',
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () => setState(
-                            () => _passwordController.clear(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        icon: _isLoading
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.login, size: 18),
-                        label: Text(
-                          _isLoading ? l10n.loggingIn : l10n.login,
+              if (widget.loadError != null) ...[
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 16, color: Colors.redAccent),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          widget.loadError!,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.red[700]),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 10),
-              const Divider(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -288,131 +196,102 @@ class _DevAccountSheetState extends State<DevAccountSheet> {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const Spacer(),
-                    Text(
-                      l10n.youCanEditCredentialsAbove,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[500],
-                          ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
               Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  shrinkWrap: true,
-                  itemCount: widget.accounts.length,
-                  itemBuilder: (context, index) {
-                    final account = widget.accounts[index];
-                    final isSelected =
-                        _emailController.text == account.email &&
-                            _passwordController.text == account.password;
-                    return InkWell(
-                      onTap: () => _fillAccount(account),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: isSelected
-                            ? BoxDecoration(
-                                color:
-                                    _roleColor(account.role).withValues(alpha: 0.08),
-                                border: Border(
-                                  left: BorderSide(
-                                    color: _roleColor(account.role),
-                                    width: 3,
-                                  ),
-                                ),
-                              )
-                            : null,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor:
-                                  _roleColor(account.role).withValues(alpha: 0.15),
-                              child: Icon(
-                                _roleIcon(account.role),
-                                size: 16,
-                                color: _roleColor(account.role),
+                child: widget.isLoading && widget.accounts.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        controller: scrollController,
+                        shrinkWrap: true,
+                        itemCount: widget.accounts.length,
+                        itemBuilder: (context, index) {
+                          final account = widget.accounts[index];
+                          return InkWell(
+                            onTap: _isSubmitting
+                                ? null
+                                : () => _handleLogin(account),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    account.displayName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  Text(
-                                    account.email,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _roleColor(account.role)
+                                  CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: _roleColor(account.role)
                                         .withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    account.role,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
+                                    child: Icon(
+                                      _roleIcon(account.role),
+                                      size: 16,
                                       color: _roleColor(account.role),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _obscurePassword
-                                      ? '\u2022' * 12
-                                      : account.password,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        fontFamily: 'monospace',
-                                        color: Colors.grey[700],
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          account.displayName,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        Text(
+                                          account.email,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _roleColor(account.role)
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      account.role,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: _roleColor(account.role),
                                       ),
-                                ),
-                              ],
-                            ),
-                            if (isSelected) ...[
-                              const SizedBox(width: 6),
-                              Icon(
-                                Icons.check_circle,
-                                size: 16,
-                                color: _roleColor(account.role),
+                                    ),
+                                  ),
+                                  if (_isSubmitting) ...[
+                                    const SizedBox(width: 8),
+                                    const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ],
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
               const SizedBox(height: 16),
             ],

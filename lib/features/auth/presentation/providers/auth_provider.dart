@@ -7,6 +7,7 @@ import 'package:crypto_trading_app/core/enums/user_role.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/core/utils/wallet_placeholder_email.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 import 'package:crypto_trading_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:http/http.dart' as http;
@@ -40,6 +41,11 @@ class AuthProvider extends ChangeNotifier {
   /// Even when set to false, the backend hard-enforces TOTP on production on-chain mode.
   /// Loaded from BE alongside [refreshAuthSecurityFlags].
   bool _treasuryWalletTotpRequired = true;
+
+  /// Sandbox login picker state — populated lazily by [loadSandboxUsers].
+  bool _isLoadingSandboxUsers = false;
+  List<DevUserPick> _sandboxUsers = const [];
+  String? _sandboxUsersError;
   final http.Client _httpClient;
 
   /// True for one broadcast cycle when a 403 is received from the server.
@@ -198,6 +204,43 @@ class AuthProvider extends ChangeNotifier {
   /// Equivalent to [refreshAuthSecurityFlags].
   Future<void> refreshEmailVerificationRequired() =>
       refreshAuthSecurityFlags();
+
+  /// Sandbox login picker state.
+  bool get isLoadingSandboxUsers => _isLoadingSandboxUsers;
+  List<DevUserPick> get sandboxUsers => _sandboxUsers;
+  String? get sandboxUsersError => _sandboxUsersError;
+
+  /// Fetch the active-user list from the (sandbox-only) backend endpoint.
+  /// On 404 (production), leaves the previous list intact and surfaces a
+  /// non-blocking error so the UI can fall back to the hardcoded list.
+  Future<void> loadSandboxUsers() async {
+    if (_isLoadingSandboxUsers) return;
+    _isLoadingSandboxUsers = true;
+    _sandboxUsersError = null;
+    notifyListeners();
+    try {
+      final result = await _authRepository.listSandboxUsers();
+      result.fold(
+        (failure) {
+          _sandboxUsersError = failure.message;
+          // Keep previous list so UI can show fallback.
+        },
+        (list) {
+          _sandboxUsers = list;
+          _sandboxUsersError = null;
+        },
+      );
+    } finally {
+      _isLoadingSandboxUsers = false;
+      notifyListeners();
+    }
+  }
+
+  /// Login by email only (sandx-only). Falls through `_applyAuthResponse`.
+  Future<Either<Failure, void>> loginEmailOnly({required String email}) async {
+    final result = await _authRepository.loginEmailOnly(email: email);
+    return result.fold(Left.new, (r) async => _applyAuthResponse(r));
+  }
 
   bool hasPermission(String permission) => _permissions.contains(permission);
 

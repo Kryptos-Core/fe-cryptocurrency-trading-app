@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 import 'package:crypto_trading_app/features/auth/domain/entities/security_change_request.dart';
 import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_response.dart';
 import 'package:crypto_trading_app/features/auth/domain/entities/wc_auth_results.dart';
@@ -28,6 +29,16 @@ class StubAuthRepository implements AuthRepository {
     required String email,
     required String password,
   }) async =>
+      const Left(_f);
+
+  @override
+  Future<Either<Failure, AuthResponse>> loginEmailOnly({
+    required String email,
+  }) async =>
+      const Left(_f);
+
+  @override
+  Future<Either<Failure, List<DevUserPick>>> listSandboxUsers() async =>
       const Left(_f);
 
   @override

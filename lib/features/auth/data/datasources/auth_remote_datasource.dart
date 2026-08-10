@@ -5,6 +5,7 @@ import 'package:crypto_trading_app/core/constants/api_constants.dart';
 import 'package:crypto_trading_app/core/error/api_error_parser.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/features/auth/data/models/auth_response_model.dart';
+import 'package:crypto_trading_app/features/auth/data/models/dev_user_pick_model.dart';
 import 'package:crypto_trading_app/features/user/data/models/user_model.dart';
 
 String _messageFromDioResponse(dynamic data, String fallback) {
@@ -35,6 +36,13 @@ abstract class AuthRemoteDataSource {
     required String email,
     required String password,
   });
+
+  /// Sandbox-only login by email (no password). Returns 404 in production.
+  Future<AuthResponseModel> loginEmailOnly({required String email});
+
+  /// Sandbox-only: list ACTIVE users for the dev account picker (password-less).
+  /// Returns 404 in production.
+  Future<List<DevUserPickModel>> listSandboxUsers();
 
   /// Get current user profile
   /// Requires access token in header
@@ -214,6 +222,105 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             'Check in browser: $healthUrl',
       );
     } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<AuthResponseModel> loginEmailOnly({required String email}) async {
+    try {
+      final response = await dio.post(
+        ApiConstants.authLoginEmailOnly,
+        data: {'email': email},
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['data'] as Map<String, dynamic>;
+        return AuthResponseModel.fromJson(data);
+      }
+      throw AuthenticationException(
+        message: response.data['message'] ?? 'Sandbox login failed',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Sandbox login failed',
+        );
+        if (statusCode == 404) {
+          // Backend hides the endpoint in production — surface as a sandbox-unavailable failure.
+          throw ServerException(
+            message: 'Sandbox login không khả dụng (BE không phải sandbox mode).',
+            statusCode: 404,
+            code: 'SANDBOX_DISABLED',
+          );
+        }
+        if (statusCode == 401) {
+          throw AuthenticationException(message: payload.message);
+        }
+        if (statusCode == 403) {
+          throw AuthenticationException(message: payload.message);
+        }
+        throw ServerException(
+          message: payload.message,
+          statusCode: statusCode,
+          code: payload.code,
+        );
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      if (e is AuthenticationException ||
+          e is ServerException ||
+          e is NetworkException) {
+        rethrow;
+      }
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<List<DevUserPickModel>> listSandboxUsers() async {
+    try {
+      final response = await dio.get(ApiConstants.authSandboxUsers);
+      if (response.statusCode == 200) {
+        final raw = response.data as Map<String, dynamic>?;
+        if (raw == null) return const [];
+        final data = raw['data'];
+        if (data is! List) return const [];
+        return data
+            .map((e) => DevUserPickModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      throw ServerException(
+        message: response.data['message'] ?? 'Failed to list sandbox users',
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final payload = ApiErrorParser.extract(
+          data: e.response!.data,
+          fallbackMessage: 'Failed to list sandbox users',
+        );
+        if (statusCode == 404) {
+          throw ServerException(
+            message: 'Sandbox user list không khả dụng (BE không phải sandbox mode).',
+            statusCode: 404,
+            code: 'SANDBOX_DISABLED',
+          );
+        }
+        throw ServerException(
+          message: payload.message,
+          statusCode: statusCode,
+          code: payload.code,
+        );
+      }
+      throw NetworkException(
+        message: 'Cannot reach server. Check connection.',
+      );
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
       throw ServerException(message: e.toString());
     }
   }

@@ -1,5 +1,15 @@
 // Dev-only test accounts for login screen — stripped from production builds
-// via kDebugMode compile-time constant.
+// via kDebugMode compile-time constant and the `kDebugMode` guard in
+// `LoginScreen._showDevAccounts()`.
+//
+// Used as OFFLINE FALLBACK when `GET /auth/sandbox-users` fails (e.g. backend
+// not in sandbox mode, or no DB). The primary source is the live endpoint.
+//
+// The flag `isSandboxLogin` is false because this fallback requires the
+// password; the picker in `DevAccountSheet` only does password-less login when
+// the list comes from the live endpoint.
+
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 
 class DevTestAccount {
   final String email;
@@ -13,6 +23,17 @@ class DevTestAccount {
     required this.displayName,
     required this.role,
   });
+
+  DevUserPick toPick() => DevUserPick(
+        userId: 'fallback-${email.hashCode}',
+        email: email,
+        firstName: null,
+        lastName: null,
+        role: role,
+        status: 'ACTIVE',
+        avatarUrl: null,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      );
 }
 
 const List<DevTestAccount> devTestAccounts = [

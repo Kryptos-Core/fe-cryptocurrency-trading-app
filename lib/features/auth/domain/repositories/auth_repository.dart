@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:crypto_trading_app/core/error/exceptions.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
 import 'package:crypto_trading_app/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:crypto_trading_app/features/auth/domain/entities/dev_user_pick.dart';
 import 'package:crypto_trading_app/features/user/data/datasources/user_remote_datasource.dart';
 import 'package:crypto_trading_app/features/user/domain/entities/user.dart';
 import 'package:crypto_trading_app/features/auth/domain/entities/wallet_nonce_response.dart';
@@ -21,6 +22,15 @@ abstract class AuthRepository {
     required String email,
     required String password,
   });
+
+  /// Sandbox-only login by email (no password). Returns 404 in production.
+  Future<Either<Failure, AuthResponse>> loginEmailOnly({
+    required String email,
+  });
+
+  /// Sandbox-only: list ACTIVE users for the dev account picker.
+  /// Returns 404 in production.
+  Future<Either<Failure, List<DevUserPick>>> listSandboxUsers();
 
   Future<Either<Failure, User>> getCurrentUser(String token);
 
@@ -214,6 +224,42 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(authResponse);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> loginEmailOnly({
+    required String email,
+  }) async {
+    try {
+      final authResponseModel = await remoteDataSource.loginEmailOnly(email: email);
+      return Right(AuthResponse(
+        accessToken: authResponseModel.accessToken,
+        refreshToken: authResponseModel.refreshToken,
+        user: authResponseModel.user.toEntity(),
+      ));
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(message: e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DevUserPick>>> listSandboxUsers() async {
+    try {
+      final list = await remoteDataSource.listSandboxUsers();
+      return Right(list.map((m) => m.toEntity()).toList());
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } on ServerException catch (e) {
