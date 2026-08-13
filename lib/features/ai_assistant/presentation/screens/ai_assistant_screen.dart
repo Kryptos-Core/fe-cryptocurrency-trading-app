@@ -5,20 +5,33 @@ import 'package:provider/provider.dart';
 import '../../../../app/di/injection_container.dart' as di;
 import '../../../../app/router/app_routes.dart';
 import '../../application/providers/ai_assistant_provider.dart';
-import '../../application/services/ai_assistant_socket_service.dart';
-import '../../domain/repositories/ai_assistant_repository.dart';
 import '../widgets/ai_conversation_tile.dart';
 
-class AiAssistantScreen extends StatelessWidget {
+class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
 
   @override
+  State<AiAssistantScreen> createState() => _AiAssistantScreenState();
+}
+
+class _AiAssistantScreenState extends State<AiAssistantScreen> {
+  late final AiAssistantProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = di.sl<AiAssistantProvider>();
+    // Defer to after first frame to avoid calling setState during build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.loadConversations();
+      _provider.loadStatus();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AiAssistantProvider>(
-      create: (_) => AiAssistantProvider(
-        repository: di.sl<AiAssistantRepository>(),
-        socketService: di.sl<AiAssistantSocketService>(),
-      )..loadConversations()..loadStatus(),
+    return ChangeNotifierProvider<AiAssistantProvider>.value(
+      value: _provider,
       child: const _AiAssistantScreenBody(),
     );
   }

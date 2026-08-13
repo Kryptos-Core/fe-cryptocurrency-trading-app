@@ -1,11 +1,45 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 
+import 'package:crypto_trading_app/core/services/token_service.dart';
 import 'package:crypto_trading_app/features/ai_assistant/application/providers/ai_assistant_provider.dart';
 import 'package:crypto_trading_app/features/ai_assistant/application/services/ai_assistant_socket_service.dart';
 import 'package:crypto_trading_app/features/ai_assistant/domain/entities/conversation.dart';
 import 'package:crypto_trading_app/features/ai_assistant/domain/entities/message.dart';
 import 'package:crypto_trading_app/features/ai_assistant/domain/repositories/ai_assistant_repository.dart';
+
+class FakeTokenService implements TokenService {
+  String? _token;
+  @override
+  String? getAccessToken() => _token;
+  @override
+  Future<void> setAccessToken(String token) async {
+    _token = token;
+  }
+
+  @override
+  Future<void> clear() async {
+    _token = null;
+  }
+
+  @override
+  String? getRefreshToken() => null;
+
+  @override
+  Future<void> setRefreshToken(String token) async {}
+
+  @override
+  Future<void> setTokens({String? accessToken, String? refreshToken}) async {
+    if (accessToken != null) _token = accessToken;
+  }
+
+  @override
+  Stream<String?> accessTokenStream() => const Stream.empty();
+
+  @override
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class FakeRepository implements AiAssistantRepository {
   List<Conversation> conversations;
@@ -115,6 +149,11 @@ void main() {
     setUp(() {
       repo = FakeRepository();
       socket = FakeSocketService();
+      // Register a fake TokenService so the provider can be instantiated.
+      // Use tryRegister to avoid issues when running multiple test files.
+      if (!GetIt.instance.isRegistered<TokenService>()) {
+        GetIt.instance.registerSingleton<TokenService>(FakeTokenService());
+      }
     });
 
     test('loadConversations populates list and clears errors', () async {
@@ -144,7 +183,7 @@ void main() {
 
     test('sendMessage routes through socket service and toggles streaming flag', () async {
       final p = AiAssistantProvider(repository: repo, socketService: socket);
-      p.sendMessage('Giá BTC?');
+      await p.sendMessage('Giá BTC?');
 
       expect(socket.lastSentContent, 'Giá BTC?');
       expect(socket.lastSentConversationId, isNull);
@@ -168,7 +207,7 @@ void main() {
 
     test('chat:done finalises streaming and loads status', () async {
       final p = AiAssistantProvider(repository: repo, socketService: socket);
-      p.sendMessage('hi');
+      await p.sendMessage('hi');
 
       socket.emit(const AiChatToken('Xin '));
       socket.emit(const AiChatToken('chào'));
@@ -192,7 +231,7 @@ void main() {
 
     test('chat:error sets error and stops streaming', () async {
       final p = AiAssistantProvider(repository: repo, socketService: socket);
-      p.sendMessage('hi');
+      await p.sendMessage('hi');
       socket.emit(const AiChatError(code: 'RATE_LIMITED', message: 'spam'));
       await Future<void>.delayed(Duration.zero);
       expect(p.isStreaming, isFalse);
@@ -201,7 +240,7 @@ void main() {
 
     test('stopStream sends chat:stop and clears streaming', () async {
       final p = AiAssistantProvider(repository: repo, socketService: socket);
-      p.sendMessage('hi');
+      await p.sendMessage('hi');
       p.stopStream();
       expect(socket.stopCalled, isTrue);
       expect(p.isStreaming, isFalse);

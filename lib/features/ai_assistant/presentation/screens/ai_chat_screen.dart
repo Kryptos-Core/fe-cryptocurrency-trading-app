@@ -4,35 +4,52 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/di/injection_container.dart' as di;
 import '../../application/providers/ai_assistant_provider.dart';
-import '../../application/services/ai_assistant_socket_service.dart';
-import '../../domain/repositories/ai_assistant_repository.dart';
 import '../widgets/ai_chat_input.dart';
 import '../widgets/ai_message_bubble.dart';
 
-class AiChatScreen extends StatelessWidget {
+class AiChatScreen extends StatefulWidget {
   final String? conversationId;
 
   const AiChatScreen({super.key, this.conversationId});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AiAssistantProvider>(
-      create: (_) => AiAssistantProvider(
-        repository: di.sl<AiAssistantRepository>(),
-        socketService: di.sl<AiAssistantSocketService>(),
-      )..loadStatus().._bootstrap(conversationId),
-      child: _AiChatScreenBody(conversationId: conversationId),
-    );
-  }
+  State<AiChatScreen> createState() => _AiChatScreenState();
 }
 
-extension on AiAssistantProvider {
-  Future<void> _bootstrap(String? conversationId) async {
-    if (conversationId == null) {
-      await startNewConversation();
-    } else {
-      await openConversation(conversationId);
+class _AiChatScreenState extends State<AiChatScreen> {
+  late final AiAssistantProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = di.sl<AiAssistantProvider>();
+    // Wait for socket auth before loading to avoid race conditions with
+    // _ensureSocketConnected() in the provider constructor.
+    _loadAfterSocketAuth();
+  }
+
+  Future<void> _loadAfterSocketAuth() async {
+    final socketService = _provider.socketService;
+    // Poll up to 5s for socket auth (from _ensureSocketConnected).
+    final deadline = DateTime.now().add(const Duration(seconds: 5));
+    while (!socketService.isAuthenticated && DateTime.now().isBefore(deadline)) {
+      await Future.delayed(const Duration(milliseconds: 100));
     }
+    if (!mounted) return;
+    _provider.loadStatus();
+    if (widget.conversationId == null) {
+      _provider.startNewConversation();
+    } else {
+      _provider.openConversation(widget.conversationId!);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<AiAssistantProvider>.value(
+      value: _provider,
+      child: _AiChatScreenBody(conversationId: widget.conversationId),
+    );
   }
 }
 

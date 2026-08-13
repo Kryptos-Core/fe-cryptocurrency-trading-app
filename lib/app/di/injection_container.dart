@@ -71,6 +71,7 @@ import 'package:crypto_trading_app/features/ai_assistant/application/services/ai
 import 'package:crypto_trading_app/features/ai_assistant/data/datasources/ai_assistant_remote_datasource.dart';
 import 'package:crypto_trading_app/features/ai_assistant/data/repositories/ai_assistant_repository_impl.dart';
 import 'package:crypto_trading_app/features/ai_assistant/domain/repositories/ai_assistant_repository.dart';
+import 'package:crypto_trading_app/features/ai_assistant/application/providers/ai_assistant_provider.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -392,5 +393,14 @@ Future<void> initializeDependencies() async {
   );
   sl.registerLazySingleton<AiAssistantSocketService>(
     () => AiAssistantSocketService(),
+  );
+  // Shared across the AI Assistant list and chat screens so a freshly
+  // finished chat refreshes the list (and vice-versa) without rebuilding
+  // the provider when navigating between routes.
+  sl.registerLazySingleton<AiAssistantProvider>(
+    () => AiAssistantProvider(
+      repository: sl<AiAssistantRepository>(),
+      socketService: sl<AiAssistantSocketService>(),
+    ),
   );
 }

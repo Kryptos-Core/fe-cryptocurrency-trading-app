@@ -10,7 +10,7 @@ void main() {
         body: AiChatInput(
           enabled: false,
           isStreaming: false,
-          onSend: (_) {},
+          onSend: (_) async {},
           onStop: () {},
         ),
       ),
@@ -28,7 +28,7 @@ void main() {
         body: AiChatInput(
           enabled: true,
           isStreaming: true,
-          onSend: (_) {},
+          onSend: (_) async {},
           onStop: () {},
         ),
       ),
@@ -45,7 +45,7 @@ void main() {
         body: AiChatInput(
           enabled: true,
           isStreaming: false,
-          onSend: (t) => sentText = t,
+          onSend: (t) async => sentText = t,
           onStop: () {},
         ),
       ),
