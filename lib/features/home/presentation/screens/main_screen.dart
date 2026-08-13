@@ -18,6 +18,7 @@ import 'package:crypto_trading_app/features/wallets/presentation/screens/wallet_
 import 'package:crypto_trading_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:crypto_trading_app/features/admin/payment_config/presentation/providers/payment_config_provider.dart';
 import 'package:crypto_trading_app/features/treasury/presentation/providers/treasury_provider.dart';
+import 'package:crypto_trading_app/features/ai_assistant/presentation/widgets/ai_floating_button.dart';
 
 /// Main Screen với Bottom Navigation Bar
 /// Cho phép user navigate giữa các modules
@@ -377,7 +378,11 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       body: Stack(
-        children: tabChildren,
+        children: [
+          ...tabChildren,
+          // Floating AI Assistant button overlay.
+          const AiFloatingButton(),
+        ],
       ),
       bottomNavigationBar: SizedBox(
         height: 72,

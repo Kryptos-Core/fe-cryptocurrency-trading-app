@@ -67,6 +67,10 @@ import 'package:crypto_trading_app/features/binance_trading/data/datasources/bin
 import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
 import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_credentials_provider.dart';
 import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
+import 'package:crypto_trading_app/features/ai_assistant/application/services/ai_assistant_socket_service.dart';
+import 'package:crypto_trading_app/features/ai_assistant/data/datasources/ai_assistant_remote_datasource.dart';
+import 'package:crypto_trading_app/features/ai_assistant/data/repositories/ai_assistant_repository_impl.dart';
+import 'package:crypto_trading_app/features/ai_assistant/domain/repositories/ai_assistant_repository.dart';
 
 // Export for hot reload check
 export 'package:shared_preferences/shared_preferences.dart'
@@ -377,5 +381,16 @@ Future<void> initializeDependencies() async {
     () => BinanceTradingProvider(
       repository: sl<BinanceTradingRepositoryImpl>(),
     ),
+  );
+
+  // ===== AI Assistant (Vilao LLM) =====
+  sl.registerLazySingleton<AiAssistantRemoteDataSource>(
+    () => AiAssistantRemoteDataSourceImpl(dioClient: sl<DioClient>()),
+  );
+  sl.registerLazySingleton<AiAssistantRepository>(
+    () => AiAssistantRepositoryImpl(remote: sl<AiAssistantRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<AiAssistantSocketService>(
+    () => AiAssistantSocketService(),
   );
 }

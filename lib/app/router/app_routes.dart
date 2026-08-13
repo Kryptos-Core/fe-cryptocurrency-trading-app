@@ -22,6 +22,11 @@ abstract final class AppRoutes {
   static const String notifications = '/notifications';
   static const String marketMaker = '/market-maker';
 
+  /// AI Assistant (Vilao LLM) chat screens — requires login.
+  static const String aiAssistant = '/ai-assistant';
+  static String aiAssistantChat(String id) => '$aiAssistant/$id';
+  static const String aiAssistantChatNew = '$aiAssistant/new';
+
   /// Treasury / managed wallets
   static const String treasury = '/treasury';
   static const String managedWallets = '/managed-wallets';

@@ -36,6 +36,8 @@ import 'package:crypto_trading_app/features/binance_trading/presentation/screens
 import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_credentials_provider.dart';
 import 'package:crypto_trading_app/features/binance_trading/application/providers/binance_trading_provider.dart';
 import 'package:crypto_trading_app/features/binance_trading/data/repositories/binance_trading_repository_impl.dart';
+import 'package:crypto_trading_app/features/ai_assistant/presentation/screens/ai_assistant_screen.dart';
+import 'package:crypto_trading_app/features/ai_assistant/presentation/screens/ai_chat_screen.dart';
 
 // Shared navigator key for the root-level Navigator. Used both to opt
 // routes into the root Navigator (via `parentNavigatorKey`) and to anchor
@@ -224,6 +226,21 @@ GoRouter createAppRouter(AuthProvider auth) {
             label: state.uri.queryParameters['label'],
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.aiAssistant,
+        builder: (_, __) => const AiAssistantScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (_, __) => const AiChatScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            builder: (context, state) =>
+                AiChatScreen(conversationId: state.pathParameters['id']),
+          ),
+        ],
       ),
     ],
   );

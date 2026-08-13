@@ -374,6 +374,18 @@ class ApiConstants {
   /// Notification Socket.IO URL (server origin + /notifications namespace).
   static String get notificationsSocketUrl => '$serverOrigin/notifications';
 
+  // ============ AI Assistant Endpoints (Vilao LLM) ============
+  static const String aiAssistant = '/ai-assistant';
+  static const String aiAssistantStatus = '$aiAssistant/status';
+  static const String aiAssistantConversations = '$aiAssistant/conversations';
+  static String aiAssistantConversation(String id) =>
+      '$aiAssistant/conversations/$id';
+  static String aiAssistantMessages(String id) =>
+      '$aiAssistant/conversations/$id/messages';
+
+  /// AI Assistant Socket.IO URL (server origin + /ai-assistant namespace).
+  static String get aiAssistantSocketUrl => '$serverOrigin/ai-assistant';
+
   // User FCM token endpoint
   static const String usersMeFcmToken = '/users/me/fcm-token';
 
