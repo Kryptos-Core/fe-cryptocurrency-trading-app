@@ -9,7 +9,19 @@ import '../../domain/entities/message.dart';
 import '../../domain/repositories/ai_assistant_repository.dart';
 import '../services/ai_assistant_socket_service.dart';
 
+/// Page size used by the AI Assistant chat screen when paginating messages.
+///
+/// Driven by the user-facing requirement: load the latest N messages first,
+/// then load older pages as the user scrolls towards the top of the chat.
+const int kAiAssistantMessagesPageSize = 50;
+
 /// State machine and stream consumer for the AI Assistant chat screen.
+///
+/// Messages are loaded incrementally from the BE paginated `/messages`
+/// endpoint — same pattern as the markets tab. Opening a conversation
+/// fetches only the last [kAiAssistantMessagesPageSize] messages; the
+/// chat screen asks for older pages via [loadOlderMessages] as the user
+/// scrolls up.
 class AiAssistantProvider extends ChangeNotifier {
   final AiAssistantRepository repository;
   final AiAssistantSocketService socketService;
@@ -66,8 +78,44 @@ class AiAssistantProvider extends ChangeNotifier {
   Conversation? _activeConversation;
   Conversation? get activeConversation => _activeConversation;
 
+  // ── Messages (paginated) ────────────────────────────────────────────
+  // _messages is the rendered, ASC-ordered list (oldest → newest). The chat
+  // screen uses a reverse ListView so the newest message sits at the bottom.
   List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
+
+  /// Secondary index for O(1) dedupe when merging paginated responses
+  /// against streaming deltas (the local user message uses a temp
+  /// 'local-...' id before the server reassigns a real UUID).
+  final Map<String, Message> _messagesById = <String, Message>{};
+
+  // ── Pagination state ───────────────────────────────────────────────
+  int _messagesTotal = 0;
+  int get messagesTotal => _messagesTotal;
+
+  /// 1-based page index of the oldest (most distant in the past) loaded
+  /// page. Initial open sets this to the last page (newest messages); it
+  /// decreases as the user scrolls up and we fetch older pages.
+  int _oldestLoadedPage = 0;
+
+  /// 1-based page index of the most recent loaded page. Typically equal to
+  /// [_oldestLoadedPage] for short conversations, or greater for long ones
+  /// once the initial open finishes.
+  int _newestLoadedPage = 0;
+
+  /// True when the user has not yet reached the start of the conversation
+  /// history — i.e. there is at least one older page still to fetch.
+  bool _hasMoreOlder = true;
+  bool get hasMoreOlder => _hasMoreOlder;
+
+  bool _isLoadingMessages = false;
+  bool get isLoadingMessages => _isLoadingMessages;
+
+  /// Monotonically-increasing generation token used to discard the result
+  /// of an in-flight page fetch that was started against a previous
+  /// conversation. Prevents a slow response from [loadOlderMessages]
+  /// "blasting" old messages into the new conversation's view.
+  int _loadGeneration = 0;
 
   // ── Streaming state ────────────────────────────────────────────────
   String _streamingDelta = '';
@@ -124,35 +172,162 @@ class AiAssistantProvider extends ChangeNotifier {
     }
   }
 
+  /// Open a conversation and load the most recent page of messages.
+  ///
+  /// Fetches the conversation metadata first, computes the last page from
+  /// [Conversation.messageCount], then asks the BE for just that page.
+  /// Older pages are loaded on demand by [loadOlderMessages].
   Future<void> openConversation(String conversationId) async {
+    final generation = ++_loadGeneration;
     _setError(null);
     _stopStreamWatchdog();
     _messages = [];
+    _messagesById.clear();
+    _messagesTotal = 0;
+    _oldestLoadedPage = 0;
+    _newestLoadedPage = 0;
+    _hasMoreOlder = true;
+    _isLoadingMessages = false;
     _streamingDelta = '';
     _isStreaming = false;
     _streamingAssistantId = null;
     _pendingSentAt = null;
     notifyListeners();
+
     try {
-      final result = await repository.getConversation(conversationId);
-      _activeConversation = result.conversation;
-      _messages = result.messages;
+      // We need to know the total message count to compute the last page,
+      // but the paginated `/messages` envelope is the only cheap source of
+      // that number. Probe page 1 first — for any conversation ≤
+      // [kAiAssistantMessagesPageSize] messages this single call already
+      // gives us everything we need.
+      const pageSize = kAiAssistantMessagesPageSize;
+      final probe = await repository.getConversation(
+        conversationId,
+        page: 1,
+        limit: pageSize,
+      );
+      if (generation != _loadGeneration) return; // newer open started
+      _activeConversation = probe.conversation;
+      _messagesTotal = probe.total;
+
+      final total = probe.total;
+      if (total <= 0) {
+        notifyListeners();
+        return;
+      }
+
+      final lastPage = _lastPageIndex(total);
+      if (lastPage == 1) {
+        // Short conversation — page 1 already contains every message.
+        for (final m in probe.messages) {
+          _messagesById[m.messageId] = m;
+        }
+        _messages = _sortMessagesByCreatedAt(_messagesById.values);
+        _oldestLoadedPage = 1;
+        _newestLoadedPage = 1;
+        _hasMoreOlder = false;
+        notifyListeners();
+        return;
+      }
+
+      final last = await repository.getConversation(
+        conversationId,
+        page: lastPage,
+        limit: pageSize,
+      );
+      if (generation != _loadGeneration) return; // stale response
+
+      _activeConversation = last.conversation;
+      _messagesTotal = last.total > 0 ? last.total : total;
+      _oldestLoadedPage = lastPage;
+      _newestLoadedPage = lastPage;
+      _hasMoreOlder = lastPage > 1;
+
+      // Merge into local state, dedupe by messageId.
+      for (final m in last.messages) {
+        _messagesById[m.messageId] = m;
+      }
+      _messages = _sortMessagesByCreatedAt(_messagesById.values);
+      notifyListeners();
     } catch (e) {
+      if (generation != _loadGeneration) return;
       _setError(e.toString());
     }
-    notifyListeners();
   }
 
   Future<void> startNewConversation() async {
     _setError(null);
     _stopStreamWatchdog();
     _messages = [];
+    _messagesById.clear();
+    _messagesTotal = 0;
+    _oldestLoadedPage = 0;
+    _newestLoadedPage = 0;
+    _hasMoreOlder = true;
+    _isLoadingMessages = false;
     _streamingDelta = '';
     _isStreaming = false;
     _streamingAssistantId = null;
     _pendingSentAt = null;
     _activeConversation = null;
     notifyListeners();
+  }
+
+  /// Fetch the next older page of messages for the active conversation.
+  ///
+  /// Driven by the chat screen when the user scrolls toward the top of the
+  /// (reverse) message list. No-op if we already know there are no older
+  /// pages, or if a fetch is already in flight.
+  Future<void> loadOlderMessages() async {
+    final convId = _activeConversation?.conversationId;
+    if (convId == null || convId.isEmpty) return;
+    if (_isLoadingMessages) return;
+    if (!_hasMoreOlder) return;
+    if (_oldestLoadedPage <= 1) {
+      _hasMoreOlder = false;
+      notifyListeners();
+      return;
+    }
+
+    final generation = _loadGeneration;
+    final nextPage = _oldestLoadedPage - 1;
+    const pageSize = kAiAssistantMessagesPageSize;
+    _isLoadingMessages = true;
+    notifyListeners();
+
+    try {
+      final page = await repository.getConversation(
+        convId,
+        page: nextPage,
+        limit: pageSize,
+      );
+      if (generation != _loadGeneration) return; // conversation changed
+      if (nextPage != _oldestLoadedPage - 1) return; // out-of-order response
+
+      final knownIds = _messagesById.keys.toSet();
+      var added = 0;
+      for (final m in page.messages) {
+        if (!knownIds.contains(m.messageId)) {
+          _messagesById[m.messageId] = m;
+          added++;
+        }
+      }
+      if (added > 0) {
+        _messages = _sortMessagesByCreatedAt(_messagesById.values);
+      }
+      _oldestLoadedPage = nextPage;
+      _messagesTotal = page.total > 0 ? page.total : _messagesTotal;
+      // If the page came back short we know there are no more older pages.
+      _hasMoreOlder = page.messages.length >= pageSize && nextPage > 1;
+    } catch (e) {
+      debugPrint('AiAssistantProvider: loadOlderMessages failed — $e');
+      _setError(e.toString());
+    } finally {
+      if (generation == _loadGeneration) {
+        _isLoadingMessages = false;
+        notifyListeners();
+      }
+    }
   }
 
   /// Send a chat message. The provider routes through the socket service
@@ -173,7 +348,9 @@ class AiAssistantProvider extends ChangeNotifier {
       parentMessageId: null,
       createdAt: DateTime.now(),
     );
+    _messagesById[userMessage.messageId] = userMessage;
     _messages = [..._messages, userMessage];
+    _messagesTotal = _messagesById.length;
     _streamingDelta = '';
     _isStreaming = true;
     _streamingAssistantId = null;
@@ -231,6 +408,7 @@ class AiAssistantProvider extends ChangeNotifier {
   /// picking the most recent one whose `last_message_at` is at or after the
   /// time we sent our pending user message.
   Future<void> _reconcileFromServer() async {
+    final generation = _loadGeneration;
     var convId = _activeConversation?.conversationId;
     debugPrint('AiAssistantProvider: reconcile: convId=$convId, _pendingSentAt=$_pendingSentAt');
     if (convId == null || convId.isEmpty) {
@@ -241,13 +419,14 @@ class AiAssistantProvider extends ChangeNotifier {
         debugPrint('AiAssistantProvider: reconcile: no convId found, waiting');
         return;
       }
+      if (generation != _loadGeneration) return;
       _activeConversation = Conversation(
         conversationId: convId,
         userId: '',
         title: 'Cuộc hội thoại mới',
         intent: AiConversationIntent.general,
         lastMessageAt: DateTime.now(),
-        messageCount: _messages.length,
+        messageCount: _messagesById.length,
         totalTokensIn: 0,
         totalTokensOut: 0,
         deletedAt: null,
@@ -256,31 +435,41 @@ class AiAssistantProvider extends ChangeNotifier {
       );
     }
     try {
-      final result = await repository.getConversation(convId);
+      // Always reconcile against the latest loaded page so we don't pull
+      // every message back into memory.
+      final page = _newestLoadedPage > 0
+          ? _newestLoadedPage
+          : _lastPageIndex(_messagesTotal);
+      final result = await repository.getConversation(
+        convId,
+        page: page,
+        limit: kAiAssistantMessagesPageSize,
+      );
+      if (generation != _loadGeneration) return;
+
       final serverMessages = result.messages;
-      debugPrint('AiAssistantProvider: reconcile: serverMessages count=${serverMessages.length}, localMessages count=${_messages.length}');
-      final localIds = _messages.map((m) => m.messageId).toSet();
-      var changed = false;
+      debugPrint('AiAssistantProvider: reconcile: serverMessages count=${serverMessages.length}, localMessages count=${_messagesById.length}');
+
       // Build a set of (role, content) for local user messages so we can skip
       // server-side duplicates that have a different messageId (the server
       // assigns a real UUID after saving, while we use a temporary
       // 'local-...' id before the socket round-trip).
-      final localUserMsgSignatures = _messages
+      final localUserMsgSignatures = _messagesById.values
           .where((m) => m.role == MessageRole.user)
           .map((m) => '${m.role}:${m.content}')
           .toSet();
 
+      var changed = false;
       for (final m in serverMessages) {
-        // Skip if we already have this messageId, or if this is a duplicate
-        // user message (same role + content but different server-assigned id).
         final isDuplicateUser = m.role == MessageRole.user &&
             localUserMsgSignatures.contains('${m.role}:${m.content}');
-        if (!localIds.contains(m.messageId) && !isDuplicateUser) {
-          _messages = [..._messages, m];
+        if (!_messagesById.containsKey(m.messageId) && !isDuplicateUser) {
+          _messagesById[m.messageId] = m;
           changed = true;
         }
       }
-      if (changed || serverMessages.length != _messages.length) {
+      if (changed) {
+        _messages = _sortMessagesByCreatedAt(_messagesById.values);
         // If the server has the assistant's final message, treat the stream
         // as finished so the UI stops showing the typing indicator.
         final hasAssistantFinal = serverMessages.any(
@@ -292,6 +481,7 @@ class AiAssistantProvider extends ChangeNotifier {
           _stopStreamWatchdog();
         }
         _activeConversation = result.conversation;
+        _messagesTotal = result.total > 0 ? result.total : _messagesTotal;
         notifyListeners();
       }
     } catch (e) {
@@ -361,7 +551,7 @@ class AiAssistantProvider extends ChangeNotifier {
               title: 'Cuộc hội thoại mới',
               intent: AiConversationIntent.general,
               lastMessageAt: DateTime.now(),
-              messageCount: _messages.length,
+              messageCount: _messagesById.length,
               totalTokensIn: 0,
               totalTokensOut: 0,
               deletedAt: null,
@@ -371,7 +561,7 @@ class AiAssistantProvider extends ChangeNotifier {
           : _activeConversation!.copyWith(
               conversationId: event.conversationId,
               lastMessageAt: DateTime.now(),
-              messageCount: _messages.length,
+              messageCount: _messagesById.length,
             );
       notifyListeners();
     } else if (event is AiChatToken) {
@@ -395,6 +585,7 @@ class AiAssistantProvider extends ChangeNotifier {
         parentMessageId: null,
         createdAt: DateTime.now(),
       );
+      _messagesById[toolMessage.messageId] = toolMessage;
       _messages = [..._messages, toolMessage];
       notifyListeners();
     } else if (event is AiChatDone) {
@@ -415,7 +606,9 @@ class AiAssistantProvider extends ChangeNotifier {
           parentMessageId: null,
           createdAt: DateTime.now(),
         );
-        _messages = [..._messages, assistantMessage];
+        _messagesById[assistantMessage.messageId] = assistantMessage;
+        _messages = _sortMessagesByCreatedAt(_messagesById.values);
+        _messagesTotal = _messagesById.length;
       }
       _streamingDelta = '';
       _isStreaming = false;
@@ -452,6 +645,11 @@ class AiAssistantProvider extends ChangeNotifier {
       if (_activeConversation?.conversationId == conversationId) {
         _activeConversation = null;
         _messages = [];
+        _messagesById.clear();
+        _oldestLoadedPage = 0;
+        _newestLoadedPage = 0;
+        _messagesTotal = 0;
+        _hasMoreOlder = true;
       }
       notifyListeners();
     } catch (e) {
@@ -464,5 +662,27 @@ class AiAssistantProvider extends ChangeNotifier {
     _stopStreamWatchdog();
     _eventSubscription?.cancel();
     super.dispose();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────
+
+  /// 1-based index of the last (most-recent) page for a given total message
+  /// count and page size.
+  static int _lastPageIndex(int total) {
+    if (total <= 0) return 1;
+    const size = kAiAssistantMessagesPageSize;
+    return ((total + size - 1) ~/ size).clamp(1, 1 << 30);
+  }
+
+  /// Stable, ASC sort of messages by `createdAt` (oldest first). Stable so
+  /// that messages with identical timestamps retain their merge order.
+  static List<Message> _sortMessagesByCreatedAt(Iterable<Message> source) {
+    final list = source.toList();
+    list.sort((a, b) {
+      final cmp = a.createdAt.compareTo(b.createdAt);
+      if (cmp != 0) return cmp;
+      return a.messageId.compareTo(b.messageId);
+    });
+    return list;
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/di/injection_container.dart' as di;
 import '../../../../app/router/app_routes.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../application/providers/ai_assistant_provider.dart';
 import '../widgets/ai_conversation_tile.dart';
 
@@ -21,8 +22,17 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   void initState() {
     super.initState();
     _provider = di.sl<AiAssistantProvider>();
-    // Defer to after first frame to avoid calling setState during build.
+    // Defensive auth guard: the floating button already redirects guests
+    // to the login screen, but a deep-link / pasted URL / programmatic
+    // push could still mount this route for an unauthenticated user.
+    // Send them to the login screen instead of rendering an empty list.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      if (!auth.isAuthenticated) {
+        context.go(AppRoutes.login);
+        return;
+      }
       _provider.loadConversations();
       _provider.loadStatus();
     });
@@ -40,24 +50,27 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 class _AiAssistantScreenBody extends StatelessWidget {
   const _AiAssistantScreenBody();
 
+  Future<void> _openChat(BuildContext context, String route) async {
+    await context.push(route);
+    if (!context.mounted) return;
+    // AiAssistantScreen is preserved on the back stack while AiChatScreen is
+    // on top. Its initState() does NOT re-run when we pop back here, so the
+    // provider's conversations list may not include the chat we just
+    // finished (the chat:done handler triggers an async loadConversations,
+    // but its notifyListeners can land between frames or be coalesced).
+    // Re-fetch on every pop to guarantee the new/updated conversation
+    // appears at the top of the list immediately.
+    final provider = di.sl<AiAssistantProvider>();
+    await provider.loadConversations();
+    await provider.loadStatus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AiAssistantProvider>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI Assistant'),
-        actions: [
-          if (provider.status != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Center(
-                child: Text(
-                  'Còn ${provider.status!.dailyRemainingTokens} tokens',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -102,7 +115,10 @@ class _AiAssistantScreenBody extends StatelessWidget {
                 final conv = provider.conversations[i];
                 return AiConversationTile(
                   conversation: conv,
-                  onTap: () => context.push(AppRoutes.aiAssistantChat(conv.conversationId)),
+                  onTap: () => _openChat(
+                    context,
+                    AppRoutes.aiAssistantChat(conv.conversationId),
+                  ),
                 );
               },
             );
@@ -111,7 +127,7 @@ class _AiAssistantScreenBody extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'ai-assistant-new-fab',
-        onPressed: () => context.push(AppRoutes.aiAssistantChatNew),
+        onPressed: () => _openChat(context, AppRoutes.aiAssistantChatNew),
         icon: const Icon(Icons.add_comment_outlined),
         label: const Text('Hỏi AI'),
       ),

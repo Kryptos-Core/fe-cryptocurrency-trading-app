@@ -12112,6 +12112,18 @@ abstract class AppLocalizations {
   /// **'## Key terms\n\n- **Order Book** — the live list of buy (bid) and sell (ask) orders for a trading pair.\n- **LIMIT order** — buy or sell at a price you choose; it waits in the book until matched.\n- **MARKET order** — buy or sell immediately at the best available price.\n- **STOP_LOSS** — a conditional order triggered when price reaches a threshold.\n- **Maker / Taker** — maker adds liquidity (LIMIT); taker removes it (MARKET).\n- **Available vs Frozen** — available can be traded; frozen is locked by an open order or pending withdrawal.\n- **2FA / TOTP** — a 6-digit code from an authenticator app used to confirm sensitive actions.\n- **On-chain** — a transaction settled on the blockchain (vs. internal ledger transfer).\n- **Sweep** — a treasury operation that consolidates funds into a cold wallet.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.'**
   String get manualGlossaryBody;
 
+  /// No description provided for @aiFloatingHintText.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to move'**
+  String get aiFloatingHintText;
+
+  /// No description provided for @aiFloatingOpenTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open AI Assistant'**
+  String get aiFloatingOpenTooltip;
+
   /// No description provided for @manualFaqBody.
   ///
   /// In en, this message translates to:

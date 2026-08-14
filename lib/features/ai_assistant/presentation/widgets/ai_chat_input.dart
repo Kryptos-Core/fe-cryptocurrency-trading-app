@@ -44,12 +44,8 @@ class _AiChatInputState extends State<AiChatInput> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     final future = widget.onSend(text);
-    if (future != null) {
-      // ignore: discarded_futures
-      future.then((_) => _controller.clear());
-    } else {
-      _controller.clear();
-    }
+    // ignore: discarded_futures
+    future.then((_) => _controller.clear());
   }
 
   @override

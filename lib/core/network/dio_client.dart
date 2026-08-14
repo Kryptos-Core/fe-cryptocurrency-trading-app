@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/services/token_service.dart';
+import 'api_cache_interceptor.dart';
 import '../constants/api_constants.dart';
 
 /// Dio Client Factory
@@ -37,6 +38,10 @@ class DioClient {
   final Logger _logger = Logger();
   TokenService? tokenService;
 
+  /// Holds the registered [ApiCacheInterceptor] so providers and the WS
+  /// listener can invalidate cache prefixes after realtime events.
+  ApiCacheInterceptor? apiCacheInterceptor;
+
   DioClient._internal({Dio? dio, this.tokenService})
       : _dio = dio ??
             Dio(BaseOptions(
@@ -49,41 +54,16 @@ class DioClient {
                 'Accept': 'application/json',
               },
             )) {
+    final cacheInterceptor = ApiCacheInterceptor();
+    apiCacheInterceptor = cacheInterceptor;
     _dio.interceptors.addAll([
-      _loggingInterceptor(),
       _authInterceptor(),
+      cacheInterceptor,
       _errorInterceptor(),
     ]);
   }
 
   Dio get dio => _dio;
-
-  /// Logging interceptor for debugging
-  Interceptor _loggingInterceptor() {
-    return InterceptorsWrapper(
-      onRequest: (options, handler) {
-        _logger.d('REQUEST[${options.method}] => PATH: ${options.path}');
-        _logger.d('Headers: ${options.headers}');
-        _logger.d('Data: ${options.data}');
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        _logger.i(
-          'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
-        );
-        _logger.d('Data: ${response.data}');
-        return handler.next(response);
-      },
-      onError: (error, handler) {
-        _logger.e(
-          'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}',
-        );
-        _logger.e('Message: ${error.message}');
-        _logger.e('Data: ${error.response?.data}');
-        return handler.next(error);
-      },
-    );
-  }
 
   /// Auth interceptor to add JWT token to requests (skip for login/register)
   Interceptor _authInterceptor() {
@@ -101,7 +81,6 @@ class DioClient {
           final token = tokenService!.getAccessToken();
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
-            _logger.d('Added Authorization header to request');
           }
         }
         return handler.next(options);

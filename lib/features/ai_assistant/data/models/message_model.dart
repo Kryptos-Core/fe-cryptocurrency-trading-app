@@ -48,13 +48,13 @@ class MessageModel {
       toolCalls: (json['tool_calls'] is List)
           ? (json['tool_calls'] as List)
               .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e as Map))
+              .map((e) => Map<String, dynamic>.from(e))
               .toList()
           : null,
       contextRefs: (json['context_refs'] is List)
           ? (json['context_refs'] as List)
               .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e as Map))
+              .map((e) => Map<String, dynamic>.from(e))
               .toList()
           : null,
       parentMessageId: json['parent_message_id']?.toString(),

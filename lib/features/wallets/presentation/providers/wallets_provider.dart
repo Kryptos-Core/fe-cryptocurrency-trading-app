@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/core/network/cache_invalidator.dart';
 import 'package:crypto_trading_app/features/notifications/application/services/notifications_socket_service.dart';
 import 'package:crypto_trading_app/features/admin/wallet_adjust/domain/entities/admin_wallet_adjustment.dart';
 import 'package:crypto_trading_app/features/wallets/domain/entities/wallet.dart';
@@ -535,6 +536,10 @@ class WalletsProvider extends ChangeNotifier {
 
   /// Handle incoming wallet balance event from Socket.IO.
   void _handleWalletBalanceEvent(WalletBalanceEvent event) {
+    // Drop cached REST wallets responses so the next manual refresh shows the
+    // fresh balances without waiting for TTL to expire.
+    unawaited(CacheInvalidator().invalidateWallets());
+
     if (_walletBalance == null) return;
 
     if (event.currencyId == _walletBalance!.currencyId) {

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:crypto_trading_app/core/error/failures.dart';
+import 'package:crypto_trading_app/core/network/cache_invalidator.dart';
 import 'package:crypto_trading_app/features/orders/domain/entities/order.dart';
 import 'package:crypto_trading_app/features/orders/domain/entities/order_book_level.dart';
 import 'package:crypto_trading_app/features/wallets/domain/entities/wallet_balance.dart';
@@ -122,6 +125,8 @@ class OrdersProvider extends ChangeNotifier {
         _error = null;
         _selectedOrder = order;
         notifyListeners();
+        // Drop cached /orders/my so the next refresh surfaces the new order.
+        unawaited(CacheInvalidator().invalidateOrders());
         return order;
       },
     );
@@ -147,6 +152,9 @@ class OrdersProvider extends ChangeNotifier {
         _selectedOrder = order;
         _replaceOrderInList(order);
         notifyListeners();
+        // Cancellation changes the orders list — flush cache so the next
+        // fetch reflects CANCELLED status immediately.
+        unawaited(CacheInvalidator().invalidateOrders());
         return order;
       },
     );

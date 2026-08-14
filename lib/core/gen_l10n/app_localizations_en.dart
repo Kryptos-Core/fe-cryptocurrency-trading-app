@@ -6741,6 +6741,12 @@ class AppLocalizationsEn extends AppLocalizations {
       '## Key terms\n\n- **Order Book** — the live list of buy (bid) and sell (ask) orders for a trading pair.\n- **LIMIT order** — buy or sell at a price you choose; it waits in the book until matched.\n- **MARKET order** — buy or sell immediately at the best available price.\n- **STOP_LOSS** — a conditional order triggered when price reaches a threshold.\n- **Maker / Taker** — maker adds liquidity (LIMIT); taker removes it (MARKET).\n- **Available vs Frozen** — available can be traded; frozen is locked by an open order or pending withdrawal.\n- **2FA / TOTP** — a 6-digit code from an authenticator app used to confirm sensitive actions.\n- **On-chain** — a transaction settled on the blockchain (vs. internal ledger transfer).\n- **Sweep** — a treasury operation that consolidates funds into a cold wallet.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.';
 
   @override
+  String get aiFloatingHintText => 'Drag to move';
+
+  @override
+  String get aiFloatingOpenTooltip => 'Open AI Assistant';
+
+  @override
   String get manualFaqBody =>
       '## Frequently asked questions\n\n### Why is my withdrawal pending?\nLarge or first-time withdrawals are reviewed by an admin. You will receive a notification once approved.\n\n### I lost access to my 2FA device — what now?\nOpen Profile → Security, then contact support. An admin can reset your 2FA after identity verification.\n\n### How do I switch between demo and live trading?\nUse the exchange-sync card in Settings to refresh markets from Binance. For spot trading on Binance directly, link an API key under the Market Maker area.\n\n### Why is a market hidden from the list?\nAdmin can pause a market. Open Currencies from the drawer to view all currencies regardless of status.\n\n### What is the difference between Wallet and Managed Wallets?\nWallets are your personal balances. Managed Wallets are platform-owned wallets used for treasury operations.';
 

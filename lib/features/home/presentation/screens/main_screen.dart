@@ -199,18 +199,6 @@ class _MainScreenState extends State<MainScreen> {
               )
             : SizedBox(key: ValueKey<String>('empty:tab:$i')),
     ];
-    // DIAG: count children by type to detect duplicate mounts in the same frame.
-    final typeCounts = <String, int>{};
-    for (final w in screens) {
-      final t = w.runtimeType.toString();
-      typeCounts[t] = (typeCounts[t] ?? 0) + 1;
-    }
-    debugPrint(
-        '[MainScreen._buildTabChildren] instance=${identityHashCode(this)} '
-        'currentIndex=$_currentIndex '
-        'isAuth=$isAuthenticated '
-        'materialized=$_materializedTabs '
-        'types=$typeCounts');
     return result;
   }
 

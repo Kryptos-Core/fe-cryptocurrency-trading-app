@@ -41,9 +41,16 @@ class FakeTokenService implements TokenService {
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Paged fake repository. Stores all messages per conversation and slices
+/// them by `page`/`limit` so we can exercise pagination behaviour in tests.
 class FakeRepository implements AiAssistantRepository {
   List<Conversation> conversations;
   Map<String, List<Message>> messages;
+
+  /// Recorded page requests keyed by conversation id, in arrival order.
+  /// Lets tests assert that the right `page` index was requested.
+  final List<({String conversationId, int page, int limit})> pageCalls = [];
+
   FakeRepository({List<Conversation>? conversations, Map<String, List<Message>>? messages})
       : conversations = conversations ?? <Conversation>[],
         messages = messages ?? <String, List<Message>>{};
@@ -69,12 +76,24 @@ class FakeRepository implements AiAssistantRepository {
   Future<void> deleteConversation(String conversationId) async {}
 
   @override
-  Future<({Conversation conversation, List<Message> messages})> getConversation(
+  Future<
+      ({
+        Conversation conversation,
+        List<Message> messages,
+        int total,
+        int page,
+        int limit,
+      })> getConversation(
     String conversationId, {
     int page = 1,
-    int limit = 100,
+    int limit = 50,
   }) async {
-    final list = messages[conversationId] ?? <Message>[];
+    pageCalls.add((conversationId: conversationId, page: page, limit: limit));
+    final all = messages[conversationId] ?? <Message>[];
+    final total = all.length;
+    final start = (page - 1) * limit;
+    final end = (start + limit).clamp(0, total);
+    final slice = (start >= total) ? <Message>[] : all.sublist(start, end);
     return (
       conversation: conversations.firstWhere(
         (c) => c.conversationId == conversationId,
@@ -84,7 +103,7 @@ class FakeRepository implements AiAssistantRepository {
           title: 't',
           intent: AiConversationIntent.general,
           lastMessageAt: null,
-          messageCount: list.length,
+          messageCount: total,
           totalTokensIn: 0,
           totalTokensOut: 0,
           deletedAt: null,
@@ -92,7 +111,10 @@ class FakeRepository implements AiAssistantRepository {
           updatedAt: DateTime.now(),
         ),
       ),
-      messages: list,
+      messages: slice,
+      total: total,
+      page: page,
+      limit: limit,
     );
   }
 
@@ -104,7 +126,7 @@ class FakeRepository implements AiAssistantRepository {
   Future<List<Message>> listMessages(
     String conversationId, {
     int page = 1,
-    int limit = 100,
+    int limit = 50,
   }) async =>
       messages[conversationId] ?? <Message>[];
 
@@ -139,6 +161,25 @@ class FakeSocketService extends AiAssistantSocketService {
   void stopStream() {
     stopCalled = true;
   }
+}
+
+List<Message> _makeMessages(String convId, int count) {
+  final base = DateTime(2026, 1, 1, 9);
+  return List<Message>.generate(count, (i) {
+    return Message(
+      messageId: 'm-${convId}-${i.toString().padLeft(4, '0')}',
+      conversationId: convId,
+      role: i.isEven ? MessageRole.user : MessageRole.assistant,
+      content: 'msg $i',
+      model: null,
+      tokensIn: 0,
+      tokensOut: 0,
+      toolCalls: null,
+      contextRefs: null,
+      parentMessageId: null,
+      createdAt: base.add(Duration(minutes: i)),
+    );
+  });
 }
 
 void main() {
@@ -246,8 +287,9 @@ void main() {
       expect(p.isStreaming, isFalse);
     });
 
-    test('openConversation populates messages from repository', () async {
-      final convId = 'c1';
+    test('openConversation loads only the last page (newest messages) of a long history', () async {
+      const convId = 'c1';
+      final all = _makeMessages(convId, 120);
       repo.conversations = [
         Conversation(
           conversationId: convId,
@@ -255,7 +297,7 @@ void main() {
           title: 'title',
           intent: AiConversationIntent.general,
           lastMessageAt: null,
-          messageCount: 1,
+          messageCount: all.length,
           totalTokensIn: 0,
           totalTokensOut: 0,
           deletedAt: null,
@@ -263,27 +305,188 @@ void main() {
           updatedAt: DateTime.now(),
         ),
       ];
-      repo.messages[convId] = [
-        Message(
-          messageId: 'm1',
+      repo.messages[convId] = all;
+
+      final p = AiAssistantProvider(repository: repo, socketService: socket);
+      await p.openConversation(convId);
+
+      // First call probes page 1 to read the envelope total (so the provider
+      // can locate the last page). The second call fetches that last page.
+      expect(repo.pageCalls, hasLength(2));
+      expect(repo.pageCalls.first.page, 1);
+      expect(repo.pageCalls.last.page, 3);
+      expect(repo.pageCalls.last.limit, kAiAssistantMessagesPageSize);
+      // Should render the most recent 20 messages (120 - 100).
+      expect(p.messages, hasLength(20));
+      expect(p.messages.first.messageId, 'm-c1-0100');
+      expect(p.messages.last.messageId, 'm-c1-0119');
+      expect(p.hasMoreOlder, isTrue);
+      expect(p.messagesTotal, 120);
+    });
+
+    test('openConversation on a short conversation marks hasMoreOlder=false', () async {
+      const convId = 'c1';
+      final all = _makeMessages(convId, 5);
+      repo.messages[convId] = all;
+      repo.conversations = [
+        Conversation(
           conversationId: convId,
-          role: MessageRole.user,
-          content: 'hi',
-          model: null,
-          tokensIn: 0,
-          tokensOut: 0,
-          toolCalls: null,
-          contextRefs: null,
-          parentMessageId: null,
+          userId: 'u1',
+          title: 'short',
+          intent: AiConversationIntent.general,
+          lastMessageAt: null,
+          messageCount: all.length,
+          totalTokensIn: 0,
+          totalTokensOut: 0,
+          deletedAt: null,
           createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
       ];
 
       final p = AiAssistantProvider(repository: repo, socketService: socket);
       await p.openConversation(convId);
 
+      expect(p.messages, hasLength(5));
+      expect(p.hasMoreOlder, isFalse);
+      // Probe page 1 → reveals total = 5 (= last page), no follow-up call.
+      expect(repo.pageCalls, hasLength(1));
+      expect(repo.pageCalls.first.page, 1);
+    });
+
+    test('loadOlderMessages fetches the previous page and prepends in order', () async {
+      const convId = 'c1';
+      final all = _makeMessages(convId, 120);
+      repo.conversations = [
+        Conversation(
+          conversationId: convId,
+          userId: 'u1',
+          title: 't',
+          intent: AiConversationIntent.general,
+          lastMessageAt: null,
+          messageCount: all.length,
+          totalTokensIn: 0,
+          totalTokensOut: 0,
+          deletedAt: null,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      ];
+      repo.messages[convId] = all;
+
+      final p = AiAssistantProvider(repository: repo, socketService: socket);
+      await p.openConversation(convId);
+      expect(p.messages, hasLength(20));
+      expect(p.hasMoreOlder, isTrue);
+
+      await p.loadOlderMessages();
+
+      // openConversation probes page 1 + fetches last page (3); the load
+      // older call fetches page 2. Total = 3 calls.
+      expect(repo.pageCalls, hasLength(3));
+      expect(repo.pageCalls.last.page, 2);
+      expect(repo.pageCalls.last.limit, kAiAssistantMessagesPageSize);
+
+      // Page 2 covers indices 50..99. Combined with page 3 (100..119), the
+      // list is now 70 messages, sorted ASC by createdAt.
+      expect(p.messages, hasLength(70));
+      expect(p.messages.first.messageId, 'm-c1-0050');
+      expect(p.messages.last.messageId, 'm-c1-0119');
+      expect(p.hasMoreOlder, isTrue);
+    });
+
+    test('loadOlderMessages stops fetching once a short page comes back', () async {
+      const convId = 'c1';
+      // Exactly 60 messages = 1 full page (50) + 1 short page (10). After
+      // opening (page 2, 10 messages) and one loadOlder (page 1, 50), the
+      // provider must set hasMoreOlder=false.
+      final all = _makeMessages(convId, 60);
+      repo.conversations = [
+        Conversation(
+          conversationId: convId,
+          userId: 'u1',
+          title: 't',
+          intent: AiConversationIntent.general,
+          lastMessageAt: null,
+          messageCount: all.length,
+          totalTokensIn: 0,
+          totalTokensOut: 0,
+          deletedAt: null,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      ];
+      repo.messages[convId] = all;
+
+      final p = AiAssistantProvider(repository: repo, socketService: socket);
+      await p.openConversation(convId);
+      // Opened the last page (page 2) → 10 messages.
+      expect(p.messages, hasLength(10));
+      expect(p.hasMoreOlder, isTrue);
+
+      await p.loadOlderMessages();
+      expect(p.messages, hasLength(60));
+      expect(p.hasMoreOlder, isFalse);
+    });
+
+    test('loadOlderMessages is a no-op while a previous load is in flight', () async {
+      const convId = 'c1';
+      final all = _makeMessages(convId, 200);
+      repo.conversations = [
+        Conversation(
+          conversationId: convId,
+          userId: 'u1',
+          title: 't',
+          intent: AiConversationIntent.general,
+          lastMessageAt: null,
+          messageCount: all.length,
+          totalTokensIn: 0,
+          totalTokensOut: 0,
+          deletedAt: null,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      ];
+      repo.messages[convId] = all;
+
+      final p = AiAssistantProvider(repository: repo, socketService: socket);
+      await p.openConversation(convId);
+
+      // Fire two concurrent loadOlder calls without awaiting. Only the
+      // first one should produce an extra request — openConversation already
+      // made 2 calls (probe + last), so the expected total is 3.
+      final f1 = p.loadOlderMessages();
+      final f2 = p.loadOlderMessages();
+      await Future.wait([f1, f2]);
+
+      expect(repo.pageCalls, hasLength(3));
+    });
+
+    test('openConversation after a streaming chat:done keeps the final message', () async {
+      const convId = 'c1';
+      final all = _makeMessages(convId, 4);
+      repo.conversations = [
+        Conversation(
+          conversationId: convId,
+          userId: 'u1',
+          title: 't',
+          intent: AiConversationIntent.general,
+          lastMessageAt: null,
+          messageCount: all.length,
+          totalTokensIn: 0,
+          totalTokensOut: 0,
+          deletedAt: null,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      ];
+      repo.messages[convId] = all;
+
+      final p = AiAssistantProvider(repository: repo, socketService: socket);
+      await p.openConversation(convId);
+
+      expect(p.messages.last.messageId, 'm-c1-0003');
       expect(p.activeConversation?.conversationId, convId);
-      expect(p.messages, hasLength(1));
     });
   });
 }

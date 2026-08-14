@@ -26,8 +26,6 @@ class AiAssistantSocketService {
     if (isConnected) return;
     _controller ??= StreamController<AiAssistantEvent>.broadcast();
 
-    _logger.i('AiAssistantSocket: connecting to $socketUrl');
-
     _socket = io.io(
       socketUrl,
       io.OptionBuilder()
@@ -41,7 +39,6 @@ class AiAssistantSocketService {
     );
 
     _socket!.onConnect((_) {
-      _logger.i('AiAssistantSocket: connected');
       _authenticated = false;
       _socket!.emit('auth', {
         'type': 'auth',
@@ -50,13 +47,12 @@ class AiAssistantSocketService {
     });
 
     _socket!.on('auth_response', (raw) {
-      final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+      final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
       final data = payload['data'] is Map
           ? Map<String, dynamic>.from(payload['data'] as Map)
           : payload;
       if (data['success'] == true) {
         _authenticated = true;
-        _logger.i('AiAssistantSocket: authenticated as ${data['user_id']}');
       } else {
         _logger.e('AiAssistantSocket: auth failed — ${data['message']}');
       }
@@ -105,7 +101,6 @@ class AiAssistantSocketService {
     _socket?.disconnect();
     _socket = null;
     _authenticated = false;
-    _logger.i('AiAssistantSocket: disconnected');
   }
 
   void dispose() {
@@ -119,7 +114,7 @@ class AiAssistantSocketService {
   }
 
   AiChatStart _parseChatStart(dynamic raw) {
-    final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
     final data = payload['data'] is Map
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;
@@ -137,7 +132,7 @@ class AiAssistantSocketService {
   }
 
   AiChatToolCall _parseToolCall(dynamic raw) {
-    final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
     final data = payload['data'] is Map
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;
@@ -151,7 +146,7 @@ class AiAssistantSocketService {
   }
 
   AiChatToolResult _parseToolResult(dynamic raw) {
-    final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
     final data = payload['data'] is Map
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;
@@ -162,7 +157,7 @@ class AiAssistantSocketService {
   }
 
   AiChatDone _parseChatDone(dynamic raw) {
-    final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
     final data = payload['data'] is Map
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;
@@ -175,7 +170,7 @@ class AiAssistantSocketService {
   }
 
   AiChatError _parseChatError(dynamic raw) {
-    final payload = raw is Map ? Map<String, dynamic>.from(raw as Map) : {};
+    final payload = raw is Map ? Map<String, dynamic>.from(raw) : {};
     final data = payload['data'] is Map
         ? Map<String, dynamic>.from(payload['data'] as Map)
         : payload;

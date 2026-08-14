@@ -71,12 +71,19 @@ class AiAssistantStatus {
 abstract class AiAssistantRepository {
   Future<List<Conversation>> listConversations({int page = 1, int limit = 20});
   Future<Conversation> createConversation({String? title, String? firstMessage});
-  Future<({Conversation conversation, List<Message> messages})> getConversation(
+
+  /// Fetch a conversation together with one page of its messages.
+  /// Returns the conversation metadata plus the messages for the requested
+  /// page, along with envelope metadata (total/page/limit) so callers can
+  /// drive incremental (reverse / scroll) pagination.
+  Future<({Conversation conversation, List<Message> messages, int total, int page, int limit})>
+      getConversation(
     String conversationId, {
     int page = 1,
-    int limit = 100,
+    int limit = 50,
   });
-  Future<List<Message>> listMessages(String conversationId, {int page = 1, int limit = 100});
+
+  Future<List<Message>> listMessages(String conversationId, {int page = 1, int limit = 50});
   Future<void> deleteConversation(String conversationId);
 
   Future<AiAssistantStatus> getStatus();

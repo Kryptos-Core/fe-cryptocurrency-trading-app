@@ -6731,6 +6731,12 @@ class AppLocalizationsVi extends AppLocalizations {
       '## Thuật ngữ chính\n\n- **Order Book** — danh sách lệnh mua (bid) và bán (ask) trực tiếp của một cặp.\n- **Lệnh LIMIT** — mua/bán ở giá bạn chọn; chờ trong sổ lệnh đến khi khớp.\n- **Lệnh MARKET** — mua/bán ngay ở giá tốt nhất hiện có.\n- **STOP_LOSS** — lệnh có điều kiện kích hoạt khi giá chạm ngưỡng.\n- **Maker / Taker** — maker cung cấp thanh khoản (LIMIT); taker lấy thanh khoản (MARKET).\n- **Khả dụng vs Đóng băng** — khả dụng có thể giao dịch; đóng băng bị khoá bởi lệnh mở hoặc rút tiền chờ.\n- **2FA / TOTP** — mã 6 số từ app authenticator dùng để xác nhận thao tác nhạy cảm.\n- **On-chain** — giao dịch chốt trên blockchain (khác với chuyển nội bộ sổ cái).\n- **Sweep** — thao tác treasury gom tiền vào ví lạnh.\n- **Pair / Base / Quote** — pair = BTC/USDT, base = BTC, quote = USDT.';
 
   @override
+  String get aiFloatingHintText => 'Kéo để di chuyển';
+
+  @override
+  String get aiFloatingOpenTooltip => 'Mở trợ lý AI';
+
+  @override
   String get manualFaqBody =>
       '## Câu hỏi thường gặp\n\n### Vì sao lệnh rút của tôi đang chờ?\nCác lệnh rút lớn hoặc lần đầu cần admin duyệt. Bạn sẽ nhận thông báo khi được duyệt.\n\n### Tôi mất thiết bị 2FA — phải làm sao?\nMở Hồ sơ → Bảo mật, rồi liên hệ hỗ trợ. Admin có thể reset 2FA sau khi xác minh danh tính.\n\n### Làm sao chuyển giữa giao dịch demo và live?\nDùng card đồng bộ sàn trong Cài đặt để làm mới thị trường từ Binance. Để spot trực tiếp trên Binance, liên kết API key ở khu vực Market Maker.\n\n### Vì sao một thị trường bị ẩn khỏi danh sách?\nAdmin có thể tạm dừng một thị trường. Mở Tiền tệ trong drawer để xem tất cả bất kể trạng thái.\n\n### Ví và Ví hệ thống khác nhau thế nào?\nVí là số dư cá nhân của bạn. Ví hệ thống thuộc sở hữu nền tảng, dùng cho thao tác treasury.';
 

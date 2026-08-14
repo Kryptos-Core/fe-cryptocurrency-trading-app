@@ -2,6 +2,7 @@ import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/ai_assistant_repository.dart';
 import '../datasources/ai_assistant_remote_datasource.dart';
+import '../models/conversation_model.dart';
 
 /// Repository implementation: bridges remote data sources to domain entities.
 class AiAssistantRepositoryImpl implements AiAssistantRepository {
@@ -22,23 +23,37 @@ class AiAssistantRepositoryImpl implements AiAssistantRepository {
   }
 
   @override
-  Future<({Conversation conversation, List<Message> messages})> getConversation(
+  Future<({Conversation conversation, List<Message> messages, int total, int page, int limit})>
+      getConversation(
     String conversationId, {
     int page = 1,
-    int limit = 100,
+    int limit = 50,
   }) async {
-    final messages = await remote.listMessages(conversationId, page: page, limit: limit);
-    final convModel = await remote.getConversation(conversationId);
+    // Fetch the conversation metadata + the requested page of messages in
+    // parallel. The remote datasource exposes a paginated `/messages`
+    // endpoint that already accepts page/limit and returns the envelope
+    // {items, page, limit, total}, so we can drive scroll-based pagination
+    // without ever pulling the full message history into memory.
+    final results = await Future.wait<dynamic>([
+      remote.getConversation(conversationId),
+      remote.listMessagesPaged(conversationId, page: page, limit: limit),
+    ]);
+    final convModel = results[0] as ConversationModel;
+    final paged = results[1] as MessagePage;
+
     return (
       conversation: convModel.toDomain(),
-      messages: messages.map((m) => m.toDomain()).toList(),
+      messages: paged.items.map((m) => m.toDomain()).toList(),
+      total: paged.total,
+      page: paged.page,
+      limit: paged.limit,
     );
   }
 
   @override
-  Future<List<Message>> listMessages(String conversationId, {int page = 1, int limit = 100}) async {
-    final models = await remote.listMessages(conversationId, page: page, limit: limit);
-    return models.map((m) => m.toDomain()).toList();
+  Future<List<Message>> listMessages(String conversationId, {int page = 1, int limit = 50}) async {
+    final paged = await remote.listMessagesPaged(conversationId, page: page, limit: limit);
+    return paged.items.map((m) => m.toDomain()).toList();
   }
 
   @override
