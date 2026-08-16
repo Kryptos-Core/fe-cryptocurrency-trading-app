@@ -41,4 +41,4 @@ The upstream ECC project can be used for personal machine-wide sync, but it is n
 1. Không hardcode secret; không commit `.env` thật.
 2. `flutter analyze --fatal-infos`, `dart run import_lint`, và `flutter test` trước khi coi feature xong; ưu tiên TDD cho logic quan trọng.
 3. UI/feature bám feature modules + Clean Architecture — [ARCHITECTURE.md](./ARCHITECTURE.md), rules `dart-*` / `web-*`, skill **dart-flutter-patterns** khi cần chi tiết.
-4. Trả lời user tiếng Việt khi họ dùng tiếng Việt; thuật ngữ kỹ thuật giữ tiếng Anh chuẩn ngành.
+4. **Luôn luôn trả lời user bằng tiếng Việt có dấu** cho mọi phản hồi, kế hoạch, tài liệu; thuật ngữ kỹ thuật (Flutter, widget, state, route, wallet, v.v.) giữ tiếng Anh chuẩn ngành. Xem chi tiết ở [`.cursor/rules/common/language-vi.md`](./.cursor/rules/common/language-vi.md).
